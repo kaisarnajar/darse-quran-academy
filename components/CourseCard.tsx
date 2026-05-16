@@ -12,7 +12,7 @@ const levelColors: Record<Course["level"], string> = {
 
 export function CourseCard({ course }: CourseCardProps) {
   return (
-    <article className="flex flex-col rounded-lg border border-border bg-surface p-6 shadow-sm transition-shadow hover:shadow-md">
+    <article className="flex flex-col rounded-lg border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
           {course.category}
@@ -21,12 +21,12 @@ export function CourseCard({ course }: CourseCardProps) {
           {course.level}
         </span>
       </div>
-      <h3 className="font-serif text-lg font-semibold text-foreground">{course.title}</h3>
+      <h3 className="font-serif text-base font-semibold text-foreground sm:text-lg">{course.title}</h3>
       <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
       <p className="mt-4 text-sm font-medium text-primary">Starts: {course.startDate}</p>
       <button
         type="button"
-        className="mt-4 w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light"
+        className="mt-4 min-h-11 w-full rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light"
       >
         View Details
       </button>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LibraryCard } from "@/components/LibraryCard";
+import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
 import { libraryItems } from "@/content/library";
 
@@ -11,14 +12,11 @@ export const metadata: Metadata = {
 export default function LibraryPage() {
   return (
     <Section>
-      <div className="mx-auto max-w-2xl text-center">
-        <h1 className="font-serif text-3xl font-bold text-primary sm:text-4xl">Digital Library</h1>
-        <p className="mt-4 text-muted">
-          A curated collection of Islamic books and resources for students. PDF downloads will be
-          available in a future update.
-        </p>
-      </div>
-      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <PageHeader
+        title="Digital Library"
+        description="A curated collection of Islamic books and resources for students. PDF downloads will be available in a future update."
+      />
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {libraryItems.map((item) => (
           <LibraryCard key={item.id} item={item} />
         ))}

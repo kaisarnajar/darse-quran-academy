@@ -10,11 +10,11 @@ const footerLinks = [
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-primary text-white">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-3">
           <div>
             <p className="font-serif text-lg font-bold">Darse Quran Academy</p>
-            <p className="mt-2 text-sm text-white/80">
+            <p className="mt-2 text-sm leading-relaxed text-white/80">
               Dedicated to authentic Islamic education—Quran, Arabic, and Islamic studies for all ages.
             </p>
           </div>
@@ -25,7 +25,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/80 transition-colors hover:text-accent"
+                    className="inline-flex min-h-10 items-center text-sm text-white/80 transition-colors hover:text-accent"
                   >
                     {link.label}
                   </Link>
@@ -33,16 +33,16 @@ export function Footer() {
               ))}
             </ul>
           </div>
-          <div>
+          <div className="sm:col-span-2 lg:col-span-1">
             <p className="text-sm font-semibold uppercase tracking-wide text-accent">Contact</p>
             <ul className="mt-3 space-y-2 text-sm text-white/80">
-              <li>info@darsequranacademy.org</li>
+              <li className="break-all">info@darsequranacademy.org</li>
               <li>+91 98765 43210</li>
               <li>Deoband, Uttar Pradesh, India</li>
             </ul>
           </div>
         </div>
-        <p className="mt-8 border-t border-white/20 pt-6 text-center text-xs text-white/60">
+        <p className="mt-6 border-t border-white/20 pt-6 text-center text-xs text-white/60 sm:mt-8">
           © {new Date().getFullYear()} Darse Quran Academy. All rights reserved.
         </p>
       </div>
