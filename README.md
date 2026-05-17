@@ -1,36 +1,158 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Darse Quran Academy
 
-## Getting Started
+Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (SQLite), and **Auth.js**. Students browse courses, pay via **UPI**, and receive **PDF certificates** on completion. Admins manage content, verify payments, answer **Fatwa** questions, and mark students complete.
 
-First, run the development server:
+## Features
+
+- Public site: courses, teachers, digital library, Fatwa Q&A (answered questions only)
+- Student accounts: email/password and optional Google sign-in
+- **UPI payments**: QR code checkout, UTR submission, admin payment verification
+- **Certificates**: PDF download and email when an enrollment is marked complete
+- **Admin panel**: courses, teachers, library, enrollments/payments, Fatwa answers
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) 20+ (22 recommended)
+- npm
+
+## Quick start
+
+```bash
+git clone https://github.com/kaisarnajar/darse-quran-academy.git
+cd darse-quran-academy
+npm install
+```
+
+### 1. Environment variables
+
+Copy the example file and edit **`.env`** (the app does **not** read `.env.example` at runtime):
+
+```bash
+cp .env.example .env
+```
+
+Fill in the values described in [Environment variables](#environment-variables) below.
+
+### 2. Database
+
+```bash
+npm run db:migrate
+npm run db:seed
+```
+
+This creates `prisma/dev.db`, applies migrations, and seeds courses, teachers, and library items.
+
+### 3. Run locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Admin access
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Register or sign in with an account whose **email matches `ADMIN_EMAIL`** in `.env`.
+2. Open [http://localhost:3000/admin](http://localhost:3000/admin).
 
-## Learn More
+## Environment variables
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AUTH_URL` | Yes | Public site URL (e.g. `http://localhost:3000` or production domain). Used for OAuth callbacks and links in emails. |
+| `NEXTAUTH_URL` | Yes | Same as `AUTH_URL` in most setups. |
+| `AUTH_SECRET` | Yes | Random secret for session encryption. Generate: `openssl rand -base64 32` |
+| `DATABASE_URL` | Yes | Prisma connection string. Local default: `"file:./dev.db"` |
+| `ADMIN_EMAIL` | Yes | Email address that receives admin access to `/admin`. Must match the signed-in user. |
+| `AUTH_GOOGLE_ID` | No | Google OAuth client ID. Leave empty to hide “Sign in with Google”. |
+| `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret. |
+| `UPI_ID` | Yes* | Your UPI VPA (e.g. `name@paytm`, `name@okicici`). Required for course payments. |
+| `UPI_PAYEE_NAME` | No | Display name on UPI QR (default: `Darse Quran Academy`). |
+| `SMTP_HOST` | No | SMTP server host (e.g. `smtp.gmail.com`). |
+| `SMTP_PORT` | No | SMTP port (default `587`; use `465` for implicit TLS). |
+| `SMTP_USER` | No | SMTP login / sender email. |
+| `SMTP_PASS` | No | SMTP password or [Gmail app password](https://myaccount.google.com/apppasswords). |
+| `EMAIL_FROM` | No | From header (e.g. `"Darse Quran Academy <you@gmail.com>"`). Falls back to `SMTP_USER`. |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+\*Without `UPI_ID`, checkout shows “UPI payments are not configured.”
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Email behavior
 
-## Deploy on Vercel
+When `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` are set, the app sends:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Certificate emails** when an admin marks a course complete
+- **Fatwa answer emails** when an admin publishes an answer
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If SMTP is not configured, emails are **logged to the server console** (including download links) so you can still test locally.
+
+### Google OAuth (optional)
+
+1. Create credentials at [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth 2.0 Client ID, Web application).
+2. Authorized redirect URI: `{AUTH_URL}/api/auth/callback/google`
+3. Set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in `.env`.
+
+### UPI setup
+
+1. Set `UPI_ID` to your business/personal UPI ID.
+2. Set `UPI_PAYEE_NAME` to the name shown in payment apps.
+3. Restart the dev server after changing `.env`.
+
+**Admin payment flow:** Student pays → submits UTR → status **Awaiting payment verification** → Admin → **Enrollments** → **Confirm payment** (or enroll manually with “Mark as paid”).
+
+### Example `.env` (local development)
+
+```env
+AUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3000
+AUTH_SECRET=replace-with-openssl-rand-output
+DATABASE_URL="file:./dev.db"
+ADMIN_EMAIL=you@example.com
+
+UPI_ID=yourname@okicici
+UPI_PAYEE_NAME=Darse Quran Academy
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASS=your-16-char-app-password
+EMAIL_FROM="Darse Quran Academy <you@gmail.com>"
+```
+
+**Never commit `.env` or real secrets.** Only `.env.example` with placeholders belongs in git.
+
+## npm scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Generate Prisma client and production build |
+| `npm run start` | Run production server (after `build`) |
+| `npm run lint` | Run ESLint |
+| `npm run db:migrate` | Apply Prisma migrations (`prisma migrate dev`) |
+| `npm run db:push` | Push schema without migration (prototyping) |
+| `npm run db:seed` | Seed courses, teachers, library |
+| `npm run optimize-logo` | Compress `public/logo.png` and regenerate favicons |
+
+## Project structure (high level)
+
+```
+app/              # Next.js App Router pages & API routes
+components/       # UI components (site, admin, auth, payment, fatwa)
+content/          # Static seed data (courses, teachers, library)
+lib/              # Auth, Prisma, email, UPI, certificates, validations
+prisma/           # Schema, migrations, seed
+public/           # Static assets (logo, icons)
+```
+
+## Deployment
+
+1. Set all required environment variables on your host (Vercel, Railway, VPS, etc.).
+2. Use a persistent database in production (PostgreSQL recommended; update `DATABASE_URL` and `provider` in `prisma/schema.prisma` if you migrate off SQLite).
+3. Set `AUTH_URL` and `NEXTAUTH_URL` to your **production** domain.
+4. Run migrations against the production database before or during deploy.
+
+On Vercel: add env vars in Project Settings → Environment Variables, then deploy from `master`.
+
+## License
+
+Private project — see repository owner for usage terms.
