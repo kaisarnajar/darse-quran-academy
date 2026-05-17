@@ -2,13 +2,15 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/courses";
 import { getPendingPaymentCount } from "@/lib/enrollments";
 import { prisma } from "@/lib/prisma";
+import { getStudentCount } from "@/lib/students";
 
 export default async function AdminDashboardPage() {
-  const [courseCount, teacherCount, libraryCount, enrollmentCount, pendingPaymentCount, recentEnrollments] =
+  const [courseCount, teacherCount, libraryCount, studentCount, enrollmentCount, pendingPaymentCount, recentEnrollments] =
     await Promise.all([
       prisma.course.count(),
       prisma.teacher.count(),
       prisma.libraryItem.count(),
+      getStudentCount(),
       prisma.enrollment.count({ where: { status: "active" } }),
       getPendingPaymentCount(),
       prisma.enrollment.findMany({
@@ -27,6 +29,7 @@ export default async function AdminDashboardPage() {
 
   const stats = [
     { label: "Courses", count: courseCount, href: "/admin/courses" },
+    { label: "Students", count: studentCount, href: "/admin/students" },
     { label: "Teachers", count: teacherCount, href: "/admin/teachers" },
     { label: "Library items", count: libraryCount, href: "/admin/library" },
     { label: "Active enrollments", count: enrollmentCount, href: "/admin/enrollments" },

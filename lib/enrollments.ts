@@ -68,6 +68,22 @@ export function hasCourseEnrollment(status: string | null | undefined): boolean 
   return Boolean(status);
 }
 
+export function enrollmentStatusLabel(status: string) {
+  if (status === "pending_verification") return "Awaiting verification";
+  if (status === "completed") return "Completed";
+  if (status === "active") return "Active";
+  if (status === "pending") return "Payment pending";
+  return status.replace(/_/g, " ");
+}
+
+export function enrollmentStatusClass(status: string) {
+  if (status === "completed") return "bg-emerald-100 text-emerald-900";
+  if (status === "active") return "bg-violet-100 text-violet-800";
+  if (status === "pending_verification") return "bg-amber-100 text-amber-900";
+  if (status === "pending") return "bg-stone-200 text-stone-700";
+  return "bg-stone-200 text-stone-700";
+}
+
 export async function getEnrollmentsForCourse(courseId: string): Promise<CourseEnrollmentWithUser[]> {
   return prisma.enrollment.findMany({
     where: { courseId },

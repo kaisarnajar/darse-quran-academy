@@ -10,6 +10,7 @@ import { adminEnrollUserSchema } from "@/lib/validations";
 
 function revalidateEnrollmentPaths(courseId: string) {
   revalidatePath("/admin/enrollments");
+  revalidatePath("/admin/students");
   revalidatePath(`/admin/courses/${courseId}/students`);
   revalidatePath("/admin/courses");
   revalidatePath("/admin");
@@ -167,6 +168,7 @@ export async function removeEnrollmentFromCourse(enrollmentId: string, courseId:
   await prisma.enrollment.delete({ where: { id: enrollmentId } });
 
   revalidateEnrollmentPaths(courseId);
+  revalidatePath(`/admin/students/${enrollment.userId}`);
 
   return { success: true };
 }

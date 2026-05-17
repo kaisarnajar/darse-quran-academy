@@ -8,6 +8,7 @@ const links = [
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/courses", label: "Courses" },
   { href: "/admin/enrollments", label: "Enrollments" },
+  { href: "/admin/students", label: "Students" },
   { href: "/admin/teachers", label: "Teachers" },
   { href: "/admin/library", label: "Library" },
   { href: "/admin/fatwa", label: "Fatwa" },
