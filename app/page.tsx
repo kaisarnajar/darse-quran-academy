@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HadithBanner } from "@/components/site/HadithBanner";
 import { Section } from "@/components/site/Section";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { getPublishedCourses } from "@/lib/courses";
@@ -59,6 +60,8 @@ export default async function HomePage() {
           </div>
         </Section>
       </section>
+
+      <HadithBanner />
 
       <Section>
         <h2 className="text-center font-serif text-xl font-bold text-foreground sm:text-2xl">Why Choose Us</h2>
