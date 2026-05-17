@@ -54,9 +54,9 @@ export default function AboutPage() {
         </ul>
       </Section>
 
-      <Section>
+      <Section id="contact">
         <div className="card-elevated mx-auto max-w-xl p-6 text-center sm:p-8">
-          <h2 className="font-serif text-lg font-bold text-primary sm:text-xl">Contact Us</h2>
+          <h2 className="text-lg font-bold uppercase tracking-wide text-gold sm:text-xl">Contact Us</h2>
           <ul className="mt-5 space-y-4 text-left text-sm text-muted sm:mt-6 sm:text-base">
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Email:</span>
@@ -64,7 +64,7 @@ export default function AboutPage() {
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Phone / WhatsApp:</span>
-              <span>+91 98765 43210</span>
+              <span>+91 70060 25120</span>
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Location:</span>

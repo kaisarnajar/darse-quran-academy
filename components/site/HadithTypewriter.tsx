@@ -1,16 +1,13 @@
-import { Amiri } from "next/font/google";
 import { hadithArabic, hadithAttribution, hadithEnglish } from "@/content/hadith-quote";
+import { indoPakArabic } from "@/lib/fonts/indo-pak-arabic";
 
-const amiri = Amiri({
-  subsets: ["arabic"],
-  weight: ["700"],
-});
+const arabicClass = `${indoPakArabic.className} leading-[2] sm:leading-[2.2]`;
 
 export function HadithTypewriter() {
   return (
     <blockquote className="hadith-typewriter mx-auto max-w-3xl">
       <p className="hadith-static hidden text-center">
-        <span lang="ar" dir="rtl" className={`${amiri.className} block text-2xl font-bold text-primary sm:text-3xl`}>
+        <span lang="ar" dir="rtl" className={`${arabicClass} block text-2xl font-bold text-primary sm:text-3xl`}>
           {hadithArabic}
         </span>
         <span className="mt-6 block text-sm font-semibold text-accent">{hadithAttribution},</span>
@@ -23,7 +20,7 @@ export function HadithTypewriter() {
         <p
           lang="ar"
           dir="rtl"
-          className={`hadith-reveal-ar ${amiri.className} text-2xl font-bold leading-relaxed text-primary sm:text-3xl md:text-4xl`}
+          className={`hadith-reveal-ar ${arabicClass} text-2xl font-bold text-primary sm:text-3xl md:text-4xl`}
         >
           {hadithArabic}
         </p>

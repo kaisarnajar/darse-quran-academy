@@ -1,17 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf7f2;
-  --foreground: #1c1917;
-  --primary: #3730a3;
-  --primary-light: #6366f1;
-  --accent: #b45309;
-  --accent-warm: #c2410c;
-  --accent-muted: #ede9fe;
+  --background: #f4f4f4;
+  --foreground: #1a1a1a;
+  --gold: #d4a017;
+  --gold-light: #f0c14a;
+  --gold-dark: #b8860b;
+  --teal: #0d4a4a;
+  --teal-dark: #083333;
+  --teal-pattern: #0f5252;
+  --primary: var(--gold);
+  --primary-light: var(--gold-light);
+  --accent: var(--gold);
+  --accent-warm: var(--gold-dark);
+  --accent-muted: #fef9e7;
   --surface: #ffffff;
-  --muted: #57534e;
-  --border: #e7e5e4;
-  --card-shadow: 0 4px 24px -4px rgb(55 48 163 / 0.1);
+  --muted: #5c5c5c;
+  --border: #e5e5e5;
+  --card-shadow: 0 8px 30px -8px rgb(0 0 0 / 0.12);
+  --header-height: 4.5rem;
 }
 
 @theme inline {
@@ -25,9 +32,12 @@
   --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --font-sans: var(--font-figtree);
-  --font-serif: var(--font-lora);
-  --radius-card: 1rem;
+  --color-gold: var(--gold);
+  --color-teal: var(--teal);
+  --color-teal-dark: var(--teal-dark);
+  --font-sans: var(--font-poppins);
+  --font-serif: var(--font-poppins);
+  --radius-card: 0.5rem;
 }
 
 html {
@@ -38,15 +48,22 @@ body {
   overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-figtree), system-ui, sans-serif;
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+/* Islamic geometric pattern (subtle) */
+.pattern-islamic {
+  background-color: #ececec;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a017' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.pattern-teal {
+  background-color: var(--teal);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M40 0l5 15H25l15-5-5 15 5-15 15 5-15-5 15 5 15-15 5 15-5-5 15 15 5-15 5 15 5-15-15-5 15-5-5-15-15 5 5-15-5-15z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 .hero-gradient {
-  background: linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #7c2d12 100%);
-}
-
-.cta-gradient {
-  background: linear-gradient(135deg, #1c1917 0%, #3730a3 55%, #92400e 100%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.55) 45%, rgba(0, 0, 0, 0.25) 100%);
 }
 
 .card-elevated {
@@ -56,7 +73,58 @@ body {
   border: 1px solid var(--border);
 }
 
-/* Smooth continuous hadith reveal (clip-path, not word-by-word) */
+.btn-gold-outline {
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  background: transparent;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-gold-outline:hover {
+  background: var(--gold);
+  color: #fff;
+}
+
+.btn-gold-solid {
+  background: var(--gold);
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.btn-gold-solid:hover {
+  background: var(--gold-dark);
+}
+
+.section-title-split .title-muted {
+  color: var(--foreground);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.section-title-split .title-accent {
+  color: var(--gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wave-section-top {
+  clip-path: ellipse(120% 100% at 50% 100%);
+  margin-top: -3rem;
+  padding-top: 4rem;
+}
+
+.feature-card {
+  border-bottom: 4px solid var(--gold);
+}
+
+/* Hadith typewriter (unchanged behavior) */
 .hadith-typewriter {
   --hadith-cycle: 10s;
 }
@@ -77,6 +145,7 @@ body {
 }
 
 .hadith-reveal-ar {
+  padding: 0 0.5rem;
   animation: hadith-reveal-rtl var(--hadith-cycle) linear infinite;
 }
 
@@ -90,7 +159,6 @@ body {
   animation: hadith-reveal-ltr var(--hadith-cycle) linear infinite;
 }
 
-/* Arabic: reveal right-to-left, hold, hide */
 @keyframes hadith-reveal-rtl {
   0% {
     clip-path: inset(0 0 0 100%);
@@ -109,7 +177,6 @@ body {
   }
 }
 
-/* English block visibility */
 @keyframes hadith-reveal-en-fade {
   0%,
   46% {
@@ -128,7 +195,6 @@ body {
   }
 }
 
-/* English quote: reveal left-to-right, hold, hide */
 @keyframes hadith-reveal-ltr {
   0%,
   48% {

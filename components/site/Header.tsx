@@ -8,11 +8,11 @@ import { SiteLogo } from "@/components/site/SiteLogo";
 
 const navLinks = [
   { href: "/", label: "Home" },
+  { href: "/about", label: "About Us" },
   { href: "/courses", label: "Courses" },
-  { href: "/library", label: "Library" },
-  { href: "/fatwa", label: "Fatwa" },
-  { href: "/teachers", label: "Teachers" },
-  { href: "/about", label: "About" },
+  { href: "/courses", label: "Pricing" },
+  { href: "/library", label: "Resources" },
+  { href: "/#contact", label: "Contact Us" },
 ];
 
 export function Header() {
@@ -30,38 +30,46 @@ export function Header() {
     };
   }, [menuOpen]);
 
-  return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/90 shadow-sm shadow-primary/5 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
-        <div className="flex min-w-0 flex-1 items-center pr-1 sm:pr-2 md:flex-none">
-          <SiteLogo priority />
-        </div>
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href.includes("#")) return pathname === href.split("#")[0];
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+  return (
+    <header className="sticky top-0 z-50 border-b border-border bg-white shadow-sm">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6">
+        <SiteLogo priority />
+
+        <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Main navigation">
           {navLinks.map((link) => {
-            const active = pathname === link.href;
+            const active = isActive(link.href);
             return (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
-                className={`rounded-full px-3 py-2 text-sm font-medium transition-all ${
-                  active
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-foreground hover:bg-accent-muted hover:text-primary"
+                className={`px-2.5 py-2 text-xs font-semibold uppercase tracking-wide transition-colors xl:px-3 xl:text-sm ${
+                  active ? "text-gold" : "text-foreground hover:text-gold"
                 }`}
               >
                 {link.label}
               </Link>
             );
           })}
-          <div className="ml-2 flex items-center gap-1 border-l border-border pl-2">
+          <Link
+            href="/courses"
+            className="btn-gold-solid ml-2 rounded-sm px-4 py-2 text-xs xl:text-sm"
+          >
+            Free Trial
+          </Link>
+          <div className="ml-2 border-l border-border pl-2">
             <AuthNav />
           </div>
         </nav>
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-primary hover:bg-accent-muted md:hidden"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center text-foreground hover:text-gold lg:hidden"
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -80,20 +88,18 @@ export function Header() {
       {menuOpen && (
         <nav
           id="mobile-menu"
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-surface px-4 py-2 md:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-white px-4 py-2 lg:hidden"
           aria-label="Mobile navigation"
         >
-          <ul className="flex flex-col gap-0.5 pb-2">
+          <ul className="flex flex-col pb-2">
             {navLinks.map((link) => {
-              const active = pathname === link.href;
+              const active = isActive(link.href);
               return (
-                <li key={link.href}>
+                <li key={link.label}>
                   <Link
                     href={link.href}
-                    className={`flex min-h-11 items-center rounded-lg px-3 text-base font-medium ${
-                      active
-                        ? "bg-primary text-white"
-                        : "text-foreground active:bg-accent-muted"
+                    className={`flex min-h-11 items-center px-3 text-sm font-semibold uppercase tracking-wide ${
+                      active ? "text-gold" : "text-foreground"
                     }`}
                     onClick={() => setMenuOpen(false)}
                   >
@@ -102,8 +108,17 @@ export function Header() {
                 </li>
               );
             })}
+            <li className="mt-2 px-3">
+              <Link
+                href="/courses"
+                className="btn-gold-solid flex min-h-11 items-center justify-center text-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                Free Trial
+              </Link>
+            </li>
             <li className="mt-2 border-t border-border pt-2">
-              <div className="flex flex-col gap-0.5" onClick={() => setMenuOpen(false)} role="presentation">
+              <div className="px-3" onClick={() => setMenuOpen(false)} role="presentation">
                 <AuthNav mobile />
               </div>
             </li>

@@ -1,20 +1,16 @@
 import type { Metadata } from "next";
-import { Figtree, Lora } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
+import { TopBar } from "@/components/site/TopBar";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import "./globals.css";
 
-const figtree = Figtree({
-  variable: "--font-figtree",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -32,16 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${figtree.variable} ${lora.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <body
-        className="flex min-h-full flex-col overflow-x-hidden font-sans"
-        suppressHydrationWarning
-      >
+    <html lang="en" className={`${poppins.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="flex min-h-full flex-col overflow-x-hidden font-sans" suppressHydrationWarning>
         <SessionProvider>
+          <TopBar />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

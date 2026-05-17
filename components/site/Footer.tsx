@@ -1,33 +1,35 @@
 import Link from "next/link";
 import { SiteLogo } from "@/components/site/SiteLogo";
 
-const footerLinks = [
+const quickLinks = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About Us" },
   { href: "/courses", label: "Courses" },
-  { href: "/library", label: "Library" },
+  { href: "/library", label: "Resources" },
   { href: "/fatwa", label: "Fatwa" },
   { href: "/teachers", label: "Teachers" },
-  { href: "/about", label: "About" },
 ];
 
 export function Footer() {
   return (
-    <footer className="mt-auto cta-gradient text-white">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-3">
+    <footer className="mt-auto bg-white">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <SiteLogo href="/" className="mx-auto h-14 sm:mx-0 sm:h-16" />
-            <p className="mt-4 text-sm leading-relaxed text-violet-100">
-              Dedicated to authentic Islamic education—Quran, Arabic, and Islamic studies for all ages.
+            <SiteLogo href="/" className="h-14 sm:h-16" />
+            <p className="mt-4 text-sm leading-relaxed text-muted">
+              Dedicated to authentic Islamic education—Quran, Arabic, and Islamic studies for all
+              ages, taught online by qualified scholars.
             </p>
           </div>
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-amber-200">Quick Links</p>
-            <ul className="mt-3 space-y-2">
-              {footerLinks.map((link) => (
-                <li key={link.href}>
+            <p className="text-sm font-bold uppercase tracking-wide text-foreground">Quick Links</p>
+            <ul className="mt-4 space-y-2">
+              {quickLinks.map((link) => (
+                <li key={link.href + link.label}>
                   <Link
                     href={link.href}
-                    className="inline-flex min-h-10 items-center text-sm text-violet-100 transition-colors hover:text-white"
+                    className="text-sm text-muted transition-colors hover:text-gold"
                   >
                     {link.label}
                   </Link>
@@ -35,18 +37,26 @@ export function Footer() {
               ))}
             </ul>
           </div>
-          <div className="sm:col-span-2 lg:col-span-1">
-            <p className="text-sm font-semibold uppercase tracking-wide text-amber-200">Contact</p>
-            <ul className="mt-3 space-y-2 text-sm text-violet-100">
-              <li className="break-all">info@darsequranacademy.org</li>
-              <li>+91 98765 43210</li>
+          <div id="contact">
+            <p className="text-sm font-bold uppercase tracking-wide text-foreground">Contact</p>
+            <ul className="mt-4 space-y-2 text-sm text-muted">
+              <li>
+                <a href="mailto:info@darsequranacademy.org" className="hover:text-gold">
+                  info@darsequranacademy.org
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/917006025120" className="hover:text-gold">
+                  +91 70060 25120
+                </a>
+              </li>
               <li>Online — serving students worldwide</li>
             </ul>
           </div>
         </div>
-        <p className="mt-8 border-t border-white/15 pt-6 text-center text-xs text-violet-200/80">
-          © {new Date().getFullYear()} Darse Quran Academy. All rights reserved.
-        </p>
+      </div>
+      <div className="bg-[#1a1a1a] py-4 text-center text-xs text-white/70">
+        © {new Date().getFullYear()} Darse Quran Academy. All rights reserved.
       </div>
     </footer>
   );
