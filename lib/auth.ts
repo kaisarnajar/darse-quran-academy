@@ -4,10 +4,15 @@ import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 
 const googleConfigured =
   Boolean(process.env.AUTH_GOOGLE_ID) && Boolean(process.env.AUTH_GOOGLE_SECRET);
+
+function resolveRole(email: string | null | undefined): "USER" | "ADMIN" {
+  return isAdminEmail(email) ? "ADMIN" : "USER";
+}
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
@@ -56,16 +61,32 @@ export const authConfig = {
       if (user?.id) {
         token.id = user.id;
       }
+      if (token.email) {
+        token.role = resolveRole(token.email as string);
+      }
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.id) {
-        session.user.id = token.id as string;
+      if (session.user) {
+        if (token.id) {
+          session.user.id = token.id as string;
+        }
+        session.user.role = (token.role as "USER" | "ADMIN") ?? resolveRole(session.user.email);
       }
       return session;
     },
-    authorized({ auth }) {
-      return !!auth?.user;
+    authorized({ auth, request }) {
+      const { pathname } = request.nextUrl;
+
+      if (pathname.startsWith("/admin")) {
+        return auth?.user?.role === "ADMIN";
+      }
+
+      if (pathname.startsWith("/my-courses")) {
+        return !!auth?.user;
+      }
+
+      return true;
     },
   },
   trustHost: true,

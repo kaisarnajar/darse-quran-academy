@@ -25,6 +25,13 @@ export default async function MyCoursesPage({
 
   const enrollments = await getUserEnrollments(session.user.id);
 
+  const enrollmentRows = await Promise.all(
+    enrollments.map(async (enrollment) => {
+      const course = await getCourseById(enrollment.courseId);
+      return { enrollment, course };
+    }),
+  );
+
   return (
     <Section>
       <PageHeader
@@ -50,8 +57,7 @@ export default async function MyCoursesPage({
         </div>
       ) : (
         <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {enrollments.map((enrollment) => {
-            const course = getCourseById(enrollment.courseId);
+          {enrollmentRows.map(({ enrollment, course }) => {
             if (!course) return null;
 
             return (

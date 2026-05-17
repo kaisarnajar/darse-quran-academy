@@ -25,8 +25,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid course." }, { status: 400 });
     }
 
-    const course = getCourseById(courseId);
-    if (!course) {
+    const course = await getCourseById(courseId);
+    if (!course || !course.published) {
       return NextResponse.json({ error: "Course not found." }, { status: 404 });
     }
 

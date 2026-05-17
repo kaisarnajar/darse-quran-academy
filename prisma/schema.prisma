@@ -53,6 +53,44 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
+model Course {
+  id            String   @id
+  title         String
+  description   String
+  startDate     String
+  level         String
+  category      String
+  priceInrPaise Int
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Teacher {
+  id             String   @id
+  name           String
+  specialization String
+  bio            String
+  initials       String
+  imageUrl       String?
+  published      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model LibraryItem {
+  id        String   @id
+  title     String
+  author    String
+  topic     String
+  level     String
+  language  String
+  pdfUrl    String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Enrollment {
   id              String   @id @default(cuid())
   userId          String

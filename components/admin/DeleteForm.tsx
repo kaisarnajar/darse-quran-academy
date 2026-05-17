@@ -1,0 +1,28 @@
+"use client";
+
+type DeleteFormProps = {
+  action: () => Promise<void>;
+  label?: string;
+};
+
+export function DeleteForm({ action, label = "Delete" }: DeleteFormProps) {
+  return (
+    <form
+      action={action}
+      className="mt-8 border-t border-border pt-6"
+      onSubmit={(e) => {
+        if (!confirm(`Are you sure you want to ${label.toLowerCase()} this item?`)) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <p className="text-sm font-medium text-red-700">Danger zone</p>
+      <button
+        type="submit"
+        className="mt-2 rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-100"
+      >
+        {label}
+      </button>
+    </form>
+  );
+}

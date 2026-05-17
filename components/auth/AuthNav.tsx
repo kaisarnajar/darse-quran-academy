@@ -21,6 +21,11 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
   if (session?.user) {
     return (
       <>
+        {session.user.role === "ADMIN" && (
+          <Link href="/admin" className={linkClass}>
+            Admin
+          </Link>
+        )}
         <Link href="/my-courses" className={linkClass}>
           My Courses
         </Link>

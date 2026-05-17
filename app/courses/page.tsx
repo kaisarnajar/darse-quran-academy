@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { CourseCard } from "@/components/CourseCard";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
-import { courses } from "@/content/courses";
 import { auth } from "@/lib/auth";
+import { getPublishedCourses } from "@/lib/courses";
 import { getEnrolledCourseIds } from "@/lib/enrollments";
 
 export const metadata: Metadata = {
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 export default async function CoursesPage() {
   const session = await auth();
+  const courses = await getPublishedCourses();
   const enrolledIds = session?.user?.id ? await getEnrolledCourseIds(session.user.id) : [];
   const enrolledSet = new Set(enrolledIds);
 
@@ -23,9 +24,13 @@ export default async function CoursesPage() {
         description="Browse programs and enroll online. Sign in to purchase a course."
       />
       <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-        {courses.map((course) => (
-          <CourseCard key={course.id} course={course} isEnrolled={enrolledSet.has(course.id)} />
-        ))}
+        {courses.length === 0 ? (
+          <p className="col-span-full text-center text-muted">No courses available at the moment.</p>
+        ) : (
+          courses.map((course) => (
+            <CourseCard key={course.id} course={course} isEnrolled={enrolledSet.has(course.id)} />
+          ))
+        )}
       </div>
     </Section>
   );

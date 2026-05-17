@@ -1,5 +1,5 @@
 import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
-import type { Course } from "@/content/courses";
+import type { Course } from "@/lib/courses";
 import { formatPrice } from "@/lib/courses";
 
 type CourseCardProps = {
@@ -7,20 +7,22 @@ type CourseCardProps = {
   isEnrolled?: boolean;
 };
 
-const levelColors: Record<Course["level"], string> = {
+const levelColors: Record<string, string> = {
   Beginner: "bg-green-100 text-green-800",
   Intermediate: "bg-amber-100 text-amber-800",
   Advanced: "bg-red-100 text-red-800",
 };
 
 export function CourseCard({ course, isEnrolled = false }: CourseCardProps) {
+  const levelClass = levelColors[course.level] ?? "bg-gray-100 text-gray-800";
+
   return (
     <article className="flex flex-col rounded-lg border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
           {course.category}
         </span>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${levelColors[course.level]}`}>
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${levelClass}`}>
           {course.level}
         </span>
       </div>

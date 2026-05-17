@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Section } from "@/components/site/Section";
 import { SectionHeader } from "@/components/site/SectionHeader";
-import { courses } from "@/content/courses";
-import { teachers } from "@/content/teachers";
+import { getPublishedCourses } from "@/lib/courses";
+import { getPublishedTeachers } from "@/lib/teachers";
 
 const features = [
   {
@@ -22,7 +22,8 @@ const features = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [courses, teachers] = await Promise.all([getPublishedCourses(), getPublishedTeachers()]);
   const featuredCourses = courses.slice(0, 3);
   const featuredTeachers = teachers.slice(0, 3);
 
