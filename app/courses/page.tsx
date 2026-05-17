@@ -34,7 +34,7 @@ export default async function CoursesPage() {
               <CourseCard
                 key={course.id}
                 course={course}
-                isEnrolled={enrollment?.status === "active"}
+                isEnrolled={enrollment?.status === "active" || enrollment?.status === "completed"}
                 enrollmentStatus={enrollment?.status ?? null}
                 enrollmentId={enrollment?.id ?? null}
               />

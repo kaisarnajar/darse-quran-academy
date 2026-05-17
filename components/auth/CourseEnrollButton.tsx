@@ -24,6 +24,17 @@ export function CourseEnrollButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  if (enrollmentStatus === "completed" && enrollmentId) {
+    return (
+      <Link
+        href="/my-courses"
+        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-medium text-white hover:opacity-90"
+      >
+        Download certificate
+      </Link>
+    );
+  }
+
   if (isEnrolled) {
     return (
       <Link

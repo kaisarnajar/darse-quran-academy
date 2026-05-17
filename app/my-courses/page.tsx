@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DownloadCertificateButton } from "@/components/certificate/DownloadCertificateButton";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
+import { isEnrollmentCertificateReady } from "@/lib/completion";
 import { getCourseById, formatPrice } from "@/lib/courses";
 import { getUserEnrollments } from "@/lib/enrollments";
 
@@ -12,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 function statusLabel(status: string) {
+  if (status === "completed") return "Completed";
   if (status === "pending_verification") return "Awaiting payment verification";
   if (status === "pending") return "Payment pending";
   if (status === "active") return "Active";
@@ -67,12 +70,10 @@ export default async function MyCoursesPage({
         <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {enrollmentRows.map(({ enrollment, course }) => {
             if (!course) return null;
+            const certificateReady = isEnrollmentCertificateReady(enrollment);
 
             return (
-              <li
-                key={enrollment.id}
-                className="card-elevated flex flex-col p-5"
-              >
+              <li key={enrollment.id} className="card-elevated flex flex-col p-5">
                 <span className="w-fit rounded-full bg-accent-muted px-2.5 py-0.5 text-xs font-medium text-primary">
                   {statusLabel(enrollment.status)}
                 </span>
@@ -92,9 +93,19 @@ export default async function MyCoursesPage({
                     Complete UPI payment
                   </Link>
                 )}
-                <p className="mt-4 text-xs text-muted">
-                  {enrollment.createdAt.toLocaleDateString("en-IN")}
-                </p>
+                {certificateReady && (
+                  <DownloadCertificateButton enrollmentId={enrollment.id} courseTitle={course.title} />
+                )}
+                {enrollment.completedAt && (
+                  <p className="mt-3 text-xs text-muted">
+                    Completed {enrollment.completedAt.toLocaleDateString("en-IN")}
+                  </p>
+                )}
+                {!certificateReady && enrollment.status !== "pending" && (
+                  <p className="mt-4 text-xs text-muted">
+                    Enrolled {enrollment.createdAt.toLocaleDateString("en-IN")}
+                  </p>
+                )}
               </li>
             );
           })}

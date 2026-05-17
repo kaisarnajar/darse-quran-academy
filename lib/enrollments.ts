@@ -7,6 +7,8 @@ export type CourseEnrollmentWithUser = {
   currency: string | null;
   upiTransactionId: string | null;
   paymentReference: string | null;
+  completedAt: Date | null;
+  certificateEmailSentAt: Date | null;
   createdAt: Date;
   user: {
     id: string;
@@ -22,7 +24,7 @@ export async function getUserCourseEnrollmentMap(userId: string) {
 
 export async function getEnrolledCourseIds(userId: string): Promise<string[]> {
   const enrollments = await prisma.enrollment.findMany({
-    where: { userId, status: "active" },
+    where: { userId, status: { in: ["active", "completed"] } },
     select: { courseId: true },
   });
   return enrollments.map((e) => e.courseId);
