@@ -3,22 +3,28 @@ import { CourseCard } from "@/components/CourseCard";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
 import { courses } from "@/content/courses";
+import { auth } from "@/lib/auth";
+import { getEnrolledCourseIds } from "@/lib/enrollments";
 
 export const metadata: Metadata = {
   title: "Courses",
-  description: "View upcoming course announcements at Darse Quran Academy.",
+  description: "View and enroll in upcoming courses at Darse Quran Academy.",
 };
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const session = await auth();
+  const enrolledIds = session?.user?.id ? await getEnrolledCourseIds(session.user.id) : [];
+  const enrolledSet = new Set(enrolledIds);
+
   return (
     <Section>
       <PageHeader
         title="Course Announcements"
-        description="Browse our current and upcoming programs. Registration details will be shared soon for each course."
+        description="Browse programs and enroll online. Sign in to purchase a course."
       />
       <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} />
+          <CourseCard key={course.id} course={course} isEnrolled={enrolledSet.has(course.id)} />
         ))}
       </div>
     </Section>

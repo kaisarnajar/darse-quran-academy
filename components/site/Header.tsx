@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AuthNav } from "@/components/auth/AuthNav";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -29,8 +30,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
-        <Link href="/" className="flex min-w-0 flex-1 flex-col pr-2 sm:flex-none">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4">
+        <Link href="/" className="flex min-w-0 flex-1 flex-col pr-1 sm:pr-2 md:flex-none">
           <span className="block truncate font-serif text-base font-bold text-primary sm:text-lg md:text-xl">
             Darse Quran Academy
           </span>
@@ -54,6 +55,9 @@ export function Header() {
               </Link>
             );
           })}
+          <div className="ml-1 flex items-center gap-0.5 border-l border-border pl-2 lg:gap-1 lg:pl-3">
+            <AuthNav />
+          </div>
         </nav>
 
         <button
@@ -97,6 +101,11 @@ export function Header() {
                 </li>
               );
             })}
+            <li className="mt-2 border-t border-border pt-2">
+              <div className="flex flex-col gap-0.5" onClick={() => setMenuOpen(false)} role="presentation">
+                <AuthNav mobile />
+              </div>
+            </li>
           </ul>
         </nav>
       )}

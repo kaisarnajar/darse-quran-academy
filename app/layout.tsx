@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Merriweather } from "next/font/google";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import "./globals.css";
@@ -39,9 +40,11 @@ export default function RootLayout({
         className="flex min-h-full flex-col overflow-x-hidden font-sans"
         suppressHydrationWarning
       >
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SessionProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </SessionProvider>
       </body>
     </html>
   );

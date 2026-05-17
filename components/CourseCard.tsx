@@ -1,7 +1,10 @@
+import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
 import type { Course } from "@/content/courses";
+import { formatPrice } from "@/lib/courses";
 
 type CourseCardProps = {
   course: Course;
+  isEnrolled?: boolean;
 };
 
 const levelColors: Record<Course["level"], string> = {
@@ -10,7 +13,7 @@ const levelColors: Record<Course["level"], string> = {
   Advanced: "bg-red-100 text-red-800",
 };
 
-export function CourseCard({ course }: CourseCardProps) {
+export function CourseCard({ course, isEnrolled = false }: CourseCardProps) {
   return (
     <article className="flex flex-col rounded-lg border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -23,13 +26,13 @@ export function CourseCard({ course }: CourseCardProps) {
       </div>
       <h3 className="font-serif text-base font-semibold text-foreground sm:text-lg">{course.title}</h3>
       <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
-      <p className="mt-4 text-sm font-medium text-primary">Starts: {course.startDate}</p>
-      <button
-        type="button"
-        className="mt-4 min-h-11 w-full rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light"
-      >
-        View Details
-      </button>
+      <p className="mt-3 text-sm font-medium text-primary">Starts: {course.startDate}</p>
+      <p className="mt-1 text-lg font-bold text-foreground">{formatPrice(course.priceInrPaise)}</p>
+      <CourseEnrollButton
+        courseId={course.id}
+        priceInrPaise={course.priceInrPaise}
+        isEnrolled={isEnrolled}
+      />
     </article>
   );
 }
