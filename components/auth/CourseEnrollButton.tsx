@@ -20,7 +20,7 @@ export function CourseEnrollButton({ courseId, priceInrPaise, isEnrolled }: Cour
     return (
       <Link
         href="/my-courses"
-        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-md border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
+        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
       >
         Enrolled — View My Courses
       </Link>
@@ -68,7 +68,7 @@ export function CourseEnrollButton({ courseId, priceInrPaise, isEnrolled }: Cour
     return (
       <Link
         href={`/login?callbackUrl=${encodeURIComponent("/courses")}`}
-        className="mt-4 flex min-h-11 w-full flex-col items-center justify-center rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
+        className="mt-4 flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
       >
         <span>Sign in to Enroll</span>
         <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
@@ -87,7 +87,7 @@ export function CourseEnrollButton({ courseId, priceInrPaise, isEnrolled }: Cour
         type="button"
         onClick={handleEnroll}
         disabled={loading}
-        className="flex min-h-11 w-full flex-col items-center justify-center rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light disabled:opacity-60 sm:flex-row sm:gap-2"
+        className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light disabled:opacity-60 sm:flex-row sm:gap-2"
       >
         <span>{loading ? "Redirecting…" : "Enroll Now"}</span>
         <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>

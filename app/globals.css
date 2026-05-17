@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf8f4;
-  --foreground: #1a2e1a;
-  --primary: #0d5c4b;
-  --primary-light: #147a65;
-  --accent: #c9a227;
-  --accent-muted: #e8d9a8;
+  --background: #f0f4fa;
+  --foreground: #0f172a;
+  --primary: #1e3a8a;
+  --primary-light: #3b82f6;
+  --accent: #0891b2;
+  --accent-warm: #ea580c;
+  --accent-muted: #e0e7ff;
   --surface: #ffffff;
-  --muted: #5c6b5c;
-  --border: #d4ddd4;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --card-shadow: 0 4px 24px -4px rgb(30 58 138 / 0.12);
 }
 
 @theme inline {
@@ -18,12 +20,14 @@
   --color-primary: var(--primary);
   --color-primary-light: var(--primary-light);
   --color-accent: var(--accent);
+  --color-accent-warm: var(--accent-warm);
   --color-accent-muted: var(--accent-muted);
   --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-merriweather);
+  --font-sans: var(--font-jakarta);
+  --font-serif: var(--font-libre);
+  --radius-card: 1rem;
 }
 
 html {
@@ -34,5 +38,21 @@ body {
   overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+}
+
+/* Hero & marketing sections */
+.hero-gradient {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 45%, #0891b2 100%);
+}
+
+.cta-gradient {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0891b2 100%);
+}
+
+.card-elevated {
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
 }

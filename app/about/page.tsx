@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 const values = [
   {
     title: "Authenticity",
-    description: "We follow the Hanafi school and the scholarly tradition of Darul Uloom Deoband.",
+    description:
+      "Curricula rooted in classical Islamic scholarship, taught with clarity and care for the sources.",
   },
   {
     title: "Accessibility",
@@ -17,7 +18,7 @@ const values = [
   },
   {
     title: "Excellence",
-    description: "Structured curricula, qualified teachers, and regular assessment for steady progress.",
+    description: "Structured programs, qualified teachers, and regular assessment for steady progress.",
   },
 ];
 
@@ -32,21 +33,20 @@ export default function AboutPage() {
           <p className="mt-4 text-base leading-relaxed text-muted sm:mt-6 sm:text-lg">
             Darse Quran Academy was established to provide structured, authentic Islamic education to
             Muslims around the world. We offer courses in Quran recitation (Nazira), memorization (Hifz),
-            Tajweed, Arabic grammar, Fiqh, and Seerah—taught by graduates of renowned seminaries.
+            Tajweed, Arabic grammar, Fiqh, and Seerah—taught by experienced instructors.
           </p>
           <p className="mt-4 text-base leading-relaxed text-muted">
-            Our approach combines traditional Deobandi scholarship with modern online delivery, making
-            it possible for students of all ages and backgrounds to learn from qualified teachers without
-            leaving home.
+            Our programs blend time-tested teaching methods with modern online delivery, so students of
+            all ages and backgrounds can learn from qualified teachers wherever they live.
           </p>
         </div>
       </Section>
 
-      <Section className="bg-surface/50">
+      <Section className="bg-accent-muted/30">
         <h2 className="text-center font-serif text-xl font-bold text-foreground sm:text-2xl">Our Values</h2>
         <ul className="mt-8 grid grid-cols-1 gap-6 sm:mt-10 md:grid-cols-3 md:gap-8">
           {values.map((value) => (
-            <li key={value.title} className="rounded-lg border border-border bg-surface p-5 text-center sm:p-6">
+            <li key={value.title} className="card-elevated p-6 text-center">
               <h3 className="font-serif text-lg font-semibold text-primary">{value.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted">{value.description}</p>
             </li>
@@ -55,7 +55,7 @@ export default function AboutPage() {
       </Section>
 
       <Section>
-        <div className="mx-auto max-w-xl rounded-lg border border-border bg-surface p-5 text-center shadow-sm sm:p-8">
+        <div className="card-elevated mx-auto max-w-xl p-6 text-center sm:p-8">
           <h2 className="font-serif text-lg font-bold text-primary sm:text-xl">Contact Us</h2>
           <ul className="mt-5 space-y-4 text-left text-sm text-muted sm:mt-6 sm:text-base">
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
@@ -68,7 +68,7 @@ export default function AboutPage() {
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Location:</span>
-              <span>Deoband, Uttar Pradesh, India</span>
+              <span>Online academy — serving students worldwide</span>
             </li>
           </ul>
           <p className="mt-5 text-left text-sm leading-relaxed text-muted sm:mt-6 sm:text-center">

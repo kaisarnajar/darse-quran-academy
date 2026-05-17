@@ -49,8 +49,8 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
         href="/register"
         className={
           mobile
-            ? "flex min-h-11 items-center rounded-md bg-primary px-3 text-base font-medium text-white"
-            : "rounded-md bg-primary px-2.5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light lg:px-3"
+            ? "flex min-h-11 items-center rounded-full bg-primary px-3 text-base font-medium text-white"
+            : "rounded-full bg-primary px-2.5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light lg:px-3"
         }
       >
         Register

@@ -29,40 +29,48 @@ export function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4">
-        <Link href="/" className="flex min-w-0 flex-1 flex-col pr-1 sm:pr-2 md:flex-none">
-          <span className="block truncate font-serif text-base font-bold text-primary sm:text-lg md:text-xl">
-            Darse Quran Academy
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/90 shadow-sm shadow-primary/5 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
+        <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5 pr-1 sm:pr-2 md:flex-none">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-sm font-bold text-white"
+            aria-hidden
+          >
+            DQ
           </span>
-          <span className="hidden text-xs text-muted sm:block">Online Islamic Learning</span>
+          <span className="min-w-0">
+            <span className="block truncate font-serif text-base font-bold text-primary sm:text-lg">
+              Darse Quran Academy
+            </span>
+            <span className="hidden text-xs font-medium text-accent sm:block">Online Islamic Learning</span>
+          </span>
         </Link>
 
-        <nav className="hidden items-center gap-0.5 md:flex lg:gap-1" aria-label="Main navigation">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {navLinks.map((link) => {
             const active = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-md px-2.5 py-2 text-sm font-medium transition-colors lg:px-3 ${
+                className={`rounded-full px-3 py-2 text-sm font-medium transition-all ${
                   active
-                    ? "bg-primary text-white"
-                    : "text-foreground hover:bg-accent-muted/50 hover:text-primary"
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-foreground hover:bg-accent-muted hover:text-primary"
                 }`}
               >
                 {link.label}
               </Link>
             );
           })}
-          <div className="ml-1 flex items-center gap-0.5 border-l border-border pl-2 lg:gap-1 lg:pl-3">
+          <div className="ml-2 flex items-center gap-1 border-l border-border pl-2">
             <AuthNav />
           </div>
         </nav>
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-primary md:hidden"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-primary hover:bg-accent-muted md:hidden"
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -91,8 +99,10 @@ export function Header() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`flex min-h-11 items-center rounded-md px-3 text-base font-medium ${
-                      active ? "bg-primary text-white" : "text-foreground active:bg-accent-muted/50"
+                    className={`flex min-h-11 items-center rounded-lg px-3 text-base font-medium ${
+                      active
+                        ? "bg-primary text-white"
+                        : "text-foreground active:bg-accent-muted"
                     }`}
                     onClick={() => setMenuOpen(false)}
                   >

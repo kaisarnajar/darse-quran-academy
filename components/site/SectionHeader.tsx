@@ -17,7 +17,7 @@ export function SectionHeader({ title, description, linkHref, linkLabel }: Secti
       {linkHref && linkLabel && (
         <Link
           href={linkHref}
-          className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-primary hover:underline sm:justify-end"
+          className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-accent hover:text-primary sm:justify-end"
         >
           {linkLabel}
         </Link>

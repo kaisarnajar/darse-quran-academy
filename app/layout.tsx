@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Inter, Merriweather } from "next/font/google";
+import { Libre_Baskerville, Plus_Jakarta_Sans } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
 });
 
-const merriweather = Merriweather({
-  variable: "--font-merriweather",
+const libreBaskerville = Libre_Baskerville({
+  variable: "--font-libre",
   subsets: ["latin"],
   weight: ["400", "700"],
 });
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${merriweather.variable} h-full antialiased`}
+      className={`${jakarta.variable} ${libreBaskerville.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body

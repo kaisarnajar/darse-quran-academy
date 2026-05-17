@@ -27,8 +27,8 @@ export function AdminSidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-md px-3 py-2 text-sm font-medium ${
-                active ? "bg-primary text-white" : "text-foreground hover:bg-accent-muted/50"
+              className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                active ? "bg-primary text-white shadow-sm" : "text-foreground hover:bg-accent-muted/50"
               }`}
             >
               {link.label}

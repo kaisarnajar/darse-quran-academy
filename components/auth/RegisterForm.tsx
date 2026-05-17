@@ -129,7 +129,7 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
           <button
             type="submit"
             disabled={loading}
-            className="min-h-11 w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-light disabled:opacity-60"
+            className="min-h-11 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-light disabled:opacity-60"
           >
             {loading ? "Creating account…" : "Register with Email"}
           </button>

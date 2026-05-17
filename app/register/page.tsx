@@ -14,9 +14,11 @@ const googleEnabled =
 export default function RegisterPage() {
   return (
     <Section>
-      <Suspense fallback={<p className="text-center text-muted">Loading…</p>}>
-        <RegisterForm googleEnabled={googleEnabled} />
-      </Suspense>
+      <div className="card-elevated mx-auto max-w-lg p-6 sm:p-8">
+        <Suspense fallback={<p className="text-center text-muted">Loading…</p>}>
+          <RegisterForm googleEnabled={googleEnabled} />
+        </Suspense>
+      </div>
     </Section>
   );
 }

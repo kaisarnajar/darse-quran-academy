@@ -14,9 +14,11 @@ const googleEnabled =
 export default function LoginPage() {
   return (
     <Section>
-      <Suspense fallback={<p className="text-center text-muted">Loading…</p>}>
-        <LoginForm googleEnabled={googleEnabled} />
-      </Suspense>
+      <div className="card-elevated mx-auto max-w-lg p-6 sm:p-8">
+        <Suspense fallback={<p className="text-center text-muted">Loading…</p>}>
+          <LoginForm googleEnabled={googleEnabled} />
+        </Suspense>
+      </div>
     </Section>
   );
 }
