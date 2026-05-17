@@ -151,6 +151,24 @@ export async function completeEnrollmentAndSendCertificate(
   return { success: true };
 }
 
+export async function removeEnrollmentFromCourse(enrollmentId: string, courseId: string) {
+  await requireAdmin();
+
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { id: enrollmentId },
+  });
+
+  if (!enrollment || enrollment.courseId !== courseId) {
+    return { error: "Enrollment not found." };
+  }
+
+  await prisma.enrollment.delete({ where: { id: enrollmentId } });
+
+  revalidateEnrollmentPaths(courseId);
+
+  return { success: true };
+}
+
 export async function completeAllActiveStudents(courseId: string) {
   await requireAdmin();
 

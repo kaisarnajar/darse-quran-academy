@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CompleteAllStudentsButton } from "@/components/admin/CompleteAllStudentsButton";
 import { CompleteCourseButton } from "@/components/admin/CompleteCourseButton";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
+import { RemoveEnrollmentButton } from "@/components/admin/RemoveEnrollmentButton";
 import { formatPrice, getCourseById } from "@/lib/courses";
 import { getEnrollmentsForCourse } from "@/lib/enrollments";
 
@@ -125,6 +126,11 @@ export default async function CourseStudentsPage({
                       {enrollment.status === "active" && (
                         <CompleteCourseButton enrollmentId={enrollment.id} courseId={id} />
                       )}
+                      <RemoveEnrollmentButton
+                        enrollmentId={enrollment.id}
+                        courseId={id}
+                        studentLabel={enrollment.user.name ?? enrollment.user.email}
+                      />
                     </div>
                   </td>
                 </tr>
