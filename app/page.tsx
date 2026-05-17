@@ -1,4 +1,5 @@
 import { ExperienceBanner } from "@/components/home/ExperienceBanner";
+import { HomeFatwa } from "@/components/home/HomeFatwa";
 import { FeatureCards } from "@/components/home/FeatureCards";
 import { FeaturedCourses } from "@/components/home/FeaturedCourses";
 import { HomeAbout } from "@/components/home/HomeAbout";
@@ -19,6 +20,7 @@ export default async function HomePage() {
       <FeaturedCourses courses={featuredCourses} />
       <HomeAbout />
       <ExperienceBanner />
+      <HomeFatwa />
       <LearnAccordion />
     </>
   );
