@@ -26,8 +26,8 @@ export const libraryItems: LibraryItem[] = [
   },
   {
     id: "3",
-    title: "Bahar-e-Shariat (Vol. 1)",
-    author: "Moulana Amjad Ali",
+    title: "Introduction to Islamic Law",
+    author: "Various Scholars",
     topic: "Fiqh",
     level: "Advanced",
     language: "Urdu",
@@ -58,9 +58,9 @@ export const libraryItems: LibraryItem[] = [
   },
   {
     id: "7",
-    title: "Fazail-e-Amaal",
-    author: "Moulana Zakariya Kandhlawi",
-    topic: "Virtues",
+    title: "Essentials of Faith and Worship",
+    author: "Compiled Reader",
+    topic: "Aqeedah",
     level: "Beginner",
     language: "Urdu",
   },

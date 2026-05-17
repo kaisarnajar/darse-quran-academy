@@ -54,7 +54,7 @@ export const courses: Course[] = [
     id: "fiqh-basics",
     title: "Fiqh Essentials",
     description:
-      "Introduction to Hanafi jurisprudence covering worship, transactions, and daily life rulings.",
+      "Introduction to Islamic jurisprudence covering worship, transactions, and daily life rulings.",
     startDate: "June 2026",
     level: "Beginner",
     category: "Islamic Studies",

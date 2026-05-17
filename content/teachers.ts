@@ -11,7 +11,7 @@ export const teachers: Teacher[] = [
     id: "1",
     name: "Moulana Ibrahim Khan",
     specialization: "Quran & Tajweed",
-    bio: "Graduate of Darul Uloom Deoband with 15 years of teaching experience in Quran recitation and Tajweed.",
+    bio: "Qualified instructor with 15 years of teaching experience in Quran recitation and Tajweed.",
     initials: "IK",
   },
   {
@@ -32,7 +32,7 @@ export const teachers: Teacher[] = [
     id: "4",
     name: "Moulana Abdul Rahman",
     specialization: "Fiqh & Islamic Studies",
-    bio: "Expert in Hanafi Fiqh with a focus on practical application for students in the West and South Asia.",
+    bio: "Experienced in Islamic law and daily practice, with clear guidance for students around the world.",
     initials: "AR",
   },
   {

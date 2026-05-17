@@ -31,9 +31,9 @@ export default function AboutPage() {
             About Darse Quran Academy
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted sm:mt-6 sm:text-lg">
-            Darse Quran Academy was established to provide structured, authentic Islamic education to
-            Muslims around the world. We offer courses in Quran recitation (Nazira), memorization (Hifz),
-            Tajweed, Arabic grammar, Fiqh, and Seerah—taught by experienced instructors.
+            Darse Quran Academy was established to provide structured, authentic Islamic education open to
+            Muslims of every background. We offer courses in Quran recitation (Nazira), memorization (Hifz),
+            Tajweed, Arabic grammar, Islamic studies, and Seerah—taught by experienced instructors.
           </p>
           <p className="mt-4 text-base leading-relaxed text-muted">
             Our programs blend time-tested teaching methods with modern online delivery, so students of
