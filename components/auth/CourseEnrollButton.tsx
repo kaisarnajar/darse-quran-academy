@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { formatPrice } from "@/lib/courses";
+import { getCourseEnrollmentReminder, hasCourseEnrollment } from "@/lib/enrollments";
 
 type CourseEnrollButtonProps = {
   courseId: string;
@@ -12,6 +13,17 @@ type CourseEnrollButtonProps = {
   enrollmentStatus?: string | null;
   enrollmentId?: string | null;
 };
+
+function EnrollmentReminder({ message }: { message: string }) {
+  return (
+    <p
+      className="mb-3 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-center text-sm text-violet-900"
+      role="status"
+    >
+      {message}
+    </p>
+  );
+}
 
 export function CourseEnrollButton({
   courseId,
@@ -23,54 +35,71 @@ export function CourseEnrollButton({
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+
+  const reminder = getCourseEnrollmentReminder(enrollmentStatus);
+  const showReminder = hasCourseEnrollment(enrollmentStatus) && Boolean(reminder);
 
   if (enrollmentStatus === "completed" && enrollmentId) {
     return (
-      <Link
-        href="/my-courses"
-        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-medium text-white hover:opacity-90"
-      >
-        Download certificate
-      </Link>
+      <div className="mt-4">
+        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
+        <Link
+          href="/my-courses"
+          className="flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-medium text-white hover:opacity-90"
+        >
+          Download certificate
+        </Link>
+      </div>
     );
   }
 
   if (isEnrolled) {
     return (
-      <Link
-        href="/my-courses"
-        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
-      >
-        Enrolled — View My Courses
-      </Link>
+      <div className="mt-4">
+        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
+        <Link
+          href="/my-courses"
+          className="flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
+        >
+          Enrolled — View My Courses
+        </Link>
+      </div>
     );
   }
 
   if (enrollmentStatus === "pending_verification") {
     return (
-      <Link
-        href="/my-courses?pending=1"
-        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
-      >
-        Payment submitted — Awaiting verification
-      </Link>
+      <div className="mt-4">
+        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
+        <Link
+          href="/my-courses?pending=1"
+          className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
+        >
+          Payment submitted — Awaiting verification
+        </Link>
+      </div>
     );
   }
 
   if (enrollmentStatus === "pending" && enrollmentId) {
     return (
-      <Link
-        href={`/payment/${enrollmentId}`}
-        className="mt-4 flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
-      >
-        <span>Complete UPI Payment</span>
-        <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
-      </Link>
+      <div className="mt-4">
+        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
+        <Link
+          href={`/payment/${enrollmentId}`}
+          className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
+        >
+          <span>Complete UPI Payment</span>
+          <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
+        </Link>
+      </div>
     );
   }
 
   async function handleEnroll() {
     setError("");
+    setInfo("");
     setLoading(true);
 
     try {
@@ -87,6 +116,12 @@ export function CourseEnrollButton({
         return;
       }
 
+      if (res.status === 400 && data.alreadyEnrolled) {
+        setError(data.error || "You are already enrolled in this course.");
+        setLoading(false);
+        return;
+      }
+
       if (!res.ok) {
         setError(data.error || "Could not start payment.");
         setLoading(false);
@@ -94,6 +129,9 @@ export function CourseEnrollButton({
       }
 
       if (data.paymentUrl) {
+        if (data.message) {
+          setInfo(data.message);
+        }
         window.location.href = data.paymentUrl;
         return;
       }
@@ -123,6 +161,11 @@ export function CourseEnrollButton({
       {error && (
         <p className="mb-2 text-center text-xs text-red-600" role="alert">
           {error}
+        </p>
+      )}
+      {info && (
+        <p className="mb-2 text-center text-xs text-violet-800" role="status">
+          {info}
         </p>
       )}
       <button

@@ -36,46 +36,45 @@ export async function POST(request: Request) {
       },
     });
 
-    if (existing?.status === "active") {
-      return NextResponse.json({ error: "You are already enrolled in this course." }, { status: 400 });
+    if (existing?.status === "active" || existing?.status === "completed") {
+      return NextResponse.json(
+        {
+          error: "You are already enrolled in this course.",
+          alreadyEnrolled: true,
+        },
+        { status: 400 },
+      );
     }
 
     if (existing?.status === "pending_verification") {
       return NextResponse.json({
         paymentUrl: `/payment/${existing.id}`,
-        message: "Payment is awaiting verification.",
+        message: "You are already enrolled. Your payment is awaiting verification by the academy.",
+        alreadyEnrolled: true,
       });
     }
 
-    let enrollmentId: string;
-
-    if (existing) {
-      const updated = await prisma.enrollment.update({
-        where: { id: existing.id },
-        data: {
-          status: "pending",
-          paymentMethod: "upi",
-          paymentReference: existing.paymentReference ?? existing.id,
-        },
+    if (existing?.status === "pending") {
+      return NextResponse.json({
+        paymentUrl: `/payment/${existing.id}`,
+        message: "You already started enrolling in this course. Complete your UPI payment to continue.",
       });
-      enrollmentId = updated.id;
-    } else {
-      const created = await prisma.enrollment.create({
-        data: {
-          userId: session.user.id,
-          courseId: course.id,
-          status: "pending",
-          paymentMethod: "upi",
-        },
-      });
-      await prisma.enrollment.update({
-        where: { id: created.id },
-        data: { paymentReference: created.id },
-      });
-      enrollmentId = created.id;
     }
 
-    return NextResponse.json({ paymentUrl: `/payment/${enrollmentId}` });
+    const created = await prisma.enrollment.create({
+      data: {
+        userId: session.user.id,
+        courseId: course.id,
+        status: "pending",
+        paymentMethod: "upi",
+      },
+    });
+    await prisma.enrollment.update({
+      where: { id: created.id },
+      data: { paymentReference: created.id },
+    });
+
+    return NextResponse.json({ paymentUrl: `/payment/${created.id}` });
   } catch {
     return NextResponse.json({ error: "Could not start payment. Please try again." }, { status: 500 });
   }

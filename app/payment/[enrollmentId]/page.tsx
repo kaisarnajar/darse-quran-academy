@@ -45,7 +45,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
     notFound();
   }
 
-  if (enrollment.status === "active") {
+  if (enrollment.status === "active" || enrollment.status === "completed") {
     redirect("/my-courses");
   }
 

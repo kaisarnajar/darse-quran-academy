@@ -44,7 +44,28 @@ export async function isUserEnrolled(userId: string, courseId: string): Promise<
       userId_courseId: { userId, courseId },
     },
   });
-  return enrollment?.status === "active";
+  return enrollment?.status === "active" || enrollment?.status === "completed";
+}
+
+/** User-facing copy when they already have an enrollment row for this course */
+export function getCourseEnrollmentReminder(status: string | null | undefined): string | null {
+  if (!status) return null;
+  switch (status) {
+    case "active":
+      return "You are already enrolled in this course.";
+    case "completed":
+      return "You have already completed this course.";
+    case "pending_verification":
+      return "You are already enrolled. Your payment is awaiting verification by the academy.";
+    case "pending":
+      return "You already started enrolling in this course. Complete your UPI payment below.";
+    default:
+      return "You are already enrolled in this course.";
+  }
+}
+
+export function hasCourseEnrollment(status: string | null | undefined): boolean {
+  return Boolean(status);
 }
 
 export async function getEnrollmentsForCourse(courseId: string): Promise<CourseEnrollmentWithUser[]> {
