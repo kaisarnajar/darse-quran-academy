@@ -56,12 +56,6 @@ export function Header() {
               </Link>
             );
           })}
-          <Link
-            href="/courses"
-            className="btn-gold-solid ml-2 rounded-sm px-4 py-2 text-xs xl:text-sm"
-          >
-            Free Trial
-          </Link>
           <div className="ml-2 border-l border-border pl-2">
             <AuthNav />
           </div>
@@ -108,15 +102,6 @@ export function Header() {
                 </li>
               );
             })}
-            <li className="mt-2 px-3">
-              <Link
-                href="/courses"
-                className="btn-gold-solid flex min-h-11 items-center justify-center text-sm"
-                onClick={() => setMenuOpen(false)}
-              >
-                Free Trial
-              </Link>
-            </li>
             <li className="mt-2 border-t border-border pt-2">
               <div className="px-3" onClick={() => setMenuOpen(false)} role="presentation">
                 <AuthNav mobile />

@@ -17,7 +17,7 @@ export function HomeAbout() {
         </p>
         <p className="mt-4 text-sm leading-relaxed text-white/80 sm:text-base">
           Whether you are beginning your journey or advancing your knowledge, our academy offers
-          flexible scheduling, free trial lessons, and certificates upon course completion.
+          flexible scheduling and certificates upon course completion.
         </p>
         <Link
           href="/about"
