@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthNav } from "@/components/auth/AuthNav";
+import { SiteLogo } from "@/components/site/SiteLogo";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -32,20 +33,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/90 shadow-sm shadow-primary/5 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
-        <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5 pr-1 sm:pr-2 md:flex-none">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-sm font-bold text-white"
-            aria-hidden
-          >
-            DQ
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate font-serif text-base font-bold text-primary sm:text-lg">
-              Darse Quran Academy
-            </span>
-            <span className="hidden text-xs font-medium text-accent sm:block">Online Islamic Learning</span>
-          </span>
-        </Link>
+        <div className="flex min-w-0 flex-1 items-center pr-1 sm:pr-2 md:flex-none">
+          <SiteLogo priority />
+        </div>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {navLinks.map((link) => {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteLogo } from "@/components/site/SiteLogo";
 
 const footerLinks = [
   { href: "/courses", label: "Courses" },
@@ -14,8 +15,8 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
         <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-3">
           <div>
-            <p className="font-serif text-lg font-bold">Darse Quran Academy</p>
-            <p className="mt-2 text-sm leading-relaxed text-violet-100">
+            <SiteLogo href="/" className="mx-auto h-14 sm:mx-0 sm:h-16" />
+            <p className="mt-4 text-sm leading-relaxed text-violet-100">
               Dedicated to authentic Islamic education—Quran, Arabic, and Islamic studies for all ages.
             </p>
           </div>
