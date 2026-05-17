@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { formatPrice } from "@/lib/courses";
+import { getPendingPaymentCount } from "@/lib/enrollments";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage() {
-  const [courseCount, teacherCount, libraryCount, enrollmentCount, recentEnrollments] =
+  const [courseCount, teacherCount, libraryCount, enrollmentCount, pendingPaymentCount, recentEnrollments] =
     await Promise.all([
       prisma.course.count(),
       prisma.teacher.count(),
       prisma.libraryItem.count(),
       prisma.enrollment.count({ where: { status: "active" } }),
+      getPendingPaymentCount(),
       prisma.enrollment.findMany({
         where: { status: "active" },
         take: 5,
@@ -27,7 +29,13 @@ export default async function AdminDashboardPage() {
     { label: "Courses", count: courseCount, href: "/admin/courses" },
     { label: "Teachers", count: teacherCount, href: "/admin/teachers" },
     { label: "Library items", count: libraryCount, href: "/admin/library" },
-    { label: "Active enrollments", count: enrollmentCount, href: "/admin/courses" },
+    { label: "Active enrollments", count: enrollmentCount, href: "/admin/enrollments" },
+    {
+      label: "Awaiting payment",
+      count: pendingPaymentCount,
+      href: "/admin/enrollments",
+      highlight: pendingPaymentCount > 0,
+    },
   ];
 
   return (
@@ -40,7 +48,11 @@ export default async function AdminDashboardPage() {
           <Link
             key={stat.label}
             href={stat.href}
-            className="rounded-lg border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
+            className={`rounded-lg border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md ${
+              "highlight" in stat && stat.highlight
+                ? "border-amber-300 ring-1 ring-amber-200"
+                : "border-border"
+            }`}
           >
             <p className="text-sm text-muted">{stat.label}</p>
             <p className="mt-1 text-3xl font-bold text-foreground">{stat.count}</p>

@@ -44,6 +44,9 @@ export default async function CourseStudentsPage({
       <Link href={`/admin/courses/${id}/edit`} className="ml-4 text-sm text-muted hover:text-primary">
         Edit course
       </Link>
+      <Link href="/admin/enrollments" className="ml-4 text-sm text-primary hover:underline">
+        All pending payments
+      </Link>
 
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -116,7 +119,7 @@ export default async function CourseStudentsPage({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-2">
-                      {enrollment.status === "pending_verification" && (
+                      {(enrollment.status === "pending_verification" || enrollment.status === "pending") && (
                         <ConfirmPaymentButton enrollmentId={enrollment.id} courseId={id} />
                       )}
                       {enrollment.status === "active" && (

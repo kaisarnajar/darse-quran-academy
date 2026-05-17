@@ -45,6 +45,13 @@ export const fatwaAnswerSchema = z.object({
   answer: z.string().trim().min(20, "Answer must be at least 20 characters.").max(10000),
 });
 
+export const adminEnrollUserSchema = z.object({
+  email: z.string().trim().email("Enter a valid student email."),
+  courseId: z.string().min(1, "Select a course."),
+  upiTransactionId: z.string().trim().max(50).optional(),
+  markAsPaid: z.coerce.boolean().optional(),
+});
+
 export type CourseInput = z.infer<typeof courseSchema>;
 export type TeacherInput = z.infer<typeof teacherSchema>;
 export type LibraryItemInput = z.infer<typeof libraryItemSchema>;

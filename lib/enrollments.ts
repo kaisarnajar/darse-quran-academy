@@ -10,6 +10,7 @@ export type CourseEnrollmentWithUser = {
   completedAt: Date | null;
   certificateEmailSentAt: Date | null;
   createdAt: Date;
+  updatedAt: Date;
   user: {
     id: string;
     name: string | null;
@@ -68,4 +69,26 @@ export async function getEnrollmentCountsByCourse(): Promise<Map<string, number>
     _count: { _all: true },
   });
   return new Map(rows.map((row) => [row.courseId, row._count._all]));
+}
+
+export type PendingEnrollmentWithUser = CourseEnrollmentWithUser & {
+  courseId: string;
+};
+
+export async function getPendingPaymentEnrollments(): Promise<PendingEnrollmentWithUser[]> {
+  return prisma.enrollment.findMany({
+    where: { status: { in: ["pending_verification", "pending"] } },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+  });
+}
+
+export async function getPendingPaymentCount(): Promise<number> {
+  return prisma.enrollment.count({
+    where: { status: { in: ["pending_verification", "pending"] } },
+  });
 }
