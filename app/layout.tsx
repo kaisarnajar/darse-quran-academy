@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { Libre_Baskerville, Plus_Jakarta_Sans } from "next/font/google";
+import { Figtree, Lora } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
 });
 
-const libreBaskerville = Libre_Baskerville({
-  variable: "--font-libre",
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jakarta.variable} ${libreBaskerville.variable} h-full antialiased`}
+      className={`${figtree.variable} ${lora.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body

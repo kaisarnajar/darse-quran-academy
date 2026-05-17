@@ -32,13 +32,13 @@ export default async function HomePage() {
       <section className="hero-gradient text-white">
         <Section className="py-12 sm:py-20 lg:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200 sm:text-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200 sm:text-sm">
               Bismillah ir-Rahman ir-Rahim
             </p>
             <h1 className="mt-4 font-serif text-2xl font-bold leading-snug sm:text-4xl sm:leading-tight lg:text-5xl">
               Authentic Islamic Education for Every Seeker
             </h1>
-            <p className="mt-5 text-base leading-relaxed text-blue-100 sm:text-lg">
+            <p className="mt-5 text-base leading-relaxed text-violet-100 sm:text-lg">
               Darse Quran Academy offers Quran recitation, memorization, Tajweed, Arabic, and Islamic
               studies—guided by qualified scholars, wherever you are.
             </p>
@@ -125,7 +125,7 @@ export default async function HomePage() {
         <Section className="py-12 sm:py-16">
           <div className="px-2 text-center sm:px-0">
             <h2 className="font-serif text-xl font-bold sm:text-2xl">Explore Our Digital Library</h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm text-blue-100 sm:text-base">
+            <p className="mx-auto mt-3 max-w-xl text-sm text-violet-100 sm:text-base">
               Access curated Islamic books and study materials—Quran, Hadith, Fiqh, and more.
             </p>
             <Link

@@ -46,7 +46,7 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
       <p className="mt-2 text-center text-sm text-muted">Access your courses and enroll in new programs.</p>
 
       {registered && (
-        <p className="mt-4 rounded-xl bg-sky-50 px-4 py-3 text-center text-sm text-sky-800">
+        <p className="mt-4 rounded-xl bg-violet-50 px-4 py-3 text-center text-sm text-violet-800">
           Account created. Please sign in.
         </p>
       )}

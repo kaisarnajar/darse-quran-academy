@@ -8,9 +8,9 @@ type CourseCardProps = {
 };
 
 const levelColors: Record<string, string> = {
-  Beginner: "bg-sky-100 text-sky-800",
-  Intermediate: "bg-indigo-100 text-indigo-800",
-  Advanced: "bg-orange-100 text-orange-800",
+  Beginner: "bg-violet-100 text-violet-800",
+  Intermediate: "bg-amber-100 text-amber-900",
+  Advanced: "bg-stone-200 text-stone-800",
 };
 
 export function CourseCard({ course, isEnrolled = false }: CourseCardProps) {

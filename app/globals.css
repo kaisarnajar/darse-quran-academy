@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f0f4fa;
-  --foreground: #0f172a;
-  --primary: #1e3a8a;
-  --primary-light: #3b82f6;
-  --accent: #0891b2;
-  --accent-warm: #ea580c;
-  --accent-muted: #e0e7ff;
+  --background: #faf7f2;
+  --foreground: #1c1917;
+  --primary: #3730a3;
+  --primary-light: #6366f1;
+  --accent: #b45309;
+  --accent-warm: #c2410c;
+  --accent-muted: #ede9fe;
   --surface: #ffffff;
-  --muted: #64748b;
-  --border: #cbd5e1;
-  --card-shadow: 0 4px 24px -4px rgb(30 58 138 / 0.12);
+  --muted: #57534e;
+  --border: #e7e5e4;
+  --card-shadow: 0 4px 24px -4px rgb(55 48 163 / 0.1);
 }
 
 @theme inline {
@@ -25,8 +25,8 @@
   --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --font-sans: var(--font-jakarta);
-  --font-serif: var(--font-libre);
+  --font-sans: var(--font-figtree);
+  --font-serif: var(--font-lora);
   --radius-card: 1rem;
 }
 
@@ -38,16 +38,15 @@ body {
   overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-jakarta), system-ui, sans-serif;
+  font-family: var(--font-figtree), system-ui, sans-serif;
 }
 
-/* Hero & marketing sections */
 .hero-gradient {
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 45%, #0891b2 100%);
+  background: linear-gradient(135deg, #312e81 0%, #4f46e5 50%, #7c2d12 100%);
 }
 
 .cta-gradient {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0891b2 100%);
+  background: linear-gradient(135deg, #1c1917 0%, #3730a3 55%, #92400e 100%);
 }
 
 .card-elevated {

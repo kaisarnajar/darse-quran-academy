@@ -27,7 +27,7 @@ export default async function AdminCoursesPage({
       </div>
 
       {params.deleted === "1" && (
-        <p className="mt-4 rounded-md bg-green-50 px-4 py-3 text-sm text-green-800">Course deleted.</p>
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Course deleted.</p>
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">

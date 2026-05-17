@@ -40,7 +40,7 @@ export default async function MyCoursesPage({
       />
 
       {params.success === "1" && (
-        <p className="mx-auto mt-6 max-w-2xl rounded-md bg-green-50 px-4 py-3 text-center text-sm text-green-800">
+        <p className="mx-auto mt-6 max-w-2xl rounded-md bg-violet-50 px-4 py-3 text-center text-sm text-violet-800">
           Payment successful. Your enrollment is now active.
         </p>
       )}
