@@ -8,10 +8,18 @@ import { formatPrice } from "@/lib/courses";
 type CourseEnrollButtonProps = {
   courseId: string;
   priceInrPaise: number;
-  isEnrolled: boolean;
+  isEnrolled?: boolean;
+  enrollmentStatus?: string | null;
+  enrollmentId?: string | null;
 };
 
-export function CourseEnrollButton({ courseId, priceInrPaise, isEnrolled }: CourseEnrollButtonProps) {
+export function CourseEnrollButton({
+  courseId,
+  priceInrPaise,
+  isEnrolled = false,
+  enrollmentStatus = null,
+  enrollmentId = null,
+}: CourseEnrollButtonProps) {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -23,6 +31,29 @@ export function CourseEnrollButton({ courseId, priceInrPaise, isEnrolled }: Cour
         className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
       >
         Enrolled — View My Courses
+      </Link>
+    );
+  }
+
+  if (enrollmentStatus === "pending_verification") {
+    return (
+      <Link
+        href="/my-courses?pending=1"
+        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
+      >
+        Payment submitted — Awaiting verification
+      </Link>
+    );
+  }
+
+  if (enrollmentStatus === "pending" && enrollmentId) {
+    return (
+      <Link
+        href={`/payment/${enrollmentId}`}
+        className="mt-4 flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
+      >
+        <span>Complete UPI Payment</span>
+        <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
       </Link>
     );
   }
@@ -46,17 +77,17 @@ export function CourseEnrollButton({ courseId, priceInrPaise, isEnrolled }: Cour
       }
 
       if (!res.ok) {
-        setError(data.error || "Could not start checkout.");
+        setError(data.error || "Could not start payment.");
         setLoading(false);
         return;
       }
 
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
         return;
       }
 
-      setError("Checkout URL not received.");
+      setError("Payment page not received.");
       setLoading(false);
     } catch {
       setError("Something went wrong. Please try again.");
@@ -89,7 +120,7 @@ export function CourseEnrollButton({ courseId, priceInrPaise, isEnrolled }: Cour
         disabled={loading}
         className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light disabled:opacity-60 sm:flex-row sm:gap-2"
       >
-        <span>{loading ? "Redirecting…" : "Enroll Now"}</span>
+        <span>{loading ? "Loading…" : "Pay with UPI"}</span>
         <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
       </button>
     </div>

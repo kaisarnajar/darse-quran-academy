@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { formatPrice } from "@/lib/courses";
-import { getAllCourses } from "@/lib/courses";
+import { formatPrice, getAllCourses } from "@/lib/courses";
+import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
 
 export default async function AdminCoursesPage({
   searchParams,
@@ -9,7 +9,7 @@ export default async function AdminCoursesPage({
   searchParams: Promise<{ deleted?: string }>;
 }) {
   const params = await searchParams;
-  const courses = await getAllCourses();
+  const [courses, enrollmentCounts] = await Promise.all([getAllCourses(), getEnrollmentCountsByCourse()]);
 
   return (
     <div>
@@ -31,32 +31,44 @@ export default async function AdminCoursesPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="border-b border-border bg-background/50 text-muted">
             <tr>
               <th className="px-4 py-3 font-medium">Title</th>
               <th className="px-4 py-3 font-medium">Category</th>
               <th className="px-4 py-3 font-medium">Price</th>
+              <th className="px-4 py-3 font-medium">Students</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium" />
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {courses.map((course) => (
-              <tr key={course.id}>
-                <td className="px-4 py-3 font-medium text-foreground">{course.title}</td>
-                <td className="px-4 py-3 text-muted">{course.category}</td>
-                <td className="px-4 py-3 text-muted">{formatPrice(course.priceInrPaise)}</td>
-                <td className="px-4 py-3">
-                  <StatusBadge published={course.published} />
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Link href={`/admin/courses/${course.id}/edit`} className="text-primary hover:underline">
-                    Edit
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {courses.map((course) => {
+              const studentCount = enrollmentCounts.get(course.id) ?? 0;
+              return (
+                <tr key={course.id}>
+                  <td className="px-4 py-3 font-medium text-foreground">{course.title}</td>
+                  <td className="px-4 py-3 text-muted">{course.category}</td>
+                  <td className="px-4 py-3 text-muted">{formatPrice(course.priceInrPaise)}</td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/admin/courses/${course.id}/students`}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {studentCount} student{studentCount === 1 ? "" : "s"}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge published={course.published} />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link href={`/admin/courses/${course.id}/edit`} className="text-primary hover:underline">
+                      Edit
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

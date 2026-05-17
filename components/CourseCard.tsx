@@ -5,6 +5,8 @@ import { formatPrice } from "@/lib/courses";
 type CourseCardProps = {
   course: Course;
   isEnrolled?: boolean;
+  enrollmentStatus?: string | null;
+  enrollmentId?: string | null;
 };
 
 const levelColors: Record<string, string> = {
@@ -13,7 +15,12 @@ const levelColors: Record<string, string> = {
   Advanced: "bg-stone-200 text-stone-800",
 };
 
-export function CourseCard({ course, isEnrolled = false }: CourseCardProps) {
+export function CourseCard({
+  course,
+  isEnrolled = false,
+  enrollmentStatus = null,
+  enrollmentId = null,
+}: CourseCardProps) {
   const levelClass = levelColors[course.level] ?? "bg-slate-100 text-slate-800";
 
   return (
@@ -34,6 +41,8 @@ export function CourseCard({ course, isEnrolled = false }: CourseCardProps) {
         courseId={course.id}
         priceInrPaise={course.priceInrPaise}
         isEnrolled={isEnrolled}
+        enrollmentStatus={enrollmentStatus}
+        enrollmentId={enrollmentId}
       />
     </article>
   );

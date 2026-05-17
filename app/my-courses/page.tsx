@@ -11,10 +11,17 @@ export const metadata: Metadata = {
   description: "View your enrolled courses at Darse Quran Academy.",
 };
 
+function statusLabel(status: string) {
+  if (status === "pending_verification") return "Awaiting payment verification";
+  if (status === "pending") return "Payment pending";
+  if (status === "active") return "Active";
+  return status;
+}
+
 export default async function MyCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ pending?: string }>;
 }) {
   const session = await auth();
   const params = await searchParams;
@@ -36,12 +43,13 @@ export default async function MyCoursesPage({
     <Section>
       <PageHeader
         title="My Courses"
-        description={`Welcome${session.user.name ? `, ${session.user.name}` : ""}! Here are your enrolled programs.`}
+        description={`Welcome${session.user.name ? `, ${session.user.name}` : ""}! Here are your programs.`}
       />
 
-      {params.success === "1" && (
-        <p className="mx-auto mt-6 max-w-2xl rounded-md bg-violet-50 px-4 py-3 text-center text-sm text-violet-800">
-          Payment successful. Your enrollment is now active.
+      {params.pending === "1" && (
+        <p className="mx-auto mt-6 max-w-2xl rounded-md bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
+          Thank you! We received your UPI payment details and will verify them shortly. You will get access once
+          confirmed.
         </p>
       )}
 
@@ -50,7 +58,7 @@ export default async function MyCoursesPage({
           <p className="text-muted">You have not enrolled in any courses yet.</p>
           <Link
             href="/courses"
-            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light"
           >
             Browse Courses
           </Link>
@@ -63,21 +71,29 @@ export default async function MyCoursesPage({
             return (
               <li
                 key={enrollment.id}
-                className="rounded-lg border border-border bg-surface p-5 shadow-sm"
+                className="card-elevated flex flex-col p-5"
               >
-                <span className="text-xs font-medium uppercase tracking-wide text-accent">
-                  {enrollment.status}
+                <span className="w-fit rounded-full bg-accent-muted px-2.5 py-0.5 text-xs font-medium text-primary">
+                  {statusLabel(enrollment.status)}
                 </span>
                 <h2 className="mt-2 font-serif text-lg font-semibold text-foreground">{course.title}</h2>
-                <p className="mt-2 text-sm text-muted">{course.description}</p>
+                <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
                 <p className="mt-3 text-sm text-primary">Starts: {course.startDate}</p>
                 {enrollment.amountPaid != null && (
                   <p className="mt-1 text-sm font-medium text-foreground">
                     Paid: {formatPrice(enrollment.amountPaid)}
                   </p>
                 )}
+                {enrollment.status === "pending" && (
+                  <Link
+                    href={`/payment/${enrollment.id}`}
+                    className="mt-4 flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light"
+                  >
+                    Complete UPI payment
+                  </Link>
+                )}
                 <p className="mt-4 text-xs text-muted">
-                  Enrolled {enrollment.createdAt.toLocaleDateString("en-IN")}
+                  {enrollment.createdAt.toLocaleDateString("en-IN")}
                 </p>
               </li>
             );

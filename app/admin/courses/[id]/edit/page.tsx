@@ -42,7 +42,11 @@ export default async function EditCoursePage({
 
       {enrollmentCount > 0 && (
         <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {enrollmentCount} student(s) enrolled. Deleting is blocked; uncheck Published to hide instead.
+          {enrollmentCount} student(s) enrolled.{" "}
+          <Link href={`/admin/courses/${id}/students`} className="font-medium text-primary hover:underline">
+            View students
+          </Link>
+          . Deleting is blocked; uncheck Published to hide instead.
         </p>
       )}
 
