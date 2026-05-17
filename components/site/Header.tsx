@@ -18,9 +18,17 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hash, setHash] = useState("");
 
   useEffect(() => {
     setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const syncHash = () => setHash(window.location.hash);
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
   }, [pathname]);
 
   useEffect(() => {
@@ -31,8 +39,12 @@ export function Header() {
   }, [menuOpen]);
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    if (href.includes("#")) return pathname === href.split("#")[0];
+    if (href.includes("#")) {
+      const [path, fragment] = href.split("#");
+      const basePath = path || "/";
+      return pathname === basePath && hash === `#${fragment}`;
+    }
+    if (href === "/") return pathname === "/" && !hash;
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
