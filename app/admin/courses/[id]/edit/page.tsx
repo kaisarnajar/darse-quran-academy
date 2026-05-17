@@ -4,6 +4,7 @@ import { CourseForm } from "@/components/admin/CourseForm";
 import { DeleteForm } from "@/components/admin/DeleteForm";
 import { deleteCourse, updateCourse } from "@/app/admin/courses/actions";
 import { getCourseById } from "@/lib/courses";
+import { getAllTeachers } from "@/lib/teachers";
 import { prisma } from "@/lib/prisma";
 
 export default async function EditCoursePage({
@@ -15,7 +16,7 @@ export default async function EditCoursePage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const course = await getCourseById(id);
+  const [course, teachers] = await Promise.all([getCourseById(id), getAllTeachers()]);
 
   if (!course) notFound();
 
@@ -51,7 +52,7 @@ export default async function EditCoursePage({
       )}
 
       <div className="mt-8">
-        <CourseForm course={course} action={boundUpdate} submitLabel="Save changes" />
+        <CourseForm course={course} teachers={teachers} action={boundUpdate} submitLabel="Save changes" />
       </div>
 
       {enrollmentCount === 0 && <DeleteForm action={boundDelete} label="Delete course" />}

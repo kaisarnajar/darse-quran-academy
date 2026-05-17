@@ -17,3 +17,9 @@ export async function getAllTeachers(): Promise<Teacher[]> {
 export async function getTeacherById(id: string): Promise<Teacher | null> {
   return prisma.teacher.findUnique({ where: { id } });
 }
+
+export async function getPublishedTeacherById(id: string): Promise<Teacher | null> {
+  return prisma.teacher.findFirst({
+    where: { id, published: true },
+  });
+}

@@ -10,6 +10,7 @@ import { courseSchema } from "@/lib/validations";
 
 function parseCourseForm(formData: FormData) {
   const level = String(formData.get("level") ?? "Beginner");
+  const teacherId = String(formData.get("teacherId") ?? "").trim();
   return courseSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
@@ -17,6 +18,7 @@ function parseCourseForm(formData: FormData) {
     level,
     category: formData.get("category"),
     priceInrPaise: getRegistrationFeePaise(level),
+    teacherId,
     published: formData.get("published") === "on",
   });
 }

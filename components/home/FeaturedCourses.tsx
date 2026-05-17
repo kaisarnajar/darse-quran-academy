@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
-import type { Course } from "@/lib/courses";
+import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
+import type { CourseWithTeacher } from "@/lib/courses";
 
 const categoryGradients: Record<string, string> = {
   Quran: "from-teal-800 to-teal-600",
@@ -19,7 +20,7 @@ function courseImageClass(category: string) {
 }
 
 type FeaturedCoursesProps = {
-  courses: Course[];
+  courses: CourseWithTeacher[];
 };
 
 export function FeaturedCourses({ courses }: FeaturedCoursesProps) {
@@ -45,6 +46,7 @@ export function FeaturedCourses({ courses }: FeaturedCoursesProps) {
                 </span>
                 <h3 className="mt-2 text-lg font-bold text-foreground">{course.title}</h3>
                 <p className="mt-2 line-clamp-2 text-sm text-muted">{course.description}</p>
+                <CourseTeacherInfo teacher={course.teacher} compact />
                 <CoursePricingDisplay level={course.level} className="mt-2" compact />
                 <Link
                   href="/courses"

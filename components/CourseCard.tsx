@@ -1,9 +1,10 @@
 import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
-import type { Course } from "@/lib/courses";
+import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
+import type { CourseWithTeacher } from "@/lib/courses";
 
 type CourseCardProps = {
-  course: Course;
+  course: CourseWithTeacher;
   isEnrolled?: boolean;
   enrollmentStatus?: string | null;
   enrollmentId?: string | null;
@@ -57,9 +58,10 @@ export function CourseCard({
           </span>
         </div>
         <h3 className="text-lg font-bold text-foreground">{course.title}</h3>
-        <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
-        <p className="mt-3 text-sm text-muted">Starts: {course.startDate}</p>
-        <CoursePricingDisplay level={course.level} className="mt-3" />
+        <p className="mt-2 text-sm leading-relaxed text-muted">{course.description}</p>
+        <CourseTeacherInfo teacher={course.teacher} />
+        <p className="mt-4 text-sm text-muted">Starts: {course.startDate}</p>
+        <CoursePricingDisplay level={course.level} className="mt-2" />
         <CourseEnrollButton
           courseId={course.id}
           level={course.level}

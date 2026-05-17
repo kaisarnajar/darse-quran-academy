@@ -7,6 +7,7 @@ export type Course = {
   category: string;
   /** Legacy DB field; UPI registration fee is derived from level in lib/course-pricing.ts */
   priceInrPaise: number;
+  teacherId: string;
 };
 
 export const courses: Course[] = [
@@ -19,6 +20,7 @@ export const courses: Course[] = [
     level: "Beginner",
     category: "Quran",
     priceInrPaise: 9900,
+    teacherId: "1",
   },
   {
     id: "hifz-foundation",
@@ -29,6 +31,7 @@ export const courses: Course[] = [
     level: "Intermediate",
     category: "Hifz",
     priceInrPaise: 19900,
+    teacherId: "2",
   },
   {
     id: "tajweed-intensive",
@@ -39,6 +42,7 @@ export const courses: Course[] = [
     level: "Advanced",
     category: "Tajweed",
     priceInrPaise: 19900,
+    teacherId: "1",
   },
   {
     id: "arabic-grammar",
@@ -49,6 +53,7 @@ export const courses: Course[] = [
     level: "Intermediate",
     category: "Arabic",
     priceInrPaise: 19900,
+    teacherId: "3",
   },
   {
     id: "fiqh-basics",
@@ -59,6 +64,7 @@ export const courses: Course[] = [
     level: "Beginner",
     category: "Islamic Studies",
     priceInrPaise: 9900,
+    teacherId: "4",
   },
   {
     id: "seerah-youth",
@@ -69,5 +75,6 @@ export const courses: Course[] = [
     level: "Beginner",
     category: "Seerah",
     priceInrPaise: 9900,
+    teacherId: "6",
   },
 ];

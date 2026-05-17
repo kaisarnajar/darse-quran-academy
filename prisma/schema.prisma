@@ -63,9 +63,11 @@ model Course {
   level         String
   category      String
   priceInrPaise Int
+  teacherId     String?
   published     Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  teacher       Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
 }
 
 model Teacher {
@@ -78,6 +80,7 @@ model Teacher {
   published      Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  courses        Course[]
 }
 
 model LibraryItem {

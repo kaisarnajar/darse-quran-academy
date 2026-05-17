@@ -17,6 +17,7 @@ async function main() {
         level: course.level,
         category: course.category,
         priceInrPaise: course.priceInrPaise,
+        teacherId: course.teacherId,
         published: true,
       },
       update: {
@@ -26,6 +27,7 @@ async function main() {
         level: course.level,
         category: course.category,
         priceInrPaise: course.priceInrPaise,
+        teacherId: course.teacherId,
       },
     });
   }

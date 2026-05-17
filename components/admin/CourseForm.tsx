@@ -1,14 +1,15 @@
-import type { Course } from "@prisma/client";
+import type { Course, Teacher } from "@prisma/client";
 import { COURSE_PRICING_SUMMARY } from "@/lib/course-pricing";
 import { inputClassName, labelClassName } from "@/lib/form";
 
 type CourseFormProps = {
   course?: Course;
+  teachers: Teacher[];
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
 };
 
-export function CourseForm({ course, action, submitLabel }: CourseFormProps) {
+export function CourseForm({ course, teachers, action, submitLabel }: CourseFormProps) {
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
       <div>
@@ -64,6 +65,28 @@ export function CourseForm({ course, action, submitLabel }: CourseFormProps) {
             className={inputClassName}
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="teacherId" className={labelClassName}>
+          Instructor
+        </label>
+        <select
+          id="teacherId"
+          name="teacherId"
+          required
+          defaultValue={course?.teacherId ?? ""}
+          className={inputClassName}
+        >
+          <option value="" disabled>
+            Select a teacher
+          </option>
+          {teachers.map((teacher) => (
+            <option key={teacher.id} value={teacher.id}>
+              {teacher.name} — {teacher.specialization}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

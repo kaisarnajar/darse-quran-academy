@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Teacher } from "@/lib/teachers";
 
 type TeacherCardProps = {
@@ -5,8 +6,13 @@ type TeacherCardProps = {
 };
 
 export function TeacherCard({ teacher }: TeacherCardProps) {
+  const href = `/teachers/${teacher.id}`;
+
   return (
-    <article className="card-elevated flex flex-col items-center p-6 text-center">
+    <Link
+      href={href}
+      className="card-elevated flex flex-col items-center p-6 text-center transition-transform hover:-translate-y-0.5"
+    >
       {teacher.imageUrl ? (
         <img
           src={teacher.imageUrl}
@@ -14,16 +20,17 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
           className="h-20 w-20 rounded-xl object-cover ring-2 ring-accent-muted"
         />
       ) : (
-        <div
-          className="flex h-20 w-20 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-xl font-bold text-white"
+        <span
+          className="flex h-20 w-20 items-center justify-center rounded-full bg-teal-800 text-xl font-bold text-white"
           aria-hidden
         >
           {teacher.initials}
-        </div>
+        </span>
       )}
-      <h3 className="mt-4 font-serif text-base font-semibold text-foreground sm:text-lg">{teacher.name}</h3>
-      <p className="mt-1 text-sm font-medium text-accent">{teacher.specialization}</p>
-      <p className="mt-3 text-sm leading-relaxed text-muted">{teacher.bio}</p>
-    </article>
+      <h3 className="mt-4 text-base font-semibold text-foreground sm:text-lg">{teacher.name}</h3>
+      <p className="mt-1 text-sm font-medium text-gold">{teacher.specialization}</p>
+      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">{teacher.bio}</p>
+      <span className="mt-4 text-xs font-semibold uppercase tracking-wide text-gold">View profile →</span>
+    </Link>
   );
 }

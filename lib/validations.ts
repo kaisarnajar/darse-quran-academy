@@ -9,6 +9,7 @@ export const courseSchema = z.object({
   level: levelEnum,
   category: z.string().min(1, "Category is required"),
   priceInrPaise: z.coerce.number().int().min(0),
+  teacherId: z.string().min(1, "Teacher is required"),
   published: z.coerce.boolean(),
 });
 
