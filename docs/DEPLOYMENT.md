@@ -91,22 +91,19 @@ Do **not** add seed to the Vercel build command (it would reset data on every de
 
 ---
 
-## Local development with PostgreSQL
+## Local development (SQLite)
 
-**Option A — Docker**
+Default local setup uses a file database — no Docker required:
 
 ```bash
-docker compose up -d
 cp .env.example .env
-# DATABASE_URL already points at local Postgres
+# DATABASE_URL="file:./dev.db"
 npm run db:migrate
 npm run db:seed
 npm run dev
 ```
 
-**Option B — Neon dev branch**
-
-Use a second Neon database or branch URL as `DATABASE_URL` in `.env`.
+Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local PostgreSQL for testing against production-like DB.
 
 ---
 

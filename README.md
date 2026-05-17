@@ -1,6 +1,6 @@
 # Darse Quran Academy
 
-Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (PostgreSQL), and **Auth.js**. Students browse courses, pay via **UPI**, and receive **PDF certificates** on completion. Admins manage content, verify payments, answer **Fatwa** questions, and mark students complete.
+Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (SQLite locally, PostgreSQL on Vercel), and **Auth.js**. Students browse courses, pay via **UPI**, and receive **PDF certificates** on completion. Admins manage content, verify payments, answer **Fatwa** questions, and mark students complete.
 
 ## Features
 
@@ -33,24 +33,18 @@ cp .env.example .env
 
 Fill in the values described in [Environment variables](#environment-variables) below.
 
-### 2. Database (PostgreSQL)
+### 2. Database
 
-Start local Postgres (requires [Docker](https://www.docker.com/)):
-
-```bash
-docker compose up -d
-```
-
-Copy `.env.example` to `.env` and ensure `DATABASE_URL` points at Postgres (default in example file).
+Copy `.env.example` to `.env`. Local development uses SQLite (`file:./dev.db`).
 
 ```bash
 npm run db:migrate
 npm run db:seed
 ```
 
-This applies migrations and seeds courses, teachers, and library items.
+This creates `prisma/dev.db`, applies migrations, and seeds courses, teachers, and library items.
 
-Without Docker, use a free [Neon](https://neon.tech) database URL in `.env` instead.
+For production (Vercel), use PostgreSQL — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ### 3. Run locally
 
@@ -72,7 +66,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `AUTH_URL` | Yes | Public site URL (e.g. `http://localhost:3000` or production domain). Used for OAuth callbacks and links in emails. |
 | `NEXTAUTH_URL` | Yes | Same as `AUTH_URL` in most setups. |
 | `AUTH_SECRET` | Yes | Random secret for session encryption. Generate: `openssl rand -base64 32` |
-| `DATABASE_URL` | Yes | PostgreSQL URL. Local (Docker): `postgresql://darse:darse@localhost:5432/darse`. Production: [Neon](https://neon.tech) connection string with `?sslmode=require` |
+| `DATABASE_URL` | Yes | Local: `"file:./dev.db"`. Production (Vercel): [Neon](https://neon.tech) PostgreSQL URL with `?sslmode=require` |
 | `ADMIN_EMAIL` | Yes | Email address that receives admin access to `/admin`. Must match the signed-in user. |
 | `AUTH_GOOGLE_ID` | No | Google OAuth client ID. Leave empty to hide “Sign in with Google”. |
 | `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret. |
@@ -115,7 +109,7 @@ If SMTP is not configured, emails are **logged to the server console** (includin
 AUTH_URL=http://localhost:3000
 NEXTAUTH_URL=http://localhost:3000
 AUTH_SECRET=replace-with-openssl-rand-output
-DATABASE_URL="postgresql://darse:darse@localhost:5432/darse"
+DATABASE_URL="file:./dev.db"
 ADMIN_EMAIL=you@example.com
 
 UPI_ID=yourname@okicici
