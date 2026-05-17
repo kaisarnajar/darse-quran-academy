@@ -84,3 +84,55 @@ export async function sendCertificateEmail(params: CertificateEmailParams): Prom
     html,
   });
 }
+
+export type FatwaAnswerEmailParams = {
+  to: string;
+  askerName: string;
+  questionTitle: string;
+  fatwaUrl: string;
+};
+
+export async function sendFatwaAnswerEmail(params: FatwaAnswerEmailParams): Promise<void> {
+  const { to, askerName, questionTitle, fatwaUrl } = params;
+  const displayName = askerName || "Reader";
+
+  const subject = `Your question has been answered — ${questionTitle}`;
+  const text = [
+    `Assalamu Alaikum ${displayName},`,
+    "",
+    `Your question "${questionTitle}" has been answered on Darse Quran Academy.`,
+    "",
+    "Read the answer here:",
+    fatwaUrl,
+    "",
+    "Darse Quran Academy — Fatwa Section",
+  ].join("\n");
+
+  const html = [
+    '<div style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1c1917; max-width: 560px;">',
+    `<p>Assalamu Alaikum <strong>${escapeHtml(displayName)}</strong>,</p>`,
+    `<p>Your question <strong>${escapeHtml(questionTitle)}</strong> has been answered.</p>`,
+    '<p style="margin: 28px 0;">',
+    `<a href="${fatwaUrl}" style="background: #3730a3; color: #fff; padding: 12px 24px; border-radius: 9999px; text-decoration: none; font-weight: 600;">`,
+    "Read the answer",
+    "</a></p>",
+    `<p style="font-size: 14px; color: #57534e;">Or copy this link: <a href="${fatwaUrl}">${escapeHtml(fatwaUrl)}</a></p>`,
+    '<p style="margin-top: 24px; font-size: 14px; color: #57534e;">— Darse Quran Academy</p>',
+    "</div>",
+  ].join("");
+
+  if (!isEmailConfigured()) {
+    console.info("[email] SMTP not configured. Fatwa answer email would be sent to:", to);
+    console.info("[email] Fatwa URL:", fatwaUrl);
+    return;
+  }
+
+  const transport = createTransport();
+  await transport.sendMail({
+    from: getFromAddress(),
+    to,
+    subject,
+    text,
+    html,
+  });
+}

@@ -16,9 +16,11 @@ model User {
   password      String?
   accounts      Account[]
   sessions      Session[]
-  enrollments   Enrollment[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  enrollments     Enrollment[]
+  fatwaQuestions  FatwaQuestion[]
+  fatwaAnswers    FatwaQuestion[] @relation("FatwaAnsweredBy")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model Account {
@@ -108,4 +110,24 @@ model Enrollment {
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+}
+
+model FatwaQuestion {
+  id           String    @id @default(cuid())
+  userId       String?
+  askerName    String
+  askerEmail   String
+  category     String
+  title        String
+  question     String
+  answer       String?
+  answeredAt   DateTime?
+  answeredById String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  answeredBy   User?     @relation("FatwaAnsweredBy", fields: [answeredById], references: [id], onDelete: SetNull)
+
+  @@index([category])
+  @@index([answeredAt])
 }

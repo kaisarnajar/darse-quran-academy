@@ -9,6 +9,7 @@ const links = [
   { href: "/admin/courses", label: "Courses" },
   { href: "/admin/teachers", label: "Teachers" },
   { href: "/admin/library", label: "Library" },
+  { href: "/admin/fatwa", label: "Fatwa" },
 ];
 
 export function AdminSidebar() {

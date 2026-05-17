@@ -31,6 +31,21 @@ export const libraryItemSchema = z.object({
   published: z.coerce.boolean(),
 });
 
+export const fatwaCategoryEnum = z.enum(["Islam", "Atheism", "Fatwa", "Other"]);
+
+export const fatwaQuestionSchema = z.object({
+  category: fatwaCategoryEnum,
+  title: z.string().trim().min(10, "Title must be at least 10 characters.").max(200),
+  question: z.string().trim().min(30, "Question must be at least 30 characters.").max(5000),
+  askerName: z.string().trim().min(2, "Name is required.").max(100),
+  askerEmail: z.string().trim().email("Enter a valid email address."),
+});
+
+export const fatwaAnswerSchema = z.object({
+  answer: z.string().trim().min(20, "Answer must be at least 20 characters.").max(10000),
+});
+
 export type CourseInput = z.infer<typeof courseSchema>;
 export type TeacherInput = z.infer<typeof teacherSchema>;
 export type LibraryItemInput = z.infer<typeof libraryItemSchema>;
+export type FatwaQuestionInput = z.infer<typeof fatwaQuestionSchema>;
