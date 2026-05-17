@@ -1,31 +1,15 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export function HomeHero() {
   return (
-    <section className="relative min-h-[420px] overflow-hidden sm:min-h-[480px] lg:min-h-[540px]">
-      <Image
-        src="/hero-bg.webp"
-        alt=""
-        fill
-        priority
-        className="object-cover object-center"
-        sizes="100vw"
-      />
-      <div className="hero-gradient absolute inset-0" aria-hidden />
-      <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 sm:py-20 lg:py-28">
-        <h1 className="max-w-2xl text-3xl font-bold leading-tight text-[var(--gold-light)] sm:text-4xl lg:text-5xl">
-          Islamic Education Online Academy
-        </h1>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
-          Learn Quran, Tajweed, Arabic, and Islamic studies online with qualified teachers—wherever
-          you are in the world.
+    <section className="bg-gradient-to-br from-stone-900 via-teal-900 to-stone-800 text-white">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <h1 className="text-3xl font-bold text-gold-light sm:text-4xl">Darse Quran Academy</h1>
+        <p className="mt-3 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
+          Learn Quran, Tajweed, and Islamic studies online with qualified teachers—wherever you are.
         </p>
-        <Link
-          href="/about"
-          className="btn-gold-outline mt-8 inline-flex w-fit items-center justify-center px-8 py-3 text-sm"
-        >
-          Contact Us
+        <Link href="/courses" className="btn-gold-outline mt-6 inline-flex px-6 py-2.5 text-sm">
+          View Courses
         </Link>
       </div>
     </section>
