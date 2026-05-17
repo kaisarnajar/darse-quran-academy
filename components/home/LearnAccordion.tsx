@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
 
@@ -28,45 +27,36 @@ export function LearnAccordion() {
 
   return (
     <section className="bg-white py-16 sm:py-20">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14">
-        <div>
+      <div className="mx-auto max-w-2xl px-4 sm:px-6">
+        <div className="text-center">
           <SplitSectionTitle muted="What You'll" accent="Learn" />
-          <ul className="mt-8 divide-y divide-border">
-            {items.map((item, index) => {
-              const isOpen = openIndex === index;
-              return (
-                <li key={item.title}>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between gap-4 py-4 text-left"
-                    onClick={() => setOpenIndex(isOpen ? -1 : index)}
-                    aria-expanded={isOpen}
+        </div>
+        <ul className="mt-8 divide-y divide-border">
+          {items.map((item, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <li key={item.title}>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-4 py-4 text-left"
+                  onClick={() => setOpenIndex(isOpen ? -1 : index)}
+                  aria-expanded={isOpen}
+                >
+                  <span className="font-semibold text-foreground">{item.title}</span>
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-gold text-gold transition-transform ${isOpen ? "rotate-45" : ""}`}
+                    aria-hidden
                   >
-                    <span className="font-semibold text-foreground">{item.title}</span>
-                    <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-gold text-gold transition-transform ${isOpen ? "rotate-45" : ""}`}
-                      aria-hidden
-                    >
-                      +
-                    </span>
-                  </button>
-                  {isOpen && (
-                    <p className="pb-4 text-sm leading-relaxed text-muted">{item.body}</p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-lg">
-          <Image
-            src="/about-visual.webp"
-            alt="Students learning Quran online"
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
-        </div>
+                    +
+                  </span>
+                </button>
+                {isOpen && (
+                  <p className="pb-4 text-sm leading-relaxed text-muted">{item.body}</p>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );
