@@ -1,5 +1,6 @@
 import type { Course } from "@prisma/client";
-import { inputClassName, labelClassName, paiseToRupees } from "@/lib/form";
+import { COURSE_PRICING_SUMMARY } from "@/lib/course-pricing";
+import { inputClassName, labelClassName } from "@/lib/form";
 
 type CourseFormProps = {
   course?: Course;
@@ -76,20 +77,9 @@ export function CourseForm({ course, action, submitLabel }: CourseFormProps) {
             <option value="Advanced">Advanced</option>
           </select>
         </div>
-        <div>
-          <label htmlFor="priceRupees" className={labelClassName}>
-            Price (INR)
-          </label>
-          <input
-            id="priceRupees"
-            name="priceRupees"
-            type="number"
-            min={0}
-            step={1}
-            required
-            defaultValue={course ? paiseToRupees(course.priceInrPaise) : undefined}
-            className={inputClassName}
-          />
+        <div className="flex flex-col justify-end rounded-md border border-border bg-background/50 px-3 py-3 text-xs leading-relaxed text-muted">
+          <p className="font-medium text-foreground">Fees (by level)</p>
+          <p className="mt-1">{COURSE_PRICING_SUMMARY}</p>
         </div>
       </div>
 

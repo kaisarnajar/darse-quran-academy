@@ -6,6 +6,7 @@ import { CopyButton } from "@/components/payment/CopyButton";
 import { PaymentConfirmForm } from "@/components/payment/PaymentConfirmForm";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
+import { getCoursePricing, getRegistrationFeePaise } from "@/lib/course-pricing";
 import { formatPrice, getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 import {
@@ -56,9 +57,10 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
   const course = await getCourseById(enrollment.courseId);
   if (!course) notFound();
 
+  const registrationFeePaise = getRegistrationFeePaise(course.level);
   const paymentRef = enrollment.paymentReference ?? enrollment.id;
   const upiUrl = buildUpiPaymentUrl({
-    amountPaise: course.priceInrPaise,
+    amountPaise: registrationFeePaise,
     payeeName: getUpiPayeeName(),
     note: `${course.title}`.slice(0, 80),
     transactionRef: paymentRef,
@@ -77,9 +79,13 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
         <p className="mt-1 text-sm text-muted">{course.title}</p>
 
         <div className="card-elevated mt-8 p-6 sm:p-8">
-          <p className="text-center text-sm text-muted">Amount to pay</p>
-          <p className="text-center font-serif text-3xl font-bold text-foreground">
-            {formatPrice(course.priceInrPaise)}
+          <p className="text-center text-sm text-muted">Registration fee (one-time)</p>
+          <p className="text-center text-3xl font-bold text-foreground">
+            {formatPrice(registrationFeePaise)}
+          </p>
+          <p className="mt-2 text-center text-xs text-muted">
+            Monthly class fee (₹{getCoursePricing(course.level).monthlyFeeInr}/month) is paid
+            separately.
           </p>
 
           <div className="mx-auto mt-6 flex justify-center rounded-xl border border-border bg-white p-4">

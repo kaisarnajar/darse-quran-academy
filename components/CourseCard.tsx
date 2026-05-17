@@ -1,6 +1,6 @@
 import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
+import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
 import type { Course } from "@/lib/courses";
-import { formatPrice } from "@/lib/courses";
 
 type CourseCardProps = {
   course: Course;
@@ -59,10 +59,10 @@ export function CourseCard({
         <h3 className="text-lg font-bold text-foreground">{course.title}</h3>
         <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
         <p className="mt-3 text-sm text-muted">Starts: {course.startDate}</p>
-        <p className="mt-1 text-lg font-bold text-gold">{formatPrice(course.priceInrPaise)}</p>
+        <CoursePricingDisplay level={course.level} className="mt-3" />
         <CourseEnrollButton
           courseId={course.id}
-          priceInrPaise={course.priceInrPaise}
+          level={course.level}
           isEnrolled={isEnrolled}
           enrollmentStatus={enrollmentStatus}
           enrollmentId={enrollmentId}

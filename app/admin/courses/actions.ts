@@ -3,20 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
-import { rupeesToPaise } from "@/lib/form";
+import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { prisma } from "@/lib/prisma";
 import { uniqueSlug } from "@/lib/slug";
 import { courseSchema } from "@/lib/validations";
 
 function parseCourseForm(formData: FormData) {
-  const priceRupees = formData.get("priceRupees");
+  const level = String(formData.get("level") ?? "Beginner");
   return courseSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
     startDate: formData.get("startDate"),
-    level: formData.get("level"),
+    level,
     category: formData.get("category"),
-    priceInrPaise: rupeesToPaise(Number(priceRupees)),
+    priceInrPaise: getRegistrationFeePaise(level),
     published: formData.get("published") === "on",
   });
 }

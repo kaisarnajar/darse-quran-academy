@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
+import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
 import type { Course } from "@/lib/courses";
-import { formatPrice } from "@/lib/courses";
 
 const categoryGradients: Record<string, string> = {
   Quran: "from-teal-800 to-teal-600",
@@ -45,9 +45,7 @@ export function FeaturedCourses({ courses }: FeaturedCoursesProps) {
                 </span>
                 <h3 className="mt-2 text-lg font-bold text-foreground">{course.title}</h3>
                 <p className="mt-2 line-clamp-2 text-sm text-muted">{course.description}</p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
-                  {formatPrice(course.priceInrPaise)}
-                </p>
+                <CoursePricingDisplay level={course.level} className="mt-2" compact />
                 <Link
                   href="/courses"
                   className="btn-gold-outline mt-4 inline-flex w-full items-center justify-center py-2.5 text-xs"

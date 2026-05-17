@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { formatPrice, getAllCourses } from "@/lib/courses";
+import { getCoursePricing } from "@/lib/course-pricing";
+import { getAllCourses } from "@/lib/courses";
 import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
 
 export default async function AdminCoursesPage({
@@ -36,7 +37,7 @@ export default async function AdminCoursesPage({
             <tr>
               <th className="px-4 py-3 font-medium">Title</th>
               <th className="px-4 py-3 font-medium">Category</th>
-              <th className="px-4 py-3 font-medium">Price</th>
+              <th className="px-4 py-3 font-medium">Fees</th>
               <th className="px-4 py-3 font-medium">Students</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium" />
@@ -45,11 +46,14 @@ export default async function AdminCoursesPage({
           <tbody className="divide-y divide-border">
             {courses.map((course) => {
               const studentCount = enrollmentCounts.get(course.id) ?? 0;
+              const fees = getCoursePricing(course.level);
               return (
                 <tr key={course.id}>
                   <td className="px-4 py-3 font-medium text-foreground">{course.title}</td>
                   <td className="px-4 py-3 text-muted">{course.category}</td>
-                  <td className="px-4 py-3 text-muted">{formatPrice(course.priceInrPaise)}</td>
+                  <td className="px-4 py-3 text-muted">
+                    ₹{fees.registrationFeeInr} reg. · ₹{fees.monthlyFeeInr}/mo
+                  </td>
                   <td className="px-4 py-3">
                     <Link
                       href={`/admin/courses/${course.id}/students`}

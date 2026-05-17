@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { formatPrice } from "@/lib/courses";
+import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseEnrollmentReminder, hasCourseEnrollment } from "@/lib/enrollments";
 
 type CourseEnrollButtonProps = {
   courseId: string;
-  priceInrPaise: number;
+  level: string;
   isEnrolled?: boolean;
   enrollmentStatus?: string | null;
   enrollmentId?: string | null;
@@ -27,11 +28,12 @@ function EnrollmentReminder({ message }: { message: string }) {
 
 export function CourseEnrollButton({
   courseId,
-  priceInrPaise,
+  level,
   isEnrolled = false,
   enrollmentStatus = null,
   enrollmentId = null,
 }: CourseEnrollButtonProps) {
+  const registrationFeePaise = getRegistrationFeePaise(level);
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -91,7 +93,7 @@ export function CourseEnrollButton({
           className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
         >
           <span>Complete UPI Payment</span>
-          <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
+          <span className="text-white/90">· {formatPrice(registrationFeePaise)} reg.</span>
         </Link>
       </div>
     );
@@ -151,7 +153,7 @@ export function CourseEnrollButton({
         className="mt-4 flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
       >
         <span>Sign in to Enroll</span>
-        <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
+        <span className="text-white/90">· {formatPrice(registrationFeePaise)} reg.</span>
       </Link>
     );
   }
@@ -174,8 +176,8 @@ export function CourseEnrollButton({
         disabled={loading}
         className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light disabled:opacity-60 sm:flex-row sm:gap-2"
       >
-        <span>{loading ? "Loading…" : "Pay with UPI"}</span>
-        <span className="text-white/90">· {formatPrice(priceInrPaise)}</span>
+        <span>{loading ? "Loading…" : "Pay registration (UPI)"}</span>
+        <span className="text-white/90">· {formatPrice(registrationFeePaise)}</span>
       </button>
     </div>
   );

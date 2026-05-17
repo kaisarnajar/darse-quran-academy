@@ -5,7 +5,7 @@ export type Course = {
   startDate: string;
   level: "Beginner" | "Intermediate" | "Advanced";
   category: string;
-  /** Price in paise (100 paise = ₹1). Example: 299900 = ₹2,999 */
+  /** Legacy DB field; UPI registration fee is derived from level in lib/course-pricing.ts */
   priceInrPaise: number;
 };
 
@@ -18,7 +18,7 @@ export const courses: Course[] = [
     startDate: "June 2026",
     level: "Beginner",
     category: "Quran",
-    priceInrPaise: 299900,
+    priceInrPaise: 9900,
   },
   {
     id: "hifz-foundation",
@@ -28,7 +28,7 @@ export const courses: Course[] = [
     startDate: "July 2026",
     level: "Intermediate",
     category: "Hifz",
-    priceInrPaise: 499900,
+    priceInrPaise: 19900,
   },
   {
     id: "tajweed-intensive",
@@ -38,7 +38,7 @@ export const courses: Course[] = [
     startDate: "May 2026",
     level: "Advanced",
     category: "Tajweed",
-    priceInrPaise: 399900,
+    priceInrPaise: 19900,
   },
   {
     id: "arabic-grammar",
@@ -48,7 +48,7 @@ export const courses: Course[] = [
     startDate: "August 2026",
     level: "Intermediate",
     category: "Arabic",
-    priceInrPaise: 349900,
+    priceInrPaise: 19900,
   },
   {
     id: "fiqh-basics",
@@ -58,7 +58,7 @@ export const courses: Course[] = [
     startDate: "June 2026",
     level: "Beginner",
     category: "Islamic Studies",
-    priceInrPaise: 249900,
+    priceInrPaise: 9900,
   },
   {
     id: "seerah-youth",
@@ -68,6 +68,6 @@ export const courses: Course[] = [
     startDate: "Ongoing",
     level: "Beginner",
     category: "Seerah",
-    priceInrPaise: 199900,
+    priceInrPaise: 9900,
   },
 ];

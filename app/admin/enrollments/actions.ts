@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-actions";
 import { markAllActiveStudentsComplete, markEnrollmentCompleteAndNotify } from "@/lib/completion";
+import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 import { adminEnrollUserSchema } from "@/lib/validations";
@@ -48,7 +49,7 @@ export async function confirmEnrollmentPayment(enrollmentId: string, courseId: s
     where: { id: enrollmentId },
     data: {
       status: "active",
-      amountPaid: course.priceInrPaise,
+      amountPaid: getRegistrationFeePaise(course.level),
       currency: "inr",
       paymentMethod: "upi",
     },
@@ -96,6 +97,7 @@ export async function adminEnrollUser(
 
   const utr = parsed.data.upiTransactionId?.trim() || null;
   const activate = parsed.data.markAsPaid || Boolean(utr);
+  const registrationFeePaise = getRegistrationFeePaise(course.level);
 
   await prisma.enrollment.upsert({
     where: {
@@ -105,7 +107,7 @@ export async function adminEnrollUser(
       userId: user.id,
       courseId: course.id,
       status: activate ? "active" : "pending",
-      amountPaid: activate ? course.priceInrPaise : null,
+      amountPaid: activate ? registrationFeePaise : null,
       currency: activate ? "inr" : null,
       paymentMethod: activate ? "upi" : null,
       upiTransactionId: utr,
@@ -113,7 +115,7 @@ export async function adminEnrollUser(
     },
     update: {
       status: activate ? "active" : "pending",
-      amountPaid: activate ? course.priceInrPaise : undefined,
+      amountPaid: activate ? registrationFeePaise : undefined,
       currency: activate ? "inr" : undefined,
       paymentMethod: activate ? "upi" : undefined,
       upiTransactionId: utr ?? undefined,
