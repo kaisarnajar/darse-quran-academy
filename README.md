@@ -1,6 +1,6 @@
 # Darse Quran Academy
 
-Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (SQLite), and **Auth.js**. Students browse courses, pay via **UPI**, and receive **PDF certificates** on completion. Admins manage content, verify payments, answer **Fatwa** questions, and mark students complete.
+Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (PostgreSQL), and **Auth.js**. Students browse courses, pay via **UPI**, and receive **PDF certificates** on completion. Admins manage content, verify payments, answer **Fatwa** questions, and mark students complete.
 
 ## Features
 
@@ -33,14 +33,24 @@ cp .env.example .env
 
 Fill in the values described in [Environment variables](#environment-variables) below.
 
-### 2. Database
+### 2. Database (PostgreSQL)
+
+Start local Postgres (requires [Docker](https://www.docker.com/)):
+
+```bash
+docker compose up -d
+```
+
+Copy `.env.example` to `.env` and ensure `DATABASE_URL` points at Postgres (default in example file).
 
 ```bash
 npm run db:migrate
 npm run db:seed
 ```
 
-This creates `prisma/dev.db`, applies migrations, and seeds courses, teachers, and library items.
+This applies migrations and seeds courses, teachers, and library items.
+
+Without Docker, use a free [Neon](https://neon.tech) database URL in `.env` instead.
 
 ### 3. Run locally
 
@@ -62,7 +72,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `AUTH_URL` | Yes | Public site URL (e.g. `http://localhost:3000` or production domain). Used for OAuth callbacks and links in emails. |
 | `NEXTAUTH_URL` | Yes | Same as `AUTH_URL` in most setups. |
 | `AUTH_SECRET` | Yes | Random secret for session encryption. Generate: `openssl rand -base64 32` |
-| `DATABASE_URL` | Yes | Prisma connection string. Local default: `"file:./dev.db"` |
+| `DATABASE_URL` | Yes | PostgreSQL URL. Local (Docker): `postgresql://darse:darse@localhost:5432/darse`. Production: [Neon](https://neon.tech) connection string with `?sslmode=require` |
 | `ADMIN_EMAIL` | Yes | Email address that receives admin access to `/admin`. Must match the signed-in user. |
 | `AUTH_GOOGLE_ID` | No | Google OAuth client ID. Leave empty to hide “Sign in with Google”. |
 | `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret. |
@@ -105,7 +115,7 @@ If SMTP is not configured, emails are **logged to the server console** (includin
 AUTH_URL=http://localhost:3000
 NEXTAUTH_URL=http://localhost:3000
 AUTH_SECRET=replace-with-openssl-rand-output
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://darse:darse@localhost:5432/darse"
 ADMIN_EMAIL=you@example.com
 
 UPI_ID=yourname@okicici
@@ -131,6 +141,7 @@ EMAIL_FROM="Darse Quran Academy <you@gmail.com>"
 | `npm run db:migrate` | Apply Prisma migrations (`prisma migrate dev`) |
 | `npm run db:push` | Push schema without migration (prototyping) |
 | `npm run db:seed` | Seed courses, teachers, library |
+| `npm run vercel-build` | Production build on Vercel (`migrate deploy` + `next build`) |
 | `npm run optimize-logo` | Compress `public/logo.png` and regenerate favicons |
 
 ## Project structure (high level)
@@ -144,14 +155,23 @@ prisma/           # Schema, migrations, seed
 public/           # Static assets (logo, icons)
 ```
 
-## Deployment
+## Deployment (free testing)
 
-1. Set all required environment variables on your host (Vercel, Railway, VPS, etc.).
-2. Use a persistent database in production (PostgreSQL recommended; update `DATABASE_URL` and `provider` in `prisma/schema.prisma` if you migrate off SQLite).
-3. Set `AUTH_URL` and `NEXTAUTH_URL` to your **production** domain.
-4. Run migrations against the production database before or during deploy.
+**Recommended:** [Vercel](https://vercel.com) (app) + [Neon](https://neon.tech) (PostgreSQL).
 
-On Vercel: add env vars in Project Settings → Environment Variables, then deploy from `master`.
+1. Create a Neon project and copy `DATABASE_URL`.
+2. Import this repo on Vercel and set environment variables (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, `UPI_ID`, etc.).
+3. Deploy — build runs `prisma migrate deploy` automatically ([`vercel.json`](vercel.json)).
+4. Seed once from your PC: `DATABASE_URL="..." npm run db:seed`
+5. Register with `ADMIN_EMAIL` and open `/admin`.
+
+Full checklist, OAuth, SMTP, and troubleshooting: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
+
+| Platform | SQLite | PostgreSQL |
+|----------|--------|------------|
+| Vercel | Not supported | Yes (Neon) |
+| Railway / Fly.io | Possible with volume | Yes |
+| Render free | Unreliable | Yes (Render Postgres) |
 
 ## License
 

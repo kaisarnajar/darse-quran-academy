@@ -1,0 +1,16 @@
+# Optional local PostgreSQL (free) — matches .env.example DATABASE_URL
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: darse
+      POSTGRES_PASSWORD: darse
+      POSTGRES_DB: darse
+    ports:
+      - "5432:5432"
+    volumes:
+      - darse_pg_data:/var/lib/postgresql/data
+
+volumes:
+  darse_pg_data:
