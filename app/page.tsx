@@ -1,5 +1,11 @@
+import { Amiri } from "next/font/google";
 import Link from "next/link";
 import { HadithBanner } from "@/components/site/HadithBanner";
+
+const amiri = Amiri({
+  subsets: ["arabic"],
+  weight: ["400", "700"],
+});
 import { Section } from "@/components/site/Section";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { getPublishedCourses } from "@/lib/courses";
@@ -33,8 +39,12 @@ export default async function HomePage() {
       <section className="hero-gradient text-white">
         <Section className="py-12 sm:py-20 lg:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200 sm:text-sm">
-              Bismillah ir-Rahman ir-Rahim
+            <p
+              lang="ar"
+              dir="rtl"
+              className={`${amiri.className} text-lg font-bold text-amber-100 sm:text-xl md:text-2xl`}
+            >
+              بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
             </p>
             <h1 className="mt-4 font-serif text-2xl font-bold leading-snug sm:text-4xl sm:leading-tight lg:text-5xl">
               Authentic Islamic Education for Every Seeker
