@@ -1,15 +1,15 @@
 const features = [
   {
-    title: "Around the Clock",
+    title: "After Isha Salah",
     description:
-      "Flexible scheduling so students across time zones can learn at times that suit their routine.",
+      "Classes are held after Isha salah, so you can work during the day and manage your prayers properly.",
     icon: (
       <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={1.5}
-          d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
         />
       </svg>
     ),

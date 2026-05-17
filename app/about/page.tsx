@@ -3,18 +3,20 @@ import { Section } from "@/components/site/Section";
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn about Darse Quran Academy's mission, values, and contact information.",
+  description:
+    "Darse-Quran is a non-profit Sunni Islamic media group in South Asia. Learn about our mission, online academy, and contact information.",
 };
 
 const values = [
   {
     title: "Authenticity",
     description:
-      "Curricula rooted in classical Islamic scholarship, taught with clarity and care for the sources.",
+      "Teaching rooted in classical Sunni scholarship, with clarity and care for the sources of Islam.",
   },
   {
     title: "Accessibility",
-    description: "Quality Islamic education should be available to students worldwide, online.",
+    description:
+      "Online classes and resources so students worldwide can learn, with a schedule that respects daily life and prayer.",
   },
   {
     title: "Excellence",
@@ -28,16 +30,41 @@ export default function AboutPage() {
       <Section>
         <div className="mx-auto max-w-3xl">
           <h1 className="font-serif text-2xl font-bold text-primary sm:text-3xl md:text-4xl">
-            About Darse Quran Academy
+            About Us
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted sm:mt-6 sm:text-lg">
-            Darse Quran Academy was established to provide structured, authentic Islamic education open to
-            Muslims of every background. We offer courses in Quran recitation (Nazira), memorization (Hifz),
-            Tajweed, Arabic grammar, Islamic studies, and Seerah—taught by experienced instructors.
+            Darse-Quran is a non-profit Sunni Islamic Media Group based in South Asia, mainly functioning
+            in Jammu and Kashmir aiming to spread the teaching of Islam to people all over the globe. It is
+            engaged in propagating the religion of Islam, elucidating its principles and tenets, refuting
+            suspicious and false allegations made against the religion. The group uses various print and
+            electronic means to spread the message of Islam and peace.
+          </p>
+        </div>
+      </Section>
+
+      <Section className="bg-accent-muted/20">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="font-serif text-xl font-bold text-primary sm:text-2xl">Darse Quran Academy</h2>
+          <p className="mt-4 text-base leading-relaxed text-muted">
+            Darse Quran Academy is the online teaching platform of Darse-Quran. It offers structured,
+            authentic Islamic education to Muslims everywhere—through live classes, course enrollment, and
+            learning materials—while staying aligned with the group&apos;s mission of clear, sound da&apos;wah.
           </p>
           <p className="mt-4 text-base leading-relaxed text-muted">
-            Our programs blend time-tested teaching methods with modern online delivery, so students of
-            all ages and backgrounds can learn from qualified teachers wherever they live.
+            Our instructors guide students in Quran recitation (Nazira), memorization (Hifz), Tajweed,
+            Arabic grammar, Islamic studies, and Seerah. Classes are generally held after Isha salah, so
+            learners can work or study during the day and give prayer its proper place in their routine.
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-muted">
+            Beyond courses, the academy provides a public Fatwa Q&amp;A section where questions can be
+            submitted and answered according to Sunni scholarship, and a digital library of Islamic books
+            and resources for ongoing study.
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-muted">
+            Students who complete structured programs with the required progress may earn completion
+            certificates. Whether you are beginning your journey with the Quran or building on prior
+            knowledge, we aim to support you with qualified teachers and a caring, disciplined learning
+            environment.
           </p>
         </div>
       </Section>
@@ -68,7 +95,9 @@ export default function AboutPage() {
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Location:</span>
-              <span>Online academy — serving students worldwide</span>
+              <span>
+                Based in Jammu and Kashmir, South Asia — online classes for students worldwide
+              </span>
             </li>
           </ul>
           <p className="mt-5 text-left text-sm leading-relaxed text-muted sm:mt-6 sm:text-center">
