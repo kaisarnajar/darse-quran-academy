@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteFatwaButton } from "@/components/admin/DeleteFatwaButton";
 import { getAllFatwaQuestions } from "@/lib/fatwa";
 
 function statusLabel(answer: string | null) {
@@ -12,7 +13,7 @@ function statusClass(answer: string | null) {
 export default async function AdminFatwaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; saved?: string }>;
+  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string }>;
 }) {
   const params = await searchParams;
   const filter =
@@ -57,6 +58,12 @@ export default async function AdminFatwaPage({
         </p>
       )}
 
+      {params.deleted === "1" && (
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
+          Question deleted.
+        </p>
+      )}
+
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
         {questions.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No questions yet.</p>
@@ -95,10 +102,13 @@ export default async function AdminFatwaPage({
                       year: "numeric",
                     })}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/fatwa/${q.id}`} className="font-medium text-primary hover:underline">
-                      {q.answer ? "View" : "Answer"}
-                    </Link>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Link href={`/admin/fatwa/${q.id}`} className="font-medium text-primary hover:underline">
+                        {q.answer ? "View" : "Answer"}
+                      </Link>
+                      <DeleteFatwaButton id={q.id} title={q.title} />
+                    </div>
                   </td>
                 </tr>
               ))}

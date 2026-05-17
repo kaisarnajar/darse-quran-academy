@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AnswerFatwaForm } from "@/components/admin/AnswerFatwaForm";
-import { answerFatwaQuestion } from "@/app/admin/fatwa/actions";
+import { DeleteForm } from "@/components/admin/DeleteForm";
+import { answerFatwaQuestion, deleteFatwaQuestionForm } from "@/app/admin/fatwa/actions";
 import { getFatwaQuestionById } from "@/lib/fatwa";
 
 export default async function AdminFatwaDetailPage({
@@ -17,6 +18,7 @@ export default async function AdminFatwaDetailPage({
   if (!question) notFound();
 
   const answerAction = answerFatwaQuestion.bind(null, id);
+  const deleteAction = deleteFatwaQuestionForm.bind(null, id);
 
   return (
     <div>
@@ -65,6 +67,8 @@ export default async function AdminFatwaDetailPage({
           </Link>
         </p>
       )}
+
+      <DeleteForm action={deleteAction} label="Delete question" />
     </div>
   );
 }

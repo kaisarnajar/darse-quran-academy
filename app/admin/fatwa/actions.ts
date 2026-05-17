@@ -49,3 +49,29 @@ export async function answerFatwaQuestion(id: string, formData: FormData) {
 
   redirect(`/admin/fatwa/${id}?saved=1`);
 }
+
+export async function deleteFatwaQuestion(id: string): Promise<{ error?: string }> {
+  await requireAdmin();
+
+  const existing = await prisma.fatwaQuestion.findUnique({ where: { id } });
+  if (!existing) {
+    return { error: "Question not found." };
+  }
+
+  await prisma.fatwaQuestion.delete({ where: { id } });
+
+  revalidatePath("/fatwa");
+  revalidatePath(`/fatwa/${id}`);
+  revalidatePath("/admin/fatwa");
+  revalidatePath(`/admin/fatwa/${id}`);
+
+  return {};
+}
+
+export async function deleteFatwaQuestionForm(id: string) {
+  const result = await deleteFatwaQuestion(id);
+  if (result.error) {
+    redirect(`/admin/fatwa/${id}?error=${encodeURIComponent(result.error)}`);
+  }
+  redirect("/admin/fatwa?deleted=1");
+}
