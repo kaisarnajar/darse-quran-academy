@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
+import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
 import type { CourseWithTeacher } from "@/lib/courses";
 
 type CourseCardProps = {
@@ -10,45 +12,26 @@ type CourseCardProps = {
   enrollmentId?: string | null;
 };
 
-const levelColors: Record<string, string> = {
-  Beginner: "bg-amber-100 text-amber-900",
-  Intermediate: "bg-stone-200 text-stone-800",
-  Advanced: "bg-teal-100 text-teal-900",
-};
-
-const categoryGradients: Record<string, string> = {
-  Quran: "from-teal-800 to-teal-600",
-  Tajweed: "from-amber-800 to-amber-600",
-  Arabic: "from-slate-700 to-slate-500",
-  Islamic: "from-emerald-800 to-emerald-600",
-  default: "from-stone-700 to-stone-500",
-};
-
-function courseBannerClass(category: string) {
-  const key = Object.keys(categoryGradients).find((k) =>
-    category.toLowerCase().includes(k.toLowerCase()),
-  );
-  return categoryGradients[key ?? "default"];
-}
-
 export function CourseCard({
   course,
   isEnrolled = false,
   enrollmentStatus = null,
   enrollmentId = null,
 }: CourseCardProps) {
-  const levelClass = levelColors[course.level] ?? "bg-slate-100 text-slate-800";
+  const levelClass = getCourseLevelClass(course.level);
+  const detailHref = `/courses/${course.id}`;
 
   return (
     <article className="card-elevated flex flex-col overflow-hidden p-0 transition-transform hover:-translate-y-0.5">
-      <div
-        className={`flex h-32 items-center justify-center bg-gradient-to-br ${courseBannerClass(course.category)} text-white`}
+      <Link
+        href={detailHref}
+        className={`flex h-32 items-center justify-center bg-gradient-to-br ${getCourseBannerClass(course.category)} text-white`}
       >
         <span className="text-3xl font-bold opacity-30" aria-hidden>
           {course.category.charAt(0)}
         </span>
-      </div>
-      <div className="flex flex-1 flex-col p-5">
+      </Link>
+      <div className="flex flex-col p-5">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wide text-gold">
             {course.category}
@@ -57,11 +40,21 @@ export function CourseCard({
             {course.level}
           </span>
         </div>
-        <h3 className="text-lg font-bold text-foreground">{course.title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted">{course.description}</p>
+        <h3 className="text-lg font-bold text-foreground">
+          <Link href={detailHref} className="hover:text-gold">
+            {course.title}
+          </Link>
+        </h3>
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">{course.description}</p>
         <CourseTeacherInfo teacher={course.teacher} />
         <p className="mt-4 text-sm text-muted">Starts: {course.startDate}</p>
         <CoursePricingDisplay level={course.level} className="mt-2" />
+        <Link
+          href={detailHref}
+          className="btn-gold-outline mt-4 inline-flex w-full items-center justify-center py-2.5 text-xs"
+        >
+          Course Details
+        </Link>
         <CourseEnrollButton
           courseId={course.id}
           level={course.level}
