@@ -1,9 +1,9 @@
-import { Noto_Nastaliq_Urdu } from "next/font/google";
+import localFont from "next/font/local";
 
-/** Indo-Pak Nastaleeq style for Arabic / Urdu scripture display */
-export const indoPakArabic = Noto_Nastaliq_Urdu({
-  subsets: ["arabic"],
-  weight: ["400", "700"],
+/** Indo-Pak Nastaleeq — script style used in South Asian printed Qurans */
+export const indoPakArabic = localFont({
+  src: "../../public/fonts/indopak-nastaleeq.woff2",
   display: "swap",
   variable: "--font-indo-pak",
+  weight: "400",
 });

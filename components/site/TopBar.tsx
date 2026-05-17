@@ -39,7 +39,7 @@ export function TopBar() {
         <p
           lang="ar"
           dir="rtl"
-          className={`${indoPakArabic.className} text-center text-base font-bold leading-relaxed sm:text-left sm:text-lg`}
+          className={`${indoPakArabic.className} indo-pak-arabic text-center text-lg sm:text-left sm:text-xl`}
         >
           {hadithArabic}
         </p>
