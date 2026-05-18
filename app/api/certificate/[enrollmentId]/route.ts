@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { formatCertificateId, generateCertificatePdf } from "@/lib/certificate";
+import {
+  formatCertificateId,
+  generateCertificatePdf,
+  getCertificateCourseSubject,
+} from "@/lib/certificate";
 import { getCertificateFilename, isEnrollmentCertificateReady } from "@/lib/completion";
 import { getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +18,7 @@ export async function GET(
 
   const enrollment = await prisma.enrollment.findUnique({
     where: { id: enrollmentId },
-    include: { user: { select: { id: true, name: true } } },
+    include: { user: { select: { id: true, name: true, address: true } } },
   });
 
   if (!enrollment) {
@@ -40,7 +44,9 @@ export async function GET(
 
   const pdfBytes = await generateCertificatePdf({
     studentName: enrollment.user.name ?? "Student",
+    studentAddress: enrollment.user.address,
     courseTitle: course.title,
+    courseSubject: getCertificateCourseSubject(course),
     completedAt: enrollment.completedAt!,
     certificateId: formatCertificateId(enrollmentId),
   });
