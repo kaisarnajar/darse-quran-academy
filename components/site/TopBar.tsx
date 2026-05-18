@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { hadithArabic } from "@/content/hadith-quote";
+import { hadithArabic, hadithAttribution, hadithEnglish } from "@/content/hadith-quote";
 import { indoPakArabic } from "@/lib/fonts/indo-pak-arabic";
 
 const socialLinks = [
@@ -36,12 +36,20 @@ export function TopBar() {
   return (
     <div className="bg-gold text-sm text-black">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-2 sm:flex-row sm:gap-4">
-        <p
-          lang="ar"
-          dir="rtl"
-          className={`${indoPakArabic.className} indo-pak-arabic text-center text-lg sm:text-left sm:text-xl`}
-        >
-          {hadithArabic}
+        <p className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-0 text-center leading-snug sm:flex-nowrap sm:justify-start sm:gap-x-3 sm:text-left">
+          <span
+            lang="ar"
+            dir="rtl"
+            className={`${indoPakArabic.className} indo-pak-arabic text-base sm:text-lg`}
+          >
+            {hadithArabic}
+          </span>
+          <span className="mx-1.5 inline text-black/40 sm:mx-2" aria-hidden>
+            —
+          </span>
+          <span className="text-[0.7rem] font-medium sm:text-xs">
+            <span className="font-semibold">{hadithAttribution}:</span> &ldquo;{hadithEnglish}&rdquo;
+          </span>
         </p>
         <div className="flex shrink-0 items-center gap-2">
           {socialLinks.map((link) => (
