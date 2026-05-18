@@ -102,6 +102,12 @@ export default async function ProfileCoursesPage({
                     Completed {enrollment.completedAt.toLocaleDateString("en-IN")}
                   </p>
                 )}
+                <Link
+                  href={`/profile/courses/${course.id}/announcements`}
+                  className="mt-4 flex min-h-11 items-center justify-center rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent-muted/30"
+                >
+                  Course announcements
+                </Link>
                 {!certificateReady &&
                   enrollment.status !== "pending" &&
                   enrollment.status !== "payment_declined" && (

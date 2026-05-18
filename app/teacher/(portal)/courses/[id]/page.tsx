@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
 import { requireTeacher } from "@/lib/auth-actions";
 import { formatPrice } from "@/lib/courses";
 import { enrollmentStatusClass, enrollmentStatusLabel } from "@/lib/enrollments";
@@ -18,7 +16,7 @@ export default async function TeacherCourseStudentsPage({
 
   if (!data) notFound();
 
-  const { course, enrollments } = data;
+  const { enrollments } = data;
 
   const profileByUser = new Map(
     (
@@ -36,21 +34,9 @@ export default async function TeacherCourseStudentsPage({
 
   return (
     <div>
-      <Link href="/teacher" className="text-sm font-medium text-teal hover:underline">
-        ← My courses
-      </Link>
-
-      <div className="mt-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <CourseStatusBadge status={course.status} />
-          <span className="text-xs font-semibold uppercase tracking-wide text-gold">{course.category}</span>
-        </div>
-        <h1 className="mt-2 font-serif text-2xl font-bold text-foreground">{course.title}</h1>
-        <p className="mt-1 text-sm text-muted">
-          {course.level} · Starts {course.startDate} · {enrollments.length} student
-          {enrollments.length === 1 ? "" : "s"}
-        </p>
-      </div>
+      <p className="text-sm text-muted">
+        {enrollments.length} student{enrollments.length === 1 ? "" : "s"} enrolled
+      </p>
 
       <p className="mt-4 rounded-lg border border-teal/20 bg-teal/5 px-4 py-3 text-sm text-teal-dark">
         This is a read-only view. To change enrollments or payments, contact the academy admin.

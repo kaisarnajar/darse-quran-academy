@@ -32,7 +32,9 @@ export default async function TeacherDashboardPage() {
       </div>
 
       <h2 className="mt-10 font-serif text-xl font-semibold text-foreground">Your courses</h2>
-      <p className="mt-1 text-sm text-muted">View course status and enrolled students (read-only).</p>
+      <p className="mt-1 text-sm text-muted">
+        View students, post announcements, and track course status.
+      </p>
 
       {courses.length === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
@@ -66,12 +68,20 @@ export default async function TeacherDashboardPage() {
                     <span className="font-semibold text-foreground">{course.studentCount}</span>{" "}
                     student{course.studentCount === 1 ? "" : "s"} enrolled
                   </p>
-                  <Link
-                    href={`/teacher/courses/${course.id}`}
-                    className="btn-gold-solid mt-4 inline-flex w-full items-center justify-center py-2.5 text-xs"
-                  >
-                    View students
-                  </Link>
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <Link
+                      href={`/teacher/courses/${course.id}`}
+                      className="btn-gold-solid inline-flex flex-1 items-center justify-center py-2.5 text-xs"
+                    >
+                      Students
+                    </Link>
+                    <Link
+                      href={`/teacher/courses/${course.id}/announcements`}
+                      className="inline-flex flex-1 items-center justify-center rounded-full border border-teal bg-surface py-2.5 text-xs font-semibold text-teal transition-colors hover:bg-teal/5"
+                    >
+                      Announcements
+                    </Link>
+                  </div>
                 </div>
               </article>
             </li>

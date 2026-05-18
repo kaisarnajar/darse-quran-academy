@@ -93,6 +93,21 @@ export const profileUpdateSchema = z.object({
     .regex(/^\+?[\d\s-]+$/, "Enter a valid WhatsApp number."),
 });
 
+export const announcementCategoryEnum = z.enum([
+  "EXAMS_TESTS",
+  "ASSIGNMENTS_HOMEWORK",
+  "STUDY_MATERIALS",
+  "CLASS_SCHEDULE",
+  "COURSE_ANNOUNCEMENT",
+  "GENERAL_NOTICE",
+]);
+
+export const courseAnnouncementSchema = z.object({
+  category: announcementCategoryEnum,
+  title: z.string().trim().min(3, "Title must be at least 3 characters.").max(200),
+  body: z.string().trim().min(10, "Message must be at least 10 characters.").max(10000),
+});
+
 export const paymentRecordSchema = z.object({
   courseId: z.string().optional(),
   amountInr: z.coerce.number().positive("Amount must be greater than zero."),

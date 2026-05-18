@@ -30,7 +30,7 @@ export function TeacherForm({ teacher, action, submitLabel }: TeacherFormProps) 
           className={inputClassName}
         />
         <p className="mt-1.5 text-xs text-muted">
-          The teacher signs in at Teacher Login with this email after registering an account.
+          The teacher signs in at the main Sign In page with this email after registering an account.
         </p>
       </div>
       <div>

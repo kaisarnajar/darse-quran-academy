@@ -42,6 +42,10 @@ yarn-error.log*
 /public/uploads/payments/*
 !/public/uploads/payments/.gitkeep
 
+# course announcement materials
+/public/uploads/announcements/*
+!/public/uploads/announcements/.gitkeep
+
 # vercel
 .vercel
 

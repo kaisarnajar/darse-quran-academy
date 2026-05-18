@@ -20,6 +20,15 @@ enum CourseStatus {
   ON_HOLD
 }
 
+enum AnnouncementCategory {
+  EXAMS_TESTS
+  ASSIGNMENTS_HOMEWORK
+  STUDY_MATERIALS
+  CLASS_SCHEDULE
+  COURSE_ANNOUNCEMENT
+  GENERAL_NOTICE
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
@@ -86,8 +95,9 @@ model Course {
   status        CourseStatus @default(PUBLISHED)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  teacher         Teacher?        @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  teacher         Teacher?              @relation(fields: [teacherId], references: [id], onDelete: SetNull)
   paymentRecords  PaymentRecord[]
+  announcements   CourseAnnouncement[]
 }
 
 model Teacher {
@@ -102,6 +112,25 @@ model Teacher {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   courses        Course[]
+  announcements  CourseAnnouncement[]
+}
+
+model CourseAnnouncement {
+  id        String               @id @default(cuid())
+  courseId  String
+  teacherId String
+  category  AnnouncementCategory
+  title            String
+  body             String
+  attachmentPath   String?
+  attachmentName   String?
+  createdAt        DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  course    Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher   Teacher              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([courseId, createdAt])
 }
 
 model LibraryItem {
