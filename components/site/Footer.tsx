@@ -55,8 +55,34 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="bg-[#1a1a1a] py-4 text-center text-xs text-white/70">
-        © {new Date().getFullYear()} Darse Quran Academy. All rights reserved.
+      <div className="border-t border-white/10 bg-[#1a1a1a] px-4 py-5 text-xs text-white/70 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row sm:items-start sm:gap-6">
+          <p className="text-center sm:text-left">
+            © {new Date().getFullYear()} Darse Quran Academy. All rights reserved.
+          </p>
+          <div className="text-center sm:text-right">
+            <p className="font-medium text-white/90">Developed & Maintained by</p>
+            <p className="mt-1 text-white/80">Kaisar Ahmad Najar</p>
+            <p className="mt-1">
+              <a
+                href="mailto:kaisarnajar11114@gmail.com"
+                className="transition-colors hover:text-gold"
+              >
+                kaisarnajar11114@gmail.com
+              </a>
+            </p>
+            <p className="mt-1">
+              <a
+                href="https://www.linkedin.com/in/kaisarnajar/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-gold"
+              >
+                linkedin.com/in/kaisarnajar
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     </footer>
   );
