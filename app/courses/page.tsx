@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CourseCard } from "@/components/CourseCard";
+import { PaymentDetailsPanel } from "@/components/payment/PaymentDetailsPanel";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
@@ -46,6 +47,18 @@ export default async function CoursesPage() {
             );
           })
         )}
+      </div>
+
+      <div className="mx-auto mt-16 max-w-lg">
+        <h2 className="font-serif text-xl font-semibold text-foreground sm:text-2xl">Payment details</h2>
+        <p className="mt-2 text-sm text-muted">
+          Pay the one-time registration fee by UPI or bank transfer. Enroll in a course first, then submit your
+          transaction reference on the payment page—or use the details below and include your enrollment
+          reference when you pay.
+        </p>
+        <div className="mt-6">
+          <PaymentDetailsPanel />
+        </div>
       </div>
     </Section>
   );

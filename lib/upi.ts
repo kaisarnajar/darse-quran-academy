@@ -23,6 +23,16 @@ export function formatUpiAmount(amountPaise: number): string {
   return (amountPaise / 100).toFixed(2);
 }
 
+/** UPI QR / link without a fixed amount (for public payment info pages). */
+export function buildUpiVpaUrl(): string {
+  const query = new URLSearchParams({
+    pa: getUpiId(),
+    pn: getUpiPayeeName().slice(0, 50),
+    cu: "INR",
+  });
+  return `upi://pay?${query.toString()}`;
+}
+
 export function buildUpiPaymentUrl(params: UpiPaymentParams): string {
   const vpa = getUpiId();
   const query = new URLSearchParams({
