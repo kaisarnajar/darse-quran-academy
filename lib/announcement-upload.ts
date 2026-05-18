@@ -1,8 +1,4 @@
-import {
-  ANNOUNCEMENT_LARGE_FILE_MESSAGE,
-  ANNOUNCEMENT_MAX_UPLOAD_BYTES,
-  isAnnouncementAttachmentTooLarge,
-} from "@/lib/announcements";
+import { isAnnouncementAttachmentTooLarge } from "@/lib/announcements";
 import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
 
@@ -38,7 +34,7 @@ export function validateAnnouncementAttachment(file: File | null): { error?: str
   }
 
   if (isAnnouncementAttachmentTooLarge(file.size)) {
-    return { error: ANNOUNCEMENT_LARGE_FILE_MESSAGE };
+    return { error: "Attachment must be 10 MB or smaller." };
   }
 
   return {};

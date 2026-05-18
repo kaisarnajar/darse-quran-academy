@@ -1,10 +1,7 @@
 import type { AnnouncementCategory, CourseAnnouncement } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-export const ANNOUNCEMENT_MAX_UPLOAD_BYTES = 1 * 1024 * 1024;
-
-export const ANNOUNCEMENT_LARGE_FILE_MESSAGE =
-  "This file is larger than 1 MB. Kindly upload the file to Google Drive and share the link here.";
+export const ANNOUNCEMENT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 export function isAnnouncementAttachmentTooLarge(fileSizeBytes: number): boolean {
   return fileSizeBytes > ANNOUNCEMENT_MAX_UPLOAD_BYTES;
