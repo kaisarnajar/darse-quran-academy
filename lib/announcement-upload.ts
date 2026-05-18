@@ -1,7 +1,10 @@
+import {
+  ANNOUNCEMENT_LARGE_FILE_MESSAGE,
+  ANNOUNCEMENT_MAX_UPLOAD_BYTES,
+  isAnnouncementAttachmentTooLarge,
+} from "@/lib/announcements";
 import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
-
-const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
 const ALLOWED_TYPES = new Set([
   "application/pdf",
@@ -34,8 +37,8 @@ export function validateAnnouncementAttachment(file: File | null): { error?: str
     };
   }
 
-  if (file.size > MAX_ATTACHMENT_BYTES) {
-    return { error: "Attachment must be 10 MB or smaller." };
+  if (isAnnouncementAttachmentTooLarge(file.size)) {
+    return { error: ANNOUNCEMENT_LARGE_FILE_MESSAGE };
   }
 
   return {};
