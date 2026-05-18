@@ -1,25 +1,63 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { markAllActiveStudentsComplete, markEnrollmentCompleteAndNotify } from "@/lib/completion";
 import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
+import { sendPaymentDeclinedEmail } from "@/lib/email";
+import { AWAITING_PAYMENT_VERIFICATION, PAYMENT_DECLINED } from "@/lib/enrollment-status";
 import { prisma } from "@/lib/prisma";
 import { adminEnrollUserSchema } from "@/lib/validations";
 
 function revalidateEnrollmentPaths(courseId: string) {
-  revalidatePath("/admin/enrollments");
-  revalidatePath("/admin/students");
-  revalidatePath(`/admin/courses/${courseId}/students`);
-  revalidatePath("/admin/courses");
-  revalidatePath("/admin");
-  revalidatePath("/profile/courses");
-  revalidatePath("/my-courses");
-  revalidatePath("/courses");
+  const paths = [
+    "/admin",
+    "/admin/enrollments",
+    "/admin/students",
+    "/admin/courses",
+    `/admin/courses/${courseId}/students`,
+    "/profile/courses",
+    "/my-courses",
+    "/courses",
+  ];
+
+  for (const path of paths) {
+    revalidatePath(path, "layout");
+    revalidatePath(path, "page");
+  }
 }
 
-export async function confirmEnrollmentPayment(enrollmentId: string, courseId: string) {
+function getPaymentPageUrl(enrollmentId: string): string {
+  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  return `${base.replace(/\/$/, "")}/payment/${enrollmentId}`;
+}
+
+function adminPaymentReturnUrl(
+  returnTo: string | undefined,
+  courseId: string,
+  event: "confirmed" | "declined",
+): string {
+  const param = event === "confirmed" ? "confirmed" : "declined";
+  const fallback = `/admin/enrollments?${param}=1`;
+
+  if (!returnTo?.startsWith("/admin")) {
+    return fallback;
+  }
+
+  const [pathname, query = ""] = returnTo.split("?");
+  const params = new URLSearchParams(query);
+  params.set(param, "1");
+  const qs = params.toString();
+  return qs ? `${pathname}?${qs}` : `${pathname}?${param}=1`;
+}
+
+export async function confirmEnrollmentPayment(
+  enrollmentId: string,
+  courseId: string,
+  returnTo?: string,
+): Promise<{ error?: string }> {
   await requireAdmin();
 
   const enrollment = await prisma.enrollment.findUnique({
@@ -31,14 +69,17 @@ export async function confirmEnrollmentPayment(enrollmentId: string, courseId: s
   }
 
   if (enrollment.status === "active") {
-    return { error: "Already confirmed." };
+    redirect(adminPaymentReturnUrl(returnTo, courseId, "confirmed"));
   }
 
   if (enrollment.status === "completed") {
     return { error: "This enrollment is already completed." };
   }
 
-  if (enrollment.status !== "pending_verification" && enrollment.status !== "pending") {
+  if (
+    enrollment.status !== AWAITING_PAYMENT_VERIFICATION &&
+    enrollment.status !== "pending"
+  ) {
     return { error: "This enrollment cannot be confirmed." };
   }
 
@@ -47,40 +88,55 @@ export async function confirmEnrollmentPayment(enrollmentId: string, courseId: s
     return { error: "Course not found." };
   }
 
-  await prisma.enrollment.update({
+  const updated = await prisma.enrollment.update({
     where: { id: enrollmentId },
     data: {
       status: "active",
       amountPaid: getRegistrationFeePaise(course.level),
       currency: "inr",
-      paymentMethod: "upi",
+      paymentMethod: enrollment.paymentMethod ?? "upi",
     },
   });
 
-  revalidateEnrollmentPaths(courseId);
+  if (updated.status !== "active") {
+    return { error: "Payment could not be confirmed. Please try again." };
+  }
 
-  return { success: true };
+  revalidateEnrollmentPaths(courseId);
+  revalidatePath(`/admin/students/${enrollment.userId}`, "page");
+
+  redirect(adminPaymentReturnUrl(returnTo, courseId, "confirmed"));
 }
 
-export async function declineEnrollmentPayment(enrollmentId: string, courseId: string) {
+export async function declineEnrollmentPayment(
+  enrollmentId: string,
+  courseId: string,
+  returnTo?: string,
+): Promise<{ error?: string }> {
   await requireAdmin();
 
   const enrollment = await prisma.enrollment.findUnique({
     where: { id: enrollmentId },
+    include: { user: { select: { email: true, name: true } } },
   });
 
   if (!enrollment || enrollment.courseId !== courseId) {
     return { error: "Enrollment not found." };
   }
 
-  if (enrollment.status !== "pending_verification") {
+  if (enrollment.status !== AWAITING_PAYMENT_VERIFICATION) {
     return { error: "Only submitted payments awaiting verification can be declined." };
   }
 
-  await prisma.enrollment.update({
+  const course = await getCourseById(courseId);
+  if (!course) {
+    return { error: "Course not found." };
+  }
+
+  const updated = await prisma.enrollment.update({
     where: { id: enrollmentId },
     data: {
-      status: "pending",
+      status: PAYMENT_DECLINED,
       upiTransactionId: null,
       paymentScreenshotPath: null,
       paymentMethod: null,
@@ -89,10 +145,23 @@ export async function declineEnrollmentPayment(enrollmentId: string, courseId: s
     },
   });
 
-  revalidateEnrollmentPaths(courseId);
-  revalidatePath(`/admin/students/${enrollment.userId}`);
+  if (updated.status !== PAYMENT_DECLINED) {
+    return { error: "Payment could not be declined. Please try again." };
+  }
 
-  return { success: true };
+  const paymentUrl = getPaymentPageUrl(enrollmentId);
+  await sendPaymentDeclinedEmail({
+    to: enrollment.user.email,
+    studentName: enrollment.user.name ?? "",
+    courseTitle: course.title,
+    paymentUrl,
+  });
+
+  revalidateEnrollmentPaths(courseId);
+  revalidatePath(`/admin/students/${enrollment.userId}`, "page");
+  revalidatePath("/profile/courses", "page");
+
+  redirect(adminPaymentReturnUrl(returnTo, courseId, "declined"));
 }
 
 export type AdminEnrollUserState = {

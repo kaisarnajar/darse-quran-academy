@@ -12,12 +12,14 @@ function statusClass(status: string) {
   if (status === "completed") return "bg-emerald-100 text-emerald-900";
   if (status === "active") return "bg-violet-100 text-violet-800";
   if (status === "pending_verification") return "bg-amber-100 text-amber-900";
+  if (status === "payment_declined") return "bg-red-100 text-red-900";
   if (status === "pending") return "bg-stone-200 text-stone-700";
   return "bg-stone-200 text-stone-700";
 }
 
 function statusLabel(status: string) {
   if (status === "pending_verification") return "Awaiting verification";
+  if (status === "payment_declined") return "Payment declined — resubmit pending";
   if (status === "completed") return "Completed";
   return status.replace(/_/g, " ");
 }
@@ -27,7 +29,7 @@ export default async function CourseStudentsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ completed?: string }>;
+  searchParams: Promise<{ completed?: string; confirmed?: string; declined?: string }>;
 }) {
   const { id } = await params;
   const query = await searchParams;
@@ -65,6 +67,16 @@ export default async function CourseStudentsPage({
       {query.completed === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Students marked complete. Certificate emails were sent where applicable.
+        </p>
+      )}
+      {query.confirmed === "1" && (
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
+          Payment confirmed. This student now has active access to the course.
+        </p>
+      )}
+      {query.declined === "1" && (
+        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Payment declined. The student can submit payment again from their profile.
         </p>
       )}
 
@@ -121,11 +133,14 @@ export default async function CourseStudentsPage({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-2">
-                      {(enrollment.status === "pending_verification" || enrollment.status === "pending") && (
-                        <ConfirmPaymentButton enrollmentId={enrollment.id} courseId={id} />
-                      )}
                       {enrollment.status === "pending_verification" && (
-                        <DeclinePaymentButton enrollmentId={enrollment.id} courseId={id} />
+                        <>
+                          <ConfirmPaymentButton enrollmentId={enrollment.id} courseId={id} />
+                          <DeclinePaymentButton enrollmentId={enrollment.id} courseId={id} />
+                        </>
+                      )}
+                      {enrollment.status === "pending" && (
+                        <ConfirmPaymentButton enrollmentId={enrollment.id} courseId={id} />
                       )}
                       {enrollment.status === "active" && (
                         <CompleteCourseButton enrollmentId={enrollment.id} courseId={id} />

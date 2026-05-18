@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import {
+  AWAITING_PAYMENT_VERIFICATION,
+  canSubmitPaymentForVerification,
+} from "@/lib/enrollment-status";
 import { savePaymentScreenshot, validatePaymentScreenshot } from "@/lib/payment-upload";
 import { prisma } from "@/lib/prisma";
 
@@ -61,11 +65,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ redirectUrl: "/profile/courses" });
     }
 
-    if (enrollment.status === "pending_verification") {
+    if (enrollment.status === AWAITING_PAYMENT_VERIFICATION) {
       return NextResponse.json({
         redirectUrl: "/profile/courses?pending=1",
         message: "Payment already submitted. We will verify shortly.",
       });
+    }
+
+    if (!canSubmitPaymentForVerification(enrollment.status)) {
+      return NextResponse.json(
+        { error: "This enrollment is not awaiting payment submission." },
+        { status: 400 },
+      );
     }
 
     const duplicateUtr = await prisma.enrollment.findFirst({
@@ -93,7 +104,7 @@ export async function POST(request: Request) {
         upiTransactionId: txParsed.data,
         paymentMethod,
         paymentScreenshotPath: paymentScreenshotPath ?? enrollment.paymentScreenshotPath,
-        status: "pending_verification",
+        status: AWAITING_PAYMENT_VERIFICATION,
       },
     });
 

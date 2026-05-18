@@ -8,6 +8,7 @@ import { getUserEnrollments } from "@/lib/enrollments";
 function statusLabel(status: string) {
   if (status === "completed") return "Completed";
   if (status === "pending_verification") return "Awaiting payment verification";
+  if (status === "payment_declined") return "Payment declined — resubmit";
   if (status === "pending") return "Payment pending";
   if (status === "active") return "Active";
   return status;
@@ -16,7 +17,7 @@ function statusLabel(status: string) {
 export default async function ProfileCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pending?: string }>;
+  searchParams: Promise<{ pending?: string; declined?: string }>;
 }) {
   const session = await requireUser();
   const params = await searchParams;
@@ -41,6 +42,12 @@ export default async function ProfileCoursesPage({
         <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Thank you! We received your payment details and will verify them shortly. You will get
           access once confirmed.
+        </p>
+      )}
+      {params.declined === "1" && (
+        <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-900">
+          Your previous payment could not be verified. Use &quot;Resubmit payment&quot; below to send
+          new payment details.
         </p>
       )}
 
@@ -73,12 +80,18 @@ export default async function ProfileCoursesPage({
                     Paid: {formatPrice(enrollment.amountPaid)}
                   </p>
                 )}
-                {enrollment.status === "pending" && (
+                {(enrollment.status === "pending" || enrollment.status === "payment_declined") && (
                   <Link
                     href={`/payment/${enrollment.id}`}
-                    className="mt-4 flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light"
+                    className={`mt-4 flex min-h-11 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold ${
+                      enrollment.status === "payment_declined"
+                        ? "border border-red-300 bg-red-50 text-red-900 hover:bg-red-100"
+                        : "bg-primary text-white hover:bg-primary-light"
+                    }`}
                   >
-                    Complete payment
+                    {enrollment.status === "payment_declined"
+                      ? "Resubmit payment"
+                      : "Complete payment"}
                   </Link>
                 )}
                 {certificateReady && (
@@ -89,7 +102,9 @@ export default async function ProfileCoursesPage({
                     Completed {enrollment.completedAt.toLocaleDateString("en-IN")}
                   </p>
                 )}
-                {!certificateReady && enrollment.status !== "pending" && (
+                {!certificateReady &&
+                  enrollment.status !== "pending" &&
+                  enrollment.status !== "payment_declined" && (
                   <p className="mt-4 text-xs text-muted">
                     Enrolled {enrollment.createdAt.toLocaleDateString("en-IN")}
                   </p>

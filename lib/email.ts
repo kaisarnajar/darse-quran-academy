@@ -92,6 +92,64 @@ export type FatwaAnswerEmailParams = {
   fatwaUrl: string;
 };
 
+export type PaymentDeclinedEmailParams = {
+  to: string;
+  studentName: string;
+  courseTitle: string;
+  paymentUrl: string;
+};
+
+export async function sendPaymentDeclinedEmail(params: PaymentDeclinedEmailParams): Promise<void> {
+  const { to, studentName, courseTitle, paymentUrl } = params;
+  const displayName = studentName || "Student";
+
+  const subject = `Action required: resubmit payment — ${courseTitle}`;
+  const text = [
+    `Assalamu Alaikum ${displayName},`,
+    "",
+    `We could not verify your registration payment for "${courseTitle}" at Darse Quran Academy.`,
+    "",
+    "Please submit your payment details again (UPI reference or bank transfer proof) using the link below:",
+    paymentUrl,
+    "",
+    "Once we verify your payment, your enrollment will be activated.",
+    "",
+    "If you believe this was a mistake, please reply to this email or contact the academy.",
+    "",
+    "Darse Quran Academy",
+  ].join("\n");
+
+  const html = [
+    '<div style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1c1917; max-width: 560px;">',
+    `<p>Assalamu Alaikum <strong>${escapeHtml(displayName)}</strong>,</p>`,
+    `<p>We could not verify your registration payment for <strong>${escapeHtml(courseTitle)}</strong> at Darse Quran Academy.</p>`,
+    "<p>Please submit your payment details again (UPI reference or bank transfer proof):</p>",
+    '<p style="margin: 28px 0;">',
+    `<a href="${paymentUrl}" style="background: #3730a3; color: #fff; padding: 12px 24px; border-radius: 9999px; text-decoration: none; font-weight: 600;">`,
+    "Resubmit payment",
+    "</a></p>",
+    `<p style="font-size: 14px; color: #57534e;">Or copy this link: <a href="${paymentUrl}">${escapeHtml(paymentUrl)}</a></p>`,
+    "<p>Once we verify your payment, your enrollment will be activated.</p>",
+    '<p style="margin-top: 24px; font-size: 14px; color: #57534e;">— Darse Quran Academy</p>',
+    "</div>",
+  ].join("");
+
+  if (!isEmailConfigured()) {
+    console.info("[email] SMTP not configured. Payment declined email would be sent to:", to);
+    console.info("[email] Resubmit link:", paymentUrl);
+    return;
+  }
+
+  const transport = createTransport();
+  await transport.sendMail({
+    from: getFromAddress(),
+    to,
+    subject,
+    text,
+    html,
+  });
+}
+
 export async function sendFatwaAnswerEmail(params: FatwaAnswerEmailParams): Promise<void> {
   const { to, askerName, questionTitle, fatwaUrl } = params;
   const displayName = askerName || "Reader";

@@ -15,7 +15,7 @@ function statusLabel(status: string) {
 export default async function AdminEnrollmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ confirmed?: string }>;
+  searchParams: Promise<{ confirmed?: string; declined?: string }>;
 }) {
   const params = await searchParams;
   const [pendingEnrollments, courses] = await Promise.all([
@@ -38,6 +38,12 @@ export default async function AdminEnrollmentsPage({
           Payment confirmed. The student now has active access to the course.
         </p>
       )}
+      {params.declined === "1" && (
+        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Payment declined. The student has been notified by email and can resubmit payment from
+          their profile.
+        </p>
+      )}
 
       <section className="mt-8">
         <h2 className="font-serif text-lg font-semibold text-foreground">
@@ -49,7 +55,8 @@ export default async function AdminEnrollmentsPage({
           )}
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Students who submitted payment details (UPI or bank) appear here. Confirm payment to activate their enrollment.
+          Only students who have submitted payment details for verification appear here. Declined
+          payments are removed until the student resubmits.
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
@@ -134,12 +141,10 @@ export default async function AdminEnrollmentsPage({
                           enrollmentId={enrollment.id}
                           courseId={enrollment.courseId}
                         />
-                        {enrollment.status === "pending_verification" && (
-                          <DeclinePaymentButton
-                            enrollmentId={enrollment.id}
-                            courseId={enrollment.courseId}
-                          />
-                        )}
+                        <DeclinePaymentButton
+                          enrollmentId={enrollment.id}
+                          courseId={enrollment.courseId}
+                        />
                         <Link
                           href={`/admin/courses/${enrollment.courseId}/students`}
                           className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent-muted/50"

@@ -7,6 +7,11 @@ import { CopyButton } from "@/components/payment/CopyButton";
 import { PaymentConfirmForm } from "@/components/payment/PaymentConfirmForm";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
+import {
+  AWAITING_PAYMENT_VERIFICATION,
+  needsPaymentSubmission,
+  PAYMENT_DECLINED,
+} from "@/lib/enrollment-status";
 import { getBankDetails } from "@/lib/bank";
 import { getCoursePricing, getRegistrationFeePaise } from "@/lib/course-pricing";
 import { formatPrice, getCourseById } from "@/lib/courses";
@@ -46,8 +51,12 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
     redirect("/profile/courses");
   }
 
-  if (enrollment.status === "pending_verification") {
+  if (enrollment.status === AWAITING_PAYMENT_VERIFICATION) {
     redirect("/profile/courses?pending=1");
+  }
+
+  if (!needsPaymentSubmission(enrollment.status)) {
+    redirect("/profile/courses");
   }
 
   const course = await getCourseById(enrollment.courseId);
@@ -77,6 +86,16 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
 
         <h1 className="mt-4 font-serif text-2xl font-bold text-primary">Complete payment</h1>
         <p className="mt-1 text-sm text-muted">{course.title}</p>
+
+        {enrollment.status === PAYMENT_DECLINED && (
+          <p
+            className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"
+            role="alert"
+          >
+            Your previous payment could not be verified. Please pay the registration fee again and
+            submit a new transaction reference or screenshot for verification.
+          </p>
+        )}
 
         <div className="card-elevated mt-8 space-y-8 p-6 sm:p-8">
           <div className="text-center">

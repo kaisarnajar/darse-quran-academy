@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getCourseById } from "@/lib/courses";
+import { PAYMENT_DECLINED } from "@/lib/enrollment-status";
 import { isUserProfileComplete, PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
 import { isUpiConfigured } from "@/lib/upi";
@@ -59,6 +60,14 @@ export async function POST(request: Request) {
       return NextResponse.json({
         paymentUrl: `/payment/${existing.id}`,
         message: "You already started enrolling in this course. Complete your payment to continue.",
+      });
+    }
+
+    if (existing?.status === PAYMENT_DECLINED) {
+      return NextResponse.json({
+        paymentUrl: `/payment/${existing.id}`,
+        message:
+          "Your previous payment could not be verified. Please submit payment details again.",
       });
     }
 

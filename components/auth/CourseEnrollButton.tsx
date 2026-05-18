@@ -87,6 +87,21 @@ export function CourseEnrollButton({
     );
   }
 
+  if (enrollmentStatus === "payment_declined" && enrollmentId) {
+    return (
+      <div className="mt-4">
+        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
+        <Link
+          href={`/payment/${enrollmentId}`}
+          className="flex min-h-11 w-full flex-col items-center justify-center rounded-full border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-900 transition-colors hover:bg-red-100 sm:flex-row sm:gap-2"
+        >
+          <span>Resubmit payment</span>
+          <span className="text-red-800/90">· {formatPrice(registrationFeePaise)} reg.</span>
+        </Link>
+      </div>
+    );
+  }
+
   if (enrollmentStatus === "pending" && enrollmentId) {
     return (
       <div className="mt-4">
