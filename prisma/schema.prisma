@@ -7,10 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Occupation {
+  STUDENT
+  WORKING
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
   email         String       @unique
+  fatherName    String?
+  dateOfBirth   DateTime?
+  occupation    Occupation?
+  address       String?
+  whatsapp      String?
   emailVerified DateTime?
   image         String?
   password      String?

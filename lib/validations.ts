@@ -53,8 +53,35 @@ export const adminEnrollUserSchema = z.object({
   markAsPaid: z.coerce.boolean().optional(),
 });
 
+export const occupationEnum = z.enum(["STUDENT", "WORKING"]);
+
 export const profileUpdateSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),
+  fatherName: z.string().trim().min(2, "Father's name must be at least 2 characters.").max(100),
+  dateOfBirth: z
+    .string()
+    .min(1, "Date of birth is required.")
+    .refine((value) => !Number.isNaN(Date.parse(value)), "Enter a valid date of birth.")
+    .refine((value) => {
+      const dob = new Date(value);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      return dob <= today;
+    }, "Date of birth cannot be in the future.")
+    .refine((value) => {
+      const dob = new Date(value);
+      const minAge = new Date();
+      minAge.setFullYear(minAge.getFullYear() - 5);
+      return dob <= minAge;
+    }, "Enter a valid date of birth."),
+  occupation: occupationEnum,
+  address: z.string().trim().min(10, "Address must be at least 10 characters.").max(500),
+  whatsapp: z
+    .string()
+    .trim()
+    .min(10, "WhatsApp number must be at least 10 digits.")
+    .max(15, "WhatsApp number is too long.")
+    .regex(/^\+?[\d\s-]+$/, "Enter a valid WhatsApp number."),
 });
 
 export const paymentRecordSchema = z.object({

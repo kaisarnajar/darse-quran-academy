@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getCourseById } from "@/lib/courses";
+import { isUserProfileComplete, PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
 import { isUpiConfigured } from "@/lib/upi";
 
@@ -59,6 +60,18 @@ export async function POST(request: Request) {
         paymentUrl: `/payment/${existing.id}`,
         message: "You already started enrolling in this course. Complete your payment to continue.",
       });
+    }
+
+    const profileComplete = await isUserProfileComplete(session.user.id);
+    if (!profileComplete) {
+      return NextResponse.json(
+        {
+          error: "Please complete your profile before enrolling in a course.",
+          profileIncomplete: true,
+          redirectUrl: PROFILE_COMPLETE_REDIRECT,
+        },
+        { status: 403 },
+      );
     }
 
     const created = await prisma.enrollment.create({

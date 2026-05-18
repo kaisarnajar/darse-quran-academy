@@ -6,6 +6,7 @@ import { useState } from "react";
 import { formatPrice } from "@/lib/courses";
 import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseEnrollmentReminder, hasCourseEnrollment } from "@/lib/enrollments";
+import { PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 
 type CourseEnrollButtonProps = {
   courseId: string;
@@ -13,6 +14,7 @@ type CourseEnrollButtonProps = {
   isEnrolled?: boolean;
   enrollmentStatus?: string | null;
   enrollmentId?: string | null;
+  profileComplete?: boolean;
 };
 
 function EnrollmentReminder({ message }: { message: string }) {
@@ -32,6 +34,7 @@ export function CourseEnrollButton({
   isEnrolled = false,
   enrollmentStatus = null,
   enrollmentId = null,
+  profileComplete = true,
 }: CourseEnrollButtonProps) {
   const registrationFeePaise = getRegistrationFeePaise(level);
   const { data: session } = useSession();
@@ -118,6 +121,11 @@ export function CourseEnrollButton({
         return;
       }
 
+      if (res.status === 403 && data.profileIncomplete) {
+        window.location.href = data.redirectUrl ?? PROFILE_COMPLETE_REDIRECT;
+        return;
+      }
+
       if (res.status === 400 && data.alreadyEnrolled) {
         setError(data.error || "You are already enrolled in this course.");
         setLoading(false);
@@ -155,6 +163,23 @@ export function CourseEnrollButton({
         <span>Sign in to Enroll</span>
         <span className="text-white/90">· {formatPrice(registrationFeePaise)} reg.</span>
       </Link>
+    );
+  }
+
+  if (!profileComplete) {
+    return (
+      <div className="mt-4">
+        <p className="mb-2 text-center text-xs text-amber-900" role="status">
+          Complete your profile to enroll in this course.
+        </p>
+        <Link
+          href={PROFILE_COMPLETE_REDIRECT}
+          className="flex min-h-11 w-full flex-col items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100 sm:flex-row sm:gap-2"
+        >
+          <span>Complete profile to enroll</span>
+          <span className="text-amber-800/90">· {formatPrice(registrationFeePaise)} reg.</span>
+        </Link>
+      </div>
     );
   }
 

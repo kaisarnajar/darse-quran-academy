@@ -7,6 +7,10 @@ import { deleteStudentUserForm } from "@/app/admin/students/actions";
 import { formatPrice, getAllCourses } from "@/lib/courses";
 import { enrollmentStatusClass, enrollmentStatusLabel } from "@/lib/enrollments";
 import { getPaymentRecordsForUser } from "@/lib/payments";
+import {
+  formatDateOfBirthDisplay,
+  occupationLabel,
+} from "@/lib/profile";
 import { getStudentUserById } from "@/lib/students";
 
 export default async function AdminStudentDetailPage({
@@ -48,6 +52,26 @@ export default async function AdminStudentDetailPage({
         <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
           <dt className="shrink-0 font-medium text-foreground sm:w-28">Name</dt>
           <dd className="text-muted">{student.name ?? "—"}</dd>
+        </div>
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <dt className="shrink-0 font-medium text-foreground sm:w-28">Father&apos;s name</dt>
+          <dd className="text-muted">{student.fatherName ?? "—"}</dd>
+        </div>
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <dt className="shrink-0 font-medium text-foreground sm:w-28">Date of birth</dt>
+          <dd className="text-muted">{formatDateOfBirthDisplay(student.dateOfBirth)}</dd>
+        </div>
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <dt className="shrink-0 font-medium text-foreground sm:w-28">Occupation</dt>
+          <dd className="text-muted">{occupationLabel(student.occupation)}</dd>
+        </div>
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <dt className="shrink-0 font-medium text-foreground sm:w-28">Address</dt>
+          <dd className="whitespace-pre-wrap text-muted">{student.address ?? "—"}</dd>
+        </div>
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <dt className="shrink-0 font-medium text-foreground sm:w-28">WhatsApp</dt>
+          <dd className="text-muted">{student.whatsapp ?? "—"}</dd>
         </div>
         <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
           <dt className="shrink-0 font-medium text-foreground sm:w-28">Email</dt>

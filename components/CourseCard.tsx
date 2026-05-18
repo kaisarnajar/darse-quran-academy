@@ -10,6 +10,7 @@ type CourseCardProps = {
   isEnrolled?: boolean;
   enrollmentStatus?: string | null;
   enrollmentId?: string | null;
+  profileComplete?: boolean;
 };
 
 export function CourseCard({
@@ -17,6 +18,7 @@ export function CourseCard({
   isEnrolled = false,
   enrollmentStatus = null,
   enrollmentId = null,
+  profileComplete = true,
 }: CourseCardProps) {
   const levelClass = getCourseLevelClass(course.level);
   const detailHref = `/courses/${course.id}`;
@@ -61,6 +63,7 @@ export function CourseCard({
           isEnrolled={isEnrolled}
           enrollmentStatus={enrollmentStatus}
           enrollmentId={enrollmentId}
+          profileComplete={profileComplete}
         />
       </div>
     </article>

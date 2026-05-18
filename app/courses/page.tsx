@@ -5,6 +5,7 @@ import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
 import { getPublishedCourses } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
+import { isUserProfileComplete } from "@/lib/profile";
 
 export const metadata: Metadata = {
   title: "Courses",
@@ -17,6 +18,9 @@ export default async function CoursesPage() {
   const enrollmentMap = session?.user?.id
     ? await getUserCourseEnrollmentMap(session.user.id)
     : new Map();
+  const profileComplete = session?.user?.id
+    ? await isUserProfileComplete(session.user.id)
+    : true;
 
   return (
     <Section>
@@ -37,6 +41,7 @@ export default async function CoursesPage() {
                 isEnrolled={enrollment?.status === "active" || enrollment?.status === "completed"}
                 enrollmentStatus={enrollment?.status ?? null}
                 enrollmentId={enrollment?.id ?? null}
+                profileComplete={profileComplete}
               />
             );
           })

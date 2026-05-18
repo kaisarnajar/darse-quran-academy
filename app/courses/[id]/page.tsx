@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
 import { getPublishedCourseById } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
+import { isUserProfileComplete } from "@/lib/profile";
 
 type CoursePageProps = {
   params: Promise<{ id: string }>;
@@ -34,6 +35,9 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
     ? await getUserCourseEnrollmentMap(session.user.id)
     : new Map();
   const enrollment = enrollmentMap.get(course.id);
+  const profileComplete = session?.user?.id
+    ? await isUserProfileComplete(session.user.id)
+    : true;
   const levelClass = getCourseLevelClass(course.level);
 
   return (
@@ -83,6 +87,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
             isEnrolled={enrollment?.status === "active" || enrollment?.status === "completed"}
             enrollmentStatus={enrollment?.status ?? null}
             enrollmentId={enrollment?.id ?? null}
+            profileComplete={profileComplete}
           />
         </div>
       </article>
