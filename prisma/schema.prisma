@@ -17,6 +17,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   enrollments     Enrollment[]
+  paymentRecords  PaymentRecord[]
   fatwaQuestions  FatwaQuestion[]
   fatwaAnswers    FatwaQuestion[] @relation("FatwaAnsweredBy")
   createdAt       DateTime        @default(now())
@@ -67,7 +68,8 @@ model Course {
   published     Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  teacher       Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  teacher         Teacher?        @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+  paymentRecords  PaymentRecord[]
 }
 
 model Teacher {
@@ -133,4 +135,20 @@ model FatwaQuestion {
 
   @@index([category])
   @@index([answeredAt])
+}
+
+model PaymentRecord {
+  id             String   @id @default(cuid())
+  userId         String
+  courseId       String?
+  amountInrPaise Int
+  paidAt         DateTime
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course         Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([paidAt])
 }

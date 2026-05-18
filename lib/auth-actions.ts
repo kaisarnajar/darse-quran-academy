@@ -11,3 +11,11 @@ export async function requireAdmin() {
   }
   return session!;
 }
+
+export async function requireUser() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/login?callbackUrl=/profile");
+  }
+  return session;
+}

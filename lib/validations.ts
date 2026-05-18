@@ -53,6 +53,17 @@ export const adminEnrollUserSchema = z.object({
   markAsPaid: z.coerce.boolean().optional(),
 });
 
+export const profileUpdateSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),
+});
+
+export const paymentRecordSchema = z.object({
+  courseId: z.string().optional(),
+  amountInr: z.coerce.number().positive("Amount must be greater than zero."),
+  paidAt: z.string().min(1, "Payment date is required."),
+  description: z.string().trim().max(500).optional(),
+});
+
 export type CourseInput = z.infer<typeof courseSchema>;
 export type TeacherInput = z.infer<typeof teacherSchema>;
 export type LibraryItemInput = z.infer<typeof libraryItemSchema>;

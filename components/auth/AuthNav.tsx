@@ -26,8 +26,8 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
             Admin
           </Link>
         )}
-        <Link href="/my-courses" className={linkClass}>
-          My Courses
+        <Link href="/profile" className={linkClass}>
+          My Profile
         </Link>
         <button
           type="button"

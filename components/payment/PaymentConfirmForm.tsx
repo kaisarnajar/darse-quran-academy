@@ -32,7 +32,7 @@ export function PaymentConfirmForm({ enrollmentId }: { enrollmentId: string }) {
       }
 
       setSuccess(data.message || "Payment submitted.");
-      router.push(data.redirectUrl || "/my-courses?pending=1");
+      router.push(data.redirectUrl || "/profile/courses?pending=1");
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);

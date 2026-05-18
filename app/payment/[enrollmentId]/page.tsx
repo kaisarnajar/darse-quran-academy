@@ -47,11 +47,11 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
   }
 
   if (enrollment.status === "active" || enrollment.status === "completed") {
-    redirect("/my-courses");
+    redirect("/profile/courses");
   }
 
   if (enrollment.status === "pending_verification") {
-    redirect("/my-courses?pending=1");
+    redirect("/profile/courses?pending=1");
   }
 
   const course = await getCourseById(enrollment.courseId);

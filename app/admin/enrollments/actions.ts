@@ -14,6 +14,7 @@ function revalidateEnrollmentPaths(courseId: string) {
   revalidatePath(`/admin/courses/${courseId}/students`);
   revalidatePath("/admin/courses");
   revalidatePath("/admin");
+  revalidatePath("/profile/courses");
   revalidatePath("/my-courses");
   revalidatePath("/courses");
 }

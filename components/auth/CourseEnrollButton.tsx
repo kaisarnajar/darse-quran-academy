@@ -47,7 +47,7 @@ export function CourseEnrollButton({
       <div className="mt-4">
         {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
-          href="/my-courses"
+          href="/profile/courses"
           className="flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-medium text-white hover:opacity-90"
         >
           Download certificate
@@ -61,10 +61,10 @@ export function CourseEnrollButton({
       <div className="mt-4">
         {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
-          href="/my-courses"
+          href="/profile/courses"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
         >
-          Enrolled — View My Courses
+          Enrolled — View My Profile
         </Link>
       </div>
     );
@@ -75,7 +75,7 @@ export function CourseEnrollButton({
       <div className="mt-4">
         {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
-          href="/my-courses?pending=1"
+          href="/profile/courses?pending=1"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
         >
           Payment submitted — Awaiting verification

@@ -41,12 +41,12 @@ export async function POST(request: Request) {
     }
 
     if (enrollment.status === "active") {
-      return NextResponse.json({ redirectUrl: "/my-courses" });
+      return NextResponse.json({ redirectUrl: "/profile/courses" });
     }
 
     if (enrollment.status === "pending_verification") {
       return NextResponse.json({
-        redirectUrl: "/my-courses?pending=1",
+        redirectUrl: "/profile/courses?pending=1",
         message: "Payment already submitted. We will verify shortly.",
       });
     }
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      redirectUrl: "/my-courses?pending=1",
+      redirectUrl: "/profile/courses?pending=1",
       message: "Thank you! We will verify your payment and activate your enrollment.",
     });
   } catch {
