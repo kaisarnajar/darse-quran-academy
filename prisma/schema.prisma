@@ -93,6 +93,7 @@ model Course {
 model Teacher {
   id             String   @id
   name           String
+  email          String?  @unique
   specialization String
   bio            String
   initials       String

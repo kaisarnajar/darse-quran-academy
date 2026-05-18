@@ -38,6 +38,7 @@ async function main() {
       create: {
         id: teacher.id,
         name: teacher.name,
+        email: teacher.email,
         specialization: teacher.specialization,
         bio: teacher.bio,
         initials: teacher.initials,
@@ -45,6 +46,7 @@ async function main() {
       },
       update: {
         name: teacher.name,
+        email: teacher.email,
         specialization: teacher.specialization,
         bio: teacher.bio,
         initials: teacher.initials,

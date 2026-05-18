@@ -35,6 +35,11 @@ export default async function AdminTeachersPage({
             <div>
               <p className="font-medium text-foreground">{teacher.name}</p>
               <p className="text-sm text-muted">{teacher.specialization}</p>
+              {teacher.email ? (
+                <p className="mt-0.5 text-xs text-muted">Login: {teacher.email}</p>
+              ) : (
+                <p className="mt-0.5 text-xs text-amber-700">No login email — add in Edit</p>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <StatusBadge published={teacher.published} />

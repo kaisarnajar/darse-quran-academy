@@ -4,15 +4,11 @@ import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
+import { getTeacherByEmail, resolveUserRole } from "@/lib/teacher-auth";
 
 const googleConfigured =
   Boolean(process.env.AUTH_GOOGLE_ID) && Boolean(process.env.AUTH_GOOGLE_SECRET);
-
-function resolveRole(email: string | null | undefined): "USER" | "ADMIN" {
-  return isAdminEmail(email) ? "ADMIN" : "USER";
-}
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
@@ -62,7 +58,14 @@ export const authConfig = {
         token.id = user.id;
       }
       if (token.email) {
-        token.role = resolveRole(token.email as string);
+        const role = await resolveUserRole(token.email as string);
+        token.role = role;
+        if (role === "TEACHER") {
+          const teacher = await getTeacherByEmail(token.email as string);
+          token.teacherId = teacher?.id;
+        } else {
+          token.teacherId = undefined;
+        }
       }
       return token;
     },
@@ -71,7 +74,12 @@ export const authConfig = {
         if (token.id) {
           session.user.id = token.id as string;
         }
-        session.user.role = (token.role as "USER" | "ADMIN") ?? resolveRole(session.user.email);
+        session.user.role =
+          (token.role as "USER" | "ADMIN" | "TEACHER") ??
+          (await resolveUserRole(session.user.email));
+        if (token.teacherId) {
+          session.user.teacherId = token.teacherId as string;
+        }
       }
       return session;
     },
@@ -82,7 +90,12 @@ export const authConfig = {
         return auth?.user?.role === "ADMIN";
       }
 
+      if (pathname.startsWith("/teacher")) {
+        return auth?.user?.role === "TEACHER";
+      }
+
       if (pathname.startsWith("/profile") || pathname.startsWith("/my-courses")) {
+        if (auth?.user?.role === "TEACHER") return false;
         return !!auth?.user;
       }
 

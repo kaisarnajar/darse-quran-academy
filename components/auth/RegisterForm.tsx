@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { authContinueUrl, getPostLoginPath } from "@/lib/auth-redirect";
 
 export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
@@ -49,7 +50,9 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
         return;
       }
 
-      router.push(callbackUrl);
+      const sessionRes = await fetch("/api/auth/session", { credentials: "include" });
+      const sessionData = await sessionRes.json();
+      router.push(getPostLoginPath(sessionData?.user?.role, callbackUrl));
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -60,7 +63,10 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
   return (
     <div className="mx-auto w-full max-w-md">
       <h1 className="text-center font-serif text-2xl font-bold text-primary sm:text-3xl">Create Account</h1>
-      <p className="mt-2 text-center text-sm text-muted">Register to enroll in courses at Darse Quran Academy.</p>
+      <p className="mt-2 text-center text-sm text-muted">
+        Register to enroll in courses. Instructors added by the academy should register with the login email
+        set on their teacher profile.
+      </p>
 
       {error && (
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-center text-sm text-red-800" role="alert">
@@ -69,7 +75,7 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
       )}
 
       <div className="mt-6 space-y-4">
-        {googleEnabled && <GoogleSignInButton callbackUrl={callbackUrl} />}
+        {googleEnabled && <GoogleSignInButton callbackUrl={authContinueUrl(callbackUrl)} />}
 
         {googleEnabled && (
           <div className="flex items-center gap-3">

@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { authContinueUrl, getPostLoginPath } from "@/lib/auth-redirect";
 
 export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const registered = searchParams.get("registered") === "1";
+  const teacherProfileError = searchParams.get("error") === "teacher-profile";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,18 +38,30 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
       return;
     }
 
-    router.push(callbackUrl);
+    const sessionRes = await fetch("/api/auth/session", { credentials: "include" });
+    const sessionData = await sessionRes.json();
+    router.push(getPostLoginPath(sessionData?.user?.role, callbackUrl));
     router.refresh();
   }
 
   return (
     <div className="mx-auto w-full max-w-md">
       <h1 className="text-center font-serif text-2xl font-bold text-primary sm:text-3xl">Sign In</h1>
-      <p className="mt-2 text-center text-sm text-muted">Access your courses and enroll in new programs.</p>
+      <p className="mt-2 text-center text-sm text-muted">
+        Students and instructors use the same sign-in. If your email is on the academy teacher list, you
+        will open the teacher portal after signing in.
+      </p>
 
       {registered && (
         <p className="mt-4 rounded-xl bg-violet-50 px-4 py-3 text-center text-sm text-violet-800">
           Account created. Please sign in.
+        </p>
+      )}
+
+      {teacherProfileError && (
+        <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
+          Your account is not linked to a teacher profile. Contact the academy admin to add your login email
+          on your teacher record.
         </p>
       )}
 
@@ -58,7 +72,7 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
       )}
 
       <div className="mt-6 space-y-4">
-        {googleEnabled && <GoogleSignInButton callbackUrl={callbackUrl} />}
+        {googleEnabled && <GoogleSignInButton callbackUrl={authContinueUrl(callbackUrl)} />}
 
         {googleEnabled && (
           <div className="flex items-center gap-3">

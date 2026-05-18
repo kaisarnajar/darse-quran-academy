@@ -17,6 +17,23 @@ export function TeacherForm({ teacher, action, submitLabel }: TeacherFormProps) 
         <input id="name" name="name" required defaultValue={teacher?.name} className={inputClassName} />
       </div>
       <div>
+        <label htmlFor="email" className={labelClassName}>
+          Login email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          defaultValue={teacher?.email ?? ""}
+          placeholder="teacher@example.com"
+          className={inputClassName}
+        />
+        <p className="mt-1.5 text-xs text-muted">
+          The teacher signs in at Teacher Login with this email after registering an account.
+        </p>
+      </div>
+      <div>
         <label htmlFor="specialization" className={labelClassName}>
           Specialization
         </label>

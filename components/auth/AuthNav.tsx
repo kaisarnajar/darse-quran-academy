@@ -26,9 +26,16 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
             Admin
           </Link>
         )}
+        {session.user.role === "TEACHER" && (
+          <Link href="/teacher" className={linkClass}>
+            Teacher portal
+          </Link>
+        )}
+        {session.user.role !== "TEACHER" && (
         <Link href="/profile" className={linkClass}>
           My Profile
         </Link>
+        )}
         <button
           type="button"
           onClick={() => signOut({ callbackUrl: "/" })}

@@ -11,6 +11,7 @@ function parseTeacherForm(formData: FormData) {
   const imageUrl = formData.get("imageUrl");
   return teacherSchema.safeParse({
     name: formData.get("name"),
+    email: formData.get("email"),
     specialization: formData.get("specialization"),
     bio: formData.get("bio"),
     initials: formData.get("initials"),
@@ -26,6 +27,7 @@ export async function createTeacher(formData: FormData) {
 
   const data = {
     ...parsed.data,
+    email: parsed.data.email.toLowerCase().trim(),
     imageUrl: parsed.data.imageUrl || null,
   };
 
@@ -50,6 +52,7 @@ export async function updateTeacher(id: string, formData: FormData) {
     where: { id },
     data: {
       ...parsed.data,
+      email: parsed.data.email.toLowerCase().trim(),
       imageUrl: parsed.data.imageUrl || null,
     },
   });

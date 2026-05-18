@@ -23,6 +23,7 @@ export const courseSchema = z.object({
 
 export const teacherSchema = z.object({
   name: z.string().min(2, "Name is required"),
+  email: z.string().trim().email("Enter a valid login email for this teacher."),
   specialization: z.string().min(2, "Specialization is required"),
   bio: z.string().min(10, "Bio is required"),
   initials: z.string().min(1).max(4, "Max 4 characters"),
