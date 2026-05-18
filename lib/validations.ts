@@ -2,6 +2,14 @@ import { z } from "zod";
 
 export const levelEnum = z.enum(["Beginner", "Intermediate", "Advanced"]);
 
+export const courseStatusEnum = z.enum([
+  "DRAFT",
+  "PUBLISHED",
+  "ONGOING",
+  "COMPLETED",
+  "ON_HOLD",
+]);
+
 export const courseSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().min(10, "Description is required"),
@@ -10,7 +18,7 @@ export const courseSchema = z.object({
   category: z.string().min(1, "Category is required"),
   priceInrPaise: z.coerce.number().int().min(0),
   teacherId: z.string().min(1, "Teacher is required"),
-  published: z.coerce.boolean(),
+  status: courseStatusEnum,
 });
 
 export const teacherSchema = z.object({

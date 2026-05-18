@@ -1,5 +1,6 @@
 import type { Course, Teacher } from "@prisma/client";
 import { COURSE_PRICING_SUMMARY } from "@/lib/course-pricing";
+import { COURSE_STATUS_OPTIONS } from "@/lib/course-status";
 import { inputClassName, labelClassName } from "@/lib/form";
 
 type CourseFormProps = {
@@ -106,15 +107,24 @@ export function CourseForm({ course, teachers, action, submitLabel }: CourseForm
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          name="published"
-          defaultChecked={course?.published ?? true}
-          className="h-4 w-4 rounded border-border"
-        />
-        Published (visible on public site)
-      </label>
+      <div>
+        <label htmlFor="status" className={labelClassName}>
+          Course status
+        </label>
+        <select
+          id="status"
+          name="status"
+          required
+          defaultValue={course?.status ?? "PUBLISHED"}
+          className={inputClassName}
+        >
+          {COURSE_STATUS_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value} title={option.description}>
+              {option.label} — {option.description}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {course && (
         <p className="text-xs text-muted">

@@ -15,7 +15,7 @@ Online Islamic learning platform built with **Next.js 16**, **React 19**, **Pris
 - **Certificate of Appreciation** PDF download when a course is marked complete (email link when SMTP is configured)
 
 ### Admins (`/admin`)
-- Courses, teachers, library, enrollments, and Fatwa answers
+- Courses (with status), teachers, library, enrollments, and Fatwa answers
 - **Confirm** or **decline** payments awaiting verification
 - Mark students complete and send certificate emails
 - View extended student profile fields on the student detail page

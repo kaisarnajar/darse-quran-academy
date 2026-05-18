@@ -6,8 +6,9 @@ import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay"
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
+import { CourseStatusPill } from "@/components/courses/CourseStatusPill";
 import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
-import { getPublishedCourseById } from "@/lib/courses";
+import { getPublicCourseById } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
 import { isUserProfileComplete } from "@/lib/profile";
 
@@ -17,7 +18,7 @@ type CoursePageProps = {
 
 export async function generateMetadata({ params }: CoursePageProps): Promise<Metadata> {
   const { id } = await params;
-  const course = await getPublishedCourseById(id);
+  const course = await getPublicCourseById(id);
   if (!course) return { title: "Course not found" };
   return {
     title: course.title,
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
 
 export default async function CourseDetailPage({ params }: CoursePageProps) {
   const { id } = await params;
-  const course = await getPublishedCourseById(id);
+  const course = await getPublicCourseById(id);
   if (!course) notFound();
 
   const session = await auth();
@@ -62,6 +63,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${levelClass}`}>
             {course.level}
           </span>
+          <CourseStatusPill status={course.status} />
         </div>
 
         <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">{course.title}</h1>
@@ -84,6 +86,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
           <CourseEnrollButton
             courseId={course.id}
             level={course.level}
+            courseStatus={course.status}
             isEnrolled={enrollment?.status === "active" || enrollment?.status === "completed"}
             enrollmentStatus={enrollment?.status ?? null}
             enrollmentId={enrollment?.id ?? null}

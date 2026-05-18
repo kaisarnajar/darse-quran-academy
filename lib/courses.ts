@@ -1,4 +1,5 @@
-import type { Course as PrismaCourse, Teacher } from "@prisma/client";
+import type { Course as PrismaCourse, CourseStatus, Teacher } from "@prisma/client";
+import { isCoursePubliclyVisible } from "@/lib/course-status";
 import { prisma } from "@/lib/prisma";
 
 export type Course = PrismaCourse;
@@ -18,12 +19,12 @@ export function formatPrice(paise: number): string {
   }).format(paise / 100);
 }
 
-export async function getPublishedCourses(): Promise<CourseWithTeacher[]> {
-  return prisma.course.findMany({
-    where: { published: true },
+export async function getPublicCourses(): Promise<CourseWithTeacher[]> {
+  const courses = await prisma.course.findMany({
     include: courseWithTeacherInclude,
     orderBy: { createdAt: "desc" },
   });
+  return courses.filter((c) => isCoursePubliclyVisible(c.status));
 }
 
 export async function getAllCourses(): Promise<CourseWithTeacher[]> {
@@ -40,9 +41,22 @@ export async function getCourseById(id: string): Promise<CourseWithTeacher | nul
   });
 }
 
-export async function getPublishedCourseById(id: string): Promise<CourseWithTeacher | null> {
-  return prisma.course.findFirst({
-    where: { id, published: true },
+export async function getPublicCourseById(id: string): Promise<CourseWithTeacher | null> {
+  const course = await getCourseById(id);
+  if (!course || !isCoursePubliclyVisible(course.status)) return null;
+  return course;
+}
+
+export async function getCoursesByStatus(status: CourseStatus): Promise<CourseWithTeacher[]> {
+  return prisma.course.findMany({
+    where: { status },
     include: courseWithTeacherInclude,
+    orderBy: { createdAt: "desc" },
   });
 }
+
+/** @deprecated Use getPublicCourses */
+export const getPublishedCourses = getPublicCourses;
+
+/** @deprecated Use getPublicCourseById */
+export const getPublishedCourseById = getPublicCourseById;

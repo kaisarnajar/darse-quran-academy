@@ -12,6 +12,14 @@ enum Occupation {
   WORKING
 }
 
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ONGOING
+  COMPLETED
+  ON_HOLD
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
@@ -75,7 +83,7 @@ model Course {
   category      String
   priceInrPaise Int
   teacherId     String?
-  published     Boolean  @default(true)
+  status        CourseStatus @default(PUBLISHED)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   teacher         Teacher?        @relation(fields: [teacherId], references: [id], onDelete: SetNull)

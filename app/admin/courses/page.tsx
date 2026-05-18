@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { StatusBadge } from "@/components/admin/StatusBadge";
+import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
 import { getCoursePricing } from "@/lib/course-pricing";
 import { getAllCourses } from "@/lib/courses";
 import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
@@ -67,7 +67,7 @@ export default async function AdminCoursesPage({
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <StatusBadge published={course.published} />
+                    <CourseStatusBadge status={course.status} />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link href={`/admin/courses/${course.id}/edit`} className="text-primary hover:underline">

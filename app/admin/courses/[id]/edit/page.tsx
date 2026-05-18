@@ -47,7 +47,7 @@ export default async function EditCoursePage({
           <Link href={`/admin/courses/${id}/students`} className="font-medium text-primary hover:underline">
             View students
           </Link>
-          . Deleting is blocked; uncheck Published to hide instead.
+          . Deleting is blocked; set status to Draft to hide from the public site.
         </p>
       )}
 

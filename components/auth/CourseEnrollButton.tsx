@@ -1,16 +1,19 @@
 "use client";
 
+import type { CourseStatus } from "@prisma/client";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { formatPrice } from "@/lib/courses";
 import { getRegistrationFeePaise } from "@/lib/course-pricing";
+import { getCourseEnrollmentClosedMessage } from "@/lib/course-status";
 import { getCourseEnrollmentReminder, hasCourseEnrollment } from "@/lib/enrollments";
 import { PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 
 type CourseEnrollButtonProps = {
   courseId: string;
   level: string;
+  courseStatus: CourseStatus;
   isEnrolled?: boolean;
   enrollmentStatus?: string | null;
   enrollmentId?: string | null;
@@ -31,6 +34,7 @@ function EnrollmentReminder({ message }: { message: string }) {
 export function CourseEnrollButton({
   courseId,
   level,
+  courseStatus,
   isEnrolled = false,
   enrollmentStatus = null,
   enrollmentId = null,
@@ -44,6 +48,7 @@ export function CourseEnrollButton({
 
   const reminder = getCourseEnrollmentReminder(enrollmentStatus);
   const showReminder = hasCourseEnrollment(enrollmentStatus) && Boolean(reminder);
+  const enrollmentClosedMessage = getCourseEnrollmentClosedMessage(courseStatus);
 
   if (enrollmentStatus === "completed" && enrollmentId) {
     return (
@@ -113,6 +118,19 @@ export function CourseEnrollButton({
           <span>Complete payment</span>
           <span className="text-white/90">· {formatPrice(registrationFeePaise)} reg.</span>
         </Link>
+      </div>
+    );
+  }
+
+  if (enrollmentClosedMessage && !isEnrolled && !enrollmentStatus) {
+    return (
+      <div className="mt-4">
+        <p
+          className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-center text-sm text-amber-900"
+          role="status"
+        >
+          {enrollmentClosedMessage}
+        </p>
       </div>
     );
   }

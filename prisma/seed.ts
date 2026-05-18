@@ -18,7 +18,7 @@ async function main() {
         category: course.category,
         priceInrPaise: course.priceInrPaise,
         teacherId: course.teacherId,
-        published: true,
+        status: "PUBLISHED",
       },
       update: {
         title: course.title,

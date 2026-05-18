@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { isCourseEnrollmentOpen } from "@/lib/course-status";
 import { getCourseById } from "@/lib/courses";
 import { PAYMENT_DECLINED } from "@/lib/enrollment-status";
 import { isUserProfileComplete, PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
@@ -28,8 +29,11 @@ export async function POST(request: Request) {
     }
 
     const course = await getCourseById(courseId);
-    if (!course || !course.published) {
-      return NextResponse.json({ error: "Course not found." }, { status: 404 });
+    if (!course || !isCourseEnrollmentOpen(course.status)) {
+      return NextResponse.json(
+        { error: "This course is not open for enrollment." },
+        { status: 404 },
+      );
     }
 
     const existing = await prisma.enrollment.findUnique({

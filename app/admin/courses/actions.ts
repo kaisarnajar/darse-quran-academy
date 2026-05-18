@@ -19,7 +19,7 @@ function parseCourseForm(formData: FormData) {
     category: formData.get("category"),
     priceInrPaise: getRegistrationFeePaise(level),
     teacherId,
-    published: formData.get("published") === "on",
+    status: formData.get("status"),
   });
 }
 
@@ -76,7 +76,7 @@ export async function deleteCourse(id: string) {
   if (enrollmentCount > 0) {
     redirect(
       `/admin/courses/${id}/edit?deleteError=${encodeURIComponent(
-        `Cannot delete: ${enrollmentCount} enrollment(s) exist. Unpublish instead.`,
+        `Cannot delete: ${enrollmentCount} enrollment(s) exist. Set status to Draft instead.`,
       )}`,
     );
   }

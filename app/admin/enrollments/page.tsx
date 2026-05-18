@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AdminEnrollUserForm } from "@/components/admin/AdminEnrollUserForm";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
 import { DeclinePaymentButton } from "@/components/admin/DeclinePaymentButton";
+import { isCourseEnrollmentOpen } from "@/lib/course-status";
 import { formatPrice, getAllCourses } from "@/lib/courses";
 import { getPendingPaymentEnrollments } from "@/lib/enrollments";
 
@@ -24,7 +25,7 @@ export default async function AdminEnrollmentsPage({
   ]);
 
   const titleById = new Map(courses.map((c) => [c.id, c.title]));
-  const publishedCourses = courses.filter((c) => c.published);
+  const enrollableCourses = courses.filter((c) => isCourseEnrollmentOpen(c.status));
 
   return (
     <div>
@@ -162,7 +163,7 @@ export default async function AdminEnrollmentsPage({
       </section>
 
       <section className="mt-10">
-        <AdminEnrollUserForm courses={publishedCourses} />
+        <AdminEnrollUserForm courses={enrollableCourses} />
       </section>
     </div>
   );
