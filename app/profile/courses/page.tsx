@@ -39,7 +39,7 @@ export default async function ProfileCoursesPage({
 
       {params.pending === "1" && (
         <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Thank you! We received your UPI payment details and will verify them shortly. You will get
+          Thank you! We received your payment details and will verify them shortly. You will get
           access once confirmed.
         </p>
       )}
@@ -78,7 +78,7 @@ export default async function ProfileCoursesPage({
                     href={`/payment/${enrollment.id}`}
                     className="mt-4 flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light"
                   >
-                    Complete UPI payment
+                    Complete payment
                   </Link>
                 )}
                 {certificateReady && (

@@ -38,6 +38,10 @@ yarn-error.log*
 /prisma/*.db
 /prisma/*.db-journal
 
+# user-uploaded payment screenshots
+/public/uploads/payments/*
+!/public/uploads/payments/.gitkeep
+
 # vercel
 .vercel
 

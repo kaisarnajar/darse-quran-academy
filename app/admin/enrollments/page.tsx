@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { AdminEnrollUserForm } from "@/components/admin/AdminEnrollUserForm";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
@@ -28,7 +29,7 @@ export default async function AdminEnrollmentsPage({
     <div>
       <h1 className="font-serif text-2xl font-bold text-primary">Enrollments & payments</h1>
       <p className="mt-1 text-sm text-muted">
-        Verify UPI payments and manually enroll students in any course.
+        Verify UPI and bank transfer payments and manually enroll students in any course.
       </p>
 
       {params.confirmed === "1" && (
@@ -47,20 +48,22 @@ export default async function AdminEnrollmentsPage({
           )}
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Students who paid via UPI and submitted a UTR appear here. Confirm payment to activate their enrollment.
+          Students who submitted payment details (UPI or bank) appear here. Confirm payment to activate their enrollment.
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
           {pendingEnrollments.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted">No payments awaiting verification.</p>
           ) : (
-            <table className="w-full min-w-[880px] text-left text-sm">
+            <table className="w-full min-w-[1020px] text-left text-sm">
               <thead className="border-b border-border bg-background/50 text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Student</th>
                   <th className="px-4 py-3 font-medium">Course</th>
                   <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">UPI UTR</th>
+                  <th className="px-4 py-3 font-medium">Method</th>
+                  <th className="px-4 py-3 font-medium">Reference</th>
+                  <th className="px-4 py-3 font-medium">Screenshot</th>
                   <th className="px-4 py-3 font-medium">Amount</th>
                   <th className="px-4 py-3 font-medium">Submitted</th>
                   <th className="px-4 py-3 font-medium" />
@@ -81,8 +84,32 @@ export default async function AdminEnrollmentsPage({
                         {statusLabel(enrollment.status)}
                       </span>
                     </td>
+                    <td className="px-4 py-3 capitalize text-muted">
+                      {enrollment.paymentMethod ?? "—"}
+                    </td>
                     <td className="px-4 py-3 font-mono text-xs text-muted">
                       {enrollment.upiTransactionId ?? "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      {enrollment.paymentScreenshotPath ? (
+                        <a
+                          href={enrollment.paymentScreenshotPath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block"
+                        >
+                          <Image
+                            src={enrollment.paymentScreenshotPath}
+                            alt="Payment screenshot"
+                            width={64}
+                            height={64}
+                            className="h-14 w-14 rounded border border-border object-cover"
+                            unoptimized
+                          />
+                        </a>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-muted">
                       {enrollment.amountPaid != null

@@ -6,6 +6,8 @@ export type CourseEnrollmentWithUser = {
   amountPaid: number | null;
   currency: string | null;
   upiTransactionId: string | null;
+  paymentMethod: string | null;
+  paymentScreenshotPath: string | null;
   paymentReference: string | null;
   completedAt: Date | null;
   certificateEmailSentAt: Date | null;
@@ -58,7 +60,7 @@ export function getCourseEnrollmentReminder(status: string | null | undefined): 
     case "pending_verification":
       return "You are already enrolled. Your payment is awaiting verification by the academy.";
     case "pending":
-      return "You already started enrolling in this course. Complete your UPI payment below.";
+      return "You already started enrolling in this course. Complete your payment below.";
     default:
       return "You are already enrolled in this course.";
   }

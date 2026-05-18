@@ -104,8 +104,9 @@ model Enrollment {
   courseId         String
   status           String   @default("pending")
   paymentReference String?  @unique
-  upiTransactionId String?
-  paymentMethod    String?  @default("upi")
+  upiTransactionId       String?
+  paymentMethod          String?  @default("upi")
+  paymentScreenshotPath  String?
   amountPaid              Int?
   currency                String?   @default("inr")
   completedAt             DateTime?

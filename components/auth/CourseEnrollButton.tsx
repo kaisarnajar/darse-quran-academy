@@ -92,7 +92,7 @@ export function CourseEnrollButton({
           href={`/payment/${enrollmentId}`}
           className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
         >
-          <span>Complete UPI Payment</span>
+          <span>Complete payment</span>
           <span className="text-white/90">· {formatPrice(registrationFeePaise)} reg.</span>
         </Link>
       </div>
@@ -176,7 +176,7 @@ export function CourseEnrollButton({
         disabled={loading}
         className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light disabled:opacity-60 sm:flex-row sm:gap-2"
       >
-        <span>{loading ? "Loading…" : "Pay registration (UPI)"}</span>
+        <span>{loading ? "Loading…" : "Pay registration fee"}</span>
         <span className="text-white/90">· {formatPrice(registrationFeePaise)}</span>
       </button>
     </div>

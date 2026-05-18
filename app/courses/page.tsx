@@ -22,7 +22,7 @@ export default async function CoursesPage() {
     <Section>
       <PageHeader
         title="Course Announcements"
-        description="Browse programs, view fees by level, and pay the registration fee securely with UPI."
+        description="Browse programs, view fees by level, and pay the registration fee online."
       />
       <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {courses.length === 0 ? (

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   if (!isUpiConfigured()) {
     return NextResponse.json(
-      { error: "UPI payments are not configured yet. Please contact the academy." },
+      { error: "Online payments are not configured yet. Please contact the academy." },
       { status: 503 },
     );
   }
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     if (existing?.status === "pending") {
       return NextResponse.json({
         paymentUrl: `/payment/${existing.id}`,
-        message: "You already started enrolling in this course. Complete your UPI payment to continue.",
+        message: "You already started enrolling in this course. Complete your payment to continue.",
       });
     }
 
