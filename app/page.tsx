@@ -6,6 +6,7 @@ import { HomeAbout } from "@/components/home/HomeAbout";
 import { HeroWave } from "@/components/home/HeroWave";
 import { HomeHero } from "@/components/home/HomeHero";
 import { LearnAccordion } from "@/components/home/LearnAccordion";
+import { StudentTestimonials } from "@/components/home/StudentTestimonials";
 import { getPublishedCourses } from "@/lib/courses";
 
 export default async function HomePage() {
@@ -20,6 +21,7 @@ export default async function HomePage() {
       <FeaturedCourses courses={featuredCourses} />
       <HomeAbout />
       <ExperienceBanner />
+      <StudentTestimonials />
       <HomeFatwa />
       <LearnAccordion />
     </>
