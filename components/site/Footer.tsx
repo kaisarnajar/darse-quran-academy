@@ -81,6 +81,16 @@ export function Footer() {
                 linkedin.com/in/kaisarnajar
               </a>
             </p>
+            <p className="mt-1">
+              <a
+                href="https://wa.me/917006025120"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-gold"
+              >
+                +917006025120
+              </a>
+            </p>
           </div>
         </div>
       </div>
