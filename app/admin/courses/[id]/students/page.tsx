@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CompleteAllStudentsButton } from "@/components/admin/CompleteAllStudentsButton";
 import { CompleteCourseButton } from "@/components/admin/CompleteCourseButton";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
+import { DeclinePaymentButton } from "@/components/admin/DeclinePaymentButton";
 import { RemoveEnrollmentButton } from "@/components/admin/RemoveEnrollmentButton";
 import { formatPrice, getCourseById } from "@/lib/courses";
 import { getEnrollmentsForCourse } from "@/lib/enrollments";
@@ -122,6 +123,9 @@ export default async function CourseStudentsPage({
                     <div className="flex flex-wrap justify-end gap-2">
                       {(enrollment.status === "pending_verification" || enrollment.status === "pending") && (
                         <ConfirmPaymentButton enrollmentId={enrollment.id} courseId={id} />
+                      )}
+                      {enrollment.status === "pending_verification" && (
+                        <DeclinePaymentButton enrollmentId={enrollment.id} courseId={id} />
                       )}
                       {enrollment.status === "active" && (
                         <CompleteCourseButton enrollmentId={enrollment.id} courseId={id} />

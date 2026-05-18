@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AdminEnrollUserForm } from "@/components/admin/AdminEnrollUserForm";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
+import { DeclinePaymentButton } from "@/components/admin/DeclinePaymentButton";
 import { formatPrice, getAllCourses } from "@/lib/courses";
 import { getPendingPaymentEnrollments } from "@/lib/enrollments";
 
@@ -133,6 +134,12 @@ export default async function AdminEnrollmentsPage({
                           enrollmentId={enrollment.id}
                           courseId={enrollment.courseId}
                         />
+                        {enrollment.status === "pending_verification" && (
+                          <DeclinePaymentButton
+                            enrollmentId={enrollment.id}
+                            courseId={enrollment.courseId}
+                          />
+                        )}
                         <Link
                           href={`/admin/courses/${enrollment.courseId}/students`}
                           className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent-muted/50"

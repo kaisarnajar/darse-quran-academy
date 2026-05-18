@@ -62,6 +62,39 @@ export async function confirmEnrollmentPayment(enrollmentId: string, courseId: s
   return { success: true };
 }
 
+export async function declineEnrollmentPayment(enrollmentId: string, courseId: string) {
+  await requireAdmin();
+
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { id: enrollmentId },
+  });
+
+  if (!enrollment || enrollment.courseId !== courseId) {
+    return { error: "Enrollment not found." };
+  }
+
+  if (enrollment.status !== "pending_verification") {
+    return { error: "Only submitted payments awaiting verification can be declined." };
+  }
+
+  await prisma.enrollment.update({
+    where: { id: enrollmentId },
+    data: {
+      status: "pending",
+      upiTransactionId: null,
+      paymentScreenshotPath: null,
+      paymentMethod: null,
+      amountPaid: null,
+      currency: null,
+    },
+  });
+
+  revalidateEnrollmentPaths(courseId);
+  revalidatePath(`/admin/students/${enrollment.userId}`);
+
+  return { success: true };
+}
+
 export type AdminEnrollUserState = {
   error?: string;
   success?: string;
