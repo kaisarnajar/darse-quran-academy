@@ -33,6 +33,7 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
   --color-teal: var(--teal);
   --color-teal-dark: var(--teal-dark);
   --font-sans: var(--font-poppins);

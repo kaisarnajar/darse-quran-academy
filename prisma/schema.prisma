@@ -47,6 +47,11 @@ enum AnnouncementCategory {
   GENERAL_NOTICE
 }
 
+enum DailyInspirationKind {
+  QURAN
+  HADITH
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
@@ -68,6 +73,7 @@ model User {
   fatwaAnswers       FatwaQuestion[] @relation("FatwaAnsweredBy")
   siteAnnouncements  SiteAnnouncement[] @relation("SiteAnnouncementAuthor")
   blogPosts          BlogPost[]         @relation("BlogPostAuthor")
+  dailyInspirations  DailyInspiration[] @relation("DailyInspirationAuthor")
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 }
@@ -197,6 +203,21 @@ model BlogImage {
   blogPost   BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
 
   @@index([blogPostId, sortOrder])
+}
+
+model DailyInspiration {
+  id                 String               @id @default(cuid())
+  kind               DailyInspirationKind
+  arabicText         String
+  englishTranslation String
+  reference          String?
+  published          Boolean              @default(false)
+  createdById        String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  createdBy          User?                @relation("DailyInspirationAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([published, updatedAt])
 }
 
 model LibraryItem {

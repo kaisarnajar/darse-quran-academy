@@ -127,6 +127,20 @@ export const blogPostSchema = z.object({
   published: z.coerce.boolean(),
 });
 
+export const dailyInspirationKindEnum = z.enum(["QURAN", "HADITH"]);
+
+export const dailyInspirationSchema = z.object({
+  kind: dailyInspirationKindEnum,
+  arabicText: z.string().trim().min(1, "Arabic text is required.").max(5000),
+  englishTranslation: z
+    .string()
+    .trim()
+    .min(1, "English translation is required.")
+    .max(5000),
+  reference: z.string().trim().max(300).optional().or(z.literal("")),
+  published: z.coerce.boolean(),
+});
+
 export const siteAnnouncementSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters.").max(200),
   body: z.string().trim().min(10, "Message must be at least 10 characters.").max(10000),
