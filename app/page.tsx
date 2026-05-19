@@ -1,3 +1,4 @@
+import { HomeAnnouncements } from "@/components/home/HomeAnnouncements";
 import { ExperienceBanner } from "@/components/home/ExperienceBanner";
 import { HomeFatwa } from "@/components/home/HomeFatwa";
 import { FeatureCards } from "@/components/home/FeatureCards";
@@ -19,6 +20,7 @@ export default async function HomePage() {
       <HeroWave />
       <FeatureCards />
       <FeaturedCourses courses={featuredCourses} />
+      <HomeAnnouncements />
       <HomeAbout />
       <ExperienceBanner />
       <StudentTestimonials />

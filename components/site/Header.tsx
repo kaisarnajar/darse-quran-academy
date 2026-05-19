@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Us" },
   { href: "/courses", label: "Courses" },
+  { href: "/announcements", label: "Announcements" },
   { href: "/teachers", label: "Teachers" },
   { href: "/fatwa", label: "Fatwa" },
   { href: "/library", label: "Resources" },

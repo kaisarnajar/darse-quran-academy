@@ -46,6 +46,10 @@ yarn-error.log*
 /public/uploads/announcements/*
 !/public/uploads/announcements/.gitkeep
 
+# academy site announcement photos
+/public/uploads/site-announcements/*
+!/public/uploads/site-announcements/.gitkeep
+
 # vercel
 .vercel
 

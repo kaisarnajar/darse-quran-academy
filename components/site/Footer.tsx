@@ -5,6 +5,7 @@ const quickLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Us" },
   { href: "/courses", label: "Courses" },
+  { href: "/announcements", label: "Announcements" },
   { href: "/library", label: "Resources" },
   { href: "/fatwa", label: "Fatwa" },
   { href: "/teachers", label: "Teachers" },

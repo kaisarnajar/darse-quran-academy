@@ -102,6 +102,15 @@ export const announcementCategoryEnum = z.enum([
   "GENERAL_NOTICE",
 ]);
 
+export const siteAnnouncementSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters.").max(200),
+  body: z.string().trim().min(10, "Message must be at least 10 characters.").max(10000),
+  eventDate: z.string().trim().max(120).optional().or(z.literal("")),
+  location: z.string().trim().max(200).optional().or(z.literal("")),
+  showOnHomepage: z.boolean(),
+  published: z.boolean(),
+});
+
 export const courseAnnouncementSchema = z.object({
   category: announcementCategoryEnum,
   title: z.string().trim().min(3, "Title must be at least 3 characters.").max(200),

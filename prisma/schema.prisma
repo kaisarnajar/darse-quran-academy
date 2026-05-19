@@ -45,10 +45,11 @@ model User {
   sessions      Session[]
   enrollments     Enrollment[]
   paymentRecords  PaymentRecord[]
-  fatwaQuestions  FatwaQuestion[]
-  fatwaAnswers    FatwaQuestion[] @relation("FatwaAnsweredBy")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  fatwaQuestions     FatwaQuestion[]
+  fatwaAnswers       FatwaQuestion[] @relation("FatwaAnsweredBy")
+  siteAnnouncements  SiteAnnouncement[] @relation("SiteAnnouncementAuthor")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model Account {
@@ -131,6 +132,24 @@ model CourseAnnouncement {
 
   @@index([courseId])
   @@index([courseId, createdAt])
+}
+
+model SiteAnnouncement {
+  id             String   @id @default(cuid())
+  title          String
+  body           String
+  eventDate      String?
+  location       String?
+  imagePath      String?
+  showOnHomepage Boolean  @default(false)
+  published      Boolean  @default(true)
+  createdById    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdBy      User?    @relation("SiteAnnouncementAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([published, showOnHomepage])
+  @@index([published, createdAt])
 }
 
 model LibraryItem {
