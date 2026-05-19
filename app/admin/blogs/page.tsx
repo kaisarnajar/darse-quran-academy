@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { DeleteBlogPostButton } from "@/components/admin/DeleteBlogPostButton";
+import { blogApprovalStatusClass, blogApprovalStatusLabel } from "@/lib/blog-approval";
 import { getAllBlogPostsForAdmin } from "@/lib/blogs";
+import type { BlogPost } from "@prisma/client";
 
-function statusBadge(published: boolean) {
-  if (published) {
-    return { label: "Published", className: "bg-emerald-100 text-emerald-900" };
-  }
-  return { label: "Draft", className: "bg-stone-200 text-stone-800" };
+function statusBadge(post: Pick<BlogPost, "approvalStatus" | "published">) {
+  return {
+    label: blogApprovalStatusLabel(post.approvalStatus, post.published),
+    className: blogApprovalStatusClass(post.approvalStatus, post.published),
+  };
 }
 
 export default async function AdminBlogsPage({
@@ -23,7 +25,11 @@ export default async function AdminBlogsPage({
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Blogs</h1>
           <p className="mt-1 text-sm text-muted">
-            Write articles, attach screenshots, and publish them on the public blog.
+            Write articles or review teacher submissions in{" "}
+            <Link href="/admin/blog-approvals" className="font-medium text-primary hover:underline">
+              Blog approvals
+            </Link>
+            .
           </p>
         </div>
         <Link
@@ -64,7 +70,7 @@ export default async function AdminBlogsPage({
             </thead>
             <tbody className="divide-y divide-border">
               {posts.map((post) => {
-                const badge = statusBadge(post.published);
+                const badge = statusBadge(post);
                 return (
                   <tr key={post.id} className="hover:bg-background/30">
                     <td className="px-4 py-3 font-medium text-foreground">{post.title}</td>
@@ -86,7 +92,7 @@ export default async function AdminBlogsPage({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-end gap-3">
-                        {post.published && (
+                        {post.published && post.approvalStatus === "APPROVED" && (
                           <Link
                             href={`/blog/${post.id}`}
                             target="_blank"

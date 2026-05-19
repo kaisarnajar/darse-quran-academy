@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 
 const links = [
   { href: "/teacher", label: "My courses", exact: true },
+  { href: "/teacher/blogs", label: "My blogs" },
 ];
 
 export function TeacherSidebar({ teacherName }: { teacherName: string }) {

@@ -52,6 +52,13 @@ enum DailyInspirationKind {
   HADITH
 }
 
+enum BlogApprovalStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
@@ -179,18 +186,20 @@ model SiteAnnouncement {
 }
 
 model BlogPost {
-  id          String      @id @default(cuid())
-  title       String
-  excerpt     String?
-  body        String
-  published   Boolean     @default(false)
-  createdById String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   User?       @relation("BlogPostAuthor", fields: [createdById], references: [id], onDelete: SetNull)
-  images      BlogImage[]
+  id             String             @id @default(cuid())
+  title          String
+  excerpt        String?
+  body           String
+  published      Boolean            @default(false)
+  approvalStatus BlogApprovalStatus @default(APPROVED)
+  createdById    String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  createdBy      User?              @relation("BlogPostAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  images         BlogImage[]
 
-  @@index([published, createdAt])
+  @@index([published, approvalStatus, createdAt])
+  @@index([approvalStatus, createdAt])
 }
 
 model BlogImage {

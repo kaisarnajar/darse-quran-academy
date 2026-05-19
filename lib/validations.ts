@@ -127,6 +127,8 @@ export const blogPostSchema = z.object({
   published: z.coerce.boolean(),
 });
 
+export const teacherBlogPostSchema = blogPostSchema.omit({ published: true });
+
 export const dailyInspirationKindEnum = z.enum(["QURAN", "HADITH"]);
 
 export const dailyInspirationSchema = z.object({

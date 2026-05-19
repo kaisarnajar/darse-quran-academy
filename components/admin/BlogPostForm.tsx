@@ -1,16 +1,33 @@
-import type { BlogPostWithImages } from "@/lib/blogs";
+import type { BlogImage } from "@prisma/client";
 import Image from "next/image";
 import { MAX_BLOG_IMAGES } from "@/lib/blog-upload";
 import { inputClassName, labelClassName } from "@/lib/form";
 
+type BlogPostFormPost = {
+  title: string;
+  excerpt: string | null;
+  body: string;
+  published: boolean;
+  images: BlogImage[];
+};
+
 type BlogPostFormProps = {
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
-  post?: BlogPostWithImages;
+  post?: BlogPostFormPost;
   error?: string;
+  /** Teachers submit for admin approval; publish checkbox is hidden. */
+  mode?: "admin" | "teacher";
 };
 
-export function BlogPostForm({ action, submitLabel, post, error }: BlogPostFormProps) {
+export function BlogPostForm({
+  action,
+  submitLabel,
+  post,
+  error,
+  mode = "admin",
+}: BlogPostFormProps) {
+  const isTeacher = mode === "teacher";
   const imageCount = post?.images.length ?? 0;
   const slotsLeft = MAX_BLOG_IMAGES - imageCount;
 
@@ -120,18 +137,25 @@ export function BlogPostForm({ action, submitLabel, post, error }: BlogPostFormP
         </p>
       </div>
 
-      <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
-        <input
-          type="checkbox"
-          name="published"
-          defaultChecked={post?.published ?? false}
-          className="h-4 w-4 rounded border-border"
-        />
-        <span>
-          <span className="font-medium">Publish on the public blog</span>
-          <span className="block text-muted">Leave unchecked to save as a draft.</span>
-        </span>
-      </label>
+      {isTeacher ? (
+        <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Your post will be sent to the admin for review. Once approved, it will appear on the public
+          blog page.
+        </p>
+      ) : (
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+          <input
+            type="checkbox"
+            name="published"
+            defaultChecked={post?.published ?? false}
+            className="h-4 w-4 rounded border-border"
+          />
+          <span>
+            <span className="font-medium">Publish on the public blog</span>
+            <span className="block text-muted">Leave unchecked to save as a draft.</span>
+          </span>
+        </label>
+      )}
 
       <button
         type="submit"

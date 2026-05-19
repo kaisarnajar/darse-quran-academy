@@ -1,9 +1,10 @@
 import type { BlogImage, BlogPost } from "@prisma/client";
+import { BLOG_PUBLIC_WHERE } from "@/lib/blog-approval";
 import { prisma } from "@/lib/prisma";
 
 export type BlogPostWithImages = BlogPost & {
   images: BlogImage[];
-  createdBy: { name: string | null } | null;
+  createdBy: { name: string | null; email?: string | null } | null;
 };
 
 export function formatBlogDate(date: Date): string {
@@ -16,7 +17,7 @@ export function formatBlogDate(date: Date): string {
 
 export async function getPublishedBlogPosts(limit?: number) {
   return prisma.blogPost.findMany({
-    where: { published: true },
+    where: BLOG_PUBLIC_WHERE,
     orderBy: { createdAt: "desc" },
     take: limit,
     include: {
@@ -28,7 +29,7 @@ export async function getPublishedBlogPosts(limit?: number) {
 
 export async function getPublishedBlogPostById(id: string) {
   return prisma.blogPost.findFirst({
-    where: { id, published: true },
+    where: { id, ...BLOG_PUBLIC_WHERE },
     include: {
       images: { orderBy: { sortOrder: "asc" } },
       createdBy: { select: { name: true } },
@@ -41,7 +42,7 @@ export async function getAllBlogPostsForAdmin() {
     orderBy: { createdAt: "desc" },
     include: {
       images: { orderBy: { sortOrder: "asc" } },
-      createdBy: { select: { name: true } },
+      createdBy: { select: { name: true, email: true } },
     },
   });
 }
@@ -51,7 +52,26 @@ export async function getBlogPostForAdmin(id: string) {
     where: { id },
     include: {
       images: { orderBy: { sortOrder: "asc" } },
-      createdBy: { select: { name: true } },
+      createdBy: { select: { name: true, email: true } },
+    },
+  });
+}
+
+export async function getTeacherBlogPosts(userId: string) {
+  return prisma.blogPost.findMany({
+    where: { createdById: userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      images: { orderBy: { sortOrder: "asc" } },
+    },
+  });
+}
+
+export async function getBlogPostForTeacher(id: string, userId: string) {
+  return prisma.blogPost.findFirst({
+    where: { id, createdById: userId },
+    include: {
+      images: { orderBy: { sortOrder: "asc" } },
     },
   });
 }
