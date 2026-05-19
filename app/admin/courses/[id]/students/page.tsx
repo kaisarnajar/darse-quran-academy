@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CompleteAllStudentsButton } from "@/components/admin/CompleteAllStudentsButton";
 import { CompleteCourseButton } from "@/components/admin/CompleteCourseButton";
+import { ApproveEnrollmentButton } from "@/components/admin/ApproveEnrollmentButton";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
 import { DeclinePaymentButton } from "@/components/admin/DeclinePaymentButton";
+import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
 import { RemoveEnrollmentButton } from "@/components/admin/RemoveEnrollmentButton";
 import { formatPrice, getCourseById } from "@/lib/courses";
 import { getEnrollmentsForCourse } from "@/lib/enrollments";
@@ -133,6 +135,9 @@ export default async function CourseStudentsPage({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-2">
+                      {enrollment.status === PENDING_ENROLLMENT_APPROVAL && (
+                        <ApproveEnrollmentButton enrollmentId={enrollment.id} courseId={id} />
+                      )}
                       {enrollment.status === "pending_verification" && (
                         <>
                           <ConfirmPaymentButton enrollmentId={enrollment.id} courseId={id} />
@@ -140,7 +145,7 @@ export default async function CourseStudentsPage({
                         </>
                       )}
                       {enrollment.status === "pending" && (
-                        <ConfirmPaymentButton enrollmentId={enrollment.id} courseId={id} />
+                        <ApproveEnrollmentButton enrollmentId={enrollment.id} courseId={id} />
                       )}
                       {enrollment.status === "active" && (
                         <CompleteCourseButton enrollmentId={enrollment.id} courseId={id} />

@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
-import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { prisma } from "@/lib/prisma";
 import { uniqueSlug } from "@/lib/slug";
 import { courseSchema } from "@/lib/validations";
@@ -17,7 +16,7 @@ function parseCourseForm(formData: FormData) {
     startDate: formData.get("startDate"),
     level,
     category: formData.get("category"),
-    priceInrPaise: getRegistrationFeePaise(level),
+    priceInrPaise: 0,
     teacherId,
     status: formData.get("status"),
   });

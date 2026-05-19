@@ -56,8 +56,8 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
       <div>
         <h2 className="font-serif text-lg font-semibold text-primary">Enroll a student manually</h2>
         <p className="mt-1 text-sm text-muted">
-          The student must already have registered on the site. Verify their email, choose a course, then enroll
-          them. Check &quot;Mark as paid&quot; to grant immediate access without UPI verification.
+          The student must already have registered. Verify their email, choose a course, and optionally
+          approve access immediately.
         </p>
       </div>
 
@@ -95,9 +95,6 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
             {lookupLoading ? "Checking…" : "Verify account"}
           </button>
         </div>
-        <p className="mt-1.5 text-xs text-muted">
-          The student must sign up on the site before you can enroll them in a course.
-        </p>
         {lookupError && (
           <p className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900" role="alert">
             {lookupError}
@@ -111,7 +108,6 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
           className={`mt-1 rounded-md border border-border bg-background/60 px-3 py-2.5 text-sm ${
             linkedName ? "font-medium text-foreground" : "text-muted"
           }`}
-          aria-live="polite"
         >
           {linkedName || "Verify the email above to load the account name."}
         </p>
@@ -133,30 +129,15 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
         </select>
       </div>
 
-      <div>
-        <label htmlFor="upiTransactionId" className={labelClassName}>
-          UPI UTR (optional)
-        </label>
-        <input
-          id="upiTransactionId"
-          name="upiTransactionId"
-          type="text"
-          minLength={8}
-          maxLength={50}
-          placeholder="Bank reference / UTR if paid offline"
-          className={inputClassName}
-        />
-      </div>
-
       <label className="flex cursor-pointer items-start gap-2 text-sm text-foreground">
         <input
           type="checkbox"
-          name="markAsPaid"
+          name="approveImmediately"
           className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
         />
         <span>
-          <span className="font-medium">Mark as paid</span>
-          <span className="block text-muted">Activate enrollment immediately (waive UPI verification).</span>
+          <span className="font-medium">Approve immediately</span>
+          <span className="block text-muted">Grant course access without waiting for a separate approval.</span>
         </span>
       </label>
 
@@ -165,7 +146,7 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
         disabled={pending || !canSubmit}
         className="min-h-11 rounded-md bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {pending ? "Saving…" : "Enroll student"}
+        {pending ? "Saving…" : "Add enrollment"}
       </button>
     </form>
   );

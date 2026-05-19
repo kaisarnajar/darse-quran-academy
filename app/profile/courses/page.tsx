@@ -2,14 +2,16 @@ import Link from "next/link";
 import { DownloadCertificateButton } from "@/components/certificate/DownloadCertificateButton";
 import { requireUser } from "@/lib/auth-actions";
 import { isEnrollmentCertificateReady } from "@/lib/completion";
-import { formatPrice, getCourseById } from "@/lib/courses";
+import { getCourseById } from "@/lib/courses";
+import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
 import { getUserEnrollments } from "@/lib/enrollments";
 
 function statusLabel(status: string) {
   if (status === "completed") return "Completed";
-  if (status === "pending_verification") return "Awaiting payment verification";
-  if (status === "payment_declined") return "Payment declined — resubmit";
-  if (status === "pending") return "Payment pending";
+  if (status === PENDING_ENROLLMENT_APPROVAL) return "Awaiting approval";
+  if (status === "pending_verification") return "Awaiting verification";
+  if (status === "payment_declined") return "Declined";
+  if (status === "pending") return "Awaiting approval";
   if (status === "active") return "Active";
   return status;
 }
@@ -17,7 +19,7 @@ function statusLabel(status: string) {
 export default async function ProfileCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pending?: string; declined?: string }>;
+  searchParams: Promise<{ requested?: string; declined?: string }>;
 }) {
   const session = await requireUser();
   const params = await searchParams;
@@ -35,19 +37,17 @@ export default async function ProfileCoursesPage({
       <h2 className="font-serif text-lg font-semibold text-foreground">My Courses</h2>
       <p className="mt-1 text-sm text-muted">
         {session.user.name ? `Welcome, ${session.user.name}. ` : ""}
-        Your enrolled programs appear below.
+        Enrolled programs and monthly fee payments appear below.
       </p>
 
-      {params.pending === "1" && (
-        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Thank you! We received your payment details and will verify them shortly. You will get
-          access once confirmed.
+      {params.requested === "1" && (
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
+          Your enrollment request was submitted. The academy will approve your access shortly.
         </p>
       )}
       {params.declined === "1" && (
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-900">
-          Your previous payment could not be verified. Use &quot;Resubmit payment&quot; below to send
-          new payment details.
+          Your previous payment was declined. Use &quot;Pay monthly fee&quot; to submit again.
         </p>
       )}
 
@@ -66,6 +66,7 @@ export default async function ProfileCoursesPage({
           {enrollmentRows.map(({ enrollment, course }) => {
             if (!course) return null;
             const certificateReady = isEnrollmentCertificateReady(enrollment);
+            const isActive = enrollment.status === "active" || enrollment.status === "completed";
 
             return (
               <li key={enrollment.id} className="card-elevated flex flex-col p-5">
@@ -75,44 +76,36 @@ export default async function ProfileCoursesPage({
                 <h3 className="mt-2 font-serif text-lg font-semibold text-foreground">{course.title}</h3>
                 <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
                 <p className="mt-3 text-sm text-primary">Starts: {course.startDate}</p>
-                {enrollment.amountPaid != null && (
-                  <p className="mt-1 text-sm font-medium text-foreground">
-                    Paid: {formatPrice(enrollment.amountPaid)}
-                  </p>
-                )}
-                {(enrollment.status === "pending" || enrollment.status === "payment_declined") && (
+
+                {isActive && (
                   <Link
-                    href={`/payment/${enrollment.id}`}
-                    className={`mt-4 flex min-h-11 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold ${
-                      enrollment.status === "payment_declined"
-                        ? "border border-red-300 bg-red-50 text-red-900 hover:bg-red-100"
-                        : "bg-primary text-white hover:bg-primary-light"
-                    }`}
+                    href={`/profile/courses/${course.id}/pay`}
+                    className="mt-4 flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light"
                   >
-                    {enrollment.status === "payment_declined"
-                      ? "Resubmit payment"
-                      : "Complete payment"}
+                    Pay monthly fee
                   </Link>
                 )}
+
                 {certificateReady && (
                   <DownloadCertificateButton enrollmentId={enrollment.id} courseTitle={course.title} />
                 )}
+
+                <Link
+                  href={`/profile/courses/${course.id}/announcements`}
+                  className="mt-3 flex min-h-11 items-center justify-center rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent-muted/30"
+                >
+                  Course announcements
+                </Link>
+
                 {enrollment.completedAt && (
                   <p className="mt-3 text-xs text-muted">
                     Completed {enrollment.completedAt.toLocaleDateString("en-IN")}
                   </p>
                 )}
-                <Link
-                  href={`/profile/courses/${course.id}/announcements`}
-                  className="mt-4 flex min-h-11 items-center justify-center rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent-muted/30"
-                >
-                  Course announcements
-                </Link>
-                {!certificateReady &&
-                  enrollment.status !== "pending" &&
-                  enrollment.status !== "payment_declined" && (
+
+                {!certificateReady && !isActive && (
                   <p className="mt-4 text-xs text-muted">
-                    Enrolled {enrollment.createdAt.toLocaleDateString("en-IN")}
+                    Requested {enrollment.createdAt.toLocaleDateString("en-IN")}
                   </p>
                 )}
               </li>

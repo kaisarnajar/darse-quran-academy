@@ -61,8 +61,9 @@ model User {
   password      String?
   accounts      Account[]
   sessions      Session[]
-  enrollments     Enrollment[]
-  paymentRecords  PaymentRecord[]
+  enrollments              Enrollment[]
+  paymentRecords           PaymentRecord[]
+  coursePaymentSubmissions CoursePaymentSubmission[]
   fatwaQuestions     FatwaQuestion[]
   fatwaAnswers       FatwaQuestion[] @relation("FatwaAnsweredBy")
   siteAnnouncements  SiteAnnouncement[] @relation("SiteAnnouncementAuthor")
@@ -234,7 +235,31 @@ model PaymentRecord {
   updatedAt      DateTime @updatedAt
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   course         Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  submission     CoursePaymentSubmission?
 
   @@index([userId])
   @@index([paidAt])
+}
+
+/** Student-submitted monthly (or other) course fees awaiting admin approval. */
+model CoursePaymentSubmission {
+  id                    String    @id @default(cuid())
+  userId                String
+  courseId              String
+  label                 String
+  amountInrPaise        Int
+  status                String    @default("pending_verification")
+  paymentMethod         String?
+  upiTransactionId      String?
+  paymentScreenshotPath String?
+  paymentReference      String?   @unique
+  paymentRecordId       String?   @unique
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentRecord         PaymentRecord? @relation(fields: [paymentRecordId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
 }

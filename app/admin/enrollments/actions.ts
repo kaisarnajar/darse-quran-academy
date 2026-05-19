@@ -4,10 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { markAllActiveStudentsComplete, markEnrollmentCompleteAndNotify } from "@/lib/completion";
-import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
+import {
+  AWAITING_PAYMENT_VERIFICATION,
+  canApproveEnrollment,
+  PAYMENT_DECLINED,
+  PENDING_ENROLLMENT_APPROVAL,
+} from "@/lib/enrollment-status";
 import { sendPaymentDeclinedEmail } from "@/lib/email";
-import { AWAITING_PAYMENT_VERIFICATION, PAYMENT_DECLINED } from "@/lib/enrollment-status";
 import { prisma } from "@/lib/prisma";
 import {
   lookupStudentAccountForEnrollment,
@@ -33,23 +37,10 @@ function revalidateEnrollmentPaths(courseId: string) {
   }
 }
 
-function getPaymentPageUrl(enrollmentId: string): string {
-  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
-  return `${base.replace(/\/$/, "")}/payment/${enrollmentId}`;
-}
-
-function adminPaymentReturnUrl(
-  returnTo: string | undefined,
-  courseId: string,
-  event: "confirmed" | "declined",
-): string {
-  const param = event === "confirmed" ? "confirmed" : "declined";
+function enrollmentReturnUrl(returnTo: string | undefined, event: "approved" | "declined"): string {
+  const param = event === "approved" ? "approved" : "declined";
   const fallback = `/admin/enrollments?${param}=1`;
-
-  if (!returnTo?.startsWith("/admin")) {
-    return fallback;
-  }
-
+  if (!returnTo?.startsWith("/admin")) return fallback;
   const [pathname, query = ""] = returnTo.split("?");
   const params = new URLSearchParams(query);
   params.set(param, "1");
@@ -57,7 +48,8 @@ function adminPaymentReturnUrl(
   return qs ? `${pathname}?${qs}` : `${pathname}?${param}=1`;
 }
 
-export async function confirmEnrollmentPayment(
+/** Approve a student's enrollment request (free registration). */
+export async function approveEnrollmentRequest(
   enrollmentId: string,
   courseId: string,
   returnTo?: string,
@@ -73,18 +65,15 @@ export async function confirmEnrollmentPayment(
   }
 
   if (enrollment.status === "active") {
-    redirect(adminPaymentReturnUrl(returnTo, courseId, "confirmed"));
+    redirect(enrollmentReturnUrl(returnTo, "approved"));
   }
 
   if (enrollment.status === "completed") {
     return { error: "This enrollment is already completed." };
   }
 
-  if (
-    enrollment.status !== AWAITING_PAYMENT_VERIFICATION &&
-    enrollment.status !== "pending"
-  ) {
-    return { error: "This enrollment cannot be confirmed." };
+  if (!canApproveEnrollment(enrollment.status)) {
+    return { error: "This enrollment cannot be approved." };
   }
 
   const course = await getCourseById(courseId);
@@ -92,26 +81,25 @@ export async function confirmEnrollmentPayment(
     return { error: "Course not found." };
   }
 
-  const updated = await prisma.enrollment.update({
+  await prisma.enrollment.update({
     where: { id: enrollmentId },
     data: {
       status: "active",
-      amountPaid: getRegistrationFeePaise(course.level),
-      currency: "inr",
-      paymentMethod: enrollment.paymentMethod ?? "upi",
+      amountPaid: null,
+      currency: null,
+      paymentMethod: null,
+      upiTransactionId: null,
+      paymentScreenshotPath: null,
     },
   });
-
-  if (updated.status !== "active") {
-    return { error: "Payment could not be confirmed. Please try again." };
-  }
 
   revalidateEnrollmentPaths(courseId);
   revalidatePath(`/admin/students/${enrollment.userId}`, "page");
 
-  redirect(adminPaymentReturnUrl(returnTo, courseId, "confirmed"));
+  redirect(enrollmentReturnUrl(returnTo, "approved"));
 }
 
+/** @deprecated Legacy registration payment decline */
 export async function declineEnrollmentPayment(
   enrollmentId: string,
   courseId: string,
@@ -129,15 +117,13 @@ export async function declineEnrollmentPayment(
   }
 
   if (enrollment.status !== AWAITING_PAYMENT_VERIFICATION) {
-    return { error: "Only submitted payments awaiting verification can be declined." };
+    return { error: "Only legacy payment submissions can be declined here." };
   }
 
   const course = await getCourseById(courseId);
-  if (!course) {
-    return { error: "Course not found." };
-  }
+  if (!course) return { error: "Course not found." };
 
-  const updated = await prisma.enrollment.update({
+  await prisma.enrollment.update({
     where: { id: enrollmentId },
     data: {
       status: PAYMENT_DECLINED,
@@ -149,23 +135,25 @@ export async function declineEnrollmentPayment(
     },
   });
 
-  if (updated.status !== PAYMENT_DECLINED) {
-    return { error: "Payment could not be declined. Please try again." };
-  }
-
-  const paymentUrl = getPaymentPageUrl(enrollmentId);
+  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
   await sendPaymentDeclinedEmail({
     to: enrollment.user.email,
     studentName: enrollment.user.name ?? "",
     courseTitle: course.title,
-    paymentUrl,
+    paymentUrl: `${base.replace(/\/$/, "")}/profile/courses`,
   });
 
   revalidateEnrollmentPaths(courseId);
-  revalidatePath(`/admin/students/${enrollment.userId}`, "page");
-  revalidatePath("/profile/courses", "page");
+  redirect(enrollmentReturnUrl(returnTo, "declined"));
+}
 
-  redirect(adminPaymentReturnUrl(returnTo, courseId, "declined"));
+/** @deprecated Use approveEnrollmentRequest */
+export async function confirmEnrollmentPayment(
+  enrollmentId: string,
+  courseId: string,
+  returnTo?: string,
+) {
+  return approveEnrollmentRequest(enrollmentId, courseId, returnTo);
 }
 
 export type AdminEnrollUserState = {
@@ -182,8 +170,7 @@ export async function adminEnrollUser(
   const parsed = adminEnrollUserSchema.safeParse({
     email: formData.get("email"),
     courseId: formData.get("courseId"),
-    upiTransactionId: formData.get("upiTransactionId") || undefined,
-    markAsPaid: formData.get("markAsPaid") === "on",
+    approveImmediately: formData.get("approveImmediately") === "on",
   });
 
   if (!parsed.success) {
@@ -200,9 +187,7 @@ export async function adminEnrollUser(
     return { error: "Course not found." };
   }
 
-  const utr = parsed.data.upiTransactionId?.trim() || null;
-  const activate = parsed.data.markAsPaid || Boolean(utr);
-  const registrationFeePaise = getRegistrationFeePaise(course.level);
+  const status = parsed.data.approveImmediately ? "active" : PENDING_ENROLLMENT_APPROVAL;
 
   await prisma.enrollment.upsert({
     where: {
@@ -211,33 +196,29 @@ export async function adminEnrollUser(
     create: {
       userId: account.userId,
       courseId: course.id,
-      status: activate ? "active" : "pending",
-      amountPaid: activate ? registrationFeePaise : null,
-      currency: activate ? "inr" : null,
-      paymentMethod: activate ? "upi" : null,
-      upiTransactionId: utr,
-      paymentReference: activate ? `ADMIN-${Date.now()}` : null,
+      status,
     },
     update: {
-      status: activate ? "active" : "pending",
-      amountPaid: activate ? registrationFeePaise : undefined,
-      currency: activate ? "inr" : undefined,
-      paymentMethod: activate ? "upi" : undefined,
-      upiTransactionId: utr ?? undefined,
-      ...(activate ? { paymentReference: `ADMIN-${Date.now()}` } : {}),
+      status,
+      amountPaid: null,
+      currency: null,
+      paymentMethod: null,
+      upiTransactionId: null,
+      paymentScreenshotPath: null,
+      paymentReference: null,
     },
   });
 
   revalidateEnrollmentPaths(course.id);
 
   return {
-    success: activate
-      ? `${account.name} is now enrolled in ${course.title}.`
-      : `${account.name} was added to ${course.title} with payment pending.`,
+    success:
+      status === "active"
+        ? `${account.name} is now enrolled in ${course.title}.`
+        : `${account.name} was added to ${course.title}. Approve the request to grant course access.`,
   };
 }
 
-/** Preview registered student account for admin enroll form (client). */
 export async function previewStudentAccountForEnrollment(email: string) {
   await requireAdmin();
   if (!email.trim()) {

@@ -1,11 +1,18 @@
-/** Submitted payment details; awaiting admin confirm or decline */
+/** Student requested enrollment; awaiting admin approval (no registration fee). */
+export const PENDING_ENROLLMENT_APPROVAL = "pending_approval" as const;
+
+/** @deprecated Legacy registration payment flow */
 export const AWAITING_PAYMENT_VERIFICATION = "pending_verification" as const;
 
-/** Checkout started or admin declined — student must pay / resubmit on payment page */
+/** @deprecated Legacy registration payment flow */
 export const NEEDS_PAYMENT_SUBMISSION = "pending" as const;
 
-/** Admin declined the submitted payment — student must resubmit for verification */
+/** @deprecated Legacy registration payment flow */
 export const PAYMENT_DECLINED = "payment_declined" as const;
+
+export function isPendingEnrollmentApproval(status: string): boolean {
+  return status === PENDING_ENROLLMENT_APPROVAL;
+}
 
 export function isAwaitingPaymentVerification(status: string): boolean {
   return status === AWAITING_PAYMENT_VERIFICATION;
@@ -17,4 +24,12 @@ export function needsPaymentSubmission(status: string): boolean {
 
 export function canSubmitPaymentForVerification(status: string): boolean {
   return needsPaymentSubmission(status);
+}
+
+export function canApproveEnrollment(status: string): boolean {
+  return (
+    status === PENDING_ENROLLMENT_APPROVAL ||
+    status === AWAITING_PAYMENT_VERIFICATION ||
+    status === NEEDS_PAYMENT_SUBMISSION
+  );
 }

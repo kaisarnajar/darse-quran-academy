@@ -28,24 +28,24 @@ export async function PaymentDetailsPanel({
   const upiReady = isUpiConfigured();
   const bank = getBankDetails();
   const upiId = upiReady ? getUpiId() : "";
-  const isEnrollmentPayment = Boolean(paymentRef && amountPaise != null && amountLabel);
+  const hasFixedAmount = amountPaise != null && amountLabel;
 
   const qrDataUrl =
     upiReady &&
     (await generateUpiQrDataUrl(
-      isEnrollmentPayment
+      hasFixedAmount
         ? buildUpiPaymentUrl({
             amountPaise: amountPaise!,
             payeeName: getUpiPayeeName(),
             note: paymentNote.slice(0, 80),
-            transactionRef: paymentRef!,
+            transactionRef: paymentRef ?? `FEE-${Date.now()}`,
           })
         : buildUpiVpaUrl(),
     ));
 
   return (
     <div className="card-elevated space-y-6 p-6 sm:p-8">
-      {isEnrollmentPayment && (
+      {hasFixedAmount && (
         <div className="text-center">
           <p className="text-sm text-muted">Amount to pay</p>
           <p className="text-3xl font-bold text-foreground">{amountLabel}</p>
@@ -82,7 +82,7 @@ export async function PaymentDetailsPanel({
                   <p className="mt-0.5 font-mono text-sm font-semibold text-foreground">{upiId}</p>
                 </div>
                 <CopyButton text={upiId} label="Copy UPI ID" />
-                {isEnrollmentPayment && paymentRef && (
+                {paymentRef && (
                   <div className="w-full border-t border-border pt-3">
                     <p className="text-xs text-muted">Payment reference (include if asked)</p>
                     <p className="mt-0.5 font-mono text-xs text-foreground">{paymentRef}</p>
@@ -103,12 +103,16 @@ export async function PaymentDetailsPanel({
             Bank transfer
           </h2>
           <div className="mt-4 flex-1">
-            <BankDetailsCard bank={bank} paymentRef={paymentRef} amountLabel={amountLabel} />
+            <BankDetailsCard
+              bank={bank}
+              paymentRef={paymentRef}
+              amountLabel={hasFixedAmount ? amountLabel : undefined}
+            />
           </div>
-          {!isEnrollmentPayment && (
+          {!paymentRef && (
             <p className="mt-3 text-center text-xs text-muted lg:text-left">
-              After you enroll in a course, you will get a unique payment reference on the payment
-              confirmation page. Include that reference in your bank transfer remarks.
+              Include your name and course in the bank transfer remarks. Submit the transaction reference
+              after paying.
             </p>
           )}
         </section>

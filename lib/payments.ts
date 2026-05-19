@@ -6,3 +6,10 @@ export async function getPaymentRecordsForUser(userId: string) {
     orderBy: { paidAt: "desc" },
   });
 }
+
+export async function getPaymentSubmissionsForUser(userId: string) {
+  return prisma.coursePaymentSubmission.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+}

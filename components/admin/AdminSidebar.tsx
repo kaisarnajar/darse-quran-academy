@@ -9,6 +9,7 @@ const links = [
   { href: "/admin/announcements", label: "Announcements" },
   { href: "/admin/courses", label: "Courses" },
   { href: "/admin/enrollments", label: "Enrollments" },
+  { href: "/admin/payment-approvals", label: "Payment approvals" },
   { href: "/admin/students", label: "Students" },
   { href: "/admin/teachers", label: "Teachers" },
   { href: "/admin/library", label: "Library" },

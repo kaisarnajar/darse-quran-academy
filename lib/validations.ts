@@ -64,8 +64,20 @@ export const fatwaAnswerSchema = z.object({
 export const adminEnrollUserSchema = z.object({
   email: z.string().trim().email("Enter a valid student email."),
   courseId: z.string().min(1, "Select a course."),
-  upiTransactionId: z.string().trim().max(50).optional(),
-  markAsPaid: z.coerce.boolean().optional(),
+  approveImmediately: z.coerce.boolean().optional(),
+});
+
+export const monthlyPaymentSubmitSchema = z.object({
+  courseId: z.string().min(1),
+  paymentMonth: z.string().regex(/^(0[1-9]|1[0-2])$/, "Select a valid month."),
+  paymentYear: z.string().regex(/^\d{4}$/, "Enter a valid year."),
+  paymentMethod: z.enum(["upi", "bank"]),
+  upiTransactionId: z
+    .string()
+    .trim()
+    .min(8, "Enter a valid transaction / UTR reference (at least 8 characters).")
+    .max(50)
+    .regex(/^[a-zA-Z0-9]+$/, "Reference should contain only letters and numbers."),
 });
 
 export const occupationEnum = z.enum(OCCUPATION_VALUES);

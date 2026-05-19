@@ -1,25 +1,34 @@
 import Link from "next/link";
-import { formatPrice } from "@/lib/courses";
-import { getPendingPaymentCount } from "@/lib/enrollments";
+import { getPendingEnrollmentApprovalCount } from "@/lib/enrollments";
+import { getPendingMonthlyPaymentCount } from "@/lib/monthly-payments";
 import { prisma } from "@/lib/prisma";
 import { getStudentCount } from "@/lib/students";
 
 export default async function AdminDashboardPage() {
-  const [courseCount, teacherCount, libraryCount, studentCount, enrollmentCount, pendingPaymentCount, recentEnrollments] =
-    await Promise.all([
-      prisma.course.count(),
-      prisma.teacher.count(),
-      prisma.libraryItem.count(),
-      getStudentCount(),
-      prisma.enrollment.count({ where: { status: "active" } }),
-      getPendingPaymentCount(),
-      prisma.enrollment.findMany({
-        where: { status: "active" },
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        include: { user: { select: { name: true, email: true } } },
-      }),
-    ]);
+  const [
+    courseCount,
+    teacherCount,
+    libraryCount,
+    studentCount,
+    enrollmentCount,
+    pendingEnrollmentCount,
+    pendingPaymentCount,
+    recentEnrollments,
+  ] = await Promise.all([
+    prisma.course.count(),
+    prisma.teacher.count(),
+    prisma.libraryItem.count(),
+    getStudentCount(),
+    prisma.enrollment.count({ where: { status: "active" } }),
+    getPendingEnrollmentApprovalCount(),
+    getPendingMonthlyPaymentCount(),
+    prisma.enrollment.findMany({
+      where: { status: "active" },
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { name: true, email: true } } },
+    }),
+  ]);
 
   const courseTitles = await prisma.course.findMany({
     where: { id: { in: recentEnrollments.map((e) => e.courseId) } },
@@ -34,9 +43,15 @@ export default async function AdminDashboardPage() {
     { label: "Library items", count: libraryCount, href: "/admin/library" },
     { label: "Active enrollments", count: enrollmentCount, href: "/admin/enrollments" },
     {
-      label: "Awaiting payment",
-      count: pendingPaymentCount,
+      label: "Enrollment requests",
+      count: pendingEnrollmentCount,
       href: "/admin/enrollments",
+      highlight: pendingEnrollmentCount > 0,
+    },
+    {
+      label: "Payment approvals",
+      count: pendingPaymentCount,
+      href: "/admin/payment-approvals",
       highlight: pendingPaymentCount > 0,
     },
   ];
@@ -46,7 +61,7 @@ export default async function AdminDashboardPage() {
       <h1 className="font-serif text-2xl font-bold text-primary sm:text-3xl">Dashboard</h1>
       <p className="mt-2 text-sm text-muted">Manage academy content and view enrollment activity.</p>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
           <Link
             key={stat.label}
@@ -83,7 +98,6 @@ export default async function AdminDashboardPage() {
                   </p>
                 </div>
                 <p className="text-xs text-muted">
-                  {enrollment.amountPaid != null && formatPrice(enrollment.amountPaid)} ·{" "}
                   {enrollment.createdAt.toLocaleDateString("en-IN")}
                 </p>
               </li>

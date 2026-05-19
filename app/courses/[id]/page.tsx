@@ -77,8 +77,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
           <p className="text-xs font-semibold uppercase tracking-wide text-gold">Fees</p>
           <CoursePricingDisplay level={course.level} className="mt-2" />
           <p className="mt-3 text-xs text-muted">
-            Registration fee payment (UPI or bank transfer) covers one-time enrollment. Monthly fees are billed separately by
-            the academy.
+            Enrollment is free after admin approval. Monthly fees are paid from your profile after you are enrolled.
           </p>
         </div>
 

@@ -4,10 +4,9 @@ import type { CourseStatus } from "@prisma/client";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { formatPrice } from "@/lib/courses";
-import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseEnrollmentClosedMessage } from "@/lib/course-status";
 import { getCourseEnrollmentReminder, hasCourseEnrollment } from "@/lib/enrollments";
+import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
 import { PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 
 type CourseEnrollButtonProps = {
@@ -33,14 +32,12 @@ function EnrollmentReminder({ message }: { message: string }) {
 
 export function CourseEnrollButton({
   courseId,
-  level,
   courseStatus,
   isEnrolled = false,
   enrollmentStatus = null,
   enrollmentId = null,
   profileComplete = true,
 }: CourseEnrollButtonProps) {
-  const registrationFeePaise = getRegistrationFeePaise(level);
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -72,51 +69,35 @@ export function CourseEnrollButton({
           href="/profile/courses"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
         >
-          Enrolled — View My Profile
+          Enrolled — View My Courses
         </Link>
       </div>
     );
   }
 
-  if (enrollmentStatus === "pending_verification") {
+  if (enrollmentStatus === PENDING_ENROLLMENT_APPROVAL) {
     return (
       <div className="mt-4">
         {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
-          href="/profile/courses?pending=1"
+          href="/profile/courses?requested=1"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
         >
-          Payment submitted — Awaiting verification
+          Awaiting enrollment approval
         </Link>
       </div>
     );
   }
 
-  if (enrollmentStatus === "payment_declined" && enrollmentId) {
+  if (enrollmentStatus) {
     return (
       <div className="mt-4">
         {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
-          href={`/payment/${enrollmentId}`}
-          className="flex min-h-11 w-full flex-col items-center justify-center rounded-full border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-900 transition-colors hover:bg-red-100 sm:flex-row sm:gap-2"
+          href="/profile/courses"
+          className="flex min-h-11 w-full items-center justify-center rounded-full border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground"
         >
-          <span>Resubmit payment</span>
-          <span className="text-red-800/90">· {formatPrice(registrationFeePaise)} reg.</span>
-        </Link>
-      </div>
-    );
-  }
-
-  if (enrollmentStatus === "pending" && enrollmentId) {
-    return (
-      <div className="mt-4">
-        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
-        <Link
-          href={`/payment/${enrollmentId}`}
-          className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
-        >
-          <span>Complete payment</span>
-          <span className="text-white/90">· {formatPrice(registrationFeePaise)} reg.</span>
+          View enrollment status
         </Link>
       </div>
     );
@@ -160,26 +141,28 @@ export function CourseEnrollButton({
       }
 
       if (res.status === 400 && data.alreadyEnrolled) {
-        setError(data.error || "You are already enrolled in this course.");
+        if (data.redirectUrl) {
+          window.location.href = data.redirectUrl;
+          return;
+        }
+        setError(data.error || "You already have an enrollment request for this course.");
         setLoading(false);
         return;
       }
 
       if (!res.ok) {
-        setError(data.error || "Could not start payment.");
+        setError(data.error || "Could not submit enrollment request.");
         setLoading(false);
         return;
       }
 
-      if (data.paymentUrl) {
-        if (data.message) {
-          setInfo(data.message);
-        }
-        window.location.href = data.paymentUrl;
+      if (data.redirectUrl) {
+        if (data.message) setInfo(data.message);
+        window.location.href = data.redirectUrl;
         return;
       }
 
-      setError("Payment page not received.");
+      setError("Unexpected response. Please try again.");
       setLoading(false);
     } catch {
       setError("Something went wrong. Please try again.");
@@ -191,10 +174,9 @@ export function CourseEnrollButton({
     return (
       <Link
         href={`/login?callbackUrl=${encodeURIComponent("/courses")}`}
-        className="mt-4 flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light sm:flex-row sm:gap-2"
+        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light"
       >
-        <span>Sign in to Enroll</span>
-        <span className="text-white/90">· {formatPrice(registrationFeePaise)} reg.</span>
+        Sign in to request enrollment
       </Link>
     );
   }
@@ -207,10 +189,9 @@ export function CourseEnrollButton({
         </p>
         <Link
           href={PROFILE_COMPLETE_REDIRECT}
-          className="flex min-h-11 w-full flex-col items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100 sm:flex-row sm:gap-2"
+          className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
         >
-          <span>Complete profile to enroll</span>
-          <span className="text-amber-800/90">· {formatPrice(registrationFeePaise)} reg.</span>
+          Complete profile to enroll
         </Link>
       </div>
     );
@@ -232,10 +213,9 @@ export function CourseEnrollButton({
         type="button"
         onClick={handleEnroll}
         disabled={loading}
-        className="flex min-h-11 w-full flex-col items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light active:bg-primary-light disabled:opacity-60 sm:flex-row sm:gap-2"
+        className="flex min-h-11 w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light disabled:opacity-60"
       >
-        <span>{loading ? "Loading…" : "Pay registration fee"}</span>
-        <span className="text-white/90">· {formatPrice(registrationFeePaise)}</span>
+        {loading ? "Submitting…" : "Request enrollment (free)"}
       </button>
     </div>
   );

@@ -4,23 +4,27 @@ export type CoursePricing = {
   registrationFeePaise: number;
   registrationFeeInr: number;
   monthlyFeeInr: number;
+  monthlyFeePaise: number;
 };
 
 const PRICING_BY_LEVEL: Record<CourseLevel, CoursePricing> = {
   Beginner: {
-    registrationFeePaise: 9900,
-    registrationFeeInr: 99,
+    registrationFeePaise: 0,
+    registrationFeeInr: 0,
     monthlyFeeInr: 349,
+    monthlyFeePaise: 34900,
   },
   Intermediate: {
-    registrationFeePaise: 19900,
-    registrationFeeInr: 199,
+    registrationFeePaise: 0,
+    registrationFeeInr: 0,
     monthlyFeeInr: 499,
+    monthlyFeePaise: 49900,
   },
   Advanced: {
-    registrationFeePaise: 19900,
-    registrationFeeInr: 199,
+    registrationFeePaise: 0,
+    registrationFeeInr: 0,
     monthlyFeeInr: 499,
+    monthlyFeePaise: 49900,
   },
 };
 
@@ -35,4 +39,8 @@ export function getCoursePricing(level: string): CoursePricing {
 
 export function getRegistrationFeePaise(level: string): number {
   return getCoursePricing(level).registrationFeePaise;
+}
+
+export function getMonthlyFeePaise(level: string): number {
+  return getCoursePricing(level).monthlyFeePaise;
 }

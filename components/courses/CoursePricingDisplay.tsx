@@ -16,8 +16,7 @@ export function CoursePricingDisplay({
   if (compact) {
     return (
       <p className={`text-sm text-muted ${className}`}>
-        Reg. <span className="font-semibold text-foreground">₹{pricing.registrationFeeInr}</span>
-        {" · "}
+        Free enrollment ·{" "}
         <span className="font-semibold text-foreground">₹{pricing.monthlyFeeInr}</span>/mo
       </p>
     );
@@ -26,8 +25,7 @@ export function CoursePricingDisplay({
   return (
     <div className={`space-y-1 ${className}`}>
       <p className="text-sm text-muted">
-        <span className="font-medium text-foreground">Registration fee:</span> ₹
-        {pricing.registrationFeeInr}
+        <span className="font-medium text-foreground">Enrollment:</span> Free (admin approval)
       </p>
       <p className="text-sm text-muted">
         <span className="font-medium text-foreground">Monthly fee:</span> ₹{pricing.monthlyFeeInr}

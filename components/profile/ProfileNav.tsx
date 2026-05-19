@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 
 const links = [
   { href: "/profile", label: "Profile", exact: true },
-  { href: "/profile/payments", label: "Payments" },
   { href: "/profile/courses", label: "My Courses" },
+  { href: "/profile/payments", label: "Payments" },
+  { href: "/profile/payment-info", label: "Payment info" },
 ];
 
 export function ProfileNav() {
