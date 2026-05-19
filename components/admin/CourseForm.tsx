@@ -1,5 +1,6 @@
 import type { Course, Teacher } from "@prisma/client";
-import { COURSE_PRICING_SUMMARY } from "@/lib/course-pricing";
+import { getCoursePricing } from "@/lib/course-pricing";
+import type { CourseLevel } from "@/lib/courses";
 import { COURSE_STATUS_OPTIONS } from "@/lib/course-status";
 import { inputClassName, labelClassName } from "@/lib/form";
 
@@ -103,7 +104,17 @@ export function CourseForm({ course, teachers, action, submitLabel }: CourseForm
         </div>
         <div className="flex flex-col justify-end rounded-md border border-border bg-background/50 px-3 py-3 text-xs leading-relaxed text-muted">
           <p className="font-medium text-foreground">Fees (by level)</p>
-          <p className="mt-1">{COURSE_PRICING_SUMMARY}</p>
+          <ul className="mt-2 space-y-1">
+            {(["Beginner", "Intermediate", "Advanced"] as CourseLevel[]).map((level) => {
+              const fees = getCoursePricing(level);
+              return (
+                <li key={level}>
+                  <span className="font-medium text-foreground">{level}:</span> Reg. ₹
+                  {fees.registrationFeeInr}, ₹{fees.monthlyFeeInr}/mo
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
 

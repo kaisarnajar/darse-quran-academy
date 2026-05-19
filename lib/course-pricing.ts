@@ -36,6 +36,3 @@ export function getCoursePricing(level: string): CoursePricing {
 export function getRegistrationFeePaise(level: string): number {
   return getCoursePricing(level).registrationFeePaise;
 }
-
-export const COURSE_PRICING_SUMMARY =
-  "Registration fee: ₹99 (Beginner) or ₹199 (Intermediate & Advanced). Monthly fee: ₹349 or ₹499 per month, by level.";

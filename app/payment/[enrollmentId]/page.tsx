@@ -56,7 +56,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
 
   return (
     <Section className="py-8 sm:py-12">
-      <div className="mx-auto max-w-lg">
+      <div className="mx-auto max-w-5xl">
         <Link href="/courses" className="text-sm text-primary hover:underline">
           ← Back to courses
         </Link>
