@@ -215,7 +215,7 @@ export function CourseEnrollButton({
         disabled={loading}
         className="flex min-h-11 w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-light disabled:opacity-60"
       >
-        {loading ? "Submitting…" : "Request enrollment (free)"}
+        {loading ? "Submitting…" : "Request enrollment"}
       </button>
     </div>
   );

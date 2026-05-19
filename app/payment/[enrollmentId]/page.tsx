@@ -10,7 +10,7 @@ import {
   needsPaymentSubmission,
   PAYMENT_DECLINED,
 } from "@/lib/enrollment-status";
-import { getCoursePricing, getRegistrationFeePaise } from "@/lib/course-pricing";
+import { getCoursePricingFromCourse, getRegistrationFeePaise } from "@/lib/course-pricing";
 import { formatPrice, getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 
@@ -50,7 +50,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
   const course = await getCourseById(enrollment.courseId);
   if (!course) notFound();
 
-  const registrationFeePaise = getRegistrationFeePaise(course.level);
+  const registrationFeePaise = getRegistrationFeePaise(course);
   const amountLabel = formatPrice(registrationFeePaise);
   const paymentRef = enrollment.paymentReference ?? enrollment.id;
 
@@ -82,7 +82,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
             paymentNote={`${course.title}`.slice(0, 80)}
           />
           <p className="text-center text-xs text-muted">
-            Monthly class fee (₹{getCoursePricing(course.level).monthlyFeeInr}/month) is paid separately.
+            Monthly class fee (₹{getCoursePricingFromCourse(course).monthlyFeeInr}/month) is paid separately.
           </p>
           <PaymentConfirmForm enrollmentId={enrollment.id} />
         </div>

@@ -37,7 +37,7 @@ export default async function PayMonthlyFeePage({
     );
   }
 
-  const amountLabel = formatPrice(getMonthlyFeePaise(course.level));
+  const amountLabel = formatPrice(getMonthlyFeePaise(course));
 
   return (
     <div>
@@ -52,7 +52,7 @@ export default async function PayMonthlyFeePage({
       <div className="mx-auto mt-8 max-w-5xl space-y-8">
         <PaymentDetailsPanel
           amountLabel={amountLabel}
-          amountPaise={getMonthlyFeePaise(course.level)}
+          amountPaise={getMonthlyFeePaise(course)}
           paymentNote={`${course.title} monthly`.slice(0, 80)}
         />
         <div className="card-elevated p-6 sm:p-8">

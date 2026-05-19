@@ -1,5 +1,10 @@
 import type { CourseLevel } from "@/lib/courses";
 
+export type CourseFeeSource = {
+  priceInrPaise: number;
+  monthlyFeeInrPaise: number;
+};
+
 export type CoursePricing = {
   registrationFeePaise: number;
   registrationFeeInr: number;
@@ -7,40 +12,54 @@ export type CoursePricing = {
   monthlyFeePaise: number;
 };
 
-const PRICING_BY_LEVEL: Record<CourseLevel, CoursePricing> = {
-  Beginner: {
-    registrationFeePaise: 0,
-    registrationFeeInr: 0,
-    monthlyFeeInr: 349,
-    monthlyFeePaise: 34900,
-  },
-  Intermediate: {
-    registrationFeePaise: 0,
-    registrationFeeInr: 0,
-    monthlyFeeInr: 499,
-    monthlyFeePaise: 49900,
-  },
-  Advanced: {
-    registrationFeePaise: 0,
-    registrationFeeInr: 0,
-    monthlyFeeInr: 499,
-    monthlyFeePaise: 49900,
-  },
+const DEFAULT_PRICING_BY_LEVEL: Record<CourseLevel, { monthlyFeeInr: number }> = {
+  Beginner: { monthlyFeeInr: 349 },
+  Intermediate: { monthlyFeeInr: 499 },
+  Advanced: { monthlyFeeInr: 499 },
 };
 
 export function isCourseLevel(level: string): level is CourseLevel {
-  return level in PRICING_BY_LEVEL;
+  return level in DEFAULT_PRICING_BY_LEVEL;
 }
 
+export function getDefaultFeesForLevel(level: string): CoursePricing {
+  const monthlyFeeInr = isCourseLevel(level)
+    ? DEFAULT_PRICING_BY_LEVEL[level].monthlyFeeInr
+    : DEFAULT_PRICING_BY_LEVEL.Beginner.monthlyFeeInr;
+  return {
+    registrationFeePaise: 0,
+    registrationFeeInr: 0,
+    monthlyFeeInr,
+    monthlyFeePaise: monthlyFeeInr * 100,
+  };
+}
+
+export function getCoursePricingFromCourse(course: CourseFeeSource): CoursePricing {
+  const registrationFeePaise = course.priceInrPaise;
+  const monthlyFeePaise = course.monthlyFeeInrPaise;
+  return {
+    registrationFeePaise,
+    registrationFeeInr: Math.round(registrationFeePaise / 100),
+    monthlyFeePaise,
+    monthlyFeeInr: Math.round(monthlyFeePaise / 100),
+  };
+}
+
+/** @deprecated Use getCoursePricingFromCourse */
 export function getCoursePricing(level: string): CoursePricing {
-  if (isCourseLevel(level)) return PRICING_BY_LEVEL[level];
-  return PRICING_BY_LEVEL.Beginner;
+  return getDefaultFeesForLevel(level);
 }
 
-export function getRegistrationFeePaise(level: string): number {
-  return getCoursePricing(level).registrationFeePaise;
+export function getRegistrationFeePaise(course: CourseFeeSource): number {
+  return course.priceInrPaise;
 }
 
-export function getMonthlyFeePaise(level: string): number {
-  return getCoursePricing(level).monthlyFeePaise;
+export function getMonthlyFeePaise(course: CourseFeeSource): number {
+  return course.monthlyFeeInrPaise;
+}
+
+export function formatEnrollmentFeeLabel(course: CourseFeeSource): string {
+  const { registrationFeeInr } = getCoursePricingFromCourse(course);
+  if (registrationFeeInr <= 0) return "Free";
+  return `₹${registrationFeeInr}`;
 }

@@ -131,8 +131,9 @@ model Course {
   startDate     String
   level         String
   category      String
-  priceInrPaise Int
-  teacherId     String?
+  priceInrPaise       Int
+  monthlyFeeInrPaise  Int
+  teacherId           String?
   status        CourseStatus @default(PUBLISHED)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

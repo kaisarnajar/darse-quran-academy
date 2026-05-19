@@ -52,7 +52,7 @@ export function CourseCard({
         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">{course.description}</p>
         <CourseTeacherInfo teacher={course.teacher} />
         <p className="mt-4 text-sm text-muted">Starts: {course.startDate}</p>
-        <CoursePricingDisplay level={course.level} className="mt-2" />
+        <CoursePricingDisplay course={course} className="mt-2" />
         <Link
           href={detailHref}
           className="btn-gold-outline mt-4 inline-flex w-full items-center justify-center py-2.5 text-xs"

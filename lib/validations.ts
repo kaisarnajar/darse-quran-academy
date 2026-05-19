@@ -18,7 +18,8 @@ export const courseSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
   level: levelEnum,
   category: z.string().min(1, "Category is required"),
-  priceInrPaise: z.coerce.number().int().min(0),
+  enrollmentFeeInr: z.coerce.number().min(0, "Enrollment fee cannot be negative."),
+  monthlyFeeInr: z.coerce.number().min(0, "Monthly fee cannot be negative."),
   teacherId: z.string().min(1, "Teacher is required"),
   status: courseStatusEnum,
 });

@@ -1,10 +1,11 @@
 import Link from "next/link";
+import type { Session } from "next-auth";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
 import { auth } from "@/lib/auth";
 import type { HomepageReview } from "@/lib/student-reviews";
 import { getFeaturedHomepageReviews } from "@/lib/student-reviews";
 
-function getWriteReviewHref(session: Awaited<ReturnType<typeof auth>>) {
+function getWriteReviewHref(session: Session | null) {
   if (session?.user?.id && session.user.role !== "TEACHER") {
     return "/profile/reviews";
   }

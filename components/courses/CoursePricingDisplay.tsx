@@ -1,22 +1,27 @@
-import { getCoursePricing } from "@/lib/course-pricing";
+import {
+  formatEnrollmentFeeLabel,
+  getCoursePricingFromCourse,
+  type CourseFeeSource,
+} from "@/lib/course-pricing";
 
 type CoursePricingDisplayProps = {
-  level: string;
+  course: CourseFeeSource;
   className?: string;
   compact?: boolean;
 };
 
 export function CoursePricingDisplay({
-  level,
+  course,
   className = "",
   compact = false,
 }: CoursePricingDisplayProps) {
-  const pricing = getCoursePricing(level);
+  const pricing = getCoursePricingFromCourse(course);
+  const enrollmentLabel = formatEnrollmentFeeLabel(course);
 
   if (compact) {
     return (
       <p className={`text-sm text-muted ${className}`}>
-        Free enrollment ·{" "}
+        Enrollment: {enrollmentLabel} ·{" "}
         <span className="font-semibold text-foreground">₹{pricing.monthlyFeeInr}</span>/mo
       </p>
     );
@@ -25,7 +30,7 @@ export function CoursePricingDisplay({
   return (
     <div className={`space-y-1 ${className}`}>
       <p className="text-sm text-muted">
-        <span className="font-medium text-foreground">Enrollment:</span> Free (admin approval)
+        <span className="font-medium text-foreground">Enrollment:</span> {enrollmentLabel}
       </p>
       <p className="text-sm text-muted">
         <span className="font-medium text-foreground">Monthly fee:</span> ₹{pricing.monthlyFeeInr}

@@ -75,9 +75,9 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
 
         <div className="mt-6 rounded-lg border border-border bg-background/40 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-gold">Fees</p>
-          <CoursePricingDisplay level={course.level} className="mt-2" />
+          <CoursePricingDisplay course={course} className="mt-2" />
           <p className="mt-3 text-xs text-muted">
-            Enrollment is free after admin approval. Monthly fees are paid from your profile after you are enrolled.
+            Monthly fees are paid from your profile after you are enrolled.
           </p>
         </div>
 

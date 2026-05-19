@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
-import { getCoursePricing } from "@/lib/course-pricing";
+import { getCoursePricingFromCourse } from "@/lib/course-pricing";
 import { getAllCourses } from "@/lib/courses";
 import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
 
@@ -47,7 +47,7 @@ export default async function AdminCoursesPage({
           <tbody className="divide-y divide-border">
             {courses.map((course) => {
               const studentCount = enrollmentCounts.get(course.id) ?? 0;
-              const fees = getCoursePricing(course.level);
+              const fees = getCoursePricingFromCourse(course);
               return (
                 <tr key={course.id}>
                   <td className="px-4 py-3 font-medium text-foreground">{course.title}</td>

@@ -112,7 +112,7 @@ export async function POST(request: Request) {
         userId: session.user.id,
         courseId: course.id,
         label,
-        amountInrPaise: getMonthlyFeePaise(course.level),
+        amountInrPaise: getMonthlyFeePaise(course),
         status: MONTHLY_PAYMENT_PENDING,
         paymentMethod: parsed.data.paymentMethod,
         upiTransactionId: parsed.data.upiTransactionId,

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { getDefaultFeesForLevel } from "../lib/course-pricing";
 import { courses } from "../content/courses";
 import { libraryItems } from "../content/library";
 import { teachers } from "../content/teachers";
@@ -7,6 +8,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   for (const course of courses) {
+    const fees = getDefaultFeesForLevel(course.level);
     await prisma.course.upsert({
       where: { id: course.id },
       create: {
@@ -16,7 +18,8 @@ async function main() {
         startDate: course.startDate,
         level: course.level,
         category: course.category,
-        priceInrPaise: course.priceInrPaise,
+        priceInrPaise: 0,
+        monthlyFeeInrPaise: fees.monthlyFeePaise,
         teacherId: course.teacherId,
         status: "PUBLISHED",
       },
@@ -26,7 +29,7 @@ async function main() {
         startDate: course.startDate,
         level: course.level,
         category: course.category,
-        priceInrPaise: course.priceInrPaise,
+        monthlyFeeInrPaise: fees.monthlyFeePaise,
         teacherId: course.teacherId,
       },
     });

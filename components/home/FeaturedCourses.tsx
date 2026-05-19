@@ -40,7 +40,7 @@ export function FeaturedCourses({ courses }: FeaturedCoursesProps) {
                   </h3>
                   <p className="mt-2 line-clamp-2 text-sm text-muted">{course.description}</p>
                   <CourseTeacherInfo teacher={course.teacher} compact />
-                  <CoursePricingDisplay level={course.level} className="mt-2" compact />
+                  <CoursePricingDisplay course={course} className="mt-2" compact />
                   <Link
                     href={detailHref}
                     className="btn-gold-outline mt-4 inline-flex w-full items-center justify-center py-2.5 text-xs"

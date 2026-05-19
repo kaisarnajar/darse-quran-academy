@@ -1,6 +1,5 @@
 import type { Course, Teacher } from "@prisma/client";
-import { getCoursePricing } from "@/lib/course-pricing";
-import type { CourseLevel } from "@/lib/courses";
+import { getCoursePricingFromCourse, getDefaultFeesForLevel } from "@/lib/course-pricing";
 import { COURSE_STATUS_OPTIONS } from "@/lib/course-status";
 import { inputClassName, labelClassName } from "@/lib/form";
 
@@ -12,6 +11,10 @@ type CourseFormProps = {
 };
 
 export function CourseForm({ course, teachers, action, submitLabel }: CourseFormProps) {
+  const feeDefaults = course
+    ? getCoursePricingFromCourse(course)
+    : getDefaultFeesForLevel("Beginner");
+
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
       <div>
@@ -101,20 +104,42 @@ export function CourseForm({ course, teachers, action, submitLabel }: CourseForm
             <option value="Intermediate">Intermediate</option>
             <option value="Advanced">Advanced</option>
           </select>
+          <p className="mt-1 text-xs text-muted">Used for display; fees are set below per course.</p>
         </div>
-        <div className="flex flex-col justify-end rounded-md border border-border bg-background/50 px-3 py-3 text-xs leading-relaxed text-muted">
-          <p className="font-medium text-foreground">Fees (by level)</p>
-          <ul className="mt-2 space-y-1">
-            {(["Beginner", "Intermediate", "Advanced"] as CourseLevel[]).map((level) => {
-              const fees = getCoursePricing(level);
-              return (
-                <li key={level}>
-                  <span className="font-medium text-foreground">{level}:</span> Reg. ₹
-                  {fees.registrationFeeInr}, ₹{fees.monthlyFeeInr}/mo
-                </li>
-              );
-            })}
-          </ul>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2 rounded-lg border border-border bg-background/50 p-4">
+        <div>
+          <label htmlFor="enrollmentFeeInr" className={labelClassName}>
+            Enrollment fee (₹)
+          </label>
+          <input
+            id="enrollmentFeeInr"
+            name="enrollmentFeeInr"
+            type="number"
+            min={0}
+            step={1}
+            required
+            defaultValue={feeDefaults.registrationFeeInr}
+            className={inputClassName}
+          />
+          <p className="mt-1 text-xs text-muted">Use 0 for free enrollment (student requests access).</p>
+        </div>
+        <div>
+          <label htmlFor="monthlyFeeInr" className={labelClassName}>
+            Monthly fee (₹)
+          </label>
+          <input
+            id="monthlyFeeInr"
+            name="monthlyFeeInr"
+            type="number"
+            min={0}
+            step={1}
+            required
+            defaultValue={feeDefaults.monthlyFeeInr}
+            className={inputClassName}
+          />
+          <p className="mt-1 text-xs text-muted">Paid monthly from the student profile after enrollment.</p>
         </div>
       </div>
 
