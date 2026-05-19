@@ -10,7 +10,7 @@ export default async function EditTeacherPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; created?: string }>;
+  searchParams: Promise<{ saved?: string; created?: string; error?: string }>;
 }) {
   const { id } = await params;
   const query = await searchParams;
@@ -36,7 +36,12 @@ export default async function EditTeacherPage({
       )}
 
       <div className="mt-8">
-        <TeacherForm teacher={teacher} action={boundUpdate} submitLabel="Save changes" />
+        <TeacherForm
+          teacher={teacher}
+          action={boundUpdate}
+          submitLabel="Save changes"
+          error={query.error ? decodeURIComponent(query.error) : undefined}
+        />
       </div>
 
       <DeleteForm action={boundDelete} label="Delete teacher" />

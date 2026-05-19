@@ -15,7 +15,9 @@ export default async function AdminTeachersPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Teachers</h1>
-          <p className="mt-1 text-sm text-muted">{teachers.length} total</p>
+          <p className="mt-1 text-sm text-muted">
+            {teachers.length} total — link registered accounts by email to grant the teacher portal.
+          </p>
         </div>
         <Link
           href="/admin/teachers/new"

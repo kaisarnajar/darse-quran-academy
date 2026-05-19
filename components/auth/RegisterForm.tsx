@@ -64,8 +64,8 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
     <div className="mx-auto w-full max-w-md">
       <h1 className="text-center font-serif text-2xl font-bold text-primary sm:text-3xl">Create Account</h1>
       <p className="mt-2 text-center text-sm text-muted">
-        Register to enroll in courses. Instructors added by the academy should register with the login email
-        set on their teacher profile.
+        Register to enroll in courses. If the academy adds you as a teacher later, sign in with this same email
+        to access the teacher portal.
       </p>
 
       {error && (

@@ -3,14 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
+import {
+  deriveTeacherInitials,
+  lookupTeacherAccount,
+  normalizeTeacherEmail,
+} from "@/lib/teacher-admin";
 import { prisma } from "@/lib/prisma";
 import { uniqueSlug } from "@/lib/slug";
-import { teacherSchema } from "@/lib/validations";
+import { teacherAdminSchema } from "@/lib/validations";
 
 function parseTeacherForm(formData: FormData) {
   const imageUrl = formData.get("imageUrl");
-  return teacherSchema.safeParse({
-    name: formData.get("name"),
+  return teacherAdminSchema.safeParse({
     email: formData.get("email"),
     specialization: formData.get("specialization"),
     bio: formData.get("bio"),
@@ -20,47 +24,95 @@ function parseTeacherForm(formData: FormData) {
   });
 }
 
+function teacherFormPath(suffix = "", query = "") {
+  return `/admin/teachers${suffix}${query}`;
+}
+
 export async function createTeacher(formData: FormData) {
   await requireAdmin();
   const parsed = parseTeacherForm(formData);
-  if (!parsed.success) throw new Error("Invalid teacher data");
 
-  const data = {
-    ...parsed.data,
-    email: parsed.data.email.toLowerCase().trim(),
-    imageUrl: parsed.data.imageUrl || null,
-  };
+  if (!parsed.success) {
+    redirect(
+      teacherFormPath("/new", `?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid input")}`),
+    );
+  }
 
-  const id = await uniqueSlug(parsed.data.name, async (slug) => {
+  const account = await lookupTeacherAccount(parsed.data.email);
+  if (!account.ok) {
+    redirect(teacherFormPath("/new", `?error=${encodeURIComponent(account.error)}`));
+  }
+
+  const initials =
+    parsed.data.initials && parsed.data.initials.length > 0
+      ? parsed.data.initials.toUpperCase()
+      : deriveTeacherInitials(account.name);
+
+  const id = await uniqueSlug(account.name, async (slug) => {
     return Boolean(await prisma.teacher.findUnique({ where: { id: slug } }));
   });
 
-  await prisma.teacher.create({ data: { id, ...data } });
-
-  revalidatePath("/teachers");
-  revalidatePath("/");
-  revalidatePath("/admin/teachers");
-  redirect(`/admin/teachers/${id}/edit?created=1`);
-}
-
-export async function updateTeacher(id: string, formData: FormData) {
-  await requireAdmin();
-  const parsed = parseTeacherForm(formData);
-  if (!parsed.success) throw new Error("Invalid teacher data");
-
-  await prisma.teacher.update({
-    where: { id },
+  await prisma.teacher.create({
     data: {
-      ...parsed.data,
-      email: parsed.data.email.toLowerCase().trim(),
+      id,
+      name: account.name,
+      email: account.email,
+      specialization: parsed.data.specialization,
+      bio: parsed.data.bio,
+      initials,
       imageUrl: parsed.data.imageUrl || null,
+      published: parsed.data.published,
     },
   });
 
   revalidatePath("/teachers");
   revalidatePath("/");
   revalidatePath("/admin/teachers");
-  redirect(`/admin/teachers/${id}/edit?saved=1`);
+  redirect(teacherFormPath(`/${id}/edit`, "?created=1"));
+}
+
+export async function updateTeacher(id: string, formData: FormData) {
+  await requireAdmin();
+  const parsed = parseTeacherForm(formData);
+
+  if (!parsed.success) {
+    redirect(
+      teacherFormPath(`/${id}/edit`, `?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid input")}`),
+    );
+  }
+
+  const existing = await prisma.teacher.findUnique({ where: { id } });
+  if (!existing) {
+    redirect(teacherFormPath("", "?error=notfound"));
+  }
+
+  const account = await lookupTeacherAccount(parsed.data.email, { excludeTeacherId: id });
+  if (!account.ok) {
+    redirect(teacherFormPath(`/${id}/edit`, `?error=${encodeURIComponent(account.error)}`));
+  }
+
+  const initials =
+    parsed.data.initials && parsed.data.initials.length > 0
+      ? parsed.data.initials.toUpperCase()
+      : deriveTeacherInitials(account.name);
+
+  await prisma.teacher.update({
+    where: { id },
+    data: {
+      name: account.name,
+      email: account.email,
+      specialization: parsed.data.specialization,
+      bio: parsed.data.bio,
+      initials,
+      imageUrl: parsed.data.imageUrl || null,
+      published: parsed.data.published,
+    },
+  });
+
+  revalidatePath("/teachers");
+  revalidatePath("/");
+  revalidatePath("/admin/teachers");
+  redirect(teacherFormPath(`/${id}/edit`, "?saved=1"));
 }
 
 export async function deleteTeacher(id: string) {
@@ -69,5 +121,14 @@ export async function deleteTeacher(id: string) {
   revalidatePath("/teachers");
   revalidatePath("/");
   revalidatePath("/admin/teachers");
-  redirect("/admin/teachers?deleted=1");
+  redirect(teacherFormPath("", "?deleted=1"));
+}
+
+/** Preview linked account for admin form (client). */
+export async function previewTeacherAccount(email: string, excludeTeacherId?: string) {
+  await requireAdmin();
+  if (!email.trim()) {
+    return { ok: false as const, error: "Enter an email address." };
+  }
+  return lookupTeacherAccount(normalizeTeacherEmail(email), { excludeTeacherId });
 }

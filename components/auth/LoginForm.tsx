@@ -48,8 +48,8 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
     <div className="mx-auto w-full max-w-md">
       <h1 className="text-center font-serif text-2xl font-bold text-primary sm:text-3xl">Sign In</h1>
       <p className="mt-2 text-center text-sm text-muted">
-        Students and instructors use the same sign-in. If your email is on the academy teacher list, you
-        will open the teacher portal after signing in.
+        Students and instructors use the same sign-in. After the academy links your registered email as a
+        teacher, you will open the teacher portal when you sign in.
       </p>
 
       {registered && (
@@ -60,8 +60,8 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
 
       {teacherProfileError && (
         <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
-          Your account is not linked to a teacher profile. Contact the academy admin to add your login email
-          on your teacher record.
+          Your account is not linked as a teacher yet. Register first if needed, then ask the academy admin to
+          add your registered email to the teacher list.
         </p>
       )}
 

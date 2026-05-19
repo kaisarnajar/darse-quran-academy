@@ -21,12 +21,17 @@ export const courseSchema = z.object({
   status: courseStatusEnum,
 });
 
-export const teacherSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().trim().email("Enter a valid login email for this teacher."),
+/** Admin teacher profile fields (name comes from the linked user account). */
+export const teacherAdminSchema = z.object({
+  email: z.string().trim().email("Enter the teacher's registered account email."),
   specialization: z.string().min(2, "Specialization is required"),
   bio: z.string().min(10, "Bio is required"),
-  initials: z.string().min(1).max(4, "Max 4 characters"),
+  initials: z
+    .string()
+    .trim()
+    .max(4, "Max 4 characters")
+    .optional()
+    .or(z.literal("")),
   imageUrl: z.string().url().optional().or(z.literal("")),
   published: z.coerce.boolean(),
 });
@@ -125,6 +130,6 @@ export const paymentRecordSchema = z.object({
 });
 
 export type CourseInput = z.infer<typeof courseSchema>;
-export type TeacherInput = z.infer<typeof teacherSchema>;
+export type TeacherAdminInput = z.infer<typeof teacherAdminSchema>;
 export type LibraryItemInput = z.infer<typeof libraryItemSchema>;
 export type FatwaQuestionInput = z.infer<typeof fatwaQuestionSchema>;

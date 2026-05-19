@@ -2,8 +2,6 @@ import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
-import { getTeacherByEmail } from "@/lib/teacher-auth";
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -29,8 +27,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const teacher = await getTeacherByEmail(email);
-
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 400 });
@@ -40,13 +36,13 @@ export async function POST(request: Request) {
 
     await prisma.user.create({
       data: {
-        name: name || teacher?.name || null,
+        name: name || null,
         email,
         password: hashedPassword,
       },
     });
 
-    return NextResponse.json({ success: true, role: teacher ? "TEACHER" : "USER" });
+    return NextResponse.json({ success: true, role: "USER" });
   } catch {
     return NextResponse.json({ error: "Registration failed. Please try again." }, { status: 500 });
   }
