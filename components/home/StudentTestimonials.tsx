@@ -1,5 +1,6 @@
-import { studentTestimonials } from "@/content/testimonials";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
+import type { HomepageReview } from "@/lib/student-reviews";
+import { getFeaturedHomepageReviews } from "@/lib/student-reviews";
 
 function StarRating() {
   return (
@@ -13,7 +14,45 @@ function StarRating() {
   );
 }
 
-export function StudentTestimonials() {
+function TestimonialCard({ item }: { item: HomepageReview }) {
+  return (
+    <li>
+      <article className="card-elevated flex h-full flex-col p-6 text-center sm:p-7">
+        <StarRating />
+        <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-foreground">
+          <span className="text-gold" aria-hidden>
+            &ldquo;
+          </span>
+          {item.quote}
+          <span className="text-gold" aria-hidden>
+            &rdquo;
+          </span>
+        </blockquote>
+        <footer className="mt-6 flex flex-col items-center border-t border-border pt-5">
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-teal text-sm font-bold text-white"
+            aria-hidden
+          >
+            {item.initials}
+          </div>
+          <cite className="mt-3 not-italic">
+            <span className="block font-semibold text-foreground">{item.name}</span>
+            <span className="mt-0.5 block text-xs text-muted">{item.location}</span>
+            <span className="mt-1 block text-xs font-medium text-gold">{item.course}</span>
+          </cite>
+        </footer>
+      </article>
+    </li>
+  );
+}
+
+export async function StudentTestimonials() {
+  const reviews = await getFeaturedHomepageReviews();
+
+  if (reviews.length === 0) {
+    return null;
+  }
+
   return (
     <section className="pattern-islamic py-16 sm:py-20" aria-labelledby="testimonials-heading">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -30,34 +69,8 @@ export function StudentTestimonials() {
         </div>
 
         <ul className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {studentTestimonials.map((item) => (
-            <li key={item.id}>
-              <article className="card-elevated flex h-full flex-col p-6 text-center sm:p-7">
-                <StarRating />
-                <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-foreground">
-                  <span className="text-gold" aria-hidden>
-                    &ldquo;
-                  </span>
-                  {item.quote}
-                  <span className="text-gold" aria-hidden>
-                    &rdquo;
-                  </span>
-                </blockquote>
-                <footer className="mt-6 flex flex-col items-center border-t border-border pt-5">
-                  <div
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-teal text-sm font-bold text-white"
-                    aria-hidden
-                  >
-                    {item.initials}
-                  </div>
-                  <cite className="mt-3 not-italic">
-                    <span className="block font-semibold text-foreground">{item.name}</span>
-                    <span className="mt-0.5 block text-xs text-muted">{item.location}</span>
-                    <span className="mt-1 block text-xs font-medium text-gold">{item.course}</span>
-                  </cite>
-                </footer>
-              </article>
-            </li>
+          {reviews.map((item) => (
+            <TestimonialCard key={item.id} item={item} />
           ))}
         </ul>
       </div>

@@ -59,6 +59,12 @@ enum BlogApprovalStatus {
   REJECTED
 }
 
+enum StudentReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
@@ -81,6 +87,7 @@ model User {
   siteAnnouncements  SiteAnnouncement[] @relation("SiteAnnouncementAuthor")
   blogPosts          BlogPost[]         @relation("BlogPostAuthor")
   dailyInspirations  DailyInspiration[] @relation("DailyInspirationAuthor")
+  studentReviews     StudentReview[]
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 }
@@ -227,6 +234,24 @@ model DailyInspiration {
   createdBy          User?                @relation("DailyInspirationAuthor", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([published, updatedAt])
+}
+
+model StudentReview {
+  id                 String               @id @default(cuid())
+  userId             String
+  quote              String
+  course             String?
+  location           String?
+  status             StudentReviewStatus  @default(PENDING)
+  featuredOnHomepage Boolean              @default(false)
+  featuredAt         DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([featuredOnHomepage, featuredAt])
+  @@index([userId, status])
 }
 
 model LibraryItem {

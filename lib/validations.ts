@@ -133,6 +133,16 @@ export const blogPostSchema = z.object({
 
 export const teacherBlogPostSchema = blogPostSchema.omit({ published: true });
 
+export const studentReviewSchema = z.object({
+  quote: z
+    .string()
+    .trim()
+    .min(20, "Your review must be at least 20 characters.")
+    .max(1000, "Review must be at most 1000 characters."),
+  course: z.string().trim().max(120).optional().or(z.literal("")),
+  location: z.string().trim().max(120).optional().or(z.literal("")),
+});
+
 export const dailyInspirationKindEnum = z.enum(["QURAN", "HADITH"]);
 
 export const dailyInspirationSchema = z.object({

@@ -8,6 +8,7 @@ const links = [
   { href: "/profile/courses", label: "My Courses" },
   { href: "/profile/payments", label: "Payments" },
   { href: "/profile/payment-info", label: "Payment info" },
+  { href: "/profile/reviews", label: "My reviews" },
 ];
 
 export function ProfileNav() {
