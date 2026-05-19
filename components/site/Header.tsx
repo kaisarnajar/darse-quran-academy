@@ -53,21 +53,23 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-white shadow-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6">
-        <SiteLogo priority />
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
+        <div className="relative z-10 shrink-0 bg-white pr-1">
+          <SiteLogo priority />
+        </div>
 
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-end lg:flex"
+          className="hidden min-w-0 flex-1 items-center justify-end gap-2 overflow-hidden xl:flex"
           aria-label="Main navigation"
         >
-          <div className="flex items-center justify-end">
+          <div className="flex min-w-0 max-w-full flex-1 items-center justify-end overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {navLinks.map((link) => {
             const active = isActive(link.href);
             return (
               <Link
                 key={link.label}
                 href={link.href}
-                className={`whitespace-nowrap px-2 py-2 text-xs font-semibold uppercase tracking-normal transition-colors xl:px-2.5 xl:text-sm ${
+                className={`shrink-0 whitespace-nowrap px-1.5 py-2 text-[0.6875rem] font-semibold uppercase tracking-normal transition-colors 2xl:px-2.5 2xl:text-sm ${
                   active ? "text-gold" : "text-foreground hover:text-gold"
                 }`}
               >
@@ -76,14 +78,14 @@ export function Header() {
             );
             })}
           </div>
-          <div className="ml-1.5 shrink-0 border-l border-border pl-1.5 2xl:ml-2 2xl:pl-2">
+          <div className="shrink-0 border-l border-border pl-2">
             <AuthNav />
           </div>
         </nav>
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center text-foreground hover:text-gold lg:hidden"
+          className="ml-auto inline-flex h-11 w-11 shrink-0 items-center justify-center text-foreground hover:text-gold xl:hidden"
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -102,7 +104,7 @@ export function Header() {
       {menuOpen && (
         <nav
           id="mobile-menu"
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-white px-4 py-2 lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-white px-4 py-2 xl:hidden"
           aria-label="Mobile navigation"
         >
           <ul className="flex flex-col pb-2">
