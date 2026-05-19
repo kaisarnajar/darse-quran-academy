@@ -8,7 +8,7 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
 
   const linkClass = mobile
     ? "flex min-h-11 items-center rounded-md px-3 text-base font-medium text-foreground active:bg-accent-muted/50"
-    : "rounded-md px-2.5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent-muted/50 hover:text-primary lg:px-3";
+    : "whitespace-nowrap rounded-md px-2 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-accent-muted/50 hover:text-primary xl:px-2.5 xl:text-sm";
 
   if (status === "loading") {
     return (
@@ -20,7 +20,7 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
 
   if (session?.user) {
     return (
-      <>
+      <div className={mobile ? "flex flex-col" : "flex items-center gap-0.5"}>
         {session.user.role === "ADMIN" && (
           <Link href="/admin" className={linkClass}>
             Admin
@@ -28,27 +28,27 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
         )}
         {session.user.role === "TEACHER" && (
           <Link href="/teacher" className={linkClass}>
-            Teacher portal
+            {mobile ? "Teacher portal" : "Teacher"}
           </Link>
         )}
         {session.user.role !== "TEACHER" && (
-        <Link href="/profile" className={linkClass}>
-          My Profile
-        </Link>
+          <Link href="/profile" className={linkClass}>
+            {mobile ? "My Profile" : "Profile"}
+          </Link>
         )}
         <button
           type="button"
           onClick={() => signOut({ callbackUrl: "/" })}
-          className={`${linkClass} w-full text-left sm:w-auto`}
+          className={`${linkClass} ${mobile ? "w-full text-left" : ""}`}
         >
           Sign Out
         </button>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className={mobile ? "flex flex-col gap-1" : "flex items-center gap-1"}>
       <Link href="/login" className={linkClass}>
         Sign In
       </Link>
@@ -57,11 +57,11 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
         className={
           mobile
             ? "flex min-h-11 items-center rounded-full bg-primary px-3 text-base font-medium text-white"
-            : "rounded-full bg-primary px-2.5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light lg:px-3"
+            : "whitespace-nowrap rounded-full bg-primary px-2.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-light xl:px-3 xl:text-sm"
         }
       >
         Register
       </Link>
-    </>
+    </div>
   );
 }

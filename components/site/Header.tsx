@@ -55,22 +55,27 @@ export function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6">
         <SiteLogo priority />
 
-        <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Main navigation">
-          {navLinks.map((link) => {
+        <nav
+          className="hidden min-w-0 flex-1 items-center justify-end lg:flex"
+          aria-label="Main navigation"
+        >
+          <div className="flex items-center justify-end">
+            {navLinks.map((link) => {
             const active = isActive(link.href);
             return (
               <Link
                 key={link.label}
                 href={link.href}
-                className={`px-2.5 py-2 text-xs font-semibold uppercase tracking-wide transition-colors xl:px-3 xl:text-sm ${
+                className={`whitespace-nowrap px-2 py-2 text-xs font-semibold uppercase tracking-normal transition-colors xl:px-2.5 xl:text-sm ${
                   active ? "text-gold" : "text-foreground hover:text-gold"
                 }`}
               >
                 {link.label}
               </Link>
             );
-          })}
-          <div className="ml-2 border-l border-border pl-2">
+            })}
+          </div>
+          <div className="ml-1.5 shrink-0 border-l border-border pl-1.5 2xl:ml-2 2xl:pl-2">
             <AuthNav />
           </div>
         </nav>
