@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { OCCUPATION_VALUES } from "@/lib/occupations";
 
 export const levelEnum = z.enum(["Beginner", "Intermediate", "Advanced"]);
 
@@ -67,7 +68,7 @@ export const adminEnrollUserSchema = z.object({
   markAsPaid: z.coerce.boolean().optional(),
 });
 
-export const occupationEnum = z.enum(["STUDENT", "WORKING"]);
+export const occupationEnum = z.enum(OCCUPATION_VALUES);
 
 export const profileUpdateSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),

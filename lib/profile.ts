@@ -1,5 +1,8 @@
-import type { Occupation, User } from "@prisma/client";
+import type { User } from "@prisma/client";
+import { OCCUPATION_OPTIONS, occupationLabel } from "@/lib/occupations";
 import { prisma } from "@/lib/prisma";
+
+export { OCCUPATION_OPTIONS, occupationLabel };
 
 export const userProfileSelect = {
   name: true,
@@ -12,16 +15,6 @@ export const userProfileSelect = {
 } as const;
 
 export type UserProfileData = Pick<User, keyof typeof userProfileSelect>;
-
-export const OCCUPATION_OPTIONS: { value: Occupation; label: string }[] = [
-  { value: "STUDENT", label: "Student" },
-  { value: "WORKING", label: "Working" },
-];
-
-export function occupationLabel(occupation: Occupation | null | undefined): string {
-  if (!occupation) return "—";
-  return OCCUPATION_OPTIONS.find((o) => o.value === occupation)?.label ?? occupation;
-}
 
 export function formatDateOfBirthForInput(date: Date | null | undefined): string {
   if (!date) return "";
