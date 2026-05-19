@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPaymentYearAllowed } from "@/lib/monthly-payments";
 import { OCCUPATION_VALUES } from "@/lib/occupations";
 
 export const levelEnum = z.enum(["Beginner", "Intermediate", "Advanced"]);
@@ -70,7 +71,10 @@ export const adminEnrollUserSchema = z.object({
 export const monthlyPaymentSubmitSchema = z.object({
   courseId: z.string().min(1),
   paymentMonth: z.string().regex(/^(0[1-9]|1[0-2])$/, "Select a valid month."),
-  paymentYear: z.string().regex(/^\d{4}$/, "Enter a valid year."),
+  paymentYear: z
+    .string()
+    .regex(/^\d{4}$/, "Enter a valid year.")
+    .refine(isPaymentYearAllowed, { message: "Select a fee year from the list." }),
   paymentMethod: z.enum(["upi", "bank"]),
   upiTransactionId: z
     .string()

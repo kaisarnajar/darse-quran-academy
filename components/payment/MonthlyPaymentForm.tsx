@@ -1,5 +1,6 @@
 "use client";
 
+import { getPaymentYearOptions } from "@/lib/monthly-payments";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -33,8 +34,11 @@ export function MonthlyPaymentForm({
 }: MonthlyPaymentFormProps) {
   const router = useRouter();
   const now = new Date();
+  const yearOptions = getPaymentYearOptions(now);
+  const defaultYearValue =
+    defaultYear && yearOptions.includes(defaultYear) ? defaultYear : String(now.getFullYear());
   const [paymentMonth, setPaymentMonth] = useState(defaultMonth ?? String(now.getMonth() + 1).padStart(2, "0"));
-  const [paymentYear, setPaymentYear] = useState(defaultYear ?? String(now.getFullYear()));
+  const [paymentYear, setPaymentYear] = useState(defaultYearValue);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
   const [transactionId, setTransactionId] = useState("");
   const [screenshot, setScreenshot] = useState<File | null>(null);
@@ -77,8 +81,6 @@ export function MonthlyPaymentForm({
     }
   }
 
-  const years = Array.from({ length: 3 }, (_, i) => String(now.getFullYear() - 1 + i));
-
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -111,7 +113,7 @@ export function MonthlyPaymentForm({
             required
             className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm"
           >
-            {years.map((y) => (
+            {yearOptions.map((y) => (
               <option key={y} value={y}>
                 {y}
               </option>
