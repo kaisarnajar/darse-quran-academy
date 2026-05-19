@@ -1,6 +1,15 @@
+import Link from "next/link";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
+import { auth } from "@/lib/auth";
 import type { HomepageReview } from "@/lib/student-reviews";
 import { getFeaturedHomepageReviews } from "@/lib/student-reviews";
+
+function getWriteReviewHref(session: Awaited<ReturnType<typeof auth>>) {
+  if (session?.user?.id && session.user.role !== "TEACHER") {
+    return "/profile/reviews";
+  }
+  return `/login?callbackUrl=${encodeURIComponent("/profile/reviews")}`;
+}
 
 function StarRating() {
   return (
@@ -47,11 +56,8 @@ function TestimonialCard({ item }: { item: HomepageReview }) {
 }
 
 export async function StudentTestimonials() {
-  const reviews = await getFeaturedHomepageReviews();
-
-  if (reviews.length === 0) {
-    return null;
-  }
+  const [reviews, session] = await Promise.all([getFeaturedHomepageReviews(), auth()]);
+  const writeReviewHref = getWriteReviewHref(session);
 
   return (
     <section className="pattern-islamic py-16 sm:py-20" aria-labelledby="testimonials-heading">
@@ -66,13 +72,25 @@ export async function StudentTestimonials() {
             Hear from learners across Jammu &amp; Kashmir and beyond who study Quran, Tajweed, and Islamic
             sciences with us online.
           </p>
+          <Link
+            href={writeReviewHref}
+            className="btn-gold-solid mt-6 inline-flex min-h-11 items-center justify-center px-8 py-3 text-sm font-semibold"
+          >
+            Write Review
+          </Link>
         </div>
 
-        <ul className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {reviews.map((item) => (
-            <TestimonialCard key={item.id} item={item} />
-          ))}
-        </ul>
+        {reviews.length > 0 ? (
+          <ul className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            {reviews.map((item) => (
+              <TestimonialCard key={item.id} item={item} />
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-10 text-center text-sm text-muted">
+            Be the first to share your experience — your review may appear here after admin approval.
+          </p>
+        )}
       </div>
     </section>
   );
