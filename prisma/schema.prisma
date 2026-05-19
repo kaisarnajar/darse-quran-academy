@@ -67,6 +67,7 @@ model User {
   fatwaQuestions     FatwaQuestion[]
   fatwaAnswers       FatwaQuestion[] @relation("FatwaAnsweredBy")
   siteAnnouncements  SiteAnnouncement[] @relation("SiteAnnouncementAuthor")
+  blogPosts          BlogPost[]         @relation("BlogPostAuthor")
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 }
@@ -169,6 +170,33 @@ model SiteAnnouncement {
 
   @@index([published, showOnHomepage])
   @@index([published, createdAt])
+}
+
+model BlogPost {
+  id          String      @id @default(cuid())
+  title       String
+  excerpt     String?
+  body        String
+  published   Boolean     @default(false)
+  createdById String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  createdBy   User?       @relation("BlogPostAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  images      BlogImage[]
+
+  @@index([published, createdAt])
+}
+
+model BlogImage {
+  id         String   @id @default(cuid())
+  blogPostId String
+  imagePath  String
+  caption    String?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  blogPost   BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+
+  @@index([blogPostId, sortOrder])
 }
 
 model LibraryItem {

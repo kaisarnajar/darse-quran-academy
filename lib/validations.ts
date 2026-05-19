@@ -120,6 +120,13 @@ export const announcementCategoryEnum = z.enum([
   "GENERAL_NOTICE",
 ]);
 
+export const blogPostSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters.").max(200),
+  excerpt: z.string().trim().max(400).optional().or(z.literal("")),
+  body: z.string().trim().min(20, "Blog content must be at least 20 characters.").max(50000),
+  published: z.coerce.boolean(),
+});
+
 export const siteAnnouncementSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters.").max(200),
   body: z.string().trim().min(10, "Message must be at least 10 characters.").max(10000),

@@ -13,6 +13,7 @@ export default async function AdminDashboardPage() {
     enrollmentCount,
     pendingEnrollmentCount,
     pendingPaymentCount,
+    blogCount,
     recentEnrollments,
   ] = await Promise.all([
     prisma.course.count(),
@@ -22,6 +23,7 @@ export default async function AdminDashboardPage() {
     prisma.enrollment.count({ where: { status: "active" } }),
     getPendingEnrollmentApprovalCount(),
     getPendingMonthlyPaymentCount(),
+    prisma.blogPost.count(),
     prisma.enrollment.findMany({
       where: { status: "active" },
       take: 5,
@@ -41,6 +43,7 @@ export default async function AdminDashboardPage() {
     { label: "Students", count: studentCount, href: "/admin/students" },
     { label: "Teachers", count: teacherCount, href: "/admin/teachers" },
     { label: "Library items", count: libraryCount, href: "/admin/library" },
+    { label: "Blog posts", count: blogCount, href: "/admin/blogs" },
     { label: "Active enrollments", count: enrollmentCount, href: "/admin/enrollments" },
     {
       label: "Enrollment requests",
