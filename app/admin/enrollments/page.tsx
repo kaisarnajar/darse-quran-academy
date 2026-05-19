@@ -31,7 +31,7 @@ export default async function AdminEnrollmentsPage({
     <div>
       <h1 className="font-serif text-2xl font-bold text-primary">Enrollments & payments</h1>
       <p className="mt-1 text-sm text-muted">
-        Verify UPI and bank transfer payments and manually enroll students in any course.
+        Verify UPI and bank transfer payments and manually enroll registered students in any course.
       </p>
 
       {params.confirmed === "1" && (

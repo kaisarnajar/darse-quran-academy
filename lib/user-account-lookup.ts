@@ -1,0 +1,35 @@
+import { prisma } from "@/lib/prisma";
+
+export function normalizeAccountEmail(email: string): string {
+  return email.toLowerCase().trim();
+}
+
+export type RegisteredUserLookup =
+  | { ok: true; userId: string; name: string; email: string }
+  | { ok: false; error: string };
+
+/** Admin actions may only target emails that already belong to a registered user. */
+export async function lookupRegisteredUser(
+  email: string,
+  options?: { notFoundMessage?: string },
+): Promise<RegisteredUserLookup> {
+  const normalized = normalizeAccountEmail(email);
+
+  if (!normalized) {
+    return { ok: false, error: "Enter an email address." };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: normalized } });
+  if (!user) {
+    return {
+      ok: false,
+      error:
+        options?.notFoundMessage ??
+        "No account found with this email. They must register on the site first.",
+    };
+  }
+
+  const displayName = user.name?.trim() || normalized.split("@")[0] || "User";
+
+  return { ok: true, userId: user.id, name: displayName, email: normalized };
+}

@@ -9,6 +9,10 @@ import { getCourseById } from "@/lib/courses";
 import { sendPaymentDeclinedEmail } from "@/lib/email";
 import { AWAITING_PAYMENT_VERIFICATION, PAYMENT_DECLINED } from "@/lib/enrollment-status";
 import { prisma } from "@/lib/prisma";
+import {
+  lookupStudentAccountForEnrollment,
+  normalizeStudentEmail,
+} from "@/lib/student-admin";
 import { adminEnrollUserSchema } from "@/lib/validations";
 
 function revalidateEnrollmentPaths(courseId: string) {
@@ -186,12 +190,9 @@ export async function adminEnrollUser(
     return { error: parsed.error.issues[0]?.message ?? "Invalid form data." };
   }
 
-  const email = parsed.data.email.toLowerCase();
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    return {
-      error: "No account found for this email. Ask the student to register first, then enroll them.",
-    };
+  const account = await lookupStudentAccountForEnrollment(parsed.data.email);
+  if (!account.ok) {
+    return { error: account.error };
   }
 
   const course = await getCourseById(parsed.data.courseId);
@@ -205,10 +206,10 @@ export async function adminEnrollUser(
 
   await prisma.enrollment.upsert({
     where: {
-      userId_courseId: { userId: user.id, courseId: course.id },
+      userId_courseId: { userId: account.userId, courseId: course.id },
     },
     create: {
-      userId: user.id,
+      userId: account.userId,
       courseId: course.id,
       status: activate ? "active" : "pending",
       amountPaid: activate ? registrationFeePaise : null,
@@ -231,9 +232,18 @@ export async function adminEnrollUser(
 
   return {
     success: activate
-      ? `${user.name ?? email} is now enrolled in ${course.title}.`
-      : `${user.name ?? email} was added to ${course.title} with payment pending.`,
+      ? `${account.name} is now enrolled in ${course.title}.`
+      : `${account.name} was added to ${course.title} with payment pending.`,
   };
+}
+
+/** Preview registered student account for admin enroll form (client). */
+export async function previewStudentAccountForEnrollment(email: string) {
+  await requireAdmin();
+  if (!email.trim()) {
+    return { ok: false as const, error: "Enter an email address." };
+  }
+  return lookupStudentAccountForEnrollment(normalizeStudentEmail(email));
 }
 
 export async function completeEnrollmentAndSendCertificate(

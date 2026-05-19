@@ -1,9 +1,8 @@
 import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
+import { lookupRegisteredUser, normalizeAccountEmail } from "@/lib/user-account-lookup";
 
-export function normalizeTeacherEmail(email: string): string {
-  return email.toLowerCase().trim();
-}
+export const normalizeTeacherEmail = normalizeAccountEmail;
 
 export function deriveTeacherInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -21,7 +20,7 @@ export async function lookupTeacherAccount(
   email: string,
   options?: { excludeTeacherId?: string },
 ): Promise<TeacherAccountLookup> {
-  const normalized = normalizeTeacherEmail(email);
+  const normalized = normalizeAccountEmail(email);
 
   if (!normalized) {
     return { ok: false, error: "Enter an email address." };
@@ -36,16 +35,14 @@ export async function lookupTeacherAccount(
     return { ok: false, error: "This email is already linked to another teacher profile." };
   }
 
-  const user = await prisma.user.findUnique({ where: { email: normalized } });
-  if (!user) {
-    return {
-      ok: false,
-      error:
-        "No account found with this email. The person must register on the site first, then you can add them as a teacher.",
-    };
+  const account = await lookupRegisteredUser(normalized, {
+    notFoundMessage:
+      "No account found with this email. The person must register on the site first, then you can add them as a teacher.",
+  });
+
+  if (!account.ok) {
+    return account;
   }
 
-  const displayName = user.name?.trim() || normalized.split("@")[0] || "Teacher";
-
-  return { ok: true, name: displayName, email: normalized };
+  return { ok: true, name: account.name, email: account.email };
 }
