@@ -52,6 +52,14 @@ export default async function AdminDashboardPage() {
     { label: "Teachers", count: teacherCount, href: "/admin/teachers" },
     { label: "Library items", count: libraryCount, href: "/admin/library" },
     { label: "Blog posts", count: blogCount, href: "/admin/blogs" },
+    { label: "Verse & Hadith", count: dailyInspirationCount, href: "/admin/daily-inspiration" },
+    { label: "Active enrollments", count: enrollmentCount, href: "/admin/enrollments" },
+    {
+      label: "Enrollment requests",
+      count: pendingEnrollmentCount,
+      href: "/admin/enrollments",
+      highlight: pendingEnrollmentCount > 0,
+    },
     {
       label: "Blog approvals",
       count: pendingBlogCount,
@@ -69,14 +77,6 @@ export default async function AdminDashboardPage() {
       count: pendingPaymentCount,
       href: "/admin/payment-approvals",
       highlight: pendingPaymentCount > 0,
-    },
-    { label: "Verse & Hadith", count: dailyInspirationCount, href: "/admin/daily-inspiration" },
-    { label: "Active enrollments", count: enrollmentCount, href: "/admin/enrollments" },
-    {
-      label: "Enrollment requests",
-      count: pendingEnrollmentCount,
-      href: "/admin/enrollments",
-      highlight: pendingEnrollmentCount > 0,
     },
   ];
 
