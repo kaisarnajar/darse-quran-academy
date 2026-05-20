@@ -58,6 +58,7 @@ export async function createAdminCourseAnnouncement(courseId: string, formData: 
   const announcement = await prisma.courseAnnouncement.create({
     data: {
       courseId,
+      enrollmentId: null,
       teacherId: null,
       authorName: adminAuthorName(session),
       postedByAdmin: true,

@@ -10,10 +10,19 @@ type AnnouncementFormProps = {
     CourseAnnouncement,
     "category" | "title" | "body" | "attachmentPath" | "attachmentName"
   >;
+  defaultCategory?: AnnouncementCategory;
+  audienceHint?: string;
   error?: string;
 };
 
-export function AnnouncementForm({ action, submitLabel, announcement, error }: AnnouncementFormProps) {
+export function AnnouncementForm({
+  action,
+  submitLabel,
+  announcement,
+  defaultCategory = "COURSE_ANNOUNCEMENT",
+  audienceHint,
+  error,
+}: AnnouncementFormProps) {
   const hasAttachment = Boolean(announcement?.attachmentPath && announcement?.attachmentName);
 
   return (
@@ -32,7 +41,7 @@ export function AnnouncementForm({ action, submitLabel, announcement, error }: A
           id="category"
           name="category"
           required
-          defaultValue={announcement?.category ?? "COURSE_ANNOUNCEMENT"}
+          defaultValue={announcement?.category ?? defaultCategory}
           className={inputClassName}
         >
           {ANNOUNCEMENT_CATEGORIES.map((value) => (
@@ -71,7 +80,9 @@ export function AnnouncementForm({ action, submitLabel, announcement, error }: A
           placeholder="Write the full announcement for your students…"
           className={inputClassName}
         />
-        <p className="mt-1.5 text-xs text-muted">Students enrolled in this course will see this announcement.</p>
+        <p className="mt-1.5 text-xs text-muted">
+          {audienceHint ?? "Students enrolled in this course will see this announcement."}
+        </p>
       </div>
 
       <div>

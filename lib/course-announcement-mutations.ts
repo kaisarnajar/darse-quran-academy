@@ -26,6 +26,11 @@ export function revalidateCourseAnnouncementPaths(courseId: string) {
   revalidatePath(`/profile/courses/${courseId}/announcements`);
 }
 
+export function revalidateStudentAnnouncementPaths(courseId: string, enrollmentId: string) {
+  revalidatePath(`/teacher/courses/${courseId}/students/${enrollmentId}/announcements`);
+  revalidatePath(`/profile/courses/${courseId}/announcements`);
+}
+
 type AttachmentFieldUpdate = {
   attachmentPath: string | null;
   attachmentName: string | null;

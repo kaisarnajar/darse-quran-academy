@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTeacher } from "@/lib/auth-actions";
 import { formatPrice } from "@/lib/courses";
@@ -54,6 +55,7 @@ export default async function TeacherCourseStudentsPage({
                 <th className="px-4 py-3 font-medium">Enrollment status</th>
                 <th className="px-4 py-3 font-medium">Enrolled</th>
                 <th className="px-4 py-3 font-medium">Completed</th>
+                <th className="px-4 py-3 font-medium" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -99,6 +101,14 @@ export default async function TeacherCourseStudentsPage({
                             year: "numeric",
                           })
                         : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href={`/teacher/courses/${id}/students/${enrollment.id}/announcements`}
+                        className="text-sm font-medium text-teal hover:underline"
+                      >
+                        Message student
+                      </Link>
                     </td>
                   </tr>
                 );

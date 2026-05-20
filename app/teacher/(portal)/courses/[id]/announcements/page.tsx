@@ -30,7 +30,8 @@ export default async function TeacherCourseAnnouncementsPage({
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted">
-          Post updates for enrolled students — exams, homework, materials, schedule, and more.
+          Course-wide updates for all enrolled students. To message one student (e.g. exam marks), use{" "}
+          <span className="font-medium text-foreground">Message student</span> on the Students tab.
         </p>
         <Link
           href={`/teacher/courses/${course.id}/announcements/new`}

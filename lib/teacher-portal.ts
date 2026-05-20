@@ -39,6 +39,25 @@ export async function getTeacherCourseStudents(teacherId: string, courseId: stri
   return { course, enrollments };
 }
 
+export async function getTeacherEnrollmentInCourse(
+  teacherId: string,
+  courseId: string,
+  enrollmentId: string,
+) {
+  const course = await getTeacherCourseForPortal(teacherId, courseId);
+  if (!course) return null;
+
+  const enrollment = await prisma.enrollment.findFirst({
+    where: { id: enrollmentId, courseId },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+  });
+  if (!enrollment) return null;
+
+  return { course, enrollment };
+}
+
 export function teacherDashboardStats(courses: TeacherCourse[]) {
   const byStatus = courses.reduce(
     (acc, course) => {

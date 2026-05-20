@@ -1,20 +1,31 @@
 "use client";
 
-import { deleteCourseAnnouncement } from "@/app/teacher/courses/actions";
+import {
+  deleteCourseAnnouncement,
+  deleteStudentCourseAnnouncement,
+} from "@/app/teacher/courses/actions";
 import { useState } from "react";
 
 type DeleteAnnouncementButtonProps = {
   courseId: string;
   announcementId: string;
+  enrollmentId?: string;
   deleteAction?: (courseId: string, announcementId: string) => Promise<void>;
 };
 
 export function DeleteAnnouncementButton({
   courseId,
   announcementId,
-  deleteAction = deleteCourseAnnouncement,
+  enrollmentId,
+  deleteAction,
 }: DeleteAnnouncementButtonProps) {
   const [confirming, setConfirming] = useState(false);
+
+  const submitAction = deleteAction
+    ? deleteAction.bind(null, courseId, announcementId)
+    : enrollmentId
+      ? deleteStudentCourseAnnouncement.bind(null, courseId, enrollmentId, announcementId)
+      : deleteCourseAnnouncement.bind(null, courseId, announcementId);
 
   if (!confirming) {
     return (
@@ -31,7 +42,7 @@ export function DeleteAnnouncementButton({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-xs text-muted">Delete this announcement?</span>
-      <form action={deleteAction.bind(null, courseId, announcementId)}>
+      <form action={submitAction}>
         <button
           type="submit"
           className="rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700"

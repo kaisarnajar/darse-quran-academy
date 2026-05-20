@@ -1,4 +1,4 @@
-import type { AnnouncementCategory, CourseAnnouncement } from "@prisma/client";
+import type { AnnouncementCategory, CourseAnnouncement, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const ANNOUNCEMENT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -34,6 +34,15 @@ export const announcementCategoryStyles: Record<AnnouncementCategory, string> = 
   GENERAL_NOTICE: "bg-stone-200 text-stone-800",
 };
 
+const announcementInclude = {
+  teacher: { select: { name: true } },
+  enrollment: {
+    select: {
+      user: { select: { name: true, email: true } },
+    },
+  },
+} satisfies Prisma.CourseAnnouncementInclude;
+
 export function formatAnnouncementDate(date: Date): string {
   return date.toLocaleDateString("en-IN", {
     day: "numeric",
@@ -51,22 +60,66 @@ export function getAnnouncementAuthorName(announcement: {
   return announcement.authorName.trim() || announcement.teacher?.name || "Academy";
 }
 
-export async function getAnnouncementsForCourse(courseId: string) {
+export function getAnnouncementRecipientLabel(announcement: {
+  enrollmentId: string | null;
+  enrollment: { user: { name: string | null; email: string } } | null;
+}): string | null {
+  if (!announcement.enrollmentId) return null;
+  const student = announcement.enrollment?.user;
+  return student?.name?.trim() || student?.email || "Student";
+}
+
+/** Course-wide posts visible to all enrolled students. */
+export async function getCourseWideAnnouncementsForCourse(courseId: string) {
   return prisma.courseAnnouncement.findMany({
-    where: { courseId },
+    where: { courseId, enrollmentId: null },
     orderBy: { createdAt: "desc" },
-    include: {
-      teacher: { select: { name: true } },
-    },
+    include: announcementInclude,
   });
 }
 
-export async function getAnnouncementForCourse(courseId: string, announcementId: string) {
+/** Private posts for one student in a course. */
+export async function getStudentAnnouncementsForEnrollment(enrollmentId: string) {
+  return prisma.courseAnnouncement.findMany({
+    where: { enrollmentId },
+    orderBy: { createdAt: "desc" },
+    include: announcementInclude,
+  });
+}
+
+/** Course-wide plus this student's private posts. */
+export async function getAnnouncementsVisibleToStudent(userId: string, courseId: string) {
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { userId_courseId: { userId, courseId } },
+    select: { id: true },
+  });
+  if (!enrollment) return { courseWide: [], personal: [] as Awaited<ReturnType<typeof getStudentAnnouncementsForEnrollment>> };
+
+  const [courseWide, personal] = await Promise.all([
+    getCourseWideAnnouncementsForCourse(courseId),
+    getStudentAnnouncementsForEnrollment(enrollment.id),
+  ]);
+
+  return { courseWide, personal };
+}
+
+/** @deprecated Use getCourseWideAnnouncementsForCourse for teacher/admin course lists. */
+export async function getAnnouncementsForCourse(courseId: string) {
+  return getCourseWideAnnouncementsForCourse(courseId);
+}
+
+export async function getAnnouncementForCourse(
+  courseId: string,
+  announcementId: string,
+  options?: { enrollmentId?: string | null },
+) {
   return prisma.courseAnnouncement.findFirst({
-    where: { id: announcementId, courseId },
-    include: {
-      teacher: { select: { name: true } },
+    where: {
+      id: announcementId,
+      courseId,
+      ...(options?.enrollmentId !== undefined ? { enrollmentId: options.enrollmentId } : {}),
     },
+    include: announcementInclude,
   });
 }
 
@@ -79,4 +132,5 @@ export function canTeacherManageCourseAnnouncement(
 
 export type CourseAnnouncementWithTeacher = CourseAnnouncement & {
   teacher: { name: string } | null;
+  enrollment: { user: { name: string | null; email: string } } | null;
 };
