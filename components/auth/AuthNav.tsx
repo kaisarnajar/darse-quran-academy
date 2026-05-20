@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 export function AuthNav({ mobile = false }: { mobile?: boolean }) {
   const { data: session, status } = useSession();
@@ -36,13 +37,9 @@ export function AuthNav({ mobile = false }: { mobile?: boolean }) {
             {mobile ? "My Profile" : "Profile"}
           </Link>
         )}
-        <button
-          type="button"
-          onClick={() => signOut({ callbackUrl: "/" })}
-          className={`${linkClass} ${mobile ? "w-full text-left" : ""}`}
-        >
+        <SignOutButton className={`${linkClass} ${mobile ? "w-full text-left" : ""}`}>
           Sign Out
-        </button>
+        </SignOutButton>
       </div>
     );
   }

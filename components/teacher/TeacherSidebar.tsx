@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 const links = [
   { href: "/teacher", label: "My courses", exact: true },
@@ -42,13 +42,9 @@ export function TeacherSidebar({ teacherName }: { teacherName: string }) {
         >
           ← Public site
         </Link>
-        <button
-          type="button"
-          onClick={() => signOut({ callbackUrl: "/" })}
-          className="rounded-lg px-3 py-2 text-left text-sm font-medium text-muted hover:bg-accent-muted/50"
-        >
+        <SignOutButton className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-muted hover:bg-accent-muted/50">
           Sign out
-        </button>
+        </SignOutButton>
       </nav>
     </aside>
   );
