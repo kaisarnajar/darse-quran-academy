@@ -64,6 +64,12 @@ export default async function AdminDashboardPage() {
       href: "/admin/review-approvals",
       highlight: pendingReviewCount > 0,
     },
+    {
+      label: "Payment approvals",
+      count: pendingPaymentCount,
+      href: "/admin/payment-approvals",
+      highlight: pendingPaymentCount > 0,
+    },
     { label: "Verse & Hadith", count: dailyInspirationCount, href: "/admin/daily-inspiration" },
     { label: "Active enrollments", count: enrollmentCount, href: "/admin/enrollments" },
     {
@@ -71,12 +77,6 @@ export default async function AdminDashboardPage() {
       count: pendingEnrollmentCount,
       href: "/admin/enrollments",
       highlight: pendingEnrollmentCount > 0,
-    },
-    {
-      label: "Payment approvals",
-      count: pendingPaymentCount,
-      href: "/admin/payment-approvals",
-      highlight: pendingPaymentCount > 0,
     },
   ];
 
