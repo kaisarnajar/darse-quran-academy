@@ -61,6 +61,14 @@ export function canStudentEditReview(
   return review.userId === userId && (review.status === "PENDING" || review.status === "REJECTED");
 }
 
+/** Students may delete their own reviews at any approval stage. */
+export function canStudentDeleteReview(
+  review: Pick<StudentReview, "userId">,
+  userId: string,
+): boolean {
+  return review.userId === userId;
+}
+
 export async function getFeaturedHomepageReviews(): Promise<HomepageReview[]> {
   const reviews = await prisma.studentReview.findMany({
     where: { status: "APPROVED", featuredOnHomepage: true },

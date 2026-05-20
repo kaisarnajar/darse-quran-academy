@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth-actions";
 import { prisma } from "@/lib/prisma";
 import {
+  canStudentDeleteReview,
   canStudentEditReview,
   getStudentReviewForUser,
   userHasPendingReview,
@@ -104,8 +105,8 @@ export async function deleteStudentReview(id: string) {
     redirect(reviewsPath("?error=notfound"));
   }
 
-  if (!canStudentEditReview(existing, session.user.id)) {
-    redirect(reviewsPath("?error=locked"));
+  if (!canStudentDeleteReview(existing, session.user.id)) {
+    redirect(reviewsPath("?error=notfound"));
   }
 
   await prisma.studentReview.delete({ where: { id } });

@@ -4,6 +4,7 @@ import { StudentReviewForm } from "@/components/profile/StudentReviewForm";
 import { requireUser } from "@/lib/auth-actions";
 import { prisma } from "@/lib/prisma";
 import {
+  canStudentDeleteReview,
   canStudentEditReview,
   getStudentReviewsForUser,
   reviewStatusClass,
@@ -43,7 +44,8 @@ export default async function ProfileReviewsPage({
     <div>
       <h2 className="font-serif text-lg font-semibold text-foreground">My reviews</h2>
       <p className="mt-1 text-sm text-muted">
-        Share your learning experience. Approved reviews may appear on the academy homepage.
+        Share your learning experience. Approved reviews may appear on the academy homepage. You can
+        delete your own reviews anytime from Your submissions below.
       </p>
 
       {params.submitted === "1" && (
@@ -105,6 +107,7 @@ export default async function ProfileReviewsPage({
           <ul className="mt-4 space-y-4">
             {reviews.map((review) => {
               const editable = canStudentEditReview(review, session.user.id);
+              const deletable = canStudentDeleteReview(review, session.user.id);
               return (
                 <li key={review.id} className="rounded-lg border border-border bg-surface p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -115,15 +118,22 @@ export default async function ProfileReviewsPage({
                         ? "On homepage"
                         : reviewStatusLabel(review.status)}
                     </span>
-                    {editable && (
+                    {(editable || deletable) && (
                       <div className="flex gap-3">
-                        <Link
-                          href={`/profile/reviews?edit=${review.id}`}
-                          className="text-sm font-medium text-primary hover:underline"
-                        >
-                          Edit
-                        </Link>
-                        <DeleteStudentReviewButton id={review.id} />
+                        {editable && (
+                          <Link
+                            href={`/profile/reviews?edit=${review.id}`}
+                            className="text-sm font-medium text-primary hover:underline"
+                          >
+                            Edit
+                          </Link>
+                        )}
+                        {deletable && (
+                          <DeleteStudentReviewButton
+                            id={review.id}
+                            onHomepage={review.status === "APPROVED" && review.featuredOnHomepage}
+                          />
+                        )}
                       </div>
                     )}
                   </div>
