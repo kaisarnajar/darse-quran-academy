@@ -18,15 +18,22 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = await createPasswordResetToken(parsed.data.email);
+    const email = parsed.data.email.toLowerCase().trim();
+    const token = await createPasswordResetToken(email);
 
     if (token) {
       const resetUrl = buildPasswordResetUrl(token);
-      await sendPasswordResetEmail({ to: parsed.data.email.toLowerCase().trim(), resetUrl });
+      try {
+        await sendPasswordResetEmail({ to: email, resetUrl });
+      } catch (emailError) {
+        console.error("[forgot-password] SMTP send failed:", emailError);
+        console.info("[forgot-password] Reset link (use if email did not arrive):", resetUrl);
+      }
     }
 
     return NextResponse.json({ success: true, message: GENERIC_SUCCESS });
-  } catch {
+  } catch (error) {
+    console.error("[forgot-password] Request failed:", error);
     return NextResponse.json(
       { error: "Could not process your request. Please try again later." },
       { status: 500 },

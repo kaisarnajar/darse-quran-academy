@@ -4,20 +4,35 @@ export function isEmailConfigured(): boolean {
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
+function stripEnvQuotes(value: string): string {
+  return value.replace(/^["']|["']$/g, "");
+}
+
+function getSmtpPassword(): string {
+  // Gmail app passwords are often copied with spaces — remove them.
+  return (process.env.SMTP_PASS ?? "").replace(/\s/g, "");
+}
+
 function getFromAddress(): string {
-  return process.env.EMAIL_FROM?.trim() || process.env.SMTP_USER?.trim() || "noreply@darsequranacademy.org";
+  const raw =
+    process.env.EMAIL_FROM?.trim() ||
+    process.env.SMTP_USER?.trim() ||
+    "noreply@darsequranacademy.org";
+  return stripEnvQuotes(raw);
 }
 
 function createTransport() {
   const port = Number(process.env.SMTP_PORT || 587);
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: process.env.SMTP_HOST?.trim(),
     port,
     secure: port === 465,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: process.env.SMTP_USER?.trim(),
+      pass: getSmtpPassword(),
     },
+    connectionTimeout: 20_000,
+    greetingTimeout: 20_000,
   });
 }
 
