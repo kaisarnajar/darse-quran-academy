@@ -1,24 +1,35 @@
 # Darse Quran Academy
 
-Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (SQLite locally, PostgreSQL on Vercel), and **Auth.js**. Students browse courses, complete a registration profile, pay via **UPI**, and receive **PDF certificates** on completion. Admins manage content, verify or decline payments, answer **Fatwa** questions, and mark students complete.
+Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (SQLite locally, PostgreSQL on Vercel), and **Auth.js**. Students browse courses, complete a registration profile, request enrollment, pay **monthly fees via UPI**, and download **certificates** when courses are complete. Admins manage content, approve submissions, verify payments, and answer **Fatwa** questions. Teachers manage their courses and submit blog posts for approval.
 
 ## Features
 
 ### Public site
-- Courses, teachers, digital library, and Fatwa Q&A (answered questions only)
+- **Homepage** — featured courses, academy announcements (up to four), verse/hadith of the day, student testimonials, Fatwa section
+- **Courses**, **teachers**, **digital library**, **blog** (approved posts), **announcements**, and **Fatwa Q&A** (answered questions with category filters)
+- **Fatwa categories** — Islam, Quran, Hadith, Fiqh, Tajweed, Seerah, Arabic Language, Atheism, Fatwa, Other
 
 ### Students
 - Accounts via email/password and optional Google sign-in
-- **My Profile** (`/profile`): full registration details (name, father's name, date of birth, occupation, address, WhatsApp, email) — required before enrolling in a course
-- **UPI checkout**: QR code, UTR submission, status tracking on **My Courses** (`/profile/courses`)
-- Resubmit payment if an admin **declines** a submitted payment
-- **Certificate of Appreciation** PDF download when a course is marked complete (email link when SMTP is configured)
+- **My Profile** (`/profile`) — registration details required before enrolling (name, father's name, date of birth, occupation, address, WhatsApp, email)
+- **Enrollment** — per-course enrollment and monthly fees set by admin; free enrollment requests when the enrollment fee is ₹0
+- **My Courses** (`/profile/courses`) — course access, monthly fee payment (UPI/bank), course announcements, certificate download when complete
+- **Payments** (`/profile/payments`) — payment history and **download receipt** for approved monthly payments
+- **Reviews** (`/profile/reviews`) — submit testimonials for admin approval (may appear on the homepage)
+- Resubmit payment if an admin **declines** a monthly fee submission
+
+### Teachers (`/teacher`)
+- Portal login linked by email
+- Manage assigned courses, post **course announcements** (with optional attachments)
+- Submit **blog posts** for admin approval before they appear on the public blog
 
 ### Admins (`/admin`)
-- Courses (with status), teachers, library, enrollments, and Fatwa answers
-- **Confirm** or **decline** payments awaiting verification
-- Mark students complete and send certificate emails
-- View extended student profile fields on the student detail page
+- **Dashboard** — counts and quick links
+- **Content** — announcements (optional homepage feature), blogs, verse & hadith of the day, courses (per-course enrollment + monthly fees), teachers, library, Fatwa answers
+- **Students & enrollments** — student profiles, enrollment requests, payment verification on course rosters
+- **Approvals** (sidebar, after Fatwa) — **blog approvals**, **review approvals**, **payment approvals**
+- **Courses → Students** — approve enrollments, confirm/decline payments, mark **complete**, **generate/upload certificate** and email students
+- **Payment approvals** — approve monthly fees, then **generate/upload receipt** and email students
 
 ## Prerequisites
 
@@ -62,7 +73,7 @@ For production (Vercel), use PostgreSQL — see [docs/DEPLOYMENT.md](docs/DEPLOY
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+(`dev` runs `prisma generate` first.) Open [http://localhost:3000](http://localhost:3000).
 
 ### 4. Admin access
 
@@ -71,10 +82,12 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### 5. Student flow (local test)
 
-1. Sign up (name + email only).
-2. Open **My Profile** and complete all registration fields.
-3. Enroll in a course, pay via UPI (or use admin **Mark as paid**), and wait for payment confirmation.
-4. After an admin marks the course **complete**, download the certificate from **My Courses** or the email link.
+1. Sign up and complete **My Profile**.
+2. Request enrollment on a course (admin approves if required).
+3. Pay monthly fees from **My Courses** → submit UPI reference and screenshot.
+4. Admin approves payment under **Payment approvals**, then sends a receipt.
+5. Admin marks the course **complete**, then **generates or uploads** a certificate.
+6. Student downloads the certificate from **My Courses** or the email link.
 
 ## Environment variables
 
@@ -87,23 +100,29 @@ Open [http://localhost:3000](http://localhost:3000).
 | `ADMIN_EMAIL` | Yes | Email address that receives admin access to `/admin`. Must match the signed-in user. |
 | `AUTH_GOOGLE_ID` | No | Google OAuth client ID. Leave empty to hide “Sign in with Google”. |
 | `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret. |
-| `UPI_ID` | Yes* | Your UPI VPA (e.g. `name@paytm`, `name@okicici`). Required for course payments. |
+| `UPI_ID` | Yes* | Your UPI VPA (e.g. `name@paytm`, `name@okicici`). Required for student payments. |
 | `UPI_PAYEE_NAME` | No | Display name on UPI QR (default: `Darse Quran Academy`). |
+| `BANK_ACCOUNT_NAME` | No | Bank transfer display name (see `.env.example`). |
+| `BANK_NAME` | No | Bank name for transfer instructions. |
+| `BANK_ACCOUNT_NUMBER` | No | Account number shown to students. |
+| `BANK_IFSC` | No | IFSC code. |
+| `BANK_BRANCH` | No | Branch label. |
 | `SMTP_HOST` | No | SMTP server host (e.g. `smtp.gmail.com`). |
 | `SMTP_PORT` | No | SMTP port (default `587`; use `465` for implicit TLS). |
 | `SMTP_USER` | No | SMTP login / sender email. |
 | `SMTP_PASS` | No | SMTP password or [Gmail app password](https://myaccount.google.com/apppasswords). |
 | `EMAIL_FROM` | No | From header (e.g. `"Darse Quran Academy <you@gmail.com>"`). Falls back to `SMTP_USER`. |
 
-\*Without `UPI_ID`, checkout shows “UPI payments are not configured.”
+\*Without `UPI_ID`, payment pages show “UPI payments are not configured.”
 
 ### Email behavior
 
 When `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` are set, the app sends:
 
-- **Certificate emails** when an admin marks a course complete
+- **Certificate emails** when an admin sends a certificate (generate or upload)
+- **Payment receipt emails** when an admin sends a receipt (generate or upload)
 - **Fatwa answer emails** when an admin publishes an answer
-- **Payment declined emails** when an admin declines a submitted payment
+- **Payment declined emails** when an admin declines a monthly payment
 
 If SMTP is not configured, emails are **logged to the server console** (including download links) so you can still test locally.
 
@@ -113,30 +132,46 @@ If SMTP is not configured, emails are **logged to the server console** (includin
 2. Authorized redirect URI: `{AUTH_URL}/api/auth/callback/google`
 3. Set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in `.env`.
 
-### UPI and payment verification
+### UPI and monthly payments
 
-1. Set `UPI_ID` to your business/personal UPI ID.
-2. Set `UPI_PAYEE_NAME` to the name shown in payment apps.
-3. Restart the dev server after changing `.env`.
+1. Set `UPI_ID` and optionally `UPI_PAYEE_NAME` in `.env`.
+2. Restart the dev server after changing `.env`.
 
-**Payment flow:**
+**Typical flow:**
 
-1. Student completes profile → enrolls → pays via UPI → submits UTR.
-2. Status becomes **Awaiting payment verification**.
-3. Admin → **Enrollments** → **Confirm payment** or **Decline payment**.
-4. If declined, the student can resubmit from **My Courses**.
+1. Student completes profile → enrolls (admin may approve free requests).
+2. Student pays a monthly fee from **My Courses** → submits UTR and optional screenshot.
+3. Admin → **Payment approvals** → **Approve** (records payment only).
+4. Admin → **Generate receipt** or **Upload receipt** (emails download link).
+5. Student downloads the receipt from **Profile → Payments**.
+
+Declined payments can be resubmitted from the course pay page.
 
 ### Certificates
 
-Completed enrollments expose a PDF at `/api/certificate/[enrollmentId]` (landscape **Certificate of Appreciation** layout).
+When an admin marks a student **complete**, they can **generate** a PDF certificate or **upload** a custom PDF, then email the student a download link.
 
-**Runtime assets** (committed in the repo):
+- API: `/api/certificate/[enrollmentId]`
+- Student download: **My Courses** (completed courses)
+
+**Runtime assets** (in repo):
 
 - `public/logo.png` — seal in the footer
 - `public/icon-512.png` — emblem in the header
-- `public/certificate/signature.png` — founder signature ink
+- `public/certificate/signature.png` — founder signature
 
-Optional: place `public/certificate/reference-sample.png` and run `npm run build:certificate-assets` to regenerate decorative PNGs from the reference design (see `scripts/build-certificate-assets.mjs`). Do not composite crops that include text from the reference — that causes ghost overlap on generated PDFs.
+Optional: place `public/certificate/reference-sample.png` and run `npm run build:certificate-assets` to regenerate decorative PNGs (`scripts/build-certificate-assets.mjs`).
+
+Uploaded certificates are stored under `public/uploads/certificates/` (gitignored).
+
+### Payment receipts
+
+Approved monthly payments can use a generated PDF receipt or an admin-uploaded PDF.
+
+- API: `/api/receipt/[paymentRecordId]`
+- Student download: **Profile → Payments**
+
+Uploaded receipts are stored under `public/uploads/receipts/` (gitignored).
 
 ### Example `.env` (local development)
 
@@ -163,7 +198,7 @@ EMAIL_FROM="Darse Quran Academy <you@gmail.com>"
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev` | Start development server |
+| `npm run dev` | `prisma generate` then start development server |
 | `npm run build` | Generate Prisma client and production build |
 | `npm run start` | Run production server (after `build`) |
 | `npm run lint` | Run ESLint |
@@ -177,12 +212,12 @@ EMAIL_FROM="Darse Quran Academy <you@gmail.com>"
 ## Project structure (high level)
 
 ```
-app/              # Next.js App Router pages & API routes
-components/       # UI (site, admin, auth, payment, fatwa, profile)
+app/              # Next.js App Router (public, profile, admin, teacher, API routes)
+components/       # UI (site, admin, auth, payment, fatwa, profile, home)
 content/          # Static seed data (courses, teachers, library)
-lib/              # Auth, Prisma, email, UPI, certificates, profile, validations
+lib/              # Auth, Prisma, email, UPI, certificates, receipts, validations
 prisma/           # Schema, migrations, seed
-public/           # Static assets (logo, icons, certificate/)
+public/           # Static assets, uploads/ (payments, certificates, receipts)
 scripts/          # Logo optimization, certificate asset builder
 docs/             # Deployment guide
 ```
@@ -197,7 +232,7 @@ docs/             # Deployment guide
 4. Seed once from your PC: `DATABASE_URL="..." npm run db:seed`
 5. Register with `ADMIN_EMAIL` and open `/admin`.
 
-Ensure certificate assets (`public/logo.png`, `public/icon-512.png`, `public/certificate/signature.png`) are present in the deployment.
+Ensure certificate assets (`public/logo.png`, `public/icon-512.png`, `public/certificate/signature.png`) are present in the deployment. User uploads (payments, certificates, receipts) persist on the server filesystem — on serverless hosts, prefer object storage or accept ephemeral uploads unless you add external storage.
 
 Full checklist, OAuth, SMTP, and troubleshooting: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
 
