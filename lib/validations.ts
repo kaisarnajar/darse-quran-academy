@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { FATWA_CATEGORIES } from "@/lib/fatwa";
 import { isPaymentYearAllowed } from "@/lib/monthly-payments";
 import { OCCUPATION_VALUES } from "@/lib/occupations";
 
@@ -49,7 +50,7 @@ export const libraryItemSchema = z.object({
   published: z.coerce.boolean(),
 });
 
-export const fatwaCategoryEnum = z.enum(["Islam", "Atheism", "Fatwa", "Other"]);
+export const fatwaCategoryEnum = z.enum(FATWA_CATEGORIES);
 
 export const fatwaQuestionSchema = z.object({
   category: fatwaCategoryEnum,

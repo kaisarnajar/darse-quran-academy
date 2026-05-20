@@ -9,7 +9,7 @@ import { getAnsweredFatwas, isFatwaCategory } from "@/lib/fatwa";
 export const metadata: Metadata = {
   title: "Fatwa Section",
   description:
-    "Browse answered questions on Islam, Atheism, and related topics. Submit your own question to Darse Quran Academy.",
+    "Browse answered questions on Islam, Quran, Hadith, Fiqh, and related topics. Submit your own question to Darse Quran Academy.",
 };
 
 export default async function FatwaPage({
@@ -26,7 +26,7 @@ export default async function FatwaPage({
     <Section>
       <PageHeader
         title="Fatwa Section"
-        description="Questions answered by our scholars on Islam, Atheism, fatwa, and related topics."
+        description="Questions answered by our scholars on Islam, Quran, Hadith, Fiqh, Tajweed, Seerah, and more."
       />
 
       <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

@@ -72,7 +72,7 @@ export function AskFatwaForm({ defaultName = "", defaultEmail = "", isLoggedIn =
           minLength={30}
           maxLength={5000}
           rows={6}
-          placeholder="Describe your question in detail (Islam, Atheism, general fatwa, etc.)"
+          placeholder="Describe your question in detail (e.g. Fiqh, Quran, Tajweed, daily practice)"
           className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>

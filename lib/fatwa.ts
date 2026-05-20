@@ -1,7 +1,18 @@
 import type { FatwaQuestion } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-export const FATWA_CATEGORIES = ["Islam", "Atheism", "Fatwa", "Other"] as const;
+export const FATWA_CATEGORIES = [
+  "Islam",
+  "Quran",
+  "Hadith",
+  "Fiqh",
+  "Tajweed",
+  "Seerah",
+  "Arabic Language",
+  "Atheism",
+  "Fatwa",
+  "Other",
+] as const;
 export type FatwaCategory = (typeof FATWA_CATEGORIES)[number];
 
 export function isFatwaCategory(value: string): value is FatwaCategory {

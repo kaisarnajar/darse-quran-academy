@@ -23,7 +23,7 @@ export default async function FatwaAskPage({
     <Section>
       <PageHeader
         title="Ask a question"
-        description="Submit a question on Islam, Atheism, fatwa, or related topics. We will email you when it is answered."
+        description="Submit a question on Islam, Quran, Hadith, Fiqh, Tajweed, Seerah, or related topics. We will email you when it is answered."
       />
 
       <p className="mt-4 text-center text-sm text-muted">

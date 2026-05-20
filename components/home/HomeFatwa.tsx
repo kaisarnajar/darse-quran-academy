@@ -7,7 +7,7 @@ export function HomeFatwa() {
       <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
         <SplitSectionTitle muted="Fatwa" accent="Section" />
         <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-          Browse answered questions on Islam, Atheism, and related topics—or submit your own question
+          Browse answered questions on Islam, Quran, Hadith, Fiqh, and more—or submit your own question
           and receive an email when our scholars publish a reply.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
