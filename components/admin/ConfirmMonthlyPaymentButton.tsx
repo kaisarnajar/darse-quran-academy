@@ -19,7 +19,7 @@ export function ConfirmMonthlyPaymentButton({ submissionId }: { submissionId: st
   }
 
   function handleConfirm() {
-    if (!window.confirm("Approve this monthly fee payment and record it on the student's account?")) return;
+    if (!window.confirm("Approve this payment and record it on the student's account?")) return;
 
     startTransition(async () => {
       try {
@@ -46,7 +46,7 @@ export function ConfirmMonthlyPaymentButton({ submissionId }: { submissionId: st
       disabled={pending}
       className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-light disabled:opacity-60"
     >
-      {pending ? "…" : "Approve payment"}
+      {pending ? "…" : "Approve"}
     </button>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DownloadReceiptButton } from "@/components/payment/DownloadReceiptButton";
 import { formatPrice, getAllCourses } from "@/lib/courses";
 import { requireUser } from "@/lib/auth-actions";
 import { getPaymentRecordsForUser, getPaymentSubmissionsForUser } from "@/lib/payments";
@@ -103,6 +104,7 @@ export default async function ProfilePaymentsPage({
                   <th className="px-4 py-3 font-medium">Amount</th>
                   <th className="px-4 py-3 font-medium">Course</th>
                   <th className="px-4 py-3 font-medium">Description</th>
+                  <th className="px-4 py-3 font-medium">Receipt</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -124,6 +126,9 @@ export default async function ProfilePaymentsPage({
                         : "—"}
                     </td>
                     <td className="px-4 py-3 text-muted">{payment.description ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <DownloadReceiptButton paymentRecordId={payment.id} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

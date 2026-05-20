@@ -54,6 +54,10 @@ yarn-error.log*
 /public/uploads/certificates/*
 !/public/uploads/certificates/.gitkeep
 
+# admin-uploaded payment receipts
+/public/uploads/receipts/*
+!/public/uploads/receipts/.gitkeep
+
 # vercel
 .vercel
 

@@ -1,17 +1,20 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
 /** Bump when the Prisma schema changes so dev HMR does not keep an outdated client. */
-const PRISMA_CLIENT_CACHE_KEY = "20260603120000_enrollment_uploaded_certificate";
+const PRISMA_CLIENT_CACHE_KEY = "20260604120000_payment_record_receipt";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
   prismaCacheKey?: string;
 };
 
-function enrollmentModelHasUploadedCertificatePath(): boolean {
-  return Prisma.dmmf.datamodel.models
-    .find((model) => model.name === "Enrollment")
-    ?.fields.some((field) => field.name === "uploadedCertificatePath") ?? false;
+function prismaSchemaIsCurrent(): boolean {
+  const enrollment = Prisma.dmmf.datamodel.models.find((model) => model.name === "Enrollment");
+  const paymentRecord = Prisma.dmmf.datamodel.models.find((model) => model.name === "PaymentRecord");
+  return (
+    (enrollment?.fields.some((field) => field.name === "uploadedCertificatePath") ?? false) &&
+    (paymentRecord?.fields.some((field) => field.name === "uploadedReceiptPath") ?? false)
+  );
 }
 
 function createPrismaClient() {
@@ -27,7 +30,7 @@ function getPrismaClient(): PrismaClient {
     cached &&
     cacheKeyMatches &&
     typeof cached.course?.findMany === "function" &&
-    enrollmentModelHasUploadedCertificatePath()
+    prismaSchemaIsCurrent()
   ) {
     return cached;
   }
