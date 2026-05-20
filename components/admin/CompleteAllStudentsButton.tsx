@@ -19,7 +19,7 @@ export function CompleteAllStudentsButton({
   async function handleCompleteAll() {
     if (
       !window.confirm(
-        `Mark all ${activeCount} active student(s) as complete and send certificate emails?`,
+        `Mark all ${activeCount} active student(s) as complete?`,
       )
     ) {
       return;
@@ -50,7 +50,7 @@ export function CompleteAllStudentsButton({
       disabled={loading}
       className="inline-flex min-h-11 items-center justify-center rounded-md bg-accent-warm px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
     >
-      {loading ? "Sending…" : `Complete all active (${activeCount})`}
+      {loading ? "Completing…" : `Complete all active (${activeCount})`}
     </button>
   );
 }

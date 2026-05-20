@@ -3,7 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
-import { markAllActiveStudentsComplete, markEnrollmentCompleteAndNotify } from "@/lib/completion";
+import {
+  deleteUploadedCertificate,
+  saveUploadedCertificate,
+  validateCertificatePdf,
+} from "@/lib/certificate-upload";
+import {
+  markAllActiveStudentsComplete,
+  markEnrollmentComplete,
+  sendCertificateEmailForEnrollment,
+} from "@/lib/completion";
 import { getCourseById } from "@/lib/courses";
 import {
   AWAITING_PAYMENT_VERIFICATION,
@@ -227,9 +236,46 @@ export async function previewStudentAccountForEnrollment(email: string) {
   return lookupStudentAccountForEnrollment(normalizeStudentEmail(email));
 }
 
-export async function completeEnrollmentAndSendCertificate(
+export async function completeEnrollment(enrollmentId: string, courseId: string) {
+  await requireAdmin();
+
+  const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
+  if (!enrollment || enrollment.courseId !== courseId) {
+    return { error: "Enrollment not found." };
+  }
+
+  const result = await markEnrollmentComplete(enrollmentId);
+  if (result.error) {
+    return { error: result.error };
+  }
+
+  revalidateEnrollmentPaths(courseId);
+  return { success: true };
+}
+
+export async function sendGeneratedCertificate(enrollmentId: string, courseId: string) {
+  await requireAdmin();
+
+  const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
+  if (!enrollment || enrollment.courseId !== courseId) {
+    return { error: "Enrollment not found." };
+  }
+
+  const result = await sendCertificateEmailForEnrollment(enrollmentId, {
+    useGeneratedCertificate: true,
+  });
+  if (result.error) {
+    return { error: result.error };
+  }
+
+  revalidateEnrollmentPaths(courseId);
+  return { success: true };
+}
+
+export async function uploadAndSendCertificate(
   enrollmentId: string,
   courseId: string,
+  formData: FormData,
 ) {
   await requireAdmin();
 
@@ -238,13 +284,29 @@ export async function completeEnrollmentAndSendCertificate(
     return { error: "Enrollment not found." };
   }
 
-  const result = await markEnrollmentCompleteAndNotify(enrollmentId);
+  const file = formData.get("certificate");
+  const validation = validateCertificatePdf(file instanceof File ? file : null);
+  if (validation.error) {
+    return { error: validation.error };
+  }
+
+  if (enrollment.uploadedCertificatePath) {
+    await deleteUploadedCertificate(enrollment.uploadedCertificatePath);
+  }
+
+  const uploadedPath = await saveUploadedCertificate(enrollmentId, file as File);
+
+  await prisma.enrollment.update({
+    where: { id: enrollmentId },
+    data: { uploadedCertificatePath: uploadedPath },
+  });
+
+  const result = await sendCertificateEmailForEnrollment(enrollmentId);
   if (result.error) {
     return { error: result.error };
   }
 
   revalidateEnrollmentPaths(courseId);
-
   return { success: true };
 }
 
@@ -259,6 +321,7 @@ export async function removeEnrollmentFromCourse(enrollmentId: string, courseId:
     return { error: "Enrollment not found." };
   }
 
+  await deleteUploadedCertificate(enrollment.uploadedCertificatePath);
   await prisma.enrollment.delete({ where: { id: enrollmentId } });
 
   revalidateEnrollmentPaths(courseId);

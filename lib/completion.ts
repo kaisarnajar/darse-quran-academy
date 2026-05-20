@@ -1,9 +1,37 @@
 import { sendCertificateEmail } from "@/lib/email";
-import { formatCertificateId, getCertificateDownloadUrl } from "@/lib/certificate";
+import { deleteUploadedCertificate } from "@/lib/certificate-upload";
+import { getCertificateDownloadUrl } from "@/lib/certificate";
 import { getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 
-export async function markEnrollmentCompleteAndNotify(enrollmentId: string): Promise<{ error?: string }> {
+export async function markEnrollmentComplete(enrollmentId: string): Promise<{ error?: string }> {
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { id: enrollmentId },
+  });
+
+  if (!enrollment) {
+    return { error: "Enrollment not found." };
+  }
+
+  if (enrollment.status !== "active") {
+    return { error: "Only active enrollments can be marked complete." };
+  }
+
+  await prisma.enrollment.update({
+    where: { id: enrollmentId },
+    data: {
+      status: "completed",
+      completedAt: enrollment.completedAt ?? new Date(),
+    },
+  });
+
+  return {};
+}
+
+export async function sendCertificateEmailForEnrollment(
+  enrollmentId: string,
+  options?: { useGeneratedCertificate?: boolean },
+): Promise<{ error?: string }> {
   const enrollment = await prisma.enrollment.findUnique({
     where: { id: enrollmentId },
     include: { user: { select: { name: true, email: true } } },
@@ -13,8 +41,8 @@ export async function markEnrollmentCompleteAndNotify(enrollmentId: string): Pro
     return { error: "Enrollment not found." };
   }
 
-  if (enrollment.status !== "active" && enrollment.status !== "completed") {
-    return { error: "Only active enrollments can be marked complete." };
+  if (!isEnrollmentCertificateReady(enrollment)) {
+    return { error: "Mark the student as complete before sending a certificate." };
   }
 
   const course = await getCourseById(enrollment.courseId);
@@ -22,32 +50,35 @@ export async function markEnrollmentCompleteAndNotify(enrollmentId: string): Pro
     return { error: "Course not found." };
   }
 
-  const completedAt = enrollment.completedAt ?? new Date();
-
-  await prisma.enrollment.update({
-    where: { id: enrollmentId },
-    data: {
-      status: "completed",
-      completedAt,
-    },
-  });
-
-  if (!enrollment.certificateEmailSentAt) {
-    const certificateUrl = getCertificateDownloadUrl(enrollmentId);
-    await sendCertificateEmail({
-      to: enrollment.user.email,
-      studentName: enrollment.user.name ?? "",
-      courseTitle: course.title,
-      certificateUrl,
-    });
-
+  if (options?.useGeneratedCertificate && enrollment.uploadedCertificatePath) {
+    await deleteUploadedCertificate(enrollment.uploadedCertificatePath);
     await prisma.enrollment.update({
       where: { id: enrollmentId },
-      data: { certificateEmailSentAt: new Date() },
+      data: { uploadedCertificatePath: null },
     });
   }
 
+  const certificateUrl = getCertificateDownloadUrl(enrollmentId);
+  await sendCertificateEmail({
+    to: enrollment.user.email,
+    studentName: enrollment.user.name ?? "",
+    courseTitle: course.title,
+    certificateUrl,
+  });
+
+  await prisma.enrollment.update({
+    where: { id: enrollmentId },
+    data: { certificateEmailSentAt: new Date() },
+  });
+
   return {};
+}
+
+/** @deprecated Use markEnrollmentComplete — completion no longer sends email automatically. */
+export async function markEnrollmentCompleteAndNotify(enrollmentId: string): Promise<{ error?: string }> {
+  const result = await markEnrollmentComplete(enrollmentId);
+  if (result.error) return result;
+  return sendCertificateEmailForEnrollment(enrollmentId, { useGeneratedCertificate: true });
 }
 
 export async function markAllActiveStudentsComplete(courseId: string): Promise<{
@@ -63,7 +94,7 @@ export async function markAllActiveStudentsComplete(courseId: string): Promise<{
   const errors: string[] = [];
 
   for (const { id } of activeEnrollments) {
-    const result = await markEnrollmentCompleteAndNotify(id);
+    const result = await markEnrollmentComplete(id);
     if (result.error) {
       errors.push(result.error);
     } else {
@@ -90,4 +121,4 @@ export function getCertificateFilename(courseTitle: string, enrollmentId: string
   return `certificate-${slug || "course"}-${enrollmentId.slice(0, 8)}.pdf`;
 }
 
-export { formatCertificateId };
+export { formatCertificateId } from "@/lib/certificate";

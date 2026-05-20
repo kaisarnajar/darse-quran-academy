@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CompleteAllStudentsButton } from "@/components/admin/CompleteAllStudentsButton";
 import { CompleteCourseButton } from "@/components/admin/CompleteCourseButton";
+import { SendCertificateButton } from "@/components/admin/SendCertificateButton";
 import { ApproveEnrollmentButton } from "@/components/admin/ApproveEnrollmentButton";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
 import { DeclinePaymentButton } from "@/components/admin/DeclinePaymentButton";
@@ -68,7 +69,7 @@ export default async function CourseStudentsPage({
 
       {query.completed === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Students marked complete. Certificate emails were sent where applicable.
+          Students marked complete. Use &quot;Send certificate&quot; for each student when ready.
         </p>
       )}
       {query.confirmed === "1" && (
@@ -149,6 +150,13 @@ export default async function CourseStudentsPage({
                       )}
                       {enrollment.status === "active" && (
                         <CompleteCourseButton enrollmentId={enrollment.id} courseId={id} />
+                      )}
+                      {enrollment.status === "completed" && (
+                        <SendCertificateButton
+                          enrollmentId={enrollment.id}
+                          courseId={id}
+                          certificateEmailSentAt={enrollment.certificateEmailSentAt}
+                        />
                       )}
                       <RemoveEnrollmentButton
                         enrollmentId={enrollment.id}

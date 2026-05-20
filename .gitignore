@@ -50,6 +50,10 @@ yarn-error.log*
 /public/uploads/site-announcements/*
 !/public/uploads/site-announcements/.gitkeep
 
+# admin-uploaded completion certificates
+/public/uploads/certificates/*
+!/public/uploads/certificates/.gitkeep
+
 # vercel
 .vercel
 

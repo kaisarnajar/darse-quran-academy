@@ -1,3 +1,5 @@
+import { readFile } from "fs/promises";
+import path from "path";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import {
@@ -42,6 +44,29 @@ export async function GET(
     return NextResponse.json({ error: "Course not found." }, { status: 404 });
   }
 
+  const filename = getCertificateFilename(course.title, enrollmentId);
+
+  if (enrollment.uploadedCertificatePath) {
+    const absolutePath = path.join(
+      process.cwd(),
+      "public",
+      enrollment.uploadedCertificatePath.replace(/^\//, ""),
+    );
+
+    try {
+      const pdfBytes = await readFile(absolutePath);
+      return new NextResponse(Buffer.from(pdfBytes), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+          "Cache-Control": "private, no-cache",
+        },
+      });
+    } catch {
+      return NextResponse.json({ error: "Uploaded certificate file not found." }, { status: 404 });
+    }
+  }
+
   const pdfBytes = await generateCertificatePdf({
     studentName: enrollment.user.name ?? "Student",
     studentAddress: enrollment.user.address,
@@ -50,8 +75,6 @@ export async function GET(
     completedAt: enrollment.completedAt!,
     certificateId: formatCertificateId(enrollmentId),
   });
-
-  const filename = getCertificateFilename(course.title, enrollmentId);
 
   return new NextResponse(Buffer.from(pdfBytes), {
     headers: {

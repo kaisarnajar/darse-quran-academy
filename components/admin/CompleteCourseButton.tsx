@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { completeEnrollmentAndSendCertificate } from "@/app/admin/enrollments/actions";
+import { completeEnrollment } from "@/app/admin/enrollments/actions";
 
 export function CompleteCourseButton({
   enrollmentId,
@@ -15,16 +15,12 @@ export function CompleteCourseButton({
   const [loading, setLoading] = useState(false);
 
   async function handleComplete() {
-    if (
-      !window.confirm(
-        "Mark this student as course complete and send the certificate download email?",
-      )
-    ) {
+    if (!window.confirm("Mark this student as course complete?")) {
       return;
     }
 
     setLoading(true);
-    const result = await completeEnrollmentAndSendCertificate(enrollmentId, courseId);
+    const result = await completeEnrollment(enrollmentId, courseId);
     setLoading(false);
 
     if (result.error) {
@@ -42,7 +38,7 @@ export function CompleteCourseButton({
       disabled={loading}
       className="rounded-md border border-primary bg-surface px-3 py-1.5 text-xs font-semibold text-primary hover:bg-accent-muted/50 disabled:opacity-60"
     >
-      {loading ? "…" : "Complete & email"}
+      {loading ? "…" : "Complete"}
     </button>
   );
 }
