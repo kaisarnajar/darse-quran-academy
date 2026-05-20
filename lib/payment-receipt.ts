@@ -1,5 +1,4 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { formatPrice } from "@/lib/courses";
 
 export type PaymentReceiptData = {
   receiptId: string;
@@ -15,6 +14,20 @@ export type PaymentReceiptData = {
 export function formatReceiptId(paymentRecordId: string): string {
   const year = new Date().getFullYear();
   return `DQA-RCP-${year}-${paymentRecordId.slice(0, 8).toUpperCase()}`;
+}
+
+/** PDF standard fonts only support WinAnsi — avoid ₹ and other Unicode symbols. */
+function formatPriceForPdf(paise: number): string {
+  const inr = Math.round(paise / 100);
+  return `Rs. ${inr.toLocaleString("en-IN")}`;
+}
+
+function sanitizePdfText(text: string): string {
+  return text
+    .replace(/\u20b9/g, "Rs.")
+    .replace(/\u2014/g, "-")
+    .replace(/\u2013/g, "-")
+    .replace(/[^\t\n\r\x20-\x7e\xa0-\xff]/g, "");
 }
 
 export function getReceiptDownloadUrl(paymentRecordId: string): string {
@@ -36,7 +49,7 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
 
   let y = height - 72;
 
-  page.drawText("Darse Quran Academy", {
+  page.drawText(sanitizePdfText("Darse Quran Academy"), {
     x: 48,
     y,
     size: 14,
@@ -44,7 +57,7 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
     color: primary,
   });
   y -= 28;
-  page.drawText("Payment Receipt", {
+  page.drawText(sanitizePdfText("Payment Receipt"), {
     x: 48,
     y,
     size: 22,
@@ -62,13 +75,13 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
 
   const rows: [string, string][] = [
     ["Receipt no.", data.receiptId],
-    ["Student", data.studentName || "—"],
+    ["Student", data.studentName || "-"],
     ["Course", data.courseTitle],
     ["Description", data.description],
-    ["Amount", formatPrice(data.amountInrPaise)],
+    ["Amount", formatPriceForPdf(data.amountInrPaise)],
     [
       "Paid on",
-      data.paidAt.toLocaleDateString("en-IN", {
+      data.paidAt.toLocaleDateString("en-GB", {
         day: "numeric",
         month: "long",
         year: "numeric",
@@ -84,9 +97,9 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
   }
 
   for (const [label, value] of rows) {
-    page.drawText(label, { x: 48, y, size: 10, font: fontBold, color: muted });
+    page.drawText(sanitizePdfText(label), { x: 48, y, size: 10, font: fontBold, color: muted });
     y -= 16;
-    const lines = wrapText(value, 70);
+    const lines = wrapText(sanitizePdfText(value), 70);
     for (const line of lines) {
       page.drawText(line, { x: 48, y, size: 12, font, color: rgb(0.1, 0.1, 0.1) });
       y -= 18;
@@ -95,13 +108,16 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
   }
 
   y -= 12;
-  page.drawText("This receipt confirms payment received by Darse Quran Academy.", {
+  page.drawText(
+    sanitizePdfText("This receipt confirms payment received by Darse Quran Academy."),
+    {
     x: 48,
     y,
     size: 9,
     font,
     color: muted,
-  });
+    },
+  );
 
   return pdf.save();
 }
@@ -122,7 +138,7 @@ function wrapText(text: string, maxChars: number): string[] {
   }
 
   if (current) lines.push(current);
-  return lines.length > 0 ? lines : ["—"];
+  return lines.length > 0 ? lines : ["-"];
 }
 
 export function getReceiptFilename(courseTitle: string, paymentRecordId: string): string {
