@@ -16,7 +16,13 @@ export function UnfeatureStudentReviewButton({ reviewId }: { reviewId: string })
   }
 
   function handleClick() {
-    if (!window.confirm("Remove this review from the homepage?")) return;
+    if (
+      !window.confirm(
+        "Remove this review from the homepage? It will stay in All reviews and you can add it back anytime.",
+      )
+    ) {
+      return;
+    }
 
     startTransition(async () => {
       try {

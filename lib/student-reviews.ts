@@ -105,6 +105,17 @@ export async function getFeaturedStudentReviewsForAdmin() {
   });
 }
 
+/** All approved reviews (homepage and not), for admin management. */
+export async function getApprovedStudentReviewsForAdmin() {
+  return prisma.studentReview.findMany({
+    where: { status: "APPROVED" },
+    orderBy: [{ featuredOnHomepage: "desc" }, { featuredAt: "desc" }, { updatedAt: "desc" }],
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+  });
+}
+
 export async function getStudentReviewsForUser(userId: string) {
   return prisma.studentReview.findMany({
     where: { userId },

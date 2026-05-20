@@ -12,9 +12,18 @@ function revalidateReviewPaths() {
   revalidatePath("/admin/review-approvals");
 }
 
-function returnUrl(returnTo: string | undefined, event: "approved" | "rejected" | "unfeatured"): string {
+function returnUrl(
+  returnTo: string | undefined,
+  event: "approved" | "rejected" | "unfeatured" | "featured",
+): string {
   const param =
-    event === "approved" ? "approved" : event === "rejected" ? "rejected" : "unfeatured";
+    event === "approved"
+      ? "approved"
+      : event === "rejected"
+        ? "rejected"
+        : event === "featured"
+          ? "featured"
+          : "unfeatured";
   const fallback = `/admin/review-approvals?${param}=1`;
   if (!returnTo?.startsWith("/admin")) return fallback;
   const [pathname, query = ""] = returnTo.split("?");
@@ -138,5 +147,5 @@ export async function featureStudentReview(
   });
 
   revalidateReviewPaths();
-  redirect(returnUrl(returnTo, "approved"));
+  redirect(returnUrl(returnTo, "featured"));
 }
