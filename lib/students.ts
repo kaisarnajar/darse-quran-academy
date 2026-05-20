@@ -1,11 +1,11 @@
-import { getAdminEmail } from "@/lib/admin";
+import { getAdminEmails } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 
 export async function getStudentUsers() {
-  const adminEmail = getAdminEmail()?.toLowerCase();
+  const adminEmails = getAdminEmails();
 
   return prisma.user.findMany({
-    where: adminEmail ? { email: { not: adminEmail } } : undefined,
+    where: adminEmails.length > 0 ? { email: { notIn: adminEmails } } : undefined,
     orderBy: { createdAt: "desc" },
     include: {
       enrollments: {
@@ -16,7 +16,7 @@ export async function getStudentUsers() {
 }
 
 export async function getStudentUserById(id: string) {
-  const adminEmail = getAdminEmail()?.toLowerCase();
+  const adminEmails = getAdminEmails();
 
   const user = await prisma.user.findUnique({
     where: { id },
@@ -28,15 +28,15 @@ export async function getStudentUserById(id: string) {
   });
 
   if (!user) return null;
-  if (adminEmail && user.email.toLowerCase() === adminEmail) return null;
+  if (adminEmails.includes(user.email.toLowerCase())) return null;
 
   return user;
 }
 
 export async function getStudentCount() {
-  const adminEmail = getAdminEmail()?.toLowerCase();
+  const adminEmails = getAdminEmails();
 
   return prisma.user.count({
-    where: adminEmail ? { email: { not: adminEmail } } : undefined,
+    where: adminEmails.length > 0 ? { email: { notIn: adminEmails } } : undefined,
   });
 }

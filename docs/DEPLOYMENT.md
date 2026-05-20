@@ -43,7 +43,7 @@ postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
 | `AUTH_SECRET` | Output of `openssl rand -base64 32` |
 | `AUTH_URL` | `https://your-project.vercel.app` |
 | `NEXTAUTH_URL` | Same as `AUTH_URL` |
-| `ADMIN_EMAIL` | Your admin login email |
+| `ADMIN_EMAIL` | Comma-separated admin login emails |
 | `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, … | Optional |
 
 5. **Deploy**. The build runs `prisma migrate deploy` then `next build` (see [`package.json`](../package.json)).
@@ -65,7 +65,7 @@ Do **not** add seed to the Vercel build command (it would reset data on every de
 ## 4. Create admin user
 
 1. Open `https://your-project.vercel.app/register`.
-2. Register with the **same email** as `ADMIN_EMAIL`.
+2. Register with an email listed in `ADMIN_EMAIL`.
 3. Visit `/admin` → **Payment details** and enter UPI / bank information.
 
 ---
@@ -111,7 +111,7 @@ Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local Po
 |-------|-----|
 | Build fails on `migrate deploy` | Set `DATABASE_URL` on Vercel; use Neon direct URL if pooler errors |
 | “UPI not configured” | Admin → **Payment details** — save a UPI ID |
-| Admin 403 | `ADMIN_EMAIL` must match signed-in email exactly |
+| Admin 403 | Signed-in email must be listed in `ADMIN_EMAIL` (comma-separated) |
 | Emails not sent | Set SMTP vars, or check Vercel **Functions** logs for logged links |
 | OAuth redirect error | `AUTH_URL` must match live domain; update Google redirect URI |
 

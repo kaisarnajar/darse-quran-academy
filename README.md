@@ -77,7 +77,7 @@ npm run dev
 
 ### 4. Admin access
 
-1. Register or sign in with an account whose **email matches `ADMIN_EMAIL`** in `.env`.
+1. Register or sign in with an account whose **email is listed in `ADMIN_EMAIL`** in `.env`.
 2. Open [http://localhost:3000/admin](http://localhost:3000/admin).
 
 ### 5. Student flow (local test)
@@ -97,7 +97,7 @@ npm run dev
 | `NEXTAUTH_URL` | Yes | Same as `AUTH_URL` in most setups. |
 | `AUTH_SECRET` | Yes | Random secret for session encryption. Generate: `openssl rand -base64 32` |
 | `DATABASE_URL` | Yes | Local: `"file:./dev.db"`. Production (Vercel): [Neon](https://neon.tech) PostgreSQL URL with `?sslmode=require` |
-| `ADMIN_EMAIL` | Yes | Email address that receives admin access to `/admin`. Must match the signed-in user. |
+| `ADMIN_EMAIL` | Yes | Comma-separated admin emails for `/admin` access. Each must match a registered sign-in email. |
 | `AUTH_GOOGLE_ID` | No | Google OAuth client ID. Leave empty to hide “Sign in with Google”. |
 | `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret. |
 | `SMTP_HOST` | No | SMTP server host (e.g. `smtp.gmail.com`). |
@@ -175,7 +175,7 @@ AUTH_URL=http://localhost:3000
 NEXTAUTH_URL=http://localhost:3000
 AUTH_SECRET=replace-with-openssl-rand-output
 DATABASE_URL="file:./dev.db"
-ADMIN_EMAIL=you@example.com
+ADMIN_EMAIL=you@example.com,coordinator@example.com
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -222,7 +222,7 @@ docs/             # Deployment guide
 2. Import this repo on Vercel and set environment variables (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, SMTP, etc.).
 3. Deploy — build runs `prisma migrate deploy` automatically ([`vercel.json`](vercel.json)).
 4. Seed once from your PC: `DATABASE_URL="..." npm run db:seed`
-5. Register with `ADMIN_EMAIL`, open `/admin`, and set **Payment details** (UPI / bank).
+5. Register with an email from `ADMIN_EMAIL`, open `/admin`, and set **Payment details** (UPI / bank).
 
 Ensure certificate assets (`public/logo.png`, `public/icon-512.png`, `public/certificate/signature.png`) are present in the deployment. User uploads (payments, certificates, receipts) persist on the server filesystem — on serverless hosts, prefer object storage or accept ephemeral uploads unless you add external storage.
 
