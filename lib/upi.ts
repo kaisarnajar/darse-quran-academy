@@ -42,13 +42,6 @@ export function buildUpiPaymentUrlFromSettings(
   return `upi://pay?${query.toString()}`;
 }
 
-/** @deprecated Use buildUpiVpaUrlFromSettings with settings from getPaymentSettings(). */
-export function buildUpiVpaUrl(): string {
-  const upiId = process.env.UPI_ID?.trim() ?? "";
-  const payeeName = process.env.UPI_PAYEE_NAME?.trim() || "Darse Quran Academy";
-  return buildUpiVpaUrlFromSettings({ upiId, upiPayeeName: payeeName } as PaymentSettingsData);
-}
-
 export async function generateUpiQrDataUrl(upiUrl: string): Promise<string> {
   return QRCode.toDataURL(upiUrl, {
     width: 280,

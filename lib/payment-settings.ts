@@ -13,19 +13,19 @@ export type PaymentSettingsData = {
   bankBranch: string;
 };
 
-function envDefaults(): PaymentSettingsData {
+function defaultSettings(): PaymentSettingsData {
   return {
-    upiId: process.env.UPI_ID?.trim() ?? "",
-    upiPayeeName: process.env.UPI_PAYEE_NAME?.trim() || "Darse Quran Academy",
-    bankAccountName: process.env.BANK_ACCOUNT_NAME?.trim() || "Darse Quran Academy",
-    bankName: process.env.BANK_NAME?.trim() || "State Bank of India",
-    bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER?.trim() || "",
-    bankIfsc: process.env.BANK_IFSC?.trim() || "",
-    bankBranch: process.env.BANK_BRANCH?.trim() || "",
+    upiId: "",
+    upiPayeeName: "Darse Quran Academy",
+    bankAccountName: "Darse Quran Academy",
+    bankName: "",
+    bankAccountNumber: "",
+    bankIfsc: "",
+    bankBranch: "",
   };
 }
 
-function mergeWithEnv(row: {
+function rowToSettings(row: {
   upiId: string;
   upiPayeeName: string;
   bankAccountName: string;
@@ -34,15 +34,15 @@ function mergeWithEnv(row: {
   bankIfsc: string;
   bankBranch: string;
 }): PaymentSettingsData {
-  const env = envDefaults();
+  const defaults = defaultSettings();
   return {
-    upiId: row.upiId.trim() || env.upiId,
-    upiPayeeName: row.upiPayeeName.trim() || env.upiPayeeName,
-    bankAccountName: row.bankAccountName.trim() || env.bankAccountName,
-    bankName: row.bankName.trim() || env.bankName,
-    bankAccountNumber: row.bankAccountNumber.trim() || env.bankAccountNumber,
-    bankIfsc: row.bankIfsc.trim() || env.bankIfsc,
-    bankBranch: row.bankBranch.trim() || env.bankBranch,
+    upiId: row.upiId.trim(),
+    upiPayeeName: row.upiPayeeName.trim() || defaults.upiPayeeName,
+    bankAccountName: row.bankAccountName.trim() || defaults.bankAccountName,
+    bankName: row.bankName.trim(),
+    bankAccountNumber: row.bankAccountNumber.trim(),
+    bankIfsc: row.bankIfsc.trim(),
+    bankBranch: row.bankBranch.trim(),
   };
 }
 
@@ -52,10 +52,10 @@ export async function getPaymentSettings(): Promise<PaymentSettingsData> {
   });
 
   if (!row) {
-    return envDefaults();
+    return defaultSettings();
   }
 
-  return mergeWithEnv(row);
+  return rowToSettings(row);
 }
 
 export function toBankDetails(settings: PaymentSettingsData): BankDetails {

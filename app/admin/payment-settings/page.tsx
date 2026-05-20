@@ -16,9 +16,8 @@ export default async function AdminPaymentSettingsPage({
     <div>
       <h1 className="font-serif text-2xl font-bold text-primary">Payment details</h1>
       <p className="mt-1 max-w-2xl text-sm text-muted">
-        UPI and bank information shown to students when paying course fees. Values saved here
-        override server environment variables. Until you save, students see settings from{" "}
-        <code className="text-xs">.env</code> if present.
+        UPI and bank information shown to students when paying course fees. Configure these before
+        students enroll or pay monthly fees.
       </p>
 
       {params.saved === "1" ? (

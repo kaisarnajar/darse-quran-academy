@@ -100,20 +100,11 @@ npm run dev
 | `ADMIN_EMAIL` | Yes | Email address that receives admin access to `/admin`. Must match the signed-in user. |
 | `AUTH_GOOGLE_ID` | No | Google OAuth client ID. Leave empty to hide “Sign in with Google”. |
 | `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret. |
-| `UPI_ID` | Yes* | Your UPI VPA (e.g. `name@paytm`, `name@okicici`). Required for student payments. |
-| `UPI_PAYEE_NAME` | No | Display name on UPI QR (default: `Darse Quran Academy`). |
-| `BANK_ACCOUNT_NAME` | No | Bank transfer display name (see `.env.example`). |
-| `BANK_NAME` | No | Bank name for transfer instructions. |
-| `BANK_ACCOUNT_NUMBER` | No | Account number shown to students. |
-| `BANK_IFSC` | No | IFSC code. |
-| `BANK_BRANCH` | No | Branch label. |
 | `SMTP_HOST` | No | SMTP server host (e.g. `smtp.gmail.com`). |
 | `SMTP_PORT` | No | SMTP port (default `587`; use `465` for implicit TLS). |
 | `SMTP_USER` | No | SMTP login / sender email. |
 | `SMTP_PASS` | No | SMTP password or [Gmail app password](https://myaccount.google.com/apppasswords). |
 | `EMAIL_FROM` | No | From header (e.g. `"Darse Quran Academy <you@gmail.com>"`). Falls back to `SMTP_USER`. |
-
-\*Without `UPI_ID`, payment pages show “UPI payments are not configured.”
 
 ### Email behavior
 
@@ -134,8 +125,8 @@ If SMTP is not configured, emails are **logged to the server console** (includin
 
 ### UPI and monthly payments
 
-1. Set `UPI_ID` and optionally `UPI_PAYEE_NAME` in `.env`.
-2. Restart the dev server after changing `.env`.
+1. Admin → **Payment details** — set UPI ID, payee name, and bank account fields.
+2. Until UPI ID is saved, payment pages show “UPI payments are not configured.”
 
 **Typical flow:**
 
@@ -182,9 +173,6 @@ AUTH_SECRET=replace-with-openssl-rand-output
 DATABASE_URL="file:./dev.db"
 ADMIN_EMAIL=you@example.com
 
-UPI_ID=yourname@okicici
-UPI_PAYEE_NAME=Darse Quran Academy
-
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=you@gmail.com
@@ -227,10 +215,10 @@ docs/             # Deployment guide
 **Recommended:** [Vercel](https://vercel.com) (app) + [Neon](https://neon.tech) (PostgreSQL).
 
 1. Create a Neon project and copy `DATABASE_URL`.
-2. Import this repo on Vercel and set environment variables (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, `UPI_ID`, SMTP, etc.).
+2. Import this repo on Vercel and set environment variables (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, SMTP, etc.).
 3. Deploy — build runs `prisma migrate deploy` automatically ([`vercel.json`](vercel.json)).
 4. Seed once from your PC: `DATABASE_URL="..." npm run db:seed`
-5. Register with `ADMIN_EMAIL` and open `/admin`.
+5. Register with `ADMIN_EMAIL`, open `/admin`, and set **Payment details** (UPI / bank).
 
 Ensure certificate assets (`public/logo.png`, `public/icon-512.png`, `public/certificate/signature.png`) are present in the deployment. User uploads (payments, certificates, receipts) persist on the server filesystem — on serverless hosts, prefer object storage or accept ephemeral uploads unless you add external storage.
 
