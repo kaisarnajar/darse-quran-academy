@@ -87,7 +87,7 @@ export default async function CourseStudentsPage({
         {enrollments.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No students enrolled in this course yet.</p>
         ) : (
-          <table className="w-full min-w-[920px] text-left text-sm">
+          <table className="w-full min-w-[1000px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Name</th>
@@ -97,7 +97,7 @@ export default async function CourseStudentsPage({
                 <th className="px-4 py-3 font-medium">Paid</th>
                 <th className="px-4 py-3 font-medium">Completed</th>
                 <th className="px-4 py-3 font-medium">Certificate email</th>
-                <th className="px-4 py-3 font-medium" />
+                <th className="min-w-[12rem] px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -134,8 +134,8 @@ export default async function CourseStudentsPage({
                       ? enrollment.certificateEmailSentAt.toLocaleDateString("en-IN")
                       : "—"}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex flex-wrap justify-end gap-2">
+                  <td className="px-4 py-3 text-right align-top">
+                    <div className="flex flex-wrap items-start justify-end gap-2">
                       {enrollment.status === PENDING_ENROLLMENT_APPROVAL && (
                         <ApproveEnrollmentButton enrollmentId={enrollment.id} courseId={id} />
                       )}

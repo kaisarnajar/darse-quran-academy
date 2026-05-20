@@ -13,6 +13,9 @@ type SendCertificateButtonProps = {
   certificateEmailSentAt: Date | null;
 };
 
+const actionButtonClass =
+  "inline-flex min-h-9 items-center justify-center rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-60";
+
 export function SendCertificateButton({
   enrollmentId,
   courseId,
@@ -20,7 +23,6 @@ export function SendCertificateButton({
 }: SendCertificateButtonProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<"generate" | "upload" | null>(null);
 
   async function handleGenerate() {
@@ -39,7 +41,6 @@ export function SendCertificateButton({
     setLoading("generate");
     const result = await sendGeneratedCertificate(enrollmentId, courseId);
     setLoading(null);
-    setOpen(false);
 
     if (result.error) {
       window.alert(result.error);
@@ -67,7 +68,6 @@ export function SendCertificateButton({
     formData.set("certificate", file);
     const result = await uploadAndSendCertificate(enrollmentId, courseId, formData);
     setLoading(null);
-    setOpen(false);
 
     if (result.error) {
       window.alert(result.error);
@@ -82,50 +82,33 @@ export function SendCertificateButton({
   }
 
   return (
-    <div className="relative inline-block">
+    <div className="flex min-w-[11rem] flex-col items-stretch gap-1.5">
       <button
         type="button"
-        onClick={() => setOpen((value) => !value)}
+        onClick={handleGenerate}
         disabled={loading !== null}
-        className="rounded-md border border-accent-warm bg-accent-warm/10 px-3 py-1.5 text-xs font-semibold text-accent-warm hover:bg-accent-warm/20 disabled:opacity-60"
+        className={`${actionButtonClass} border-primary bg-primary text-white hover:bg-primary-light`}
       >
-        {loading ? "Sending…" : "Send certificate"}
+        {loading === "generate" ? "Sending…" : "Generate certificate"}
       </button>
-
-      {open && (
-        <>
-          <button
-            type="button"
-            className="fixed inset-0 z-10 cursor-default"
-            aria-label="Close menu"
-            onClick={() => setOpen(false)}
-          />
-          <div className="absolute right-0 z-20 mt-1 w-56 rounded-lg border border-border bg-surface py-1 shadow-lg">
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={loading !== null}
-              className="block w-full px-4 py-2 text-left text-sm text-foreground hover:bg-background/80 disabled:opacity-60"
-            >
-              Generate certificate
-            </button>
-            <label className="block w-full cursor-pointer px-4 py-2 text-sm text-foreground hover:bg-background/80">
-              Upload certificate
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/pdf"
-                className="sr-only"
-                disabled={loading !== null}
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void handleUpload(file);
-                }}
-              />
-            </label>
-          </div>
-        </>
-      )}
+      <label
+        className={`${actionButtonClass} cursor-pointer border-border bg-surface text-foreground hover:bg-background/80 ${
+          loading === "upload" ? "pointer-events-none opacity-60" : ""
+        }`}
+      >
+        {loading === "upload" ? "Uploading…" : "Upload certificate"}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf"
+          className="sr-only"
+          disabled={loading !== null}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void handleUpload(file);
+          }}
+        />
+      </label>
     </div>
   );
 }
