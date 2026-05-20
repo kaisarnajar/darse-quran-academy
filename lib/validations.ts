@@ -70,6 +70,21 @@ export const adminEnrollUserSchema = z.object({
   approveImmediately: z.coerce.boolean().optional(),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Enter a valid email address."),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Reset link is invalid."),
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    confirmPassword: z.string().min(1, "Confirm your new password."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
 export const paymentSettingsSchema = z.object({
   upiId: z.string().trim().max(120),
   upiPayeeName: z.string().trim().min(1, "Payee name is required.").max(100),

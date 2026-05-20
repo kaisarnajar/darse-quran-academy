@@ -12,6 +12,7 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const registered = searchParams.get("registered") === "1";
+  const passwordReset = searchParams.get("reset") === "1";
   const teacherProfileError = searchParams.get("error") === "teacher-profile";
 
   const [email, setEmail] = useState("");
@@ -58,6 +59,12 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
         </p>
       )}
 
+      {passwordReset && (
+        <p className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-900">
+          Your password was reset. Please sign in with your new password.
+        </p>
+      )}
+
       {teacherProfileError && (
         <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
           Your account is not linked as a teacher yet. Register first if needed, then ask the academy admin to
@@ -99,9 +106,17 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              Password
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground">
+                Password
+              </label>
+              <Link
+                href={`/forgot-password?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"

@@ -117,6 +117,10 @@ When `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` are set, the app sends:
 
 If SMTP is not configured, emails are **logged to the server console** (including download links) so you can still test locally.
 
+### Password reset
+
+Students and teachers who sign in with email and password can use **Forgot password?** on the sign-in page. Reset links are sent by email when SMTP is configured; otherwise the link is logged to the server console in development.
+
 ### Google OAuth (optional)
 
 1. Create credentials at [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth 2.0 Client ID, Web application).

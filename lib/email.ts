@@ -204,6 +204,59 @@ export async function sendPaymentDeclinedEmail(params: PaymentDeclinedEmailParam
   });
 }
 
+export type PasswordResetEmailParams = {
+  to: string;
+  resetUrl: string;
+};
+
+export async function sendPasswordResetEmail(params: PasswordResetEmailParams): Promise<void> {
+  const { to, resetUrl } = params;
+
+  const subject = "Reset your password — Darse Quran Academy";
+  const text = [
+    "Assalamu Alaikum,",
+    "",
+    "We received a request to reset the password for your Darse Quran Academy account.",
+    "",
+    "Use the link below to choose a new password. This link expires in one hour.",
+    resetUrl,
+    "",
+    "If you did not request this, you can ignore this email.",
+    "",
+    "Darse Quran Academy",
+  ].join("\n");
+
+  const html = [
+    '<div style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1c1917; max-width: 560px;">',
+    "<p>Assalamu Alaikum,</p>",
+    "<p>We received a request to reset the password for your Darse Quran Academy account.</p>",
+    "<p>Click the button below to choose a new password. This link expires in one hour.</p>",
+    '<p style="margin: 28px 0;">',
+    `<a href="${resetUrl}" style="background: #3730a3; color: #fff; padding: 12px 24px; border-radius: 9999px; text-decoration: none; font-weight: 600;">`,
+    "Reset password",
+    "</a></p>",
+    `<p style="font-size: 14px; color: #57534e;">Or copy this link: <a href="${resetUrl}">${escapeHtml(resetUrl)}</a></p>`,
+    "<p>If you did not request this, you can ignore this email.</p>",
+    '<p style="margin-top: 24px; font-size: 14px; color: #57534e;">— Darse Quran Academy</p>',
+    "</div>",
+  ].join("");
+
+  if (!isEmailConfigured()) {
+    console.info("[email] SMTP not configured. Password reset email would be sent to:", to);
+    console.info("[email] Reset link:", resetUrl);
+    return;
+  }
+
+  const transport = createTransport();
+  await transport.sendMail({
+    from: getFromAddress(),
+    to,
+    subject,
+    text,
+    html,
+  });
+}
+
 export async function sendFatwaAnswerEmail(params: FatwaAnswerEmailParams): Promise<void> {
   const { to, askerName, questionTitle, fatwaUrl } = params;
   const displayName = askerName || "Reader";

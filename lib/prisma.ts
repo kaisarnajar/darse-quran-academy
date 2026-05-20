@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
 /** Bump when the Prisma schema changes so dev HMR does not keep an outdated client. */
-const PRISMA_CLIENT_CACHE_KEY = "20260605120000_payment_settings";
+const PRISMA_CLIENT_CACHE_KEY = "20260619120000_password_reset_token";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -9,10 +9,10 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function prismaSchemaIsCurrent(): boolean {
-  const paymentSettings = Prisma.dmmf.datamodel.models.find(
-    (model) => model.name === "PaymentSettings",
+  const passwordResetToken = Prisma.dmmf.datamodel.models.find(
+    (model) => model.name === "PasswordResetToken",
   );
-  return paymentSettings !== undefined;
+  return passwordResetToken !== undefined;
 }
 
 function createPrismaClient() {
