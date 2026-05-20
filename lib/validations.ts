@@ -70,6 +70,16 @@ export const adminEnrollUserSchema = z.object({
   approveImmediately: z.coerce.boolean().optional(),
 });
 
+export const paymentSettingsSchema = z.object({
+  upiId: z.string().trim().max(120),
+  upiPayeeName: z.string().trim().min(1, "Payee name is required.").max(100),
+  bankAccountName: z.string().trim().min(1, "Account name is required.").max(120),
+  bankName: z.string().trim().min(1, "Bank name is required.").max(120),
+  bankAccountNumber: z.string().trim().min(1, "Account number is required.").max(40),
+  bankIfsc: z.string().trim().min(1, "IFSC is required.").max(20),
+  bankBranch: z.string().trim().max(200).optional().or(z.literal("")),
+});
+
 export const monthlyPaymentSubmitSchema = z.object({
   courseId: z.string().min(1),
   paymentMonth: z.string().regex(/^(0[1-9]|1[0-2])$/, "Select a valid month."),

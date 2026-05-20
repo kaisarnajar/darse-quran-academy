@@ -1,0 +1,55 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth-actions";
+import { PAYMENT_SETTINGS_ID } from "@/lib/payment-settings";
+import { prisma } from "@/lib/prisma";
+import { paymentSettingsSchema } from "@/lib/validations";
+
+function revalidatePaymentSettingsPaths() {
+  const paths = [
+    "/admin/payment-settings",
+    "/profile/payment-info",
+    "/profile/payments",
+    "/profile/courses",
+  ];
+  for (const path of paths) {
+    revalidatePath(path, "layout");
+    revalidatePath(path, "page");
+  }
+}
+
+export async function updatePaymentSettings(formData: FormData) {
+  await requireAdmin();
+
+  const parsed = paymentSettingsSchema.safeParse({
+    upiId: formData.get("upiId"),
+    upiPayeeName: formData.get("upiPayeeName"),
+    bankAccountName: formData.get("bankAccountName"),
+    bankName: formData.get("bankName"),
+    bankAccountNumber: formData.get("bankAccountNumber"),
+    bankIfsc: formData.get("bankIfsc"),
+    bankBranch: (formData.get("bankBranch") as string | null) ?? "",
+  });
+
+  if (!parsed.success) {
+    redirect(
+      `/admin/payment-settings?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid input")}`,
+    );
+  }
+
+  const data = {
+    ...parsed.data,
+    bankBranch: parsed.data.bankBranch?.trim() ?? "",
+  };
+
+  await prisma.paymentSettings.upsert({
+    where: { id: PAYMENT_SETTINGS_ID },
+    create: { id: PAYMENT_SETTINGS_ID, ...data },
+    update: data,
+  });
+
+  revalidatePaymentSettingsPaths();
+  redirect("/admin/payment-settings?saved=1");
+}

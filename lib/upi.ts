@@ -1,4 +1,6 @@
 import QRCode from "qrcode";
+import type { PaymentSettingsData } from "@/lib/payment-settings";
+import { getPaymentSettings } from "@/lib/payment-settings";
 
 export type UpiPaymentParams = {
   amountPaise: number;
@@ -7,36 +9,30 @@ export type UpiPaymentParams = {
   transactionRef: string;
 };
 
-export function isUpiConfigured(): boolean {
-  return Boolean(process.env.UPI_ID?.trim());
-}
-
-export function getUpiId(): string {
-  return process.env.UPI_ID?.trim() ?? "";
-}
-
-export function getUpiPayeeName(): string {
-  return process.env.UPI_PAYEE_NAME?.trim() || "Darse Quran Academy";
+export async function isUpiConfigured(): Promise<boolean> {
+  const settings = await getPaymentSettings();
+  return Boolean(settings.upiId.trim());
 }
 
 export function formatUpiAmount(amountPaise: number): string {
   return (amountPaise / 100).toFixed(2);
 }
 
-/** UPI QR / link without a fixed amount (for public payment info pages). */
-export function buildUpiVpaUrl(): string {
+export function buildUpiVpaUrlFromSettings(settings: PaymentSettingsData): string {
   const query = new URLSearchParams({
-    pa: getUpiId(),
-    pn: getUpiPayeeName().slice(0, 50),
+    pa: settings.upiId,
+    pn: settings.upiPayeeName.slice(0, 50),
     cu: "INR",
   });
   return `upi://pay?${query.toString()}`;
 }
 
-export function buildUpiPaymentUrl(params: UpiPaymentParams): string {
-  const vpa = getUpiId();
+export function buildUpiPaymentUrlFromSettings(
+  settings: PaymentSettingsData,
+  params: UpiPaymentParams,
+): string {
   const query = new URLSearchParams({
-    pa: vpa,
+    pa: settings.upiId,
     pn: params.payeeName.slice(0, 50),
     am: formatUpiAmount(params.amountPaise),
     cu: "INR",
@@ -44,6 +40,13 @@ export function buildUpiPaymentUrl(params: UpiPaymentParams): string {
     tr: params.transactionRef.slice(0, 35),
   });
   return `upi://pay?${query.toString()}`;
+}
+
+/** @deprecated Use buildUpiVpaUrlFromSettings with settings from getPaymentSettings(). */
+export function buildUpiVpaUrl(): string {
+  const upiId = process.env.UPI_ID?.trim() ?? "";
+  const payeeName = process.env.UPI_PAYEE_NAME?.trim() || "Darse Quran Academy";
+  return buildUpiVpaUrlFromSettings({ upiId, upiPayeeName: payeeName } as PaymentSettingsData);
 }
 
 export async function generateUpiQrDataUrl(upiUrl: string): Promise<string> {

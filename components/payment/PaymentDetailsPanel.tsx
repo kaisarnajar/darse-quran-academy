@@ -1,15 +1,13 @@
 import Image from "next/image";
 import { BankDetailsCard } from "@/components/payment/BankDetailsCard";
 import { CopyButton } from "@/components/payment/CopyButton";
-import { getBankDetails } from "@/lib/bank";
+import { getBankDetailsFromSettings } from "@/lib/bank";
 import {
-  buildUpiPaymentUrl,
-  buildUpiVpaUrl,
+  buildUpiPaymentUrlFromSettings,
+  buildUpiVpaUrlFromSettings,
   generateUpiQrDataUrl,
-  getUpiId,
-  getUpiPayeeName,
-  isUpiConfigured,
 } from "@/lib/upi";
+import { getPaymentSettings, isUpiConfiguredFromSettings } from "@/lib/payment-settings";
 
 type PaymentDetailsPanelProps = {
   /** Enrollment payment: fixed amount and reference for QR and bank transfer. */
@@ -25,22 +23,23 @@ export async function PaymentDetailsPanel({
   amountPaise,
   paymentNote = "Darse Quran Academy registration",
 }: PaymentDetailsPanelProps) {
-  const upiReady = isUpiConfigured();
-  const bank = getBankDetails();
-  const upiId = upiReady ? getUpiId() : "";
+  const settings = await getPaymentSettings();
+  const upiReady = isUpiConfiguredFromSettings(settings);
+  const bank = getBankDetailsFromSettings(settings);
+  const upiId = settings.upiId;
   const hasFixedAmount = amountPaise != null && amountLabel;
 
   const qrDataUrl =
     upiReady &&
     (await generateUpiQrDataUrl(
       hasFixedAmount
-        ? buildUpiPaymentUrl({
+        ? buildUpiPaymentUrlFromSettings(settings, {
             amountPaise: amountPaise!,
-            payeeName: getUpiPayeeName(),
+            payeeName: settings.upiPayeeName,
             note: paymentNote.slice(0, 80),
             transactionRef: paymentRef ?? `FEE-${Date.now()}`,
           })
-        : buildUpiVpaUrl(),
+        : buildUpiVpaUrlFromSettings(settings),
     ));
 
   return (

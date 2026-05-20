@@ -27,7 +27,7 @@ export default async function PayMonthlyFeePage({
     redirect("/profile/courses");
   }
 
-  if (!isUpiConfigured()) {
+  if (!(await isUpiConfigured())) {
     return (
       <div>
         <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">

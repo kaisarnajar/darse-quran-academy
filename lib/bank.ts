@@ -1,3 +1,5 @@
+import { getPaymentSettings, toBankDetails, type PaymentSettingsData } from "@/lib/payment-settings";
+
 export type BankDetails = {
   accountName: string;
   bankName: string;
@@ -6,13 +8,12 @@ export type BankDetails = {
   branch: string;
 };
 
-/** Academy bank account for NEFT / IMPS / RTGS (override via env in production). */
-export function getBankDetails(): BankDetails {
-  return {
-    accountName: process.env.BANK_ACCOUNT_NAME?.trim() || "Darse Quran Academy",
-    bankName: process.env.BANK_NAME?.trim() || "State Bank of India",
-    accountNumber: process.env.BANK_ACCOUNT_NUMBER?.trim() || "41234567890",
-    ifsc: process.env.BANK_IFSC?.trim() || "SBIN0001234",
-    branch: process.env.BANK_BRANCH?.trim() || "Srinagar, Jammu & Kashmir",
-  };
+/** Load bank details from admin payment settings (with env fallbacks). */
+export async function getBankDetails(): Promise<BankDetails> {
+  const settings = await getPaymentSettings();
+  return toBankDetails(settings);
+}
+
+export function getBankDetailsFromSettings(settings: PaymentSettingsData): BankDetails {
+  return toBankDetails(settings);
 }

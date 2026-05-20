@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please sign in." }, { status: 401 });
   }
 
-  if (!isUpiConfigured()) {
+  if (!(await isUpiConfigured())) {
     return NextResponse.json(
       { error: "Online payments are not configured yet. Please contact the academy." },
       { status: 503 },

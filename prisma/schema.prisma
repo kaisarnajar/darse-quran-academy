@@ -328,6 +328,19 @@ model PaymentRecord {
   @@index([paidAt])
 }
 
+/** Academy UPI and bank details (single row, id = "default"). Editable in admin. */
+model PaymentSettings {
+  id                String   @id @default("default")
+  upiId             String   @default("")
+  upiPayeeName      String   @default("Darse Quran Academy")
+  bankAccountName   String   @default("Darse Quran Academy")
+  bankName          String   @default("")
+  bankAccountNumber String   @default("")
+  bankIfsc          String   @default("")
+  bankBranch        String   @default("")
+  updatedAt         DateTime @updatedAt
+}
+
 /** Student-submitted monthly (or other) course fees awaiting admin approval. */
 model CoursePaymentSubmission {
   id                    String    @id @default(cuid())
