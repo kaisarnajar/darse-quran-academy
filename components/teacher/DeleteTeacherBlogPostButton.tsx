@@ -2,12 +2,27 @@
 
 import { deleteTeacherBlogPost } from "@/app/teacher/(portal)/blogs/actions";
 
-export function DeleteTeacherBlogPostButton({ id, title }: { id: string; title: string }) {
+type DeleteTeacherBlogPostButtonProps = {
+  id: string;
+  title: string;
+  /** When true, warn that the live public post will be removed. */
+  isPublished?: boolean;
+};
+
+export function DeleteTeacherBlogPostButton({
+  id,
+  title,
+  isPublished = false,
+}: DeleteTeacherBlogPostButtonProps) {
+  const message = isPublished
+    ? `Delete “${title}”? It will be removed from the public blog. This cannot be undone.`
+    : `Delete “${title}”? This cannot be undone.`;
+
   return (
     <form
       action={deleteTeacherBlogPost.bind(null, id)}
       onSubmit={(e) => {
-        if (!confirm(`Delete “${title}”? This cannot be undone.`)) {
+        if (!confirm(message)) {
           e.preventDefault();
         }
       }}

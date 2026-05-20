@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireTeacher } from "@/lib/auth-actions";
-import { canTeacherEditBlogPost } from "@/lib/blog-approval";
+import { canTeacherDeleteBlogPost, canTeacherEditBlogPost } from "@/lib/blog-approval";
 import {
   addImagesToPost,
   getRemoveImageIds,
@@ -109,8 +109,8 @@ export async function deleteTeacherBlogPost(id: string) {
     redirect(teacherListPath("?error=notfound"));
   }
 
-  if (!canTeacherEditBlogPost(existing, session.user.id)) {
-    redirect(teacherListPath("?error=locked"));
+  if (!canTeacherDeleteBlogPost(existing, session.user.id)) {
+    redirect(teacherListPath("?error=notfound"));
   }
 
   for (const img of existing.images) {

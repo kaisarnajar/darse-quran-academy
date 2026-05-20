@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { DeleteTeacherBlogPostButton } from "@/components/teacher/DeleteTeacherBlogPostButton";
 import { requireTeacher } from "@/lib/auth-actions";
-import { blogApprovalStatusClass, blogApprovalStatusLabel, canTeacherEditBlogPost } from "@/lib/blog-approval";
+import {
+  blogApprovalStatusClass,
+  blogApprovalStatusLabel,
+  canTeacherDeleteBlogPost,
+  canTeacherEditBlogPost,
+} from "@/lib/blog-approval";
 import { getTeacherBlogPosts } from "@/lib/blogs";
 
 export default async function TeacherBlogsPage({
@@ -73,6 +78,7 @@ export default async function TeacherBlogsPage({
             <tbody className="divide-y divide-border">
               {posts.map((post) => {
                 const editable = canTeacherEditBlogPost(post, session.user.id);
+                const deletable = canTeacherDeleteBlogPost(post, session.user.id);
                 return (
                   <tr key={post.id} className="hover:bg-background/30">
                     <td className="px-4 py-3 font-medium text-foreground">{post.title}</td>
@@ -103,15 +109,19 @@ export default async function TeacherBlogsPage({
                           </Link>
                         )}
                         {editable && (
-                          <>
-                            <Link
-                              href={`/teacher/blogs/${post.id}/edit`}
-                              className="font-medium text-teal hover:underline"
-                            >
-                              Edit
-                            </Link>
-                            <DeleteTeacherBlogPostButton id={post.id} title={post.title} />
-                          </>
+                          <Link
+                            href={`/teacher/blogs/${post.id}/edit`}
+                            className="font-medium text-teal hover:underline"
+                          >
+                            Edit
+                          </Link>
+                        )}
+                        {deletable && (
+                          <DeleteTeacherBlogPostButton
+                            id={post.id}
+                            title={post.title}
+                            isPublished={post.published && post.approvalStatus === "APPROVED"}
+                          />
                         )}
                       </div>
                     </td>

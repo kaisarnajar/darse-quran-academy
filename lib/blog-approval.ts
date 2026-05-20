@@ -35,6 +35,11 @@ export function canTeacherEditBlogPost(post: Pick<BlogPost, "approvalStatus" | "
   return post.createdById === userId && (post.approvalStatus === "PENDING" || post.approvalStatus === "REJECTED");
 }
 
+/** Teachers may delete their own posts at any approval stage. */
+export function canTeacherDeleteBlogPost(post: Pick<BlogPost, "createdById">, userId: string) {
+  return post.createdById === userId;
+}
+
 export async function getPendingBlogApprovalCount() {
   return prisma.blogPost.count({ where: { approvalStatus: "PENDING" } });
 }
