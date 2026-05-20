@@ -3,9 +3,11 @@ import path from "path";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { isAdminSession } from "@/lib/admin";
+import { getMonthlyFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
 import {
-  formatReceiptId,
+  buildReceiptLineDescription,
+  formatInvoiceNumber,
   generatePaymentReceiptPdf,
   getReceiptFilename,
 } from "@/lib/payment-receipt";
@@ -20,9 +22,11 @@ export async function GET(
   const record = await prisma.paymentRecord.findUnique({
     where: { id: paymentRecordId },
     include: {
-      user: { select: { id: true, name: true } },
+      user: {
+        select: { id: true, name: true, email: true, address: true, whatsapp: true },
+      },
       submission: {
-        select: { paymentMethod: true, upiTransactionId: true },
+        select: { paymentMethod: true, upiTransactionId: true, label: true },
       },
     },
   });
@@ -64,14 +68,35 @@ export async function GET(
     }
   }
 
-  const pdfBytes = await generatePaymentReceiptPdf({
-    receiptId: formatReceiptId(paymentRecordId),
-    studentName: record.user.name ?? "Student",
+  const unitPricePaise = course
+    ? Math.max(getMonthlyFeePaise(course), record.amountInrPaise)
+    : record.amountInrPaise;
+  const discountPercent =
+    unitPricePaise > record.amountInrPaise
+      ? Math.round(((unitPricePaise - record.amountInrPaise) / unitPricePaise) * 100)
+      : 0;
+
+  const lineDescription = buildReceiptLineDescription(
     courseTitle,
-    description: record.description ?? "Payment",
+    record.description ?? record.submission?.label ?? null,
+    course?.description ?? null,
+  );
+
+  const pdfBytes = await generatePaymentReceiptPdf({
+    invoiceNumber: formatInvoiceNumber(paymentRecordId),
+    studentName: record.user.name ?? "Student",
+    studentAddress: record.user.address,
+    studentPhone: record.user.whatsapp,
+    studentEmail: record.user.email,
+    courseTitle,
+    lineDescription,
+    quantity: 1,
+    unitPricePaise,
+    discountPercent,
     amountInrPaise: record.amountInrPaise,
     paidAt: record.paidAt,
     paymentMethod: record.submission?.paymentMethod ?? null,
+    paymentNote: record.description ?? record.submission?.label ?? null,
     upiTransactionId: record.submission?.upiTransactionId ?? null,
   });
 
