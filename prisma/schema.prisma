@@ -169,18 +169,20 @@ model Teacher {
 }
 
 model CourseAnnouncement {
-  id        String               @id @default(cuid())
-  courseId  String
-  teacherId String
-  category  AnnouncementCategory
-  title            String
-  body             String
-  attachmentPath   String?
-  attachmentName   String?
-  createdAt        DateTime             @default(now())
-  updatedAt DateTime             @updatedAt
-  course    Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher   Teacher              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  id             String               @id @default(cuid())
+  courseId       String
+  teacherId      String?
+  authorName     String
+  postedByAdmin  Boolean              @default(false)
+  category       AnnouncementCategory
+  title          String
+  body           String
+  attachmentPath String?
+  attachmentName String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  course         Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher        Teacher?             @relation(fields: [teacherId], references: [id], onDelete: SetNull)
 
   @@index([courseId])
   @@index([courseId, createdAt])

@@ -7,7 +7,7 @@ type AnnouncementCardProps = {
   category: AnnouncementCategory;
   title: string;
   body: string;
-  teacherName: string;
+  authorName: string;
   createdAt: Date;
   updatedAt: Date;
   attachmentPath?: string | null;
@@ -18,7 +18,7 @@ export function AnnouncementCard({
   category,
   title,
   body,
-  teacherName,
+  authorName,
   createdAt,
   updatedAt,
   attachmentPath,
@@ -38,7 +38,7 @@ export function AnnouncementCard({
         <AnnouncementAttachment attachmentPath={attachmentPath} attachmentName={attachmentName} />
       )}
       <p className="mt-4 text-xs text-muted">
-        Posted by {teacherName} · {formatAnnouncementDate(createdAt)}
+        Posted by {authorName} · {formatAnnouncementDate(createdAt)}
       </p>
     </article>
   );

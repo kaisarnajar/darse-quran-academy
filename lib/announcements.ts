@@ -44,6 +44,13 @@ export function formatAnnouncementDate(date: Date): string {
   });
 }
 
+export function getAnnouncementAuthorName(announcement: {
+  authorName: string;
+  teacher: { name: string } | null;
+}): string {
+  return announcement.authorName.trim() || announcement.teacher?.name || "Academy";
+}
+
 export async function getAnnouncementsForCourse(courseId: string) {
   return prisma.courseAnnouncement.findMany({
     where: { courseId },
@@ -63,6 +70,13 @@ export async function getAnnouncementForCourse(courseId: string, announcementId:
   });
 }
 
+export function canTeacherManageCourseAnnouncement(
+  announcement: Pick<CourseAnnouncement, "teacherId" | "postedByAdmin">,
+  teacherId: string,
+): boolean {
+  return !announcement.postedByAdmin && announcement.teacherId === teacherId;
+}
+
 export type CourseAnnouncementWithTeacher = CourseAnnouncement & {
-  teacher: { name: string };
+  teacher: { name: string } | null;
 };

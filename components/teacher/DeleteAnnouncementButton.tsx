@@ -6,9 +6,14 @@ import { useState } from "react";
 type DeleteAnnouncementButtonProps = {
   courseId: string;
   announcementId: string;
+  deleteAction?: (courseId: string, announcementId: string) => Promise<void>;
 };
 
-export function DeleteAnnouncementButton({ courseId, announcementId }: DeleteAnnouncementButtonProps) {
+export function DeleteAnnouncementButton({
+  courseId,
+  announcementId,
+  deleteAction = deleteCourseAnnouncement,
+}: DeleteAnnouncementButtonProps) {
   const [confirming, setConfirming] = useState(false);
 
   if (!confirming) {
@@ -26,7 +31,7 @@ export function DeleteAnnouncementButton({ courseId, announcementId }: DeleteAnn
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-xs text-muted">Delete this announcement?</span>
-      <form action={deleteCourseAnnouncement.bind(null, courseId, announcementId)}>
+      <form action={deleteAction.bind(null, courseId, announcementId)}>
         <button
           type="submit"
           className="rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700"

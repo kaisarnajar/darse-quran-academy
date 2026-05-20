@@ -70,6 +70,12 @@ export default async function AdminCoursesPage({
                     <CourseStatusBadge status={course.status} />
                   </td>
                   <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/admin/courses/${course.id}/announcements`}
+                      className="mr-4 text-primary hover:underline"
+                    >
+                      Announcements
+                    </Link>
                     <Link href={`/admin/courses/${course.id}/edit`} className="text-primary hover:underline">
                       Edit
                     </Link>

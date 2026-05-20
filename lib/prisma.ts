@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
 /** Bump when the Prisma schema changes so dev HMR does not keep an outdated client. */
-const PRISMA_CLIENT_CACHE_KEY = "20260619120000_password_reset_token";
+const PRISMA_CLIENT_CACHE_KEY = "20260620120000_course_announcement_admin";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;

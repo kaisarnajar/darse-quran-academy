@@ -1,26 +1,25 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  deleteAdminCourseAnnouncement,
+} from "@/app/admin/courses/[id]/announcements/actions";
 import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
 import { DeleteAnnouncementButton } from "@/components/teacher/DeleteAnnouncementButton";
-import { requireTeacher } from "@/lib/auth-actions";
-import {
-  canTeacherManageCourseAnnouncement,
-  getAnnouncementAuthorName,
-  getAnnouncementsForCourse,
-} from "@/lib/announcements";
-import { getTeacherCourseForPortal } from "@/lib/teacher-portal";
+import { requireAdmin } from "@/lib/auth-actions";
+import { getAnnouncementAuthorName, getAnnouncementsForCourse } from "@/lib/announcements";
+import { getCourseById } from "@/lib/courses";
 
-export default async function TeacherCourseAnnouncementsPage({
+export default async function AdminCourseAnnouncementsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; forbidden?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const query = await searchParams;
-  const { teacher } = await requireTeacher();
-  const course = await getTeacherCourseForPortal(teacher.id, id);
+  const course = await getCourseById(id);
 
   if (!course) notFound();
 
@@ -30,11 +29,11 @@ export default async function TeacherCourseAnnouncementsPage({
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted">
-          Post updates for enrolled students — exams, homework, materials, schedule, and more.
+          Post course-wide updates for enrolled students — schedule changes, academy notices, and more.
         </p>
         <Link
-          href={`/teacher/courses/${course.id}/announcements/new`}
-          className="btn-gold-solid inline-flex shrink-0 items-center justify-center px-5 py-2.5 text-xs"
+          href={`/admin/courses/${course.id}/announcements/new`}
+          className="inline-flex shrink-0 items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-light"
         >
           New announcement
         </Link>
@@ -60,21 +59,14 @@ export default async function TeacherCourseAnnouncementsPage({
           That announcement could not be found.
         </p>
       )}
-      {query.error === "forbidden" && (
-        <p className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Only your own announcements can be edited or deleted. Academy admin posts are managed from the admin portal.
-        </p>
-      )}
 
       {announcements.length === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
-          No announcements yet. Create one to notify your students.
+          No announcements for this course yet.
         </p>
       ) : (
         <ul className="mt-8 space-y-4">
-          {announcements.map((announcement) => {
-            const canManage = canTeacherManageCourseAnnouncement(announcement, teacher.id);
-            return (
+          {announcements.map((announcement) => (
             <li key={announcement.id}>
               <div className="relative">
                 <AnnouncementCard
@@ -87,25 +79,22 @@ export default async function TeacherCourseAnnouncementsPage({
                   attachmentPath={announcement.attachmentPath}
                   attachmentName={announcement.attachmentName}
                 />
-                {canManage ? (
-                  <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border pt-3">
-                    <Link
-                      href={`/teacher/courses/${course.id}/announcements/${announcement.id}/edit`}
-                      className="text-sm font-medium text-teal hover:underline"
-                    >
-                      Edit
-                    </Link>
-                    <DeleteAnnouncementButton courseId={course.id} announcementId={announcement.id} />
-                  </div>
-                ) : announcement.postedByAdmin ? (
-                  <p className="mt-3 border-t border-border pt-3 text-xs text-muted">
-                    Posted by the academy administration
-                  </p>
-                ) : null}
+                <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border pt-3">
+                  <Link
+                    href={`/admin/courses/${course.id}/announcements/${announcement.id}/edit`}
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    Edit
+                  </Link>
+                  <DeleteAnnouncementButton
+                    courseId={course.id}
+                    announcementId={announcement.id}
+                    deleteAction={deleteAdminCourseAnnouncement}
+                  />
+                </div>
               </div>
             </li>
-            );
-          })}
+          ))}
         </ul>
       )}
     </div>

@@ -1,10 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { requireTeacher } from "@/lib/auth-actions";
-import {
-  canTeacherManageCourseAnnouncement,
-} from "@/lib/announcements";
+import { requireAdmin } from "@/lib/auth-actions";
 import {
   getCourseAnnouncementAttachmentFile,
   parseCourseAnnouncementForm,
@@ -16,24 +13,30 @@ import {
   saveAnnouncementAttachment,
   validateAnnouncementAttachment,
 } from "@/lib/announcement-upload";
-import { getTeacherCourseForPortal } from "@/lib/teacher-portal";
+import { getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 
 function announcementFormPath(courseId: string, suffix = "") {
-  return `/teacher/courses/${courseId}/announcements${suffix}`;
+  return `/admin/courses/${courseId}/announcements${suffix}`;
 }
 
-async function requireTeacherCourse(courseId: string) {
-  const { teacher } = await requireTeacher();
-  const course = await getTeacherCourseForPortal(teacher.id, courseId);
+async function requireAdminCourse(courseId: string) {
+  await requireAdmin();
+  const course = await getCourseById(courseId);
   if (!course) {
-    redirect("/teacher");
+    redirect("/admin/courses");
   }
-  return { teacher, course };
+  return course;
 }
 
-export async function createCourseAnnouncement(courseId: string, formData: FormData) {
-  const { teacher } = await requireTeacherCourse(courseId);
+function adminAuthorName(session: Awaited<ReturnType<typeof requireAdmin>>) {
+  const name = session.user?.name?.trim();
+  return name ? `${name} (Admin)` : "Academy Admin";
+}
+
+export async function createAdminCourseAnnouncement(courseId: string, formData: FormData) {
+  const session = await requireAdmin();
+  await requireAdminCourse(courseId);
   const parsed = parseCourseAnnouncementForm(formData);
 
   if (!parsed.success) {
@@ -55,9 +58,9 @@ export async function createCourseAnnouncement(courseId: string, formData: FormD
   const announcement = await prisma.courseAnnouncement.create({
     data: {
       courseId,
-      teacherId: teacher.id,
-      authorName: teacher.name,
-      postedByAdmin: false,
+      teacherId: null,
+      authorName: adminAuthorName(session),
+      postedByAdmin: true,
       category: parsed.data.category,
       title: parsed.data.title,
       body: parsed.data.body,
@@ -76,12 +79,13 @@ export async function createCourseAnnouncement(courseId: string, formData: FormD
   redirect(`${announcementFormPath(courseId)}?posted=1`);
 }
 
-export async function updateCourseAnnouncement(
+export async function updateAdminCourseAnnouncement(
   courseId: string,
   announcementId: string,
   formData: FormData,
 ) {
-  const { teacher } = await requireTeacherCourse(courseId);
+  await requireAdmin();
+  await requireAdminCourse(courseId);
   const parsed = parseCourseAnnouncementForm(formData);
 
   if (!parsed.success) {
@@ -95,9 +99,6 @@ export async function updateCourseAnnouncement(
   });
   if (!existing) {
     redirect(`${announcementFormPath(courseId)}?error=notfound`);
-  }
-  if (!canTeacherManageCourseAnnouncement(existing, teacher.id)) {
-    redirect(`${announcementFormPath(courseId)}?error=forbidden`);
   }
 
   const attachmentUpdate = await resolveCourseAnnouncementAttachment(formData, announcementId, existing);
@@ -121,17 +122,15 @@ export async function updateCourseAnnouncement(
   redirect(`${announcementFormPath(courseId)}?saved=1`);
 }
 
-export async function deleteCourseAnnouncement(courseId: string, announcementId: string) {
-  const { teacher } = await requireTeacherCourse(courseId);
+export async function deleteAdminCourseAnnouncement(courseId: string, announcementId: string) {
+  await requireAdmin();
+  await requireAdminCourse(courseId);
 
   const existing = await prisma.courseAnnouncement.findFirst({
     where: { id: announcementId, courseId },
   });
   if (!existing) {
     redirect(`${announcementFormPath(courseId)}?error=notfound`);
-  }
-  if (!canTeacherManageCourseAnnouncement(existing, teacher.id)) {
-    redirect(`${announcementFormPath(courseId)}?error=forbidden`);
   }
 
   await deleteAnnouncementAttachment(existing.attachmentPath);

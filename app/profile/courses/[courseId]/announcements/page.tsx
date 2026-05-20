@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
 import { requireUser } from "@/lib/auth-actions";
-import { getAnnouncementsForCourse } from "@/lib/announcements";
+import { getAnnouncementAuthorName, getAnnouncementsForCourse } from "@/lib/announcements";
 import { getStudentCourseForAnnouncements } from "@/lib/student-announcements";
 
 export default async function StudentCourseAnnouncementsPage({
@@ -26,7 +26,7 @@ export default async function StudentCourseAnnouncementsPage({
       </Link>
       <h2 className="mt-4 font-serif text-xl font-semibold text-foreground">{course.title}</h2>
       <p className="mt-1 text-sm text-muted">
-        Announcements from {course.teacher?.name ?? "your instructor"}
+        Course announcements from your instructor and the academy
       </p>
 
       {announcements.length === 0 ? (
@@ -41,7 +41,7 @@ export default async function StudentCourseAnnouncementsPage({
                 category={announcement.category}
                 title={announcement.title}
                 body={announcement.body}
-                teacherName={announcement.teacher.name}
+                authorName={getAnnouncementAuthorName(announcement)}
                 createdAt={announcement.createdAt}
                 updatedAt={announcement.updatedAt}
                 attachmentPath={announcement.attachmentPath}

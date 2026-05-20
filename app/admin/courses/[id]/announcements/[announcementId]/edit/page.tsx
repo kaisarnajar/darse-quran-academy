@@ -1,35 +1,35 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { updateCourseAnnouncement } from "@/app/teacher/courses/actions";
+import { updateAdminCourseAnnouncement } from "@/app/admin/courses/[id]/announcements/actions";
 import { AnnouncementForm } from "@/components/teacher/AnnouncementForm";
-import { requireTeacher } from "@/lib/auth-actions";
-import { canTeacherManageCourseAnnouncement, getAnnouncementForCourse } from "@/lib/announcements";
-import { getTeacherCourseForPortal } from "@/lib/teacher-portal";
+import { requireAdmin } from "@/lib/auth-actions";
+import { getAnnouncementForCourse } from "@/lib/announcements";
+import { getCourseById } from "@/lib/courses";
 
-export default async function EditCourseAnnouncementPage({
+export default async function AdminEditCourseAnnouncementPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string; announcementId: string }>;
   searchParams: Promise<{ error?: string }>;
 }) {
+  await requireAdmin();
   const { id, announcementId } = await params;
   const { error } = await searchParams;
-  const { teacher } = await requireTeacher();
-  const course = await getTeacherCourseForPortal(teacher.id, id);
+  const course = await getCourseById(id);
 
   if (!course) notFound();
 
   const announcement = await getAnnouncementForCourse(course.id, announcementId);
-  if (!announcement || !canTeacherManageCourseAnnouncement(announcement, teacher.id)) notFound();
+  if (!announcement) notFound();
 
-  const action = updateCourseAnnouncement.bind(null, course.id, announcement.id);
+  const action = updateAdminCourseAnnouncement.bind(null, course.id, announcement.id);
 
   return (
     <div>
       <Link
-        href={`/teacher/courses/${course.id}/announcements`}
-        className="text-sm font-medium text-teal hover:underline"
+        href={`/admin/courses/${course.id}/announcements`}
+        className="text-sm font-medium text-primary hover:underline"
       >
         ← Back to announcements
       </Link>
