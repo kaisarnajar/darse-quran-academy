@@ -62,11 +62,13 @@ Do **not** add seed to the Vercel build command (it would reset data on every de
 
 ---
 
-## 4. Create admin user
+## 4. Create admin user and site settings
 
 1. Open `https://your-project.vercel.app/register`.
-2. Register with an email listed in `ADMIN_EMAIL`.
-3. Visit `/admin` → **Payment details** and enter UPI / bank information.
+2. Register with an email listed in `ADMIN_EMAIL` (comma-separated list supported).
+3. Visit `/admin` and configure:
+   - **Payment details** — UPI ID, payee name, bank account (required before students can pay).
+   - **Social links** — contact email, WhatsApp number, Facebook / Instagram / YouTube URLs (shown on footer `/#contact`, About Us, top bar, and floating WhatsApp button).
 
 ---
 
@@ -80,10 +82,13 @@ Do **not** add seed to the Vercel build command (it would reset data on every de
 
 ## 6. Verify
 
-- [ ] Homepage and `/courses`
-- [ ] Register / login
-- [ ] UPI enroll → pay → submit UTR → Admin → **Enrollments** → confirm
+- [ ] Homepage (hero with Bismillah, featured courses) and `/courses`
+- [ ] Footer **Contact** (`/#contact`) and **About Us** show admin-configured email and WhatsApp
+- [ ] Top bar social icons and floating WhatsApp button use admin URLs
+- [ ] Register / login; forgot-password email (or link in function logs if SMTP off)
+- [ ] UPI enroll → pay → submit UTR → Admin → **Enrollments** / **Payment approvals**
 - [ ] Mark complete → certificate on **My Courses**
+- [ ] Admin **course announcements**; teacher **private message** to one student
 - [ ] Fatwa ask → admin answer → public `/fatwa`
 - [ ] Re-enroll shows “already enrolled” message
 
@@ -111,7 +116,9 @@ Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local Po
 |-------|-----|
 | Build fails on `migrate deploy` | Set `DATABASE_URL` on Vercel; use Neon direct URL if pooler errors |
 | “UPI not configured” | Admin → **Payment details** — save a UPI ID |
+| Wrong contact email / social links | Admin → **Social links** — save and refresh homepage |
 | Admin 403 | Signed-in email must be listed in `ADMIN_EMAIL` (comma-separated) |
+| Schema errors after deploy | Ensure build ran `prisma migrate deploy`; redeploy latest `master` |
 | Emails not sent | Set SMTP vars, or check Vercel **Functions** logs for logged links |
 | OAuth redirect error | `AUTH_URL` must match live domain; update Google redirect URI |
 
@@ -126,3 +133,10 @@ Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local Po
 | **Fly.io** | Container + volume or Fly Postgres |
 
 For all hosts: set the same env vars and run `prisma migrate deploy` before or during build.
+
+---
+
+## Related docs
+
+- **[README.md](../README.md)** — features, local setup, environment variables
+- **[QA-TESTING-GUIDE.md](QA-TESTING-GUIDE.md)** — manual test checklist (student / teacher / admin, mobile / pad / PC)

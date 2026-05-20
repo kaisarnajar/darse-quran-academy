@@ -5,7 +5,8 @@ Online Islamic learning platform built with **Next.js 16**, **React 19**, **Pris
 ## Features
 
 ### Public site
-- **Homepage** — featured courses, academy announcements (up to four), verse/hadith of the day, student testimonials, Fatwa section
+- **Homepage** — hero with Bismillah (Arabic + English), featured courses, academy announcements (up to four), verse/hadith of the day, student testimonials, Fatwa section
+- **Contact** — footer `#contact` and About Us show academy email, WhatsApp, and social links (configured in admin)
 - **Courses**, **teachers**, **digital library**, **blog** (approved posts), **announcements**, and **Fatwa Q&A** (answered questions with category filters)
 - **Fatwa categories** — Islam, Quran, Hadith, Fiqh, Tajweed, Seerah, Arabic Language, Atheism, Fatwa, Other
 
@@ -13,22 +14,25 @@ Online Islamic learning platform built with **Next.js 16**, **React 19**, **Pris
 - Accounts via email/password and optional Google sign-in
 - **My Profile** (`/profile`) — registration details required before enrolling (name, father's name, date of birth, occupation, address, WhatsApp, email)
 - **Enrollment** — per-course enrollment and monthly fees set by admin; free enrollment requests when the enrollment fee is ₹0
-- **My Courses** (`/profile/courses`) — course access, monthly fee payment (UPI/bank), course announcements, certificate download when complete
+- **My Courses** (`/profile/courses`) — course access, monthly fee payment (UPI/bank), course announcements (course-wide and private messages from your teacher), certificate download when complete
 - **Payments** (`/profile/payments`) — payment history and **download receipt** for approved monthly payments
-- **Reviews** (`/profile/reviews`) — submit testimonials for admin approval (may appear on the homepage)
+- **Reviews** (`/profile/reviews`) — submit testimonials for admin approval (may appear on the homepage); edit, resubmit, or delete your own reviews
 - Resubmit payment if an admin **declines** a monthly fee submission
 
 ### Teachers (`/teacher`)
 - Portal login linked by email
-- Manage assigned courses, post **course announcements** (with optional attachments)
-- Submit **blog posts** for admin approval before they appear on the public blog
+- Manage assigned courses: **course-wide announcements** (all students) and **private messages** per student (e.g. exam marks), with optional attachments
+- Submit **blog posts** for admin approval; edit or delete your own posts at any approval stage
 
 ### Admins (`/admin`)
 - **Dashboard** — counts and quick links
-- **Content** — announcements (optional homepage feature), blogs, verse & hadith of the day, courses (per-course enrollment + monthly fees), teachers, library, Fatwa answers
+- **Content** — site announcements (optional homepage feature), blogs, verse & hadith of the day, courses (per-course enrollment + monthly fees, **course announcements**), teachers, library, Fatwa answers
+- **Payment details** — UPI ID, payee name, and bank account (stored in the database, not `.env`)
+- **Social links** — contact email, WhatsApp number, default chat message, Facebook / Instagram / YouTube URLs (footer, About Us, top bar, floating button)
 - **Students & enrollments** — student profiles, enrollment requests, payment verification on course rosters
-- **Approvals** (sidebar, after Fatwa) — **blog approvals**, **review approvals**, **payment approvals**
+- **Approvals** — **blog approvals**, **review approvals** (approve, feature/unfeature homepage, view all reviews), **payment approvals**
 - **Courses → Students** — approve enrollments, confirm/decline payments, mark **complete**, **generate/upload certificate** and email students
+- **Courses → Announcements** — post course-wide announcements for any course (teachers cannot edit admin posts)
 - **Payment approvals** — approve monthly fees, then **generate/upload receipt** and email students
 
 ## Prerequisites
@@ -114,6 +118,7 @@ When `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` are set, the app sends:
 - **Payment receipt emails** when an admin sends a receipt (generate or upload)
 - **Fatwa answer emails** when an admin publishes an answer
 - **Payment declined emails** when an admin declines a monthly payment
+- **Password reset emails** when a user requests forgot-password (link also logged if SMTP fails)
 
 If SMTP is not configured, emails are **logged to the server console** (including download links) so you can still test locally.
 
@@ -127,9 +132,15 @@ Students and teachers who sign in with email and password can use **Forgot passw
 2. Authorized redirect URI: `{AUTH_URL}/api/auth/callback/google`
 3. Set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in `.env`.
 
+### Contact email and social links
+
+1. Admin → **Social links** — set academy contact email, WhatsApp, and social network URLs.
+2. Changes appear on the homepage footer (`/#contact`), **About Us → Contact Us**, top bar icons, and the floating WhatsApp button.
+3. Leave a social URL blank to hide that icon on the public site.
+
 ### UPI and monthly payments
 
-1. Admin → **Payment details** — set UPI ID, payee name, and bank account fields.
+1. Admin → **Payment details** — set UPI ID, payee name, and bank account fields (saved in the database).
 2. Until UPI ID is saved, payment pages show “UPI payments are not configured.”
 
 **Typical flow:**
@@ -206,12 +217,12 @@ EMAIL_FROM="Darse Quran Academy <you@gmail.com>"
 ```
 app/              # Next.js App Router (public, profile, admin, teacher, API routes)
 components/       # UI (site, admin, auth, payment, fatwa, profile, home)
-content/          # Static seed data (courses, teachers, library)
+content/          # Static copy (courses, teachers, library, hadith quote, bismillah)
 lib/              # Auth, Prisma, email, UPI, certificates, receipts, validations
 prisma/           # Schema, migrations, seed
 public/           # Static assets, uploads/ (payments, certificates, receipts)
 scripts/          # Logo optimization, certificate asset builder
-docs/             # Deployment guide
+docs/             # Deployment guide and QA testing checklist
 ```
 
 ## Deployment (free testing)
@@ -222,11 +233,12 @@ docs/             # Deployment guide
 2. Import this repo on Vercel and set environment variables (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, SMTP, etc.).
 3. Deploy — build runs `prisma migrate deploy` automatically ([`vercel.json`](vercel.json)).
 4. Seed once from your PC: `DATABASE_URL="..." npm run db:seed`
-5. Register with an email from `ADMIN_EMAIL`, open `/admin`, and set **Payment details** (UPI / bank).
+5. Register with an email from `ADMIN_EMAIL`, open `/admin`, and set **Payment details** (UPI / bank) and **Social links** (email, WhatsApp, social URLs).
 
 Ensure certificate assets (`public/logo.png`, `public/icon-512.png`, `public/certificate/signature.png`) are present in the deployment. User uploads (payments, certificates, receipts) persist on the server filesystem — on serverless hosts, prefer object storage or accept ephemeral uploads unless you add external storage.
 
-Full checklist, OAuth, SMTP, and troubleshooting: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
+Full checklist, OAuth, SMTP, and troubleshooting: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**  
+Manual QA checklist (student / teacher / admin, mobile / pad / PC): **[docs/QA-TESTING-GUIDE.md](docs/QA-TESTING-GUIDE.md)**
 
 | Platform | SQLite | PostgreSQL |
 |----------|--------|------------|

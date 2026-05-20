@@ -2,7 +2,7 @@
 
 **Purpose:** Manual testing checklist for QA before release.  
 **Application URL (local):** `http://localhost:3000` (or your staging/production URL)  
-**Last updated:** May 2026
+**Last updated:** June 2026
 
 ---
 
@@ -40,7 +40,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | Check | Mobile | Pad | PC | Expected |
 |-------|:------:|:---:|:----:|----------|
 | Header logo and navigation usable | ☐ | ☐ | ☐ | Logo visible; menu opens on mobile; all main links reachable |
-| Footer readable, links work | ☐ | ☐ | ☐ | Contact block, quick links, social/WhatsApp |
+| Footer readable, links work | ☐ | ☐ | ☐ | Contact block (`#contact`): admin email, WhatsApp, social chips; quick links |
 | Text not cut off / overlapping | ☐ | ☐ | ☐ | No clipped headings or buttons |
 | Forms usable (inputs, submit) | ☐ | ☐ | ☐ | Fields full width on mobile; keyboard does not hide submit |
 | Images / cards scale correctly | ☐ | ☐ | ☐ | No broken layout on course/blog cards |
@@ -83,7 +83,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | After payment approved | Admin approves → admin sends receipt | Student can download invoice-style PDF from Payments | ☐ | ☐ | ☐ |
 | Declined payment | Admin declines | Student sees message; can resubmit from course pay page | ☐ | ☐ | ☐ |
 | Certificate | Admin marks complete + sends certificate | **Download certificate** on My Courses works | ☐ | ☐ | ☐ |
-| Course announcements | `/profile/courses/[courseId]/announcements` | Student sees teacher/admin posts for enrolled course | ☐ | ☐ | ☐ |
+| Course announcements | `/profile/courses/[courseId]/announcements` | **For you** (private teacher messages) and **Course-wide** sections; admin and teacher posts visible as appropriate | ☐ | ☐ | ☐ |
 
 ---
 
@@ -94,10 +94,12 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | Section | URL | Expected behavior | Mobile | Pad | PC |
 |---------|-----|-------------------|:------:|:---:|:----:|
 | **My courses** | `/teacher` | Lists assigned courses; message if none assigned | ☐ | ☐ | ☐ |
-| **Course detail** | `/teacher/courses/[id]` | Roster read-only (student names/contacts); link to announcements | ☐ | ☐ | ☐ |
-| **Course announcements** | `/teacher/courses/[id]/announcements` | List, create, edit, delete announcements; optional file attachment | ☐ | ☐ | ☐ |
+| **Course detail** | `/teacher/courses/[id]` | Roster read-only; **Message student** link per row | ☐ | ☐ | ☐ |
+| **Course announcements** | `/teacher/courses/[id]/announcements` | Course-wide list; create, edit, delete **own** posts; cannot edit admin posts | ☐ | ☐ | ☐ |
+| **Student messages** | `/teacher/courses/[id]/students/[enrollmentId]/announcements` | Private announcements for one student only; create, edit, delete | ☐ | ☐ | ☐ |
 | **My blogs** | `/teacher/blogs` | List own posts with status (draft, pending, approved, rejected) | ☐ | ☐ | ☐ |
 | **New / edit blog** | `/teacher/blogs/new`, `.../edit` | Create/edit post; submit for admin approval | ☐ | ☐ | ☐ |
+| **Delete blog** | Teacher blogs list or edit | Can delete own post at any approval stage | ☐ | ☐ | ☐ |
 | Sign out | Sidebar | Confirmation dialog before sign out | ☐ | ☐ | ☐ |
 
 ---
@@ -112,16 +114,18 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | **Announcements** | `/admin/announcements` | CRUD site-wide announcements; toggle **show on homepage** (max 4 featured) | ☐ | ☐ | ☐ |
 | **Blogs** | `/admin/blogs` | Admin-authored blog posts | ☐ | ☐ | ☐ |
 | **Verse & Hadith** | `/admin/daily-inspiration` | Daily Quran verse / Hadith for homepage | ☐ | ☐ | ☐ |
-| **Courses** | `/admin/courses` | Create/edit courses; fees, teacher, status (draft/published/etc.) | ☐ | ☐ | ☐ |
-| **Course students** | `/admin/courses/[id]/students` | Approve enrollments; confirm/decline registration payment; mark **complete**; generate/upload **certificate** and email student | ☐ | ☐ | ☐ |
+| **Courses** | `/admin/courses` | Create/edit courses; fees, teacher, status; **Announcements** link per course | ☐ | ☐ | ☐ |
+| **Course students** | `/admin/courses/[id]/students` | Approve enrollments; confirm/decline registration payment; mark **complete**; generate/upload **certificate** and email student; nav: Students \| Announcements | ☐ | ☐ | ☐ |
+| **Course announcements** | `/admin/courses/[id]/announcements` | Post course-wide announcements for any course; edit/delete all posts on that course | ☐ | ☐ | ☐ |
 | **Enrollments** | `/admin/enrollments` | Pending enrollment requests across courses | ☐ | ☐ | ☐ |
-| **Payment details** | `/admin/payment-settings` | Set UPI ID, payee name, bank account (shown to students) | ☐ | ☐ | ☐ |
+| **Payment details** | `/admin/payment-settings` | Set UPI ID, payee name, bank account (shown to students on payment pages) | ☐ | ☐ | ☐ |
+| **Social links** | `/admin/social-links` | Contact email, WhatsApp number, default message, Facebook / Instagram / YouTube URLs; blank URL hides icon | ☐ | ☐ | ☐ |
 | **Students** | `/admin/students` | List students; view profile; remove enrollment / delete student where allowed | ☐ | ☐ | ☐ |
 | **Teachers** | `/admin/teachers` | Add/edit teachers (link to registered email) | ☐ | ☐ | ☐ |
 | **Library** | `/admin/library` | Digital resources (PDF/links) for public Resources page | ☐ | ☐ | ☐ |
 | **Fatwa** | `/admin/fatwa` | Answer questions; publish to public `/fatwa`; email asker when answered | ☐ | ☐ | ☐ |
 | **Blog approvals** | `/admin/blog-approvals` | Approve/reject teacher blog posts | ☐ | ☐ | ☐ |
-| **Review approvals** | `/admin/review-approvals` | Approve/reject student testimonials for homepage | ☐ | ☐ | ☐ |
+| **Review approvals** | `/admin/review-approvals` | Approve/reject testimonials; **Remove from homepage** keeps review in **All reviews**; re-feature from All reviews | ☐ | ☐ | ☐ |
 | **Payment approvals** | `/admin/payment-approvals` | Approve monthly payments; **generate/upload receipt** and email student | ☐ | ☐ | ☐ |
 | Sign out | Sidebar | Confirmation dialog before sign out | ☐ | ☐ | ☐ |
 
@@ -131,8 +135,8 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 | Page | URL | Expected behavior | Mobile | Pad | PC |
 |------|-----|-------------------|:------:|:---:|:----:|
-| **Home** | `/` | Hero, feature cards, verse/hadith of the day, featured courses (up to 6), homepage announcements (up to 4), about snippet, experience banner, testimonials, fatwa teaser, learn accordion; footer **Contact** section | ☐ | ☐ | ☐ |
-| **About Us** | `/about` | Mission, values, academy description; **Contact Us** section with contact details | ☐ | ☐ | ☐ |
+| **Home** | `/` | Hero: Bismillah (Arabic, Indo-Pak font) + English on the **right**, academy title and tagline on the **left**; feature cards, verse/hadith, featured courses (up to 6), homepage announcements (up to 4), testimonials, fatwa teaser; footer **Contact** | ☐ | ☐ | ☐ |
+| **About Us** | `/about` | Mission, values; **Contact Us** shows admin **email** and **WhatsApp** (same as footer) | ☐ | ☐ | ☐ |
 | **Courses** | `/courses` | Lists published/ongoing courses; filter/browse; link to course detail | ☐ | ☐ | ☐ |
 | **Course detail** | `/courses/[id]` | Description, fees, teacher, enroll button (sign-in required); enrollment fee / free flow | ☐ | ☐ | ☐ |
 | **Announcements** | `/announcements` | All published site announcements; open detail page | ☐ | ☐ | ☐ |
@@ -145,7 +149,8 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | **Fatwa detail** | `/fatwa/[id]` | Question and scholar’s answer | ☐ | ☐ | ☐ |
 | **Ask Fatwa** | `/fatwa/ask` | Signed-in users submit question; success message; email when answered (if SMTP on) | ☐ | ☐ | ☐ |
 | **Resources (Library)** | `/library` | Download/view library items added by admin | ☐ | ☐ | ☐ |
-| **Contact Us** | `/#contact` (header) or footer on any page | Scrolls to footer contact: email, WhatsApp, social links; WhatsApp floating button works | ☐ | ☐ | ☐ |
+| **Contact Us** | `/#contact` (header) or footer on any page | Scrolls to footer **Contact**: admin-configured email (mailto), WhatsApp, social link chips; floating WhatsApp uses admin number | ☐ | ☐ | ☐ |
+| **Top bar** | All pages | Facebook / Instagram / YouTube icons match **Admin → Social links**; hidden if URL blank | ☐ | ☐ | ☐ |
 
 ### Public navigation
 
@@ -153,7 +158,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 |------|----------|:------:|:---:|:----:|
 | Header links | Home, About Us, Courses, Announcements, Blog, Teachers, Fatwa, Resources, Contact Us | ☐ | ☐ | ☐ |
 | Mobile menu | Hamburger opens/closes; all links work | ☐ | ☐ | N/A |
-| Footer links | Match main sections; mailto and WhatsApp links open correctly | ☐ | ☐ | ☐ |
+| Footer links | Match main sections; contact email mailto, WhatsApp, social links open correctly | ☐ | ☐ | ☐ |
 
 ---
 
@@ -168,16 +173,31 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 ---
 
-## 9. Known limitations (not bugs)
+## 9. Admin content sync (quick checks)
+
+After changing **Social links** or **Payment details**, refresh the public site and confirm:
+
+| Admin change | Where to verify |
+|--------------|-----------------|
+| Contact email | Footer `/#contact`, **About Us → Contact Us** |
+| WhatsApp number / message | Footer, About Us, floating green button |
+| Social URLs | Top bar icons, footer contact chips |
+| UPI / bank | **Profile → Payment info**, course pay pages |
+
+---
+
+## 10. Known limitations (not bugs)
 
 - **SMTP:** Password reset, certificates, receipts, fatwa emails require SMTP env vars; without SMTP, links may only appear in server logs (local dev).
 - **Google sign-in:** Only shown if Google OAuth env vars are set.
 - **Teachers** cannot access student `/profile` (by design).
+- **Teachers** cannot edit or delete admin course announcements (by design).
+- **Payment / social settings** are stored in the database (admin UI), not in `.env`.
 - **Uploaded files** on serverless hosting may not persist forever unless external storage is added.
 
 ---
 
-## 10. Bug report template
+## 11. Bug report template
 
 ```
 Title: [short description]
@@ -194,7 +214,7 @@ Screenshot:
 
 ---
 
-## 11. Sign-off
+## 12. Sign-off
 
 | Tester name | Date | Environment (local/staging/prod) | Build / commit |
 |-------------|------|----------------------------------|----------------|
