@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { DeleteSiteAnnouncementButton } from "@/components/admin/DeleteSiteAnnouncementButton";
-import { getAllSiteAnnouncementsForAdmin } from "@/lib/site-announcements";
+import { ToggleHomepageAnnouncementButton } from "@/components/admin/ToggleHomepageAnnouncementButton";
+import {
+  getAllSiteAnnouncementsForAdmin,
+  HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
+} from "@/lib/site-announcements";
 
 function statusBadge(published: boolean, showOnHomepage: boolean) {
   if (!published) return { label: "Draft", className: "bg-stone-200 text-stone-800" };
@@ -22,7 +26,9 @@ export default async function AdminAnnouncementsPage({
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Announcements</h1>
           <p className="mt-1 text-sm text-muted">
-            Academy-wide news — events, scholar visits, masjid programs, and more.
+            Academy-wide news — events, scholar visits, masjid programs, and more. Up to{" "}
+            {HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT} published items can be featured on the homepage; all
+            published items appear on the public Announcements page.
           </p>
         </div>
         <Link
@@ -45,6 +51,11 @@ export default async function AdminAnnouncementsPage({
       {params.error === "notfound" && (
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">Announcement not found.</p>
       )}
+      {params.error && params.error !== "notfound" && (
+        <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
+          {decodeURIComponent(params.error)}
+        </p>
+      )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
         {announcements.length === 0 ? (
@@ -56,6 +67,7 @@ export default async function AdminAnnouncementsPage({
                 <th className="px-4 py-3 font-medium">Title</th>
                 <th className="px-4 py-3 font-medium">When / Where</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Homepage</th>
                 <th className="px-4 py-3 font-medium">Photo</th>
                 <th className="px-4 py-3 font-medium">Created</th>
                 <th className="px-4 py-3 font-medium" />
@@ -78,6 +90,13 @@ export default async function AdminAnnouncementsPage({
                       >
                         {badge.label}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <ToggleHomepageAnnouncementButton
+                        id={item.id}
+                        showOnHomepage={item.showOnHomepage}
+                        published={item.published}
+                      />
                     </td>
                     <td className="px-4 py-3 text-muted">{item.imagePath ? "Yes" : "—"}</td>
                     <td className="px-4 py-3 text-muted">

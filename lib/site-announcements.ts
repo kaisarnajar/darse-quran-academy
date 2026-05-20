@@ -1,6 +1,9 @@
 import type { SiteAnnouncement } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
+/** Maximum announcements shown in the homepage section. */
+export const HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT = 4;
+
 export type SiteAnnouncementPublic = SiteAnnouncement & {
   createdBy: { name: string | null } | null;
 };
@@ -24,7 +27,9 @@ export async function getPublishedSiteAnnouncements(limit?: number) {
   });
 }
 
-export async function getHomepageSiteAnnouncements(limit = 4) {
+export async function getHomepageSiteAnnouncements(
+  limit = HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
+) {
   return prisma.siteAnnouncement.findMany({
     where: { published: true, showOnHomepage: true },
     orderBy: { createdAt: "desc" },
@@ -32,6 +37,26 @@ export async function getHomepageSiteAnnouncements(limit = 4) {
     include: {
       createdBy: { select: { name: true } },
     },
+  });
+}
+
+/** Keeps at most {@link HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT} published homepage announcements (newest). */
+export async function enforceHomepageAnnouncementLimit() {
+  const featured = await prisma.siteAnnouncement.findMany({
+    where: { published: true, showOnHomepage: true },
+    orderBy: { createdAt: "desc" },
+    select: { id: true },
+  });
+
+  if (featured.length <= HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT) return;
+
+  const demoteIds = featured
+    .slice(HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT)
+    .map((announcement) => announcement.id);
+
+  await prisma.siteAnnouncement.updateMany({
+    where: { id: { in: demoteIds } },
+    data: { showOnHomepage: false },
   });
 }
 

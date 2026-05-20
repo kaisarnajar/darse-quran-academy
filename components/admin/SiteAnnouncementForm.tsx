@@ -1,5 +1,6 @@
 import type { SiteAnnouncement } from "@prisma/client";
 import { inputClassName, labelClassName } from "@/lib/form";
+import { HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT } from "@/lib/site-announcements";
 import Image from "next/image";
 
 type SiteAnnouncementFormProps = {
@@ -125,7 +126,8 @@ export function SiteAnnouncementForm({
           <span>
             <span className="font-medium">Show on homepage</span>
             <span className="mt-0.5 block text-muted">
-              Featured on the main page for visitors (when published).
+              Featured on the main page when published (up to {HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT}{" "}
+              most recent). All published announcements still appear on the Announcements page.
             </span>
           </span>
         </label>

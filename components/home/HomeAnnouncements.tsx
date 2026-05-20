@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { SiteAnnouncementCard } from "@/components/announcements/SiteAnnouncementCard";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
-import { getHomepageSiteAnnouncements } from "@/lib/site-announcements";
+import {
+  getHomepageSiteAnnouncements,
+  HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
+} from "@/lib/site-announcements";
 
 export async function HomeAnnouncements() {
-  const announcements = await getHomepageSiteAnnouncements(4);
+  const announcements = await getHomepageSiteAnnouncements(HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT);
 
   if (announcements.length === 0) {
     return null;

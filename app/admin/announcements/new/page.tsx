@@ -16,7 +16,8 @@ export default async function NewSiteAnnouncementPage({
       </Link>
       <h1 className="mt-4 font-serif text-2xl font-bold text-primary">New announcement</h1>
       <p className="mt-1 text-sm text-muted">
-        Share events such as guest scholars at a masjid. Optionally feature on the homepage.
+        Share events such as guest scholars at a masjid. Use &quot;Show on homepage&quot; to feature up
+        to four items on the main page; every published item appears on the Announcements page.
       </p>
       <div className="mt-8">
         <SiteAnnouncementForm

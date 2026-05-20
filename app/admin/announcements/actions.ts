@@ -9,6 +9,7 @@ import {
   saveSiteAnnouncementImage,
   validateSiteAnnouncementImage,
 } from "@/lib/site-announcement-upload";
+import { enforceHomepageAnnouncementLimit } from "@/lib/site-announcements";
 import { siteAnnouncementSchema } from "@/lib/validations";
 
 function adminListPath(query = "") {
@@ -16,14 +17,33 @@ function adminListPath(query = "") {
 }
 
 function parseSiteAnnouncementForm(formData: FormData) {
-  return siteAnnouncementSchema.safeParse({
+  const published = formData.get("published") === "on";
+  const showOnHomepage = formData.get("showOnHomepage") === "on";
+
+  if (showOnHomepage && !published) {
+    return {
+      ok: false as const,
+      message: "Only published announcements can appear on the homepage.",
+    };
+  }
+
+  const parsed = siteAnnouncementSchema.safeParse({
     title: formData.get("title"),
     body: formData.get("body"),
     eventDate: formData.get("eventDate") ?? "",
     location: formData.get("location") ?? "",
-    showOnHomepage: formData.get("showOnHomepage") === "on",
-    published: formData.get("published") === "on",
+    showOnHomepage,
+    published,
   });
+
+  if (!parsed.success) {
+    return {
+      ok: false as const,
+      message: parsed.error.issues[0]?.message ?? "Invalid input",
+    };
+  }
+
+  return { ok: true as const, data: parsed.data };
 }
 
 function getImageFile(formData: FormData): File | null {
@@ -60,10 +80,8 @@ export async function createSiteAnnouncement(formData: FormData) {
   const session = await requireAdmin();
   const parsed = parseSiteAnnouncementForm(formData);
 
-  if (!parsed.success) {
-    redirect(
-      `${adminListPath("/new")}?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid input")}`,
-    );
+  if (!parsed.ok) {
+    redirect(`${adminListPath("/new")}?error=${encodeURIComponent(parsed.message)}`);
   }
 
   const upload = getImageFile(formData);
@@ -94,6 +112,10 @@ export async function createSiteAnnouncement(formData: FormData) {
     });
   }
 
+  if (parsed.data.showOnHomepage) {
+    await enforceHomepageAnnouncementLimit();
+  }
+
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?posted=1`);
 }
@@ -102,10 +124,8 @@ export async function updateSiteAnnouncement(id: string, formData: FormData) {
   await requireAdmin();
   const parsed = parseSiteAnnouncementForm(formData);
 
-  if (!parsed.success) {
-    redirect(
-      `${adminListPath(`/${id}/edit`)}?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid input")}`,
-    );
+  if (!parsed.ok) {
+    redirect(`${adminListPath(`/${id}/edit`)}?error=${encodeURIComponent(parsed.message)}`);
   }
 
   const existing = await prisma.siteAnnouncement.findUnique({ where: { id } });
@@ -130,6 +150,39 @@ export async function updateSiteAnnouncement(id: string, formData: FormData) {
       ...(imageUpdate && !("error" in imageUpdate) ? { imagePath: imageUpdate.imagePath } : {}),
     },
   });
+
+  if (parsed.data.showOnHomepage) {
+    await enforceHomepageAnnouncementLimit();
+  }
+
+  revalidateSiteAnnouncementPaths();
+  redirect(`${adminListPath()}?saved=1`);
+}
+
+export async function toggleSiteAnnouncementHomepage(id: string) {
+  await requireAdmin();
+
+  const existing = await prisma.siteAnnouncement.findUnique({ where: { id } });
+  if (!existing) {
+    redirect(`${adminListPath()}?error=notfound`);
+  }
+
+  if (!existing.published) {
+    redirect(
+      `${adminListPath()}?error=${encodeURIComponent("Publish the announcement before featuring it on the homepage.")}`,
+    );
+  }
+
+  const showOnHomepage = !existing.showOnHomepage;
+
+  await prisma.siteAnnouncement.update({
+    where: { id },
+    data: { showOnHomepage },
+  });
+
+  if (showOnHomepage) {
+    await enforceHomepageAnnouncementLimit();
+  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?saved=1`);
