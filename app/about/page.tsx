@@ -91,7 +91,13 @@ export default async function AboutPage() {
           <ul className="mt-5 space-y-4 text-left text-sm text-muted sm:mt-6 sm:text-base">
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Email:</span>
-              <span className="break-all">info@darsequranacademy.org</span>
+              {social.contactEmail ? (
+                <a href={`mailto:${social.contactEmail}`} className="break-all hover:text-gold">
+                  {social.contactEmail}
+                </a>
+              ) : (
+                <span className="break-all">—</span>
+              )}
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Phone / WhatsApp:</span>

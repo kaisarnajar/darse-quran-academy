@@ -13,6 +13,27 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-8">
       <section className="space-y-4 rounded-lg border border-border bg-background/40 p-5">
+        <h2 className="font-serif text-lg font-semibold text-foreground">Contact email</h2>
+        <p className="text-sm text-muted">
+          Shown in the footer Contact section (homepage #contact) and on About Us → Contact Us.
+        </p>
+        <div>
+          <label htmlFor="contactEmail" className={labelClassName}>
+            Academy email
+          </label>
+          <input
+            id="contactEmail"
+            name="contactEmail"
+            type="email"
+            required
+            placeholder="info@darsequranacademy.org"
+            defaultValue={settings.contactEmail}
+            className={inputClassName}
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-lg border border-border bg-background/40 p-5">
         <h2 className="font-serif text-lg font-semibold text-foreground">WhatsApp</h2>
         <p className="text-sm text-muted">
           Used for the floating chat button, footer contact, and About page. Enter with country code

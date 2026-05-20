@@ -16,8 +16,8 @@ export default async function AdminSocialLinksPage({
     <div>
       <h1 className="font-serif text-2xl font-bold text-primary">Social links</h1>
       <p className="mt-1 max-w-2xl text-sm text-muted">
-        WhatsApp, Facebook, Instagram, and YouTube URLs shown on the public site (top bar, footer, and
-        floating chat button).
+        Contact email, WhatsApp, Facebook, Instagram, and YouTube shown on the public site (footer
+        #contact, About Us, top bar, and floating chat button).
       </p>
 
       {params.saved === "1" ? (

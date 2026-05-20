@@ -93,6 +93,7 @@ const optionalHttpUrl = z
   });
 
 export const socialLinksSettingsSchema = z.object({
+  contactEmail: z.string().trim().email("Enter a valid contact email address."),
   whatsappNumber: z
     .string()
     .trim()

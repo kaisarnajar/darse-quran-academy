@@ -17,6 +17,7 @@ export async function updateSocialLinksSettings(formData: FormData) {
   await requireAdmin();
 
   const parsed = socialLinksSettingsSchema.safeParse({
+    contactEmail: formData.get("contactEmail"),
     whatsappNumber: formData.get("whatsappNumber"),
     whatsappDefaultMessage: formData.get("whatsappDefaultMessage") ?? "",
     facebookUrl: formData.get("facebookUrl") ?? "",
@@ -31,6 +32,7 @@ export async function updateSocialLinksSettings(formData: FormData) {
   }
 
   const data = {
+    contactEmail: parsed.data.contactEmail,
     whatsappNumber: normalizeWhatsAppNumber(parsed.data.whatsappNumber),
     whatsappDefaultMessage: parsed.data.whatsappDefaultMessage,
     facebookUrl: parsed.data.facebookUrl,

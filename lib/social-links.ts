@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 export const SOCIAL_LINKS_SETTINGS_ID = "default";
 
 export type SocialLinksSettingsData = {
+  contactEmail: string;
   whatsappNumber: string;
   whatsappDefaultMessage: string;
   facebookUrl: string;
@@ -12,6 +13,7 @@ export type SocialLinksSettingsData = {
 
 function defaultSettings(): SocialLinksSettingsData {
   return {
+    contactEmail: "info@darsequranacademy.org",
     whatsappNumber: "917006025120",
     whatsappDefaultMessage:
       "Assalamu Alaikum, I would like to know more about Darse Quran Academy.",
@@ -47,6 +49,7 @@ export function buildWhatsAppHref(number: string, message?: string): string {
 }
 
 function rowToSettings(row: {
+  contactEmail: string;
   whatsappNumber: string;
   whatsappDefaultMessage: string;
   facebookUrl: string;
@@ -55,6 +58,7 @@ function rowToSettings(row: {
 }): SocialLinksSettingsData {
   const defaults = defaultSettings();
   return {
+    contactEmail: row.contactEmail.trim() || defaults.contactEmail,
     whatsappNumber: normalizeWhatsAppNumber(row.whatsappNumber) || defaults.whatsappNumber,
     whatsappDefaultMessage: row.whatsappDefaultMessage.trim() || defaults.whatsappDefaultMessage,
     facebookUrl: row.facebookUrl.trim(),

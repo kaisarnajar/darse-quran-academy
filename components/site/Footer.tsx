@@ -53,11 +53,13 @@ export async function Footer() {
           <div id="contact">
             <p className="text-sm font-bold uppercase tracking-wide text-foreground">Contact</p>
             <ul className="mt-4 space-y-2 text-sm text-muted">
-              <li>
-                <a href="mailto:info@darsequranacademy.org" className="hover:text-gold">
-                  info@darsequranacademy.org
-                </a>
-              </li>
+              {settings.contactEmail && (
+                <li>
+                  <a href={`mailto:${settings.contactEmail}`} className="hover:text-gold">
+                    {settings.contactEmail}
+                  </a>
+                </li>
+              )}
               {settings.whatsappNumber && (
                 <li>
                   <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
