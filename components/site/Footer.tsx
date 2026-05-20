@@ -1,5 +1,12 @@
 import Link from "next/link";
 import { SiteLogo } from "@/components/site/SiteLogo";
+import {
+  buildWhatsAppHref,
+  formatWhatsAppForDisplay,
+  getConfiguredSocialNetworkLinks,
+  getSocialLinksSettings,
+} from "@/lib/social-links";
+import { FacebookIcon, InstagramIcon, YouTubeIcon } from "@/components/site/SocialIcons";
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -11,7 +18,12 @@ const quickLinks = [
   { href: "/teachers", label: "Teachers" },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const settings = await getSocialLinksSettings();
+  const whatsappHref = buildWhatsAppHref(settings.whatsappNumber, settings.whatsappDefaultMessage);
+  const whatsappDisplay = formatWhatsAppForDisplay(settings.whatsappNumber);
+  const socialLinks = getConfiguredSocialNetworkLinks(settings);
+
   return (
     <footer className="mt-auto bg-white">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
@@ -46,13 +58,33 @@ export function Footer() {
                   info@darsequranacademy.org
                 </a>
               </li>
-              <li>
-                <a href="https://wa.me/917006025120" className="hover:text-gold">
-                  +91 70060 25120
-                </a>
-              </li>
+              {settings.whatsappNumber && (
+                <li>
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
+                    {whatsappDisplay}
+                  </a>
+                </li>
+              )}
               <li>Online — serving students worldwide</li>
             </ul>
+            {socialLinks.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-gold hover:text-gold"
+                  >
+                    {link.label === "Facebook" && <FacebookIcon className="h-3.5 w-3.5" />}
+                    {link.label === "Instagram" && <InstagramIcon className="h-3.5 w-3.5" />}
+                    {link.label === "YouTube" && <YouTubeIcon className="h-3.5 w-3.5" />}
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -80,16 +112,6 @@ export function Footer() {
                 className="transition-colors hover:text-gold"
               >
                 linkedin.com/in/kaisarnajar
-              </a>
-            </p>
-            <p className="mt-1">
-              <a
-                href="https://wa.me/917006025120"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-colors hover:text-gold"
-              >
-                +917006025120
               </a>
             </p>
           </div>

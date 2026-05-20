@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Section } from "@/components/site/Section";
+import { formatWhatsAppForDisplay, getSocialLinksSettings } from "@/lib/social-links";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -24,7 +25,10 @@ const values = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const social = await getSocialLinksSettings();
+  const whatsappDisplay = formatWhatsAppForDisplay(social.whatsappNumber);
+
   return (
     <>
       <Section>
@@ -91,7 +95,7 @@ export default function AboutPage() {
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Phone / WhatsApp:</span>
-              <span>+91 70060 25120</span>
+              <span>{whatsappDisplay || "—"}</span>
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Location:</span>

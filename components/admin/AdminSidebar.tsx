@@ -12,6 +12,7 @@ const links = [
   { href: "/admin/courses", label: "Courses" },
   { href: "/admin/enrollments", label: "Enrollments" },
   { href: "/admin/payment-settings", label: "Payment details" },
+  { href: "/admin/social-links", label: "Social links" },
   { href: "/admin/students", label: "Students" },
   { href: "/admin/teachers", label: "Teachers" },
   { href: "/admin/library", label: "Library" },

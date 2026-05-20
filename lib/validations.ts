@@ -85,6 +85,26 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
+const optionalHttpUrl = z
+  .string()
+  .trim()
+  .refine((value) => value === "" || /^https?:\/\/.+/i.test(value), {
+    message: "Enter a full URL starting with http:// or https://, or leave blank.",
+  });
+
+export const socialLinksSettingsSchema = z.object({
+  whatsappNumber: z
+    .string()
+    .trim()
+    .min(10, "WhatsApp number must be at least 10 digits.")
+    .max(20, "WhatsApp number is too long.")
+    .regex(/^\+?[\d\s-]+$/, "Enter a valid WhatsApp number."),
+  whatsappDefaultMessage: z.string().trim().max(500),
+  facebookUrl: optionalHttpUrl,
+  instagramUrl: optionalHttpUrl,
+  youtubeUrl: optionalHttpUrl,
+});
+
 export const paymentSettingsSchema = z.object({
   upiId: z.string().trim().max(120),
   upiPayeeName: z.string().trim().min(1, "Payee name is required.").max(100),

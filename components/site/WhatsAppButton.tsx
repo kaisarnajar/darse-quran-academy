@@ -1,9 +1,13 @@
-const WHATSAPP_NUMBER = "917006025120";
-const DEFAULT_MESSAGE = "Assalamu Alaikum, I would like to know more about Darse Quran Academy.";
+import { buildWhatsAppHref, getSocialLinksSettings } from "@/lib/social-links";
 
-const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(DEFAULT_MESSAGE)}`;
+export async function WhatsAppButton() {
+  const settings = await getSocialLinksSettings();
+  const whatsappHref = buildWhatsAppHref(settings.whatsappNumber, settings.whatsappDefaultMessage);
 
-export function WhatsAppButton() {
+  if (!settings.whatsappNumber) {
+    return null;
+  }
+
   return (
     <a
       href={whatsappHref}
