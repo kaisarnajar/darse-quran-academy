@@ -1,6 +1,5 @@
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
-import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
@@ -16,13 +15,6 @@ export async function POST(request: Request) {
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters." },
-        { status: 400 },
-      );
-    }
-
-    if (isAdminEmail(email)) {
-      return NextResponse.json(
-        { error: "This email is reserved for administration." },
         { status: 400 },
       );
     }
