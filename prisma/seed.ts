@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { getDefaultFeesForLevel } from "../lib/course-pricing";
 import { courses } from "../content/courses";
 import { libraryItems } from "../content/library";
+import { studentTestimonials } from "../content/testimonials";
 import { teachers } from "../content/teachers";
 
 const prisma = new PrismaClient();
@@ -79,7 +80,47 @@ async function main() {
     });
   }
 
-  console.log("Seeded courses, teachers, and library items.");
+  const featuredAtBase = new Date("2026-01-01T00:00:00.000Z");
+  for (const [index, testimonial] of studentTestimonials.entries()) {
+    const userId = `seed-testimonial-user-${testimonial.id}`;
+    const reviewId = `seed-testimonial-${testimonial.id}`;
+    const email = `seed-testimonial-${testimonial.id}@seed.local`;
+
+    await prisma.user.upsert({
+      where: { id: userId },
+      create: {
+        id: userId,
+        email,
+        name: testimonial.name,
+      },
+      update: {
+        name: testimonial.name,
+      },
+    });
+
+    await prisma.studentReview.upsert({
+      where: { id: reviewId },
+      create: {
+        id: reviewId,
+        userId,
+        quote: testimonial.quote,
+        course: testimonial.course,
+        location: testimonial.location,
+        status: "APPROVED",
+        featuredOnHomepage: true,
+        featuredAt: new Date(featuredAtBase.getTime() + index * 60_000),
+      },
+      update: {
+        quote: testimonial.quote,
+        course: testimonial.course,
+        location: testimonial.location,
+        status: "APPROVED",
+        featuredOnHomepage: true,
+      },
+    });
+  }
+
+  console.log("Seeded courses, teachers, library items, and student testimonials.");
 }
 
 main()
