@@ -20,7 +20,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`db:seed` loads starter data from `content/` (courses, teachers, library, testimonials). UPI, bank, and social links are configured in **Admin** after first login.
+`db:seed` loads starter data from `content/` (courses, teachers, library, testimonials). For local QA with sample students, enrollments, and payments, run `npm run db:seed:demo` instead (blocked on production PostgreSQL).
 
 ### Admin access
 
@@ -58,6 +58,7 @@ If SMTP is not set, transactional emails are logged to the server console for lo
 | `npm run lint` | ESLint |
 | `npm run db:migrate` | Apply Prisma migrations |
 | `npm run db:seed` | Seed courses, teachers, library, testimonials |
+| `npm run db:seed:demo` | Bootstrap + 25 demo students (local SQLite only) |
 | `npm run vercel-build` | Vercel build (`migrate deploy` + `next build`) |
 
 ## Project structure
