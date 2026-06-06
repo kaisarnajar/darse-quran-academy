@@ -7,6 +7,28 @@ import { teachers } from "../content/teachers";
 const prisma = new PrismaClient();
 
 async function main() {
+  for (const teacher of teachers) {
+    await prisma.teacher.upsert({
+      where: { id: teacher.id },
+      create: {
+        id: teacher.id,
+        name: teacher.name,
+        email: teacher.email,
+        specialization: teacher.specialization,
+        bio: teacher.bio,
+        initials: teacher.initials,
+        published: true,
+      },
+      update: {
+        name: teacher.name,
+        email: teacher.email,
+        specialization: teacher.specialization,
+        bio: teacher.bio,
+        initials: teacher.initials,
+      },
+    });
+  }
+
   for (const course of courses) {
     const fees = getDefaultFeesForLevel(course.level);
     await prisma.course.upsert({
@@ -31,28 +53,6 @@ async function main() {
         category: course.category,
         monthlyFeeInrPaise: fees.monthlyFeePaise,
         teacherId: course.teacherId,
-      },
-    });
-  }
-
-  for (const teacher of teachers) {
-    await prisma.teacher.upsert({
-      where: { id: teacher.id },
-      create: {
-        id: teacher.id,
-        name: teacher.name,
-        email: teacher.email,
-        specialization: teacher.specialization,
-        bio: teacher.bio,
-        initials: teacher.initials,
-        published: true,
-      },
-      update: {
-        name: teacher.name,
-        email: teacher.email,
-        specialization: teacher.specialization,
-        bio: teacher.bio,
-        initials: teacher.initials,
       },
     });
   }
