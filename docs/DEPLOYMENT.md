@@ -52,7 +52,7 @@ postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
 
 ## 3. Seed production data (one time)
 
-After the first successful deploy, seed courses/teachers/library from your machine:
+After the first successful deploy, seed bootstrap content from your machine (courses, teachers, library items, and sample student testimonials for the homepage):
 
 ```bash
 DATABASE_URL="your-neon-connection-string" npm run db:seed
@@ -64,11 +64,31 @@ Do **not** add seed to the Vercel build command (it would reset data on every de
 
 ## 4. Create admin user and site settings
 
-1. Open `https://your-project.vercel.app/register`.
-2. Register with an email listed in `ADMIN_EMAIL` (comma-separated list supported).
-3. Visit `/admin` and configure:
-   - **Payment details** — UPI ID, payee name, bank account (required before students can pay).
-   - **Social links** — contact email, WhatsApp number, Facebook / Instagram / YouTube URLs (shown on footer `/#contact`, About Us, top bar, and floating WhatsApp button).
+Set `ADMIN_EMAIL` on Vercel **before** creating the admin account (comma- or semicolon-separated list). The signed-in email must match one of those addresses to access `/admin`. Admin role is granted on **sign-in**, not stored at registration.
+
+### Option A — Email and password (recommended)
+
+1. Ensure `ADMIN_EMAIL` includes your admin address (e.g. `you@example.com`).
+2. Redeploy or restart if you just changed `ADMIN_EMAIL`.
+3. Open `https://your-project.vercel.app/register`.
+4. Register with that same email and a password (at least 8 characters).
+5. Sign in (or you may be signed in automatically after register).
+6. Visit `/admin`.
+
+### Option B — Google sign-in (if OAuth is configured)
+
+1. Ensure `ADMIN_EMAIL` includes the Google account email.
+2. Open `/login` and sign in with Google. Auth.js creates the user on first sign-in.
+3. Visit `/admin`.
+
+### After first admin login
+
+Configure in `/admin`:
+
+- **Payment details** — UPI ID, payee name, bank account (required before students can pay monthly fees).
+- **Social links** — contact email, WhatsApp number, Facebook / Instagram / YouTube URLs (shown on footer `/#contact`, About Us, top bar, and floating WhatsApp button).
+
+**Note:** Admins can open **Profile** in the header, but `/admin` does not require a completed student profile. Profile completion is only needed if you want to test student enrollment yourself.
 
 ---
 
@@ -85,12 +105,14 @@ Do **not** add seed to the Vercel build command (it would reset data on every de
 - [ ] Homepage (hero with Bismillah, featured courses) and `/courses`
 - [ ] Footer **Contact** (`/#contact`) and **About Us** show admin-configured email and WhatsApp
 - [ ] Top bar social icons and floating WhatsApp button use admin URLs
-- [ ] Register / login; forgot-password email (or link in function logs if SMTP off)
-- [ ] UPI enroll → pay → submit UTR → Admin → **Enrollments** / **Payment approvals**
+- [ ] Admin register/login with an `ADMIN_EMAIL` address → `/admin` opens
+- [ ] Student register / login; forgot-password email (or link in function logs if SMTP off)
+- [ ] Student completes profile → **Request enrollment** on a course → Admin → **Enrollments** approves
+- [ ] Student pays **monthly fee** from **My Courses** → submits UTR → Admin → **Payment approvals**
 - [ ] Mark complete → certificate on **My Courses**
 - [ ] Admin **course announcements**; teacher **private message** to one student
 - [ ] Fatwa ask → admin answer → public `/fatwa`
-- [ ] Re-enroll shows “already enrolled” message
+- [ ] Re-enroll shows “already enrolled” or “awaiting approval” message
 
 ---
 
@@ -117,10 +139,13 @@ Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local Po
 | Build fails on `migrate deploy` | Set `DATABASE_URL` on Vercel; use Neon direct URL if pooler errors |
 | “UPI not configured” | Admin → **Payment details** — save a UPI ID |
 | Wrong contact email / social links | Admin → **Social links** — save and refresh homepage |
-| Admin 403 | Signed-in email must be listed in `ADMIN_EMAIL` (comma-separated) |
+| Cannot access `/admin` | Signed-in email must be listed in `ADMIN_EMAIL` (comma-separated); redeploy after changing env |
+| “This email is reserved for administration” on register | Deploy latest `master` — admin emails are allowed to register for bootstrap; use sign-in if the account already exists |
+| Admin account does not exist yet | Register at `/register` with an `ADMIN_EMAIL` address, or sign in with Google using that email |
 | Schema errors after deploy | Ensure build ran `prisma migrate deploy`; redeploy latest `master` |
 | Emails not sent | Set SMTP vars, or check Vercel **Functions** logs for logged links |
 | OAuth redirect error | `AUTH_URL` must match live domain; update Google redirect URI |
+| Uploaded payment screenshots / PDFs missing after redeploy | Expected on serverless without external storage — see README limitations |
 
 ---
 

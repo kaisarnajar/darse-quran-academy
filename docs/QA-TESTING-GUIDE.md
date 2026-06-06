@@ -17,11 +17,11 @@
 
 | Role | How to get access | Notes |
 |------|-------------------|--------|
-| **Student** | Register at `/register` with a normal email (not in `ADMIN_EMAIL`) | Complete profile before enrolling |
-| **Teacher** | Register, then admin adds your email under **Admin → Teachers** | Sign in → opens teacher portal |
-| **Admin** | Register/sign in with email listed in `ADMIN_EMAIL` (comma-separated allowed) | Opens `/admin` |
+| **Student** | Register at `/register` with an email **not** in `ADMIN_EMAIL` | Complete profile before requesting enrollment |
+| **Teacher** | Register with a normal email, then admin adds that email under **Admin → Teachers** | Sign in → opens teacher portal; cannot access `/profile` |
+| **Admin** | Set email in `ADMIN_EMAIL` in `.env`, then **register** at `/register` with that email (or sign in with Google using that email) | Opens `/admin`; admin role is granted on sign-in via `ADMIN_EMAIL` |
 
-Optional: Google sign-in if `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` are configured.
+Optional: Google sign-in if `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` are configured (creates the account on first sign-in for admin or student emails).
 
 ---
 
@@ -53,7 +53,8 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | Feature | URL | Expected behavior | Mobile | Pad | PC |
 |---------|-----|-------------------|:------:|:---:|:----:|
 | Sign in | `/login` | Email/password works; optional Google button if enabled; invalid credentials show error | ☐ | ☐ | ☐ |
-| Register | `/register` | New student account; cannot register with admin-reserved email | ☐ | ☐ | ☐ |
+| Register | `/register` | New account with email/password; admin emails in `ADMIN_EMAIL` **can** register (bootstrap); duplicate email shows error | ☐ | ☐ | ☐ |
+| Admin bootstrap | `/register` + `/admin` | Register with `ADMIN_EMAIL` address → sign in → `/admin` loads | ☐ | ☐ | ☐ |
 | Forgot password | `/forgot-password` | Submit email → success message; reset email if SMTP configured (or link in server logs locally) | ☐ | ☐ | ☐ |
 | Reset password | `/reset-password?token=…` | Set new password (min 8 chars); redirect to login with success message | ☐ | ☐ | ☐ |
 | Sign out | Any signed-in page | Click **Sign Out** → dialog **“Do you want to sign out?”** → **Cancel** stays signed in; **Sign out** logs out and goes home | ☐ | ☐ | ☐ |
@@ -64,11 +65,11 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 ## 4. Student profile (`/profile`)
 
-**Access:** Sign in as student → **Profile** in header (not available to teachers; teachers use teacher portal).
+**Access:** Sign in as student or admin → **Profile** in header (not available to teachers; teachers use teacher portal). Admins can open Profile but do **not** need a complete profile for `/admin`.
 
 | Section | URL | Expected behavior | Mobile | Pad | PC |
 |---------|-----|-------------------|:------:|:---:|:----:|
-| **Profile** | `/profile` | Edit name, father’s name, date of birth, occupation, address, WhatsApp; email shown; warning if profile incomplete; must complete all fields before enrollment | ☐ | ☐ | ☐ |
+| **Profile** | `/profile` | Edit name, father’s name, date of birth, occupation, address, WhatsApp; email shown; warning if profile incomplete; all fields required before **requesting enrollment** | ☐ | ☐ | ☐ |
 | **My Courses** | `/profile/courses` | Lists enrollments with status (active, awaiting approval, completed, declined, etc.); links to pay monthly fee, course announcements, download certificate when complete | ☐ | ☐ | ☐ |
 | **Payments** | `/profile/payments` | History of approved payments; pending submissions; **Download receipt** when admin sent/generated receipt | ☐ | ☐ | ☐ |
 | **Payment info** | `/profile/payment-info` | Shows academy UPI QR and bank details (from admin **Payment details**) | ☐ | ☐ | ☐ |
@@ -78,7 +79,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 | Flow | Steps | Expected result | Mobile | Pad | PC |
 |------|-------|-----------------|:------:|:---:|:----:|
-| Enroll in course | Complete profile → `/courses` → open course → enroll / pay registration | Enrollment created; free courses may need admin approval | ☐ | ☐ | ☐ |
+| Request enrollment | Complete profile → `/courses` → open course → **Request enrollment** | Enrollment request created (`pending_approval`); admin approves under **Enrollments** | ☐ | ☐ | ☐ |
 | Pay monthly fee | **My Courses** → **Pay monthly fee** → UPI/bank → submit UTR + optional screenshot | Submission pending; appears under Payments | ☐ | ☐ | ☐ |
 | After payment approved | Admin approves → admin sends receipt | Student can download invoice-style PDF from Payments | ☐ | ☐ | ☐ |
 | Declined payment | Admin declines | Student sees message; can resubmit from course pay page | ☐ | ☐ | ☐ |
@@ -115,7 +116,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | **Blogs** | `/admin/blogs` | Admin-authored blog posts | ☐ | ☐ | ☐ |
 | **Verse & Hadith** | `/admin/daily-inspiration` | Daily Quran verse / Hadith for homepage | ☐ | ☐ | ☐ |
 | **Courses** | `/admin/courses` | Create/edit courses; fees, teacher, status; **Announcements** link per course | ☐ | ☐ | ☐ |
-| **Course students** | `/admin/courses/[id]/students` | Approve enrollments; confirm/decline registration payment; mark **complete**; generate/upload **certificate** and email student; nav: Students \| Announcements | ☐ | ☐ | ☐ |
+| **Course students** | `/admin/courses/[id]/students` | Approve enrollment requests; mark **complete**; generate/upload **certificate** and email student; nav: Students \| Announcements | ☐ | ☐ | ☐ |
 | **Course announcements** | `/admin/courses/[id]/announcements` | Post course-wide announcements for any course; edit/delete all posts on that course | ☐ | ☐ | ☐ |
 | **Enrollments** | `/admin/enrollments` | Pending enrollment requests across courses | ☐ | ☐ | ☐ |
 | **Payment details** | `/admin/payment-settings` | Set UPI ID, payee name, bank account (shown to students on payment pages) | ☐ | ☐ | ☐ |
@@ -138,7 +139,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | **Home** | `/` | Hero: Bismillah (Arabic, Indo-Pak font) + English on the **right**, academy title and tagline on the **left**; feature cards, verse/hadith, featured courses (up to 6), homepage announcements (up to 4), testimonials, fatwa teaser; footer **Contact** | ☐ | ☐ | ☐ |
 | **About Us** | `/about` | Mission, values; **Contact Us** shows admin **email** and **WhatsApp** (same as footer) | ☐ | ☐ | ☐ |
 | **Courses** | `/courses` | Lists published/ongoing courses; filter/browse; link to course detail | ☐ | ☐ | ☐ |
-| **Course detail** | `/courses/[id]` | Description, fees, teacher, enroll button (sign-in required); enrollment fee / free flow | ☐ | ☐ | ☐ |
+| **Course detail** | `/courses/[id]` | Description, enrollment + monthly fees, teacher, **Request enrollment** (sign-in + complete profile required) | ☐ | ☐ | ☐ |
 | **Announcements** | `/announcements` | All published site announcements; open detail page | ☐ | ☐ | ☐ |
 | **Announcement detail** | `/announcements/[id]` | Full announcement body; image if present | ☐ | ☐ | ☐ |
 | **Blog** | `/blog` | Only **approved** posts listed | ☐ | ☐ | ☐ |
@@ -190,10 +191,13 @@ After changing **Social links** or **Payment details**, refresh the public site 
 
 - **SMTP:** Password reset, certificates, receipts, fatwa emails require SMTP env vars; without SMTP, links may only appear in server logs (local dev).
 - **Google sign-in:** Only shown if Google OAuth env vars are set.
+- **Admin role:** Granted via `ADMIN_EMAIL` on sign-in; changing admins requires updating env and redeploying (no in-app admin user management).
+- **Admin profile banner:** Admins may see “Complete your profile to enroll” on `/profile` even though `/admin` does not require it (cosmetic; safe to ignore for admin work).
 - **Teachers** cannot access student `/profile` (by design).
 - **Teachers** cannot edit or delete admin course announcements (by design).
 - **Payment / social settings** are stored in the database (admin UI), not in `.env`.
 - **Uploaded files** on serverless hosting may not persist forever unless external storage is added.
+- **Profile copy:** Some profile messages still mention “registration fee”; enrollment is request-based with monthly fees paid after approval.
 
 ---
 
