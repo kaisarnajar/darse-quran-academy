@@ -14,13 +14,13 @@ cd darse-quran-academy
 npm install
 cp .env.example .env   # edit values — see table below
 npm run db:migrate
-npm run db:seed
+npm run db:seed:demo
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`db:seed` loads starter data from `content/` (courses, teachers, library, testimonials). For local QA with sample students, enrollments, and payments, run `npm run db:seed:demo` instead (blocked on production PostgreSQL).
+`db:seed:demo` loads local QA data only: courses, teachers, library, testimonials, teacher/student logins, enrollments, and payments. It is blocked on production PostgreSQL. Production starts empty — add real content in `/admin`.
 
 ### Admin access
 
@@ -57,8 +57,7 @@ If SMTP is not set, transactional emails are logged to the server console for lo
 | `npm run start` | Run production server |
 | `npm run lint` | ESLint |
 | `npm run db:migrate` | Apply Prisma migrations |
-| `npm run db:seed` | Seed courses, teachers, library, testimonials |
-| `npm run db:seed:demo` | Bootstrap + 25 demo students (local SQLite only) |
+| `npm run db:seed:demo` | Local QA data: content, teacher/student logins, enrollments (SQLite only) |
 | `npm run vercel-build` | Vercel build (`migrate deploy` + `next build`) |
 
 ## Project structure
@@ -79,8 +78,7 @@ docs/         Deployment and QA guides
 
 1. Set env vars on Vercel (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, etc.).
 2. Deploy — `vercel-build` runs `prisma migrate deploy` automatically.
-3. Seed production once: `DATABASE_URL="..." npm run db:seed`
-4. Sign in as admin and set **Payment details** and **Social links**.
+3. Sign in as admin and add courses, teachers, library items, **Payment details**, and **Social links** in `/admin`.
 
 Full setup, OAuth, SMTP, and troubleshooting: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**  
 QA checklist: **[docs/QA-TESTING-GUIDE.md](docs/QA-TESTING-GUIDE.md)**

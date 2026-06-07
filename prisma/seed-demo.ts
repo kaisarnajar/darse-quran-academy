@@ -1,6 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { seedBootstrap } from "./seed-bootstrap";
-import { demoStudentLoginHint, seedDemoData } from "./seed-demo-data";
+import {
+  demoStudentLoginHint,
+  demoTeacherLoginHint,
+  seedDemoData,
+  seedDemoTeachers,
+} from "./seed-demo-data";
 
 function assertDemoSeedAllowed() {
   if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEMO_SEED !== "true") {
@@ -26,9 +31,13 @@ async function main() {
   assertDemoSeedAllowed();
 
   await seedBootstrap(prisma);
+  await seedDemoTeachers(prisma);
   await seedDemoData(prisma);
 
-  console.log("Seeded bootstrap data and 25 demo students with enrollments and payments.");
+  console.log(
+    "Seeded demo data: courses, teachers, library, testimonials, teacher logins, and 25 demo students.",
+  );
+  console.log(demoTeacherLoginHint());
   console.log(demoStudentLoginHint());
 }
 

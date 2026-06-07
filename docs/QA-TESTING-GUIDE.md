@@ -17,8 +17,10 @@
 
 | Role | How to get access | Notes |
 |------|-------------------|--------|
-| **Student** | Register at `/register` with an email **not** in `ADMIN_EMAIL` | Complete profile before requesting enrollment |
-| **Teacher** | Register with a normal email, then admin adds that email under **Admin → Teachers** | Sign in → opens teacher portal; cannot access `/profile` |
+| **Student (demo)** | Run `npm run db:seed:demo`, then sign in as `demo-student-01@seed.local` … `demo-student-25@seed.local` — password `Demo@2026` | Profiles and enrollments pre-filled |
+| **Student (manual)** | Register at `/register` with an email **not** in `ADMIN_EMAIL` | Complete profile before requesting enrollment |
+| **Teacher (demo)** | Run `npm run db:seed:demo`, then sign in as e.g. `hamza.malik@teachers.darsequranacademy.org` — password `Teacher@2026` | All six seeded teachers use the same password |
+| **Teacher (manual)** | Register with a normal email, then admin adds that email under **Admin → Teachers** | Sign in → opens teacher portal; cannot access `/profile` |
 | **Admin** | Set email in `ADMIN_EMAIL` in `.env`, then **register** at `/register` with that email (or sign in with Google using that email) | Opens `/admin`; admin role is granted on sign-in via `ADMIN_EMAIL` |
 
 Optional: Google sign-in if `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` are configured (creates the account on first sign-in for admin or student emails).

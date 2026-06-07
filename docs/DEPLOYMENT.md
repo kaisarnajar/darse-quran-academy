@@ -50,19 +50,11 @@ postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
 
 ---
 
-## 3. Seed production data (one time)
+## 3. Create admin user and site settings
 
-After the first successful deploy, seed bootstrap content from your machine (courses, teachers, library items, and sample student testimonials for the homepage):
-
-```bash
-DATABASE_URL="your-neon-connection-string" npm run db:seed
-```
-
-Do **not** add seed to the Vercel build command (it would reset data on every deploy).
+Production starts with an empty database (schema only). Add real courses, teachers, library items, and other content in **Admin** after sign-in. Do **not** run `npm run db:seed:demo` against production — it is for local QA only.
 
 ---
-
-## 4. Create admin user and site settings
 
 Set `ADMIN_EMAIL` on Vercel **before** creating the admin account (comma- or semicolon-separated list). The signed-in email must match one of those addresses to access `/admin`. Admin role is granted on **sign-in**, not stored at registration.
 
@@ -92,7 +84,7 @@ Configure in `/admin`:
 
 ---
 
-## 5. Google OAuth (optional)
+## 4. Google OAuth (optional)
 
 1. [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → OAuth client (Web).
 2. **Authorized redirect URI:** `https://your-project.vercel.app/api/auth/callback/google`
@@ -100,7 +92,7 @@ Configure in `/admin`:
 
 ---
 
-## 6. Verify
+## 5. Verify
 
 - [ ] Homepage (hero with Bismillah, featured courses) and `/courses`
 - [ ] Footer **Contact** (`/#contact`) and **About Us** show admin-configured email and WhatsApp
@@ -124,7 +116,7 @@ Default local setup uses a file database — no Docker required:
 cp .env.example .env
 # DATABASE_URL="file:./dev.db"
 npm run db:migrate
-npm run db:seed
+npm run db:seed:demo
 npm run dev
 ```
 

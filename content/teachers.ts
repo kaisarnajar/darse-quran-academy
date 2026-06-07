@@ -1,3 +1,6 @@
+/** Shared password for all demo teacher accounts (local / QA only). */
+export const DEMO_TEACHER_PASSWORD = "Teacher@2026";
+
 export type Teacher = {
   id: string;
   name: string;

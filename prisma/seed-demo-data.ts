@@ -6,6 +6,7 @@ import {
   type DemoEnrollment,
   type DemoPayment,
 } from "../content/demo-students";
+import { DEMO_TEACHER_PASSWORD, teachers } from "../content/teachers";
 import { buildMonthlyFeeLabel } from "../lib/monthly-payments";
 import {
   MONTHLY_PAYMENT_APPROVED,
@@ -169,6 +170,33 @@ async function seedDemoEnrollment(
   }
 }
 
+function demoTeacherUserId(teacherId: string) {
+  return `seed-demo-teacher-user-${teacherId}`;
+}
+
+/** Demo teacher login accounts matching seeded teacher profiles (local / QA). */
+export async function seedDemoTeachers(prisma: PrismaClient) {
+  const hashedPassword = await hash(DEMO_TEACHER_PASSWORD, 12);
+
+  for (const teacher of teachers) {
+    const userId = demoTeacherUserId(teacher.id);
+
+    await prisma.user.upsert({
+      where: { email: teacher.email },
+      create: {
+        id: userId,
+        email: teacher.email,
+        name: teacher.name,
+        password: hashedPassword,
+      },
+      update: {
+        name: teacher.name,
+        password: hashedPassword,
+      },
+    });
+  }
+}
+
 /** Demo students with enrollments, monthly payments, and completed courses (local / QA). */
 export async function seedDemoData(prisma: PrismaClient) {
   const courses = await prisma.course.findMany({
@@ -215,4 +243,10 @@ export async function seedDemoData(prisma: PrismaClient) {
 
 export function demoStudentLoginHint(): string {
   return `Demo students: demo-student-01@seed.local … demo-student-25@seed.local — password ${DEMO_STUDENT_PASSWORD}`;
+}
+
+export function demoTeacherLoginHint(): string {
+  const first = teachers[0]?.email ?? "teacher@seed.local";
+  const last = teachers[teachers.length - 1]?.email ?? first;
+  return `Demo teachers: ${first} … ${last} — password ${DEMO_TEACHER_PASSWORD}`;
 }
