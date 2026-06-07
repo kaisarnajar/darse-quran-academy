@@ -20,7 +20,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`db:seed:demo` loads local QA data only: courses, teachers, library, testimonials, teacher/student logins, enrollments, and payments. It is blocked on production PostgreSQL. Production starts empty — add real content in `/admin`.
+`db:seed:demo` loads local QA data only: courses, teachers, library, testimonials, logins, enrollments, payments, announcements, blogs, verse/hadith, fatwa, and course announcements (all major states for testing). Blocked on production PostgreSQL. Production starts empty — add real content in `/admin`.
 
 ### Admin access
 
@@ -57,7 +57,7 @@ If SMTP is not set, transactional emails are logged to the server console for lo
 | `npm run start` | Run production server |
 | `npm run lint` | ESLint |
 | `npm run db:migrate` | Apply Prisma migrations |
-| `npm run db:seed:demo` | Local QA data: content, teacher/student logins, enrollments (SQLite only) |
+| `npm run db:seed:demo` | Local QA data: full test dataset including announcements, blogs, fatwa (SQLite only) |
 | `npm run vercel-build` | Vercel build (`migrate deploy` + `next build`) |
 
 ## Project structure

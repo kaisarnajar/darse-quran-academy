@@ -25,6 +25,8 @@
 
 Optional: Google sign-in if `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` are configured (creates the account on first sign-in for admin or student emails).
 
+**After `npm run db:seed:demo`**, the database also includes sample **site announcements** (homepage + public + draft), **blog posts** (published, pending, rejected, etc.), **Quranic verse / Hadith** entries, **fatwa** questions (pending and answered), and **course announcements** (admin, teacher, and private student messages). See the seed console output for a summary.
+
 ---
 
 ## 2. Device sizes to test
