@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AnswerFatwaForm } from "@/components/admin/AnswerFatwaForm";
 import { DeleteForm } from "@/components/admin/DeleteForm";
 import { answerFatwaQuestion, deleteFatwaQuestionForm } from "@/app/admin/fatwa/actions";
-import { getFatwaQuestionById } from "@/lib/fatwa";
+import { getFeaturedHomepageFatwaCount, getFatwaQuestionById } from "@/lib/fatwa";
 
 export default async function AdminFatwaDetailPage({
   params,
@@ -14,7 +14,10 @@ export default async function AdminFatwaDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const question = await getFatwaQuestionById(id);
+  const [question, featuredCount] = await Promise.all([
+    getFatwaQuestionById(id),
+    getFeaturedHomepageFatwaCount(),
+  ]);
   if (!question) notFound();
 
   const answerAction = answerFatwaQuestion.bind(null, id);
@@ -56,7 +59,7 @@ export default async function AdminFatwaDetailPage({
       )}
 
       <div className="mt-8">
-        <AnswerFatwaForm question={question} action={answerAction} />
+        <AnswerFatwaForm question={question} featuredCount={featuredCount} action={answerAction} />
       </div>
 
       {question.answer && (

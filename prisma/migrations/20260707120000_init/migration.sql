@@ -116,6 +116,8 @@ CREATE TABLE "BlogPost" (
     "body" TEXT NOT NULL,
     "published" BOOLEAN NOT NULL DEFAULT false,
     "approvalStatus" TEXT NOT NULL DEFAULT 'APPROVED',
+    "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
+    "featuredAt" DATETIME,
     "createdById" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -172,6 +174,8 @@ CREATE TABLE "LibraryItem" (
     "language" TEXT NOT NULL,
     "pdfUrl" TEXT,
     "published" BOOLEAN NOT NULL DEFAULT true,
+    "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
+    "featuredAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -208,6 +212,8 @@ CREATE TABLE "FatwaQuestion" (
     "answer" TEXT,
     "answeredAt" DATETIME,
     "answeredById" TEXT,
+    "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
+    "featuredAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "FatwaQuestion_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
@@ -332,6 +338,15 @@ CREATE INDEX "SiteAnnouncement_published_showOnHomepage_idx" ON "SiteAnnouncemen
 
 -- CreateIndex
 CREATE INDEX "SiteAnnouncement_published_createdAt_idx" ON "SiteAnnouncement"("published", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "BlogPost_featuredOnHomepage_featuredAt_idx" ON "BlogPost"("featuredOnHomepage", "featuredAt");
+
+-- CreateIndex
+CREATE INDEX "LibraryItem_featuredOnHomepage_featuredAt_idx" ON "LibraryItem"("featuredOnHomepage", "featuredAt");
+
+-- CreateIndex
+CREATE INDEX "FatwaQuestion_featuredOnHomepage_featuredAt_idx" ON "FatwaQuestion"("featuredOnHomepage", "featuredAt");
 
 -- CreateIndex
 CREATE INDEX "BlogPost_published_approvalStatus_createdAt_idx" ON "BlogPost"("published", "approvalStatus", "createdAt");

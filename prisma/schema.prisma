@@ -221,6 +221,8 @@ model BlogPost {
   body           String
   published      Boolean            @default(false)
   approvalStatus BlogApprovalStatus @default(APPROVED)
+  featuredOnHomepage Boolean            @default(false)
+  featuredAt         DateTime?
   createdById    String?
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
@@ -229,6 +231,7 @@ model BlogPost {
 
   @@index([published, approvalStatus, createdAt])
   @@index([approvalStatus, createdAt])
+  @@index([featuredOnHomepage, featuredAt])
 }
 
 model BlogImage {
@@ -283,10 +286,14 @@ model LibraryItem {
   topic     String
   level     String
   language  String
-  pdfUrl    String?
-  published Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  pdfUrl              String?
+  published           Boolean  @default(true)
+  featuredOnHomepage  Boolean  @default(false)
+  featuredAt          DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([featuredOnHomepage, featuredAt])
 }
 
 model Enrollment {
@@ -319,16 +326,19 @@ model FatwaQuestion {
   category     String
   title        String
   question     String
-  answer       String?
-  answeredAt   DateTime?
-  answeredById String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  answer               String?
+  answeredAt           DateTime?
+  answeredById         String?
+  featuredOnHomepage   Boolean   @default(false)
+  featuredAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
   user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   answeredBy   User?     @relation("FatwaAnsweredBy", fields: [answeredById], references: [id], onDelete: SetNull)
 
   @@index([category])
   @@index([answeredAt])
+  @@index([featuredOnHomepage, featuredAt])
 }
 
 model PaymentRecord {

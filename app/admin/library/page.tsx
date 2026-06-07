@@ -39,6 +39,11 @@ export default async function AdminLibraryPage({
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {item.featuredOnHomepage && item.published ? (
+                <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-900">
+                  Homepage
+                </span>
+              ) : null}
               <StatusBadge published={item.published} />
               <Link href={`/admin/library/${item.id}/edit`} className="text-sm text-primary hover:underline">
                 Edit

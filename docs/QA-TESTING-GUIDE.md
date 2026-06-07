@@ -124,7 +124,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 |---------|-----|-------------------|:------:|:---:|:----:|
 | **Dashboard** | `/admin` | Counts (courses, students, pending enrollments/payments/blogs/reviews); quick links | ☐ | ☐ | ☐ |
 | **Announcements** | `/admin/announcements` | CRUD site-wide announcements; toggle **show on homepage** (max 4 featured) | ☐ | ☐ | ☐ |
-| **Blogs** | `/admin/blogs` | Admin-authored blog posts | ☐ | ☐ | ☐ |
+| **Blogs** | `/admin/blogs` | Admin-authored blog posts; toggle **show on homepage** (max 4 featured) | ☐ | ☐ | ☐ |
 | **Verse & Hadith** | `/admin/daily-inspiration` | Daily Quran verse / Hadith for homepage | ☐ | ☐ | ☐ |
 | **Courses** | `/admin/courses` | Create/edit courses; fees, teacher, status; toggle **show on homepage** (max 6 featured); **Announcements** link per course | ☐ | ☐ | ☐ |
 | **Course students** | `/admin/courses/[id]/students` | Approve enrollment requests; mark **complete**; generate/upload **certificate** and email student; nav: Students \| Announcements | ☐ | ☐ | ☐ |
@@ -134,8 +134,8 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | **Social links** | `/admin/social-links` | Contact email, WhatsApp number, default message, Facebook / Instagram / YouTube URLs; blank URL hides icon | ☐ | ☐ | ☐ |
 | **Students** | `/admin/students` | List students; view profile; remove enrollment / delete student where allowed | ☐ | ☐ | ☐ |
 | **Teachers** | `/admin/teachers` | Add/edit teachers (link to registered email) | ☐ | ☐ | ☐ |
-| **Library** | `/admin/library` | Digital resources (PDF/links) for public Resources page | ☐ | ☐ | ☐ |
-| **Fatwa** | `/admin/fatwa` | Answer questions; publish to public `/fatwa`; email asker when answered | ☐ | ☐ | ☐ |
+| **Library** | `/admin/library` | Digital resources; toggle **show on homepage** (max 4 featured) for public Resources page | ☐ | ☐ | ☐ |
+| **Fatwa** | `/admin/fatwa` | Answer questions; toggle **show on homepage** (max 4 featured); email asker when answered | ☐ | ☐ | ☐ |
 | **Blog approvals** | `/admin/blog-approvals` | Approve/reject teacher blog posts | ☐ | ☐ | ☐ |
 | **Review approvals** | `/admin/review-approvals` | Approve/reject testimonials; **Remove from homepage** keeps review in **All reviews**; re-feature from All reviews | ☐ | ☐ | ☐ |
 | **Payment approvals** | `/admin/payment-approvals` | Approve monthly payments; **generate/upload receipt** and email student | ☐ | ☐ | ☐ |
@@ -147,7 +147,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 | Page | URL | Expected behavior | Mobile | Pad | PC |
 |------|-----|-------------------|:------:|:---:|:----:|
-| **Home** | `/` | Hero: Bismillah (Arabic, Indo-Pak font) + English on the **right**, academy title and tagline on the **left**; feature cards, verse/hadith, admin-selected featured courses (up to 6), homepage announcements (up to 4), testimonials, fatwa teaser; footer **Contact** | ☐ | ☐ | ☐ |
+| **Home** | `/` | Hero: Bismillah (Arabic, Indo-Pak font) + English on the **right**, academy title and tagline on the **left**; feature cards, verse/hadith, admin-selected featured courses (up to 6), homepage announcements (up to 4), featured blogs (up to 4), featured resources (up to 4), testimonials, featured fatwa answers (up to 4), fatwa CTA; footer **Contact** | ☐ | ☐ | ☐ |
 | **About Us** | `/about` | Mission, values; **Contact Us** shows admin **email** and **WhatsApp** (same as footer) | ☐ | ☐ | ☐ |
 | **Courses** | `/courses` | Lists published/ongoing courses; filter/browse; link to course detail | ☐ | ☐ | ☐ |
 | **Course detail** | `/courses/[id]` | Description, enrollment + monthly fees, teacher, **Request enrollment** (sign-in + complete profile required) | ☐ | ☐ | ☐ |

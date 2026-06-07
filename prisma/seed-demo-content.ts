@@ -54,6 +54,9 @@ export async function seedDemoContent(prisma: PrismaClient) {
   for (const [index, item] of demoBlogPosts.entries()) {
     const createdAt = staggeredDate(10 + index);
     const createdById = item.teacherId ? demoTeacherUserId(item.teacherId) : null;
+    const isFeatured =
+      item.published && item.approvalStatus === "APPROVED" && index < 4;
+    const featuredAt = isFeatured ? staggeredDate(10 + index) : null;
 
     await prisma.blogPost.upsert({
       where: { id: item.id },
@@ -64,6 +67,8 @@ export async function seedDemoContent(prisma: PrismaClient) {
         body: item.body,
         published: item.published,
         approvalStatus: item.approvalStatus,
+        featuredOnHomepage: isFeatured,
+        featuredAt,
         createdById,
         createdAt,
         updatedAt: createdAt,
@@ -74,6 +79,7 @@ export async function seedDemoContent(prisma: PrismaClient) {
         body: item.body,
         published: item.published,
         approvalStatus: item.approvalStatus,
+        featuredOnHomepage: isFeatured,
         createdById,
       },
     });
@@ -119,6 +125,8 @@ export async function seedDemoContent(prisma: PrismaClient) {
     const answeredAt = answered
       ? new Date(createdAt.getTime() + 2 * 86_400_000)
       : null;
+    const isFeatured = answered && index < 4;
+    const featuredAt = isFeatured ? (answeredAt ?? createdAt) : null;
 
     await prisma.fatwaQuestion.upsert({
       where: { id: item.id },
@@ -133,6 +141,8 @@ export async function seedDemoContent(prisma: PrismaClient) {
         answer: item.answer ?? null,
         answeredAt,
         answeredById: answered ? answererId : null,
+        featuredOnHomepage: isFeatured,
+        featuredAt,
         createdAt,
         updatedAt: answeredAt ?? createdAt,
       },
@@ -146,6 +156,7 @@ export async function seedDemoContent(prisma: PrismaClient) {
         answer: item.answer ?? null,
         answeredAt,
         answeredById: answered ? answererId : null,
+        featuredOnHomepage: isFeatured,
       },
     });
   }

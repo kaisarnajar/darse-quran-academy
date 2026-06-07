@@ -75,6 +75,7 @@ export default async function AdminFatwaPage({
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Asker</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Homepage</th>
                 <th className="px-4 py-3 font-medium">Submitted</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
@@ -94,6 +95,9 @@ export default async function AdminFatwaPage({
                     >
                       {statusLabel(q.answer)}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-muted">
+                    {q.featuredOnHomepage && q.answer ? "Featured" : "—"}
                   </td>
                   <td className="px-4 py-3 text-muted">
                     {q.createdAt.toLocaleDateString("en-IN", {

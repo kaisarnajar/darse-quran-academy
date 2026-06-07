@@ -1,12 +1,14 @@
 import type { FatwaQuestion } from "@prisma/client";
+import { HOMEPAGE_FEATURED_FATWA_MAX } from "@/lib/fatwa";
 import { inputClassName, labelClassName } from "@/lib/form";
 
 type AnswerFatwaFormProps = {
   question: FatwaQuestion;
+  featuredCount: number;
   action: (formData: FormData) => Promise<void>;
 };
 
-export function AnswerFatwaForm({ question, action }: AnswerFatwaFormProps) {
+export function AnswerFatwaForm({ question, featuredCount, action }: AnswerFatwaFormProps) {
   const isAnswered = Boolean(question.answer);
 
   return (
@@ -36,6 +38,23 @@ export function AnswerFatwaForm({ question, action }: AnswerFatwaFormProps) {
         />
         <p className="mt-1 text-xs text-muted">Minimum 20 characters. The asker will be emailed when you save.</p>
       </div>
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-background/40 px-4 py-4 text-sm text-foreground">
+        <input
+          type="checkbox"
+          name="featuredOnHomepage"
+          defaultChecked={question.featuredOnHomepage}
+          className="mt-1 rounded border-border"
+        />
+        <span>
+          <span className="font-medium">Show on homepage</span>
+          <span className="mt-0.5 block text-muted">
+            Featured in the Fatwa section when this answer is published (up to {HOMEPAGE_FEATURED_FATWA_MAX};{" "}
+            {featuredCount}/{HOMEPAGE_FEATURED_FATWA_MAX} slots used). All answered questions still appear on the
+            Fatwa page.
+          </span>
+        </span>
+      </label>
 
       <button
         type="submit"

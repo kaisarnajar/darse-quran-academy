@@ -2,7 +2,9 @@ import { HomeAnnouncements } from "@/components/home/HomeAnnouncements";
 import { ExperienceBanner } from "@/components/home/ExperienceBanner";
 import { HomeFatwa } from "@/components/home/HomeFatwa";
 import { FeatureCards } from "@/components/home/FeatureCards";
+import { FeaturedBlogs } from "@/components/home/FeaturedBlogs";
 import { FeaturedCourses } from "@/components/home/FeaturedCourses";
+import { FeaturedResources } from "@/components/home/FeaturedResources";
 import { HomeAbout } from "@/components/home/HomeAbout";
 import { HomeDailyInspiration } from "@/components/home/HomeDailyInspiration";
 import { HeroWave } from "@/components/home/HeroWave";
@@ -26,6 +28,8 @@ export default async function HomePage() {
       <HomeDailyInspiration inspiration={dailyInspiration} />
       <FeaturedCourses courses={featuredCourses} />
       <HomeAnnouncements />
+      <FeaturedBlogs />
+      <FeaturedResources />
       <HomeAbout />
       <ExperienceBanner />
       <StudentTestimonials />

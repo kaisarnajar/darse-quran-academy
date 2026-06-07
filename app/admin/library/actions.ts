@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
+import { resolveLibraryFeaturedUpdate } from "@/lib/library";
 import { prisma } from "@/lib/prisma";
 import { uniqueSlug } from "@/lib/slug";
 import { libraryItemSchema } from "@/lib/validations";
@@ -25,9 +26,24 @@ export async function createLibraryItem(formData: FormData) {
   const parsed = parseLibraryForm(formData);
   if (!parsed.success) throw new Error("Invalid library item data");
 
+  const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
+  const featured = await resolveLibraryFeaturedUpdate({
+    item: {
+      published: parsed.data.published,
+      featuredOnHomepage: false,
+      featuredAt: null,
+    },
+    requestFeatured: featuredOnHomepage,
+  });
+
+  if ("error" in featured) {
+    redirect(`/admin/library/new?saveError=${encodeURIComponent(featured.error)}`);
+  }
+
   const data = {
     ...parsed.data,
     pdfUrl: parsed.data.pdfUrl || null,
+    ...featured,
   };
 
   const id = await uniqueSlug(parsed.data.title, async (slug) => {
@@ -36,6 +52,7 @@ export async function createLibraryItem(formData: FormData) {
 
   await prisma.libraryItem.create({ data: { id, ...data } });
 
+  revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/admin/library");
   redirect(`/admin/library/${id}/edit?created=1`);
@@ -46,14 +63,33 @@ export async function updateLibraryItem(id: string, formData: FormData) {
   const parsed = parseLibraryForm(formData);
   if (!parsed.success) throw new Error("Invalid library item data");
 
+  const existing = await prisma.libraryItem.findUnique({ where: { id } });
+  if (!existing) throw new Error("Library item not found");
+
+  const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
+  const featured = await resolveLibraryFeaturedUpdate({
+    item: {
+      published: parsed.data.published,
+      featuredOnHomepage: existing.featuredOnHomepage,
+      featuredAt: existing.featuredAt,
+    },
+    requestFeatured: featuredOnHomepage,
+  });
+
+  if ("error" in featured) {
+    redirect(`/admin/library/${id}/edit?saveError=${encodeURIComponent(featured.error)}`);
+  }
+
   await prisma.libraryItem.update({
     where: { id },
     data: {
       ...parsed.data,
       pdfUrl: parsed.data.pdfUrl || null,
+      ...featured,
     },
   });
 
+  revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/admin/library");
   redirect(`/admin/library/${id}/edit?saved=1`);
@@ -62,6 +98,7 @@ export async function updateLibraryItem(id: string, formData: FormData) {
 export async function deleteLibraryItem(id: string) {
   await requireAdmin();
   await prisma.libraryItem.delete({ where: { id } });
+  revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/admin/library");
   redirect("/admin/library?deleted=1");

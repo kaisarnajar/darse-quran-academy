@@ -1,5 +1,6 @@
 import type { BlogImage } from "@prisma/client";
 import Image from "next/image";
+import { HOMEPAGE_FEATURED_BLOGS_MAX } from "@/lib/blogs";
 import { MAX_BLOG_IMAGES } from "@/lib/blog-upload";
 import { inputClassName, labelClassName } from "@/lib/form";
 
@@ -8,6 +9,7 @@ type BlogPostFormPost = {
   excerpt: string | null;
   body: string;
   published: boolean;
+  featuredOnHomepage?: boolean;
   images: BlogImage[];
 };
 
@@ -15,6 +17,7 @@ type BlogPostFormProps = {
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
   post?: BlogPostFormPost;
+  featuredCount?: number;
   error?: string;
   /** Teachers submit for admin approval; publish checkbox is hidden. */
   mode?: "admin" | "teacher";
@@ -24,6 +27,7 @@ export function BlogPostForm({
   action,
   submitLabel,
   post,
+  featuredCount = 0,
   error,
   mode = "admin",
 }: BlogPostFormProps) {
@@ -143,18 +147,36 @@ export function BlogPostForm({
           blog page.
         </p>
       ) : (
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
-          <input
-            type="checkbox"
-            name="published"
-            defaultChecked={post?.published ?? false}
-            className="h-4 w-4 rounded border-border"
-          />
-          <span>
-            <span className="font-medium">Publish on the public blog</span>
-            <span className="block text-muted">Leave unchecked to save as a draft.</span>
-          </span>
-        </label>
+        <div className="space-y-3 rounded-lg border border-border bg-background/40 px-4 py-4">
+          <label className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
+            <input
+              type="checkbox"
+              name="published"
+              defaultChecked={post?.published ?? false}
+              className="mt-1 rounded border-border"
+            />
+            <span>
+              <span className="font-medium">Publish on the public blog</span>
+              <span className="mt-0.5 block text-muted">Leave unchecked to save as a draft.</span>
+            </span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
+            <input
+              type="checkbox"
+              name="featuredOnHomepage"
+              defaultChecked={post?.featuredOnHomepage ?? false}
+              className="mt-1 rounded border-border"
+            />
+            <span>
+              <span className="font-medium">Show on homepage</span>
+              <span className="mt-0.5 block text-muted">
+                Featured in the Featured Blogs section when published (up to {HOMEPAGE_FEATURED_BLOGS_MAX};{" "}
+                {featuredCount}/{HOMEPAGE_FEATURED_BLOGS_MAX} slots used). All published posts still appear on
+                the Blog page.
+              </span>
+            </span>
+          </label>
+        </div>
       )}
 
       <button

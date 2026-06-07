@@ -61,7 +61,7 @@ export async function rejectBlogPost(
 
   await prisma.blogPost.update({
     where: { id: postId },
-    data: { approvalStatus: "REJECTED", published: false },
+    data: { approvalStatus: "REJECTED", published: false, featuredOnHomepage: false, featuredAt: null },
   });
 
   revalidateBlogPaths();

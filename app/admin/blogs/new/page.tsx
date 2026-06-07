@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { createBlogPost } from "@/app/admin/blogs/actions";
 import { BlogPostForm } from "@/components/admin/BlogPostForm";
+import { getFeaturedHomepageBlogCount } from "@/lib/blogs";
 
 export default async function NewBlogPostPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const query = await searchParams;
+  const [query, featuredCount] = await Promise.all([searchParams, getFeaturedHomepageBlogCount()]);
 
   return (
     <div>
@@ -22,6 +23,7 @@ export default async function NewBlogPostPage({
         <BlogPostForm
           action={createBlogPost}
           submitLabel="Create blog post"
+          featuredCount={featuredCount}
           error={query.error ? decodeURIComponent(query.error) : undefined}
         />
       </div>

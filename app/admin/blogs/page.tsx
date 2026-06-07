@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { DeleteBlogPostButton } from "@/components/admin/DeleteBlogPostButton";
 import { blogApprovalStatusClass, blogApprovalStatusLabel } from "@/lib/blog-approval";
-import { getAllBlogPostsForAdmin } from "@/lib/blogs";
+import { getAllBlogPostsForAdmin, isBlogPubliclyVisible } from "@/lib/blogs";
 import type { BlogPost } from "@prisma/client";
 
 function statusBadge(post: Pick<BlogPost, "approvalStatus" | "published">) {
@@ -64,6 +64,7 @@ export default async function AdminBlogsPage({
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Images</th>
                 <th className="px-4 py-3 font-medium">Author</th>
+                <th className="px-4 py-3 font-medium">Homepage</th>
                 <th className="px-4 py-3 font-medium">Created</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
@@ -83,6 +84,9 @@ export default async function AdminBlogsPage({
                     </td>
                     <td className="px-4 py-3 text-muted">{post.images.length}</td>
                     <td className="px-4 py-3 text-muted">{post.createdBy?.name ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted">
+                      {post.featuredOnHomepage && isBlogPubliclyVisible(post) ? "Featured" : "—"}
+                    </td>
                     <td className="px-4 py-3 text-muted">
                       {post.createdAt.toLocaleDateString("en-IN", {
                         day: "numeric",

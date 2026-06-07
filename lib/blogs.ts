@@ -1,6 +1,9 @@
 import type { BlogImage, BlogPost } from "@prisma/client";
 import { BLOG_PUBLIC_WHERE } from "@/lib/blog-approval";
+import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
 import { prisma } from "@/lib/prisma";
+
+export const HOMEPAGE_FEATURED_BLOGS_MAX = 4;
 
 export type BlogPostWithImages = BlogPost & {
   images: BlogImage[];
@@ -12,6 +15,48 @@ export function formatBlogDate(date: Date): string {
     day: "numeric",
     month: "long",
     year: "numeric",
+  });
+}
+
+export function isBlogPubliclyVisible(post: Pick<BlogPost, "published" | "approvalStatus">): boolean {
+  return post.published && post.approvalStatus === "APPROVED";
+}
+
+export async function getFeaturedHomepageBlogPosts(): Promise<BlogPostWithImages[]> {
+  const posts = await prisma.blogPost.findMany({
+    where: { featuredOnHomepage: true },
+    orderBy: [{ featuredAt: "desc" }, { updatedAt: "desc" }],
+    take: HOMEPAGE_FEATURED_BLOGS_MAX,
+    include: {
+      images: { orderBy: { sortOrder: "asc" } },
+      createdBy: { select: { name: true } },
+    },
+  });
+
+  return posts.filter(isBlogPubliclyVisible);
+}
+
+export async function getFeaturedHomepageBlogCount(): Promise<number> {
+  const posts = await prisma.blogPost.findMany({
+    where: { featuredOnHomepage: true },
+    select: { published: true, approvalStatus: true },
+  });
+  return posts.filter(isBlogPubliclyVisible).length;
+}
+
+export async function resolveBlogFeaturedUpdate(options: {
+  post: Pick<BlogPost, "published" | "approvalStatus" | "featuredOnHomepage" | "featuredAt">;
+  requestFeatured: boolean;
+}) {
+  const featuredCount = await getFeaturedHomepageBlogCount();
+  return resolveHomepageFeaturedUpdate({
+    isEligible: isBlogPubliclyVisible(options.post),
+    requestFeatured: options.requestFeatured,
+    currentlyFeatured: options.post.featuredOnHomepage,
+    currentFeaturedAt: options.post.featuredAt,
+    featuredCount,
+    maxFeatured: HOMEPAGE_FEATURED_BLOGS_MAX,
+    resourceLabel: "blogs",
   });
 }
 

@@ -1,5 +1,8 @@
 import type { FatwaQuestion } from "@prisma/client";
+import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
 import { prisma } from "@/lib/prisma";
+
+export const HOMEPAGE_FEATURED_FATWA_MAX = 4;
 
 export const FATWA_CATEGORIES = [
   "Islam",
@@ -17,6 +20,43 @@ export type FatwaCategory = (typeof FATWA_CATEGORIES)[number];
 
 export function isFatwaCategory(value: string): value is FatwaCategory {
   return FATWA_CATEGORIES.includes(value as FatwaCategory);
+}
+
+export function isFatwaAnswered(fatwa: Pick<FatwaQuestion, "answer">): boolean {
+  return fatwa.answer != null && fatwa.answer.trim().length > 0;
+}
+
+export async function getFeaturedHomepageFatwas(): Promise<FatwaQuestion[]> {
+  const fatwas = await prisma.fatwaQuestion.findMany({
+    where: { featuredOnHomepage: true, answer: { not: null } },
+    orderBy: [{ featuredAt: "desc" }, { answeredAt: "desc" }],
+    take: HOMEPAGE_FEATURED_FATWA_MAX,
+  });
+  return fatwas.filter(isFatwaAnswered);
+}
+
+export async function getFeaturedHomepageFatwaCount(): Promise<number> {
+  const fatwas = await prisma.fatwaQuestion.findMany({
+    where: { featuredOnHomepage: true, answer: { not: null } },
+    select: { answer: true },
+  });
+  return fatwas.filter(isFatwaAnswered).length;
+}
+
+export async function resolveFatwaFeaturedUpdate(options: {
+  fatwa: Pick<FatwaQuestion, "answer" | "featuredOnHomepage" | "featuredAt">;
+  requestFeatured: boolean;
+}) {
+  const featuredCount = await getFeaturedHomepageFatwaCount();
+  return resolveHomepageFeaturedUpdate({
+    isEligible: isFatwaAnswered(options.fatwa),
+    requestFeatured: options.requestFeatured,
+    currentlyFeatured: options.fatwa.featuredOnHomepage,
+    currentFeaturedAt: options.fatwa.featuredAt,
+    featuredCount,
+    maxFeatured: HOMEPAGE_FEATURED_FATWA_MAX,
+    resourceLabel: "fatwa answers",
+  });
 }
 
 export async function getAnsweredFatwas(category?: string): Promise<FatwaQuestion[]> {

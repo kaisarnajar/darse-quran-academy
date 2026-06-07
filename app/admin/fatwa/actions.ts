@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
-import { getFatwaPublicUrl } from "@/lib/fatwa";
+import { getFatwaPublicUrl, resolveFatwaFeaturedUpdate } from "@/lib/fatwa";
 import { sendFatwaAnswerEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 import { fatwaAnswerSchema } from "@/lib/validations";
@@ -25,15 +25,31 @@ export async function answerFatwaQuestion(id: string, formData: FormData) {
   }
 
   const now = new Date();
+  const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
+  const featured = await resolveFatwaFeaturedUpdate({
+    fatwa: {
+      answer: parsed.data.answer,
+      featuredOnHomepage: existing.featuredOnHomepage,
+      featuredAt: existing.featuredAt,
+    },
+    requestFeatured: featuredOnHomepage,
+  });
+
+  if ("error" in featured) {
+    redirect(`/admin/fatwa/${id}?error=${encodeURIComponent(featured.error)}`);
+  }
+
   await prisma.fatwaQuestion.update({
     where: { id },
     data: {
       answer: parsed.data.answer,
       answeredAt: existing.answeredAt ?? now,
       answeredById: session.user.id,
+      ...featured,
     },
   });
 
+  revalidatePath("/");
   revalidatePath("/fatwa");
   revalidatePath(`/fatwa/${id}`);
   revalidatePath("/admin/fatwa");
@@ -60,6 +76,7 @@ export async function deleteFatwaQuestion(id: string): Promise<{ error?: string 
 
   await prisma.fatwaQuestion.delete({ where: { id } });
 
+  revalidatePath("/");
   revalidatePath("/fatwa");
   revalidatePath(`/fatwa/${id}`);
   revalidatePath("/admin/fatwa");

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { deleteBlogImageFile } from "@/lib/blog-upload";
 import { addImagesToPost, getRemoveImageIds, parseBlogForm, removeBlogImages } from "@/lib/blog-mutations";
+import { resolveBlogFeaturedUpdate } from "@/lib/blogs";
 import { prisma } from "@/lib/prisma";
 
 function adminListPath(suffix = "") {
@@ -31,6 +32,22 @@ export async function createBlogPost(formData: FormData) {
   }
 
   const published = parsed.data.published;
+  const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
+  const approvalStatus = published ? "APPROVED" : "DRAFT";
+
+  const featured = await resolveBlogFeaturedUpdate({
+    post: {
+      published,
+      approvalStatus,
+      featuredOnHomepage: false,
+      featuredAt: null,
+    },
+    requestFeatured: featuredOnHomepage,
+  });
+
+  if ("error" in featured) {
+    redirect(adminListPath(`/new?error=${encodeURIComponent(featured.error)}`));
+  }
 
   const post = await prisma.blogPost.create({
     data: {
@@ -38,7 +55,8 @@ export async function createBlogPost(formData: FormData) {
       excerpt: parsed.data.excerpt || null,
       body: parsed.data.body,
       published,
-      approvalStatus: published ? "APPROVED" : "DRAFT",
+      approvalStatus,
+      ...featured,
       createdById: session.user.id,
     },
   });
@@ -83,6 +101,26 @@ export async function updateBlogPost(id: string, formData: FormData) {
   }
 
   const published = parsed.data.published;
+  const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
+  const approvalStatus = published
+    ? "APPROVED"
+    : existing.approvalStatus === "APPROVED"
+      ? "DRAFT"
+      : existing.approvalStatus;
+
+  const featured = await resolveBlogFeaturedUpdate({
+    post: {
+      published,
+      approvalStatus,
+      featuredOnHomepage: existing.featuredOnHomepage,
+      featuredAt: existing.featuredAt,
+    },
+    requestFeatured: featuredOnHomepage,
+  });
+
+  if ("error" in featured) {
+    redirect(adminListPath(`/${id}/edit?error=${encodeURIComponent(featured.error)}`));
+  }
 
   await prisma.blogPost.update({
     where: { id },
@@ -91,11 +129,8 @@ export async function updateBlogPost(id: string, formData: FormData) {
       excerpt: parsed.data.excerpt || null,
       body: parsed.data.body,
       published,
-      approvalStatus: published
-        ? "APPROVED"
-        : existing.approvalStatus === "APPROVED"
-          ? "DRAFT"
-          : existing.approvalStatus,
+      approvalStatus,
+      ...featured,
     },
   });
 

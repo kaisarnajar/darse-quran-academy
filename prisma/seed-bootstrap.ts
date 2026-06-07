@@ -62,7 +62,10 @@ export async function seedBootstrap(prisma: PrismaClient) {
     });
   }
 
-  for (const item of libraryItems) {
+  for (const [index, item] of libraryItems.entries()) {
+    const featuredAt = new Date("2026-01-02T00:00:00.000Z");
+    featuredAt.setMinutes(index);
+    const isFeatured = index < 4;
     await prisma.libraryItem.upsert({
       where: { id: item.id },
       create: {
@@ -73,6 +76,8 @@ export async function seedBootstrap(prisma: PrismaClient) {
         level: item.level,
         language: item.language,
         published: true,
+        featuredOnHomepage: isFeatured,
+        featuredAt: isFeatured ? featuredAt : null,
       },
       update: {
         title: item.title,
@@ -80,6 +85,7 @@ export async function seedBootstrap(prisma: PrismaClient) {
         topic: item.topic,
         level: item.level,
         language: item.language,
+        featuredOnHomepage: isFeatured,
       },
     });
   }

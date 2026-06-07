@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { updateBlogPost } from "@/app/admin/blogs/actions";
 import { BlogPostForm } from "@/components/admin/BlogPostForm";
 import { DeleteBlogPostButton } from "@/components/admin/DeleteBlogPostButton";
-import { getBlogPostForAdmin } from "@/lib/blogs";
+import { getBlogPostForAdmin, getFeaturedHomepageBlogCount } from "@/lib/blogs";
 
 export default async function EditBlogPostPage({
   params,
@@ -14,7 +14,7 @@ export default async function EditBlogPostPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const post = await getBlogPostForAdmin(id);
+  const [post, featuredCount] = await Promise.all([getBlogPostForAdmin(id), getFeaturedHomepageBlogCount()]);
 
   if (!post) notFound();
 
@@ -42,6 +42,7 @@ export default async function EditBlogPostPage({
           post={post}
           action={action}
           submitLabel="Save changes"
+          featuredCount={featuredCount}
           error={query.error ? decodeURIComponent(query.error) : undefined}
         />
       </div>
