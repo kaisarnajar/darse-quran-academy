@@ -11,7 +11,7 @@ type FeaturedCoursesProps = {
 
 export function FeaturedCourses({ courses }: FeaturedCoursesProps) {
   return (
-    <section className="bg-white py-16 sm:py-20">
+    <section className="bg-background py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="text-center">
           <SplitSectionTitle muted="Featured" accent="Courses" />

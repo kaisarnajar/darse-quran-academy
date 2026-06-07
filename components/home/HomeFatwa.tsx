@@ -7,7 +7,7 @@ export async function HomeFatwa() {
   const fatwas = await getFeaturedHomepageFatwas();
 
   return (
-    <section className="bg-accent-muted/50 py-16 sm:py-20">
+    <section className="bg-teal/[0.06] py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="text-center">
           <SplitSectionTitle muted="Fatwa" accent="Section" />

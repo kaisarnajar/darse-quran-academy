@@ -11,7 +11,7 @@ export async function FeaturedResources() {
   }
 
   return (
-    <section className="bg-surface py-16 sm:py-20">
+    <section className="bg-accent-muted/50 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
           <div className="text-center sm:text-left">
