@@ -135,6 +135,8 @@ Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local Po
 | “This email is reserved for administration” on register | Deploy latest `master` — admin emails are allowed to register for bootstrap; use sign-in if the account already exists |
 | Admin account does not exist yet | Register at `/register` with an `ADMIN_EMAIL` address, or sign in with Google using that email |
 | Schema errors after deploy | Ensure build ran `prisma migrate deploy`; redeploy latest `master` |
+| `migrate deploy` fails after migration squash | Reset the database (Neon: delete/recreate project or branch) so only the single `init` migration applies; back up real data first |
+| Local `db:migrate` conflicts after pull | Delete `prisma/dev.db`, then run `npm run db:migrate` and `npm run db:seed:demo` |
 | Emails not sent | Set SMTP vars, or check Vercel **Functions** logs for logged links |
 | OAuth redirect error | `AUTH_URL` must match live domain; update Google redirect URI |
 | Uploaded payment screenshots / PDFs missing after redeploy | Expected on serverless without external storage — see README limitations |

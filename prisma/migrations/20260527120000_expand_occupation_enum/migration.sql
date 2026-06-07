@@ -1,1 +1,0 @@
--- Occupation enum expanded in Prisma schema (SQLite stores values as TEXT; no column change).
