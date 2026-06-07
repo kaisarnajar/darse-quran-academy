@@ -85,6 +85,8 @@ CREATE TABLE "Course" (
     "monthlyFeeInrPaise" INTEGER NOT NULL,
     "teacherId" TEXT,
     "status" TEXT NOT NULL DEFAULT 'PUBLISHED',
+    "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
+    "featuredAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "Course_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher" ("id") ON DELETE SET NULL ON UPDATE CASCADE
@@ -309,6 +311,9 @@ CREATE INDEX "PasswordResetToken_email_idx" ON "PasswordResetToken"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Teacher_email_key" ON "Teacher"("email");
+
+-- CreateIndex
+CREATE INDEX "Course_featuredOnHomepage_featuredAt_idx" ON "Course"("featuredOnHomepage", "featuredAt");
 
 -- CreateIndex
 CREATE INDEX "CourseAnnouncement_courseId_idx" ON "CourseAnnouncement"("courseId");

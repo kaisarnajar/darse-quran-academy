@@ -9,15 +9,14 @@ import { HeroWave } from "@/components/home/HeroWave";
 import { HomeHero } from "@/components/home/HomeHero";
 import { LearnAccordion } from "@/components/home/LearnAccordion";
 import { StudentTestimonials } from "@/components/home/StudentTestimonials";
-import { getPublishedCourses } from "@/lib/courses";
+import { getFeaturedHomepageCourses } from "@/lib/courses";
 import { getHomepageDailyInspiration } from "@/lib/daily-inspiration";
 
 export default async function HomePage() {
-  const [courses, dailyInspiration] = await Promise.all([
-    getPublishedCourses(),
+  const [featuredCourses, dailyInspiration] = await Promise.all([
+    getFeaturedHomepageCourses(),
     getHomepageDailyInspiration(),
   ]);
-  const featuredCourses = courses.slice(0, 6);
 
   return (
     <>

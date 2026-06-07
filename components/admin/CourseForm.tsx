@@ -1,4 +1,5 @@
 import type { Course, Teacher } from "@prisma/client";
+import { HOMEPAGE_FEATURED_COURSES_MAX } from "@/lib/courses";
 import { getCoursePricingFromCourse, getDefaultFeesForLevel } from "@/lib/course-pricing";
 import { COURSE_STATUS_OPTIONS } from "@/lib/course-status";
 import { inputClassName, labelClassName } from "@/lib/form";
@@ -6,11 +7,12 @@ import { inputClassName, labelClassName } from "@/lib/form";
 type CourseFormProps = {
   course?: Course;
   teachers: Teacher[];
+  featuredCount: number;
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
 };
 
-export function CourseForm({ course, teachers, action, submitLabel }: CourseFormProps) {
+export function CourseForm({ course, teachers, featuredCount, action, submitLabel }: CourseFormProps) {
   const feeDefaults = course
     ? getCoursePricingFromCourse(course)
     : getDefaultFeesForLevel("Beginner");
@@ -160,6 +162,25 @@ export function CourseForm({ course, teachers, action, submitLabel }: CourseForm
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="space-y-3 rounded-lg border border-border bg-background/40 px-4 py-4">
+        <label className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
+          <input
+            type="checkbox"
+            name="featuredOnHomepage"
+            defaultChecked={course?.featuredOnHomepage ?? false}
+            className="mt-1 rounded border-border"
+          />
+          <span>
+            <span className="font-medium">Show on homepage</span>
+            <span className="mt-0.5 block text-muted">
+              Featured in the Featured Courses section when not in draft (up to{" "}
+              {HOMEPAGE_FEATURED_COURSES_MAX}; {featuredCount}/{HOMEPAGE_FEATURED_COURSES_MAX} slots
+              used). All public courses still appear on the Courses page.
+            </span>
+          </span>
+        </label>
       </div>
 
       {course && (

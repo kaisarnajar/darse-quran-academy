@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
+import { resolveCourseFeaturedUpdate } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 import { getDefaultFeesForLevel } from "@/lib/course-pricing";
 import { uniqueSlug } from "@/lib/slug";
@@ -12,6 +13,7 @@ function parseCourseForm(formData: FormData) {
   const level = String(formData.get("level") ?? "Beginner");
   const teacherId = String(formData.get("teacherId") ?? "").trim();
   const defaults = getDefaultFeesForLevel(level);
+  const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
 
   const parsed = courseSchema.safeParse({
     title: formData.get("title"),
@@ -39,6 +41,7 @@ function parseCourseForm(formData: FormData) {
       monthlyFeeInrPaise: Math.round(parsed.data.monthlyFeeInr * 100),
       teacherId: parsed.data.teacherId,
       status: parsed.data.status,
+      featuredOnHomepage,
     },
   };
 }
@@ -51,7 +54,18 @@ export async function createCourse(formData: FormData) {
     throw new Error("Invalid course data");
   }
 
-  const { title, ...courseData } = parsed.data;
+  const { title, featuredOnHomepage, ...courseData } = parsed.data;
+
+  const featured = await resolveCourseFeaturedUpdate({
+    status: courseData.status,
+    requestFeatured: featuredOnHomepage,
+    currentlyFeatured: false,
+    currentFeaturedAt: null,
+  });
+
+  if ("error" in featured) {
+    redirect(`/admin/courses/new?saveError=${encodeURIComponent(featured.error)}`);
+  }
 
   const id = await uniqueSlug(title, async (slug) => {
     const existing = await prisma.course.findUnique({ where: { id: slug } });
@@ -59,7 +73,7 @@ export async function createCourse(formData: FormData) {
   });
 
   await prisma.course.create({
-    data: { id, title, ...courseData },
+    data: { id, title, ...courseData, ...featured },
   });
 
   revalidatePath("/");
@@ -76,11 +90,27 @@ export async function updateCourse(id: string, formData: FormData) {
     throw new Error("Invalid course data");
   }
 
-  const { title, ...courseData } = parsed.data;
+  const existing = await prisma.course.findUnique({ where: { id } });
+  if (!existing) {
+    throw new Error("Course not found");
+  }
+
+  const { title, featuredOnHomepage, ...courseData } = parsed.data;
+
+  const featured = await resolveCourseFeaturedUpdate({
+    status: courseData.status,
+    requestFeatured: featuredOnHomepage,
+    currentlyFeatured: existing.featuredOnHomepage,
+    currentFeaturedAt: existing.featuredAt,
+  });
+
+  if ("error" in featured) {
+    redirect(`/admin/courses/${id}/edit?saveError=${encodeURIComponent(featured.error)}`);
+  }
 
   await prisma.course.update({
     where: { id },
-    data: { title, ...courseData },
+    data: { title, ...courseData, ...featured },
   });
 
   revalidatePath("/");

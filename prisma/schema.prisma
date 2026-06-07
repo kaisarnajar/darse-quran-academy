@@ -145,12 +145,16 @@ model Course {
   priceInrPaise       Int
   monthlyFeeInrPaise  Int
   teacherId           String?
-  status        CourseStatus @default(PUBLISHED)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  status              CourseStatus @default(PUBLISHED)
+  featuredOnHomepage  Boolean      @default(false)
+  featuredAt          DateTime?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
   teacher         Teacher?              @relation(fields: [teacherId], references: [id], onDelete: SetNull)
   paymentRecords  PaymentRecord[]
   announcements   CourseAnnouncement[]
+
+  @@index([featuredOnHomepage, featuredAt])
 }
 
 model Teacher {

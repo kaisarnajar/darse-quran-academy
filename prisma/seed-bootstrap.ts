@@ -29,8 +29,10 @@ export async function seedBootstrap(prisma: PrismaClient) {
     });
   }
 
-  for (const course of courses) {
+  for (const [index, course] of courses.entries()) {
     const fees = getDefaultFeesForLevel(course.level);
+    const featuredAt = new Date("2026-01-01T00:00:00.000Z");
+    featuredAt.setMinutes(index);
     await prisma.course.upsert({
       where: { id: course.id },
       create: {
@@ -44,6 +46,8 @@ export async function seedBootstrap(prisma: PrismaClient) {
         monthlyFeeInrPaise: fees.monthlyFeePaise,
         teacherId: course.teacherId,
         status: "PUBLISHED",
+        featuredOnHomepage: true,
+        featuredAt,
       },
       update: {
         title: course.title,
@@ -53,6 +57,7 @@ export async function seedBootstrap(prisma: PrismaClient) {
         category: course.category,
         monthlyFeeInrPaise: fees.monthlyFeePaise,
         teacherId: course.teacherId,
+        featuredOnHomepage: true,
       },
     });
   }

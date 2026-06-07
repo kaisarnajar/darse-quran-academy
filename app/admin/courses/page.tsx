@@ -41,6 +41,7 @@ export default async function AdminCoursesPage({
               <th className="px-4 py-3 font-medium">Fees</th>
               <th className="px-4 py-3 font-medium">Students</th>
               <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Homepage</th>
               <th className="px-4 py-3 font-medium" />
             </tr>
           </thead>
@@ -68,6 +69,9 @@ export default async function AdminCoursesPage({
                   </td>
                   <td className="px-4 py-3">
                     <CourseStatusBadge status={course.status} />
+                  </td>
+                  <td className="px-4 py-3 text-muted">
+                    {course.featuredOnHomepage && course.status !== "DRAFT" ? "Featured" : "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link

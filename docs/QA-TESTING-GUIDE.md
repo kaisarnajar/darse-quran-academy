@@ -126,7 +126,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | **Announcements** | `/admin/announcements` | CRUD site-wide announcements; toggle **show on homepage** (max 4 featured) | ☐ | ☐ | ☐ |
 | **Blogs** | `/admin/blogs` | Admin-authored blog posts | ☐ | ☐ | ☐ |
 | **Verse & Hadith** | `/admin/daily-inspiration` | Daily Quran verse / Hadith for homepage | ☐ | ☐ | ☐ |
-| **Courses** | `/admin/courses` | Create/edit courses; fees, teacher, status; **Announcements** link per course | ☐ | ☐ | ☐ |
+| **Courses** | `/admin/courses` | Create/edit courses; fees, teacher, status; toggle **show on homepage** (max 6 featured); **Announcements** link per course | ☐ | ☐ | ☐ |
 | **Course students** | `/admin/courses/[id]/students` | Approve enrollment requests; mark **complete**; generate/upload **certificate** and email student; nav: Students \| Announcements | ☐ | ☐ | ☐ |
 | **Course announcements** | `/admin/courses/[id]/announcements` | Post course-wide announcements for any course; edit/delete all posts on that course | ☐ | ☐ | ☐ |
 | **Enrollments** | `/admin/enrollments` | Pending enrollment requests across courses | ☐ | ☐ | ☐ |
@@ -147,7 +147,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 | Page | URL | Expected behavior | Mobile | Pad | PC |
 |------|-----|-------------------|:------:|:---:|:----:|
-| **Home** | `/` | Hero: Bismillah (Arabic, Indo-Pak font) + English on the **right**, academy title and tagline on the **left**; feature cards, verse/hadith, featured courses (up to 6), homepage announcements (up to 4), testimonials, fatwa teaser; footer **Contact** | ☐ | ☐ | ☐ |
+| **Home** | `/` | Hero: Bismillah (Arabic, Indo-Pak font) + English on the **right**, academy title and tagline on the **left**; feature cards, verse/hadith, admin-selected featured courses (up to 6), homepage announcements (up to 4), testimonials, fatwa teaser; footer **Contact** | ☐ | ☐ | ☐ |
 | **About Us** | `/about` | Mission, values; **Contact Us** shows admin **email** and **WhatsApp** (same as footer) | ☐ | ☐ | ☐ |
 | **Courses** | `/courses` | Lists published/ongoing courses; filter/browse; link to course detail | ☐ | ☐ | ☐ |
 | **Course detail** | `/courses/[id]` | Description, enrollment + monthly fees, teacher, **Request enrollment** (sign-in + complete profile required) | ☐ | ☐ | ☐ |
