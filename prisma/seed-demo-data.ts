@@ -1,6 +1,8 @@
 import { hash } from "bcryptjs";
 import type { PrismaClient } from "@prisma/client";
+import { getAdminEmails } from "../lib/admin";
 import {
+  DEMO_ADMIN_PASSWORD,
   DEMO_STUDENT_PASSWORD,
   demoStudents,
   type DemoEnrollment,
@@ -174,6 +176,43 @@ function demoTeacherUserId(teacherId: string) {
   return `seed-demo-teacher-user-${teacherId}`;
 }
 
+function demoAdminUserId(index: number) {
+  return `seed-demo-admin-user-${index + 1}`;
+}
+
+function demoAdminDisplayName(email: string) {
+  const local = email.split("@")[0] ?? "admin";
+  return local
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+/** Admin login accounts for every address in `ADMIN_EMAIL` (local / QA). */
+export async function seedDemoAdmins(prisma: PrismaClient) {
+  const emails = getAdminEmails();
+  if (emails.length === 0) return;
+
+  const hashedPassword = await hash(DEMO_ADMIN_PASSWORD, 12);
+
+  for (const [index, email] of emails.entries()) {
+    await prisma.user.upsert({
+      where: { email },
+      create: {
+        id: demoAdminUserId(index),
+        email,
+        name: demoAdminDisplayName(email),
+        password: hashedPassword,
+      },
+      update: {
+        name: demoAdminDisplayName(email),
+        password: hashedPassword,
+      },
+    });
+  }
+}
+
 /** Demo teacher login accounts matching seeded teacher profiles (local / QA). */
 export async function seedDemoTeachers(prisma: PrismaClient) {
   const hashedPassword = await hash(DEMO_TEACHER_PASSWORD, 12);
@@ -249,4 +288,12 @@ export function demoTeacherLoginHint(): string {
   const first = teachers[0]?.email ?? "teacher@seed.local";
   const last = teachers[teachers.length - 1]?.email ?? first;
   return `Demo teachers: ${first} … ${last} — password ${DEMO_TEACHER_PASSWORD}`;
+}
+
+export function demoAdminLoginHint(): string {
+  const emails = getAdminEmails();
+  if (emails.length === 0) {
+    return "Demo admins: none — set ADMIN_EMAIL in .env and re-run seed.";
+  }
+  return `Demo admins: ${emails.join(", ")} — password ${DEMO_ADMIN_PASSWORD}`;
 }

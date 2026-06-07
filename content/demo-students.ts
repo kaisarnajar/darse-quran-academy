@@ -3,6 +3,9 @@ import type { OccupationValue } from "../lib/occupations";
 /** Shared password for all demo student accounts (local / QA only). */
 export const DEMO_STUDENT_PASSWORD = "Demo@2026";
 
+/** Shared password for admin accounts seeded from `ADMIN_EMAIL` (local / QA only). */
+export const DEMO_ADMIN_PASSWORD = "Admin@2026";
+
 export type DemoPaymentStatus = "approved" | "pending" | "declined";
 
 export type DemoPayment = {

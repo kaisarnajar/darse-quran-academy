@@ -24,8 +24,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Admin access
 
-1. Register or sign in with an email listed in `ADMIN_EMAIL` in `.env`.
-2. Open [http://localhost:3000/admin](http://localhost:3000/admin).
+1. Add your email(s) to `ADMIN_EMAIL` in `.env`.
+2. Run `npm run db:seed:demo` — creates admin accounts with password `Admin@2026`.
+3. Sign in and open [http://localhost:3000/admin](http://localhost:3000/admin).
 
 ## Environment variables
 
