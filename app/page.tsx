@@ -30,10 +30,10 @@ export default async function HomePage() {
       <HomeAnnouncements />
       <FeaturedBlogs />
       <FeaturedResources />
+      <HomeFatwa />
       <HomeAbout />
       <ExperienceBanner />
       <StudentTestimonials />
-      <HomeFatwa />
       <LearnAccordion />
     </>
   );
