@@ -22,11 +22,19 @@ Open [http://localhost:3000](http://localhost:3000).
 
 `db:seed:demo` loads local QA data only: courses, teachers, library, testimonials, logins, enrollments, payments, announcements, blogs, verse/hadith, fatwa, and course announcements (all major states for testing). Blocked on production PostgreSQL. Production starts empty — add real content in `/admin`.
 
-### Admin access
+### Demo login accounts
 
-1. Add your email(s) to `ADMIN_EMAIL` in `.env`.
-2. Run `npm run db:seed:demo` — creates admin accounts with password `Admin@2026`.
-3. Sign in and open [http://localhost:3000/admin](http://localhost:3000/admin).
+After `npm run db:seed:demo`, use these accounts for local QA (passwords are shared per role):
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | Any address listed in `ADMIN_EMAIL` in `.env` | `Admin@2026` |
+| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `hamza.malik@teachers.darsequranacademy.org` (all six seeded teachers) | `Teacher@2026` |
+| **Student** | `demo-student-01@seed.local` … `demo-student-25@seed.local` | `Demo@2026` |
+
+1. Add your email(s) to `ADMIN_EMAIL` in `.env` before seeding so admin accounts are created.
+2. Sign in at [http://localhost:3000/login](http://localhost:3000/login).
+3. Admins → [http://localhost:3000/admin](http://localhost:3000/admin); teachers → `/teacher`; students → `/profile`.
 
 ## Environment variables
 
