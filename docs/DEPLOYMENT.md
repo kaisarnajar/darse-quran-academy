@@ -114,13 +114,26 @@ Default local setup uses a file database — no Docker required:
 
 ```bash
 cp .env.example .env
+# Edit .env — set ADMIN_EMAIL to your test admin address(es)
 # DATABASE_URL="file:./dev.db"
 npm run db:migrate
 npm run db:seed:demo
 npm run dev
 ```
 
-Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local PostgreSQL for testing against production-like DB.
+`db:seed:demo` is **local QA only** (blocked on production PostgreSQL). It creates courses, teachers, students, announcements, blogs, verse/hadith, fatwa, and login accounts. Do not run it against your live Neon database.
+
+### Demo login accounts (local)
+
+After seeding, sign in at `http://localhost:3000/login`:
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | Any address in `ADMIN_EMAIL` in `.env` | `Admin@2026` |
+| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `hamza.malik@teachers.darsequranacademy.org` | `Teacher@2026` |
+| **Student** | `demo-student-01@seed.local` … `demo-student-25@seed.local` | `Demo@2026` |
+
+Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local PostgreSQL for testing against production-like DB (set `ALLOW_DEMO_SEED=true` to run demo seed against it).
 
 ---
 
@@ -133,7 +146,7 @@ Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local Po
 | Wrong contact email / social links | Admin → **Social links** — save and refresh homepage |
 | Cannot access `/admin` | Signed-in email must be listed in `ADMIN_EMAIL` (comma-separated); redeploy after changing env |
 | “This email is reserved for administration” on register | Deploy latest `master` — admin emails are allowed to register for bootstrap; use sign-in if the account already exists |
-| Admin account does not exist yet | Register at `/register` with an `ADMIN_EMAIL` address, or sign in with Google using that email |
+| Admin account does not exist yet | **Production:** register at `/register` with an `ADMIN_EMAIL` address, or sign in with Google. **Local:** set `ADMIN_EMAIL` in `.env` and run `npm run db:seed:demo` (password `Admin@2026`) |
 | Schema errors after deploy | Ensure build ran `prisma migrate deploy`; redeploy latest `master` |
 | `migrate deploy` fails after migration squash | Reset the database (Neon: delete/recreate project or branch) so only the single `init` migration applies; back up real data first |
 | Local `db:migrate` conflicts after pull | Delete `prisma/dev.db`, then run `npm run db:migrate` and `npm run db:seed:demo` |

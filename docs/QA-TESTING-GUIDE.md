@@ -15,14 +15,19 @@
 
 ### Test accounts (prepare before testing)
 
-| Role | How to get access | Notes |
-|------|-------------------|--------|
-| **Student (demo)** | Run `npm run db:seed:demo`, then sign in as `demo-student-01@seed.local` … `demo-student-25@seed.local` — password `Demo@2026` | Profiles and enrollments pre-filled |
+**Local QA:** set `ADMIN_EMAIL` in `.env`, then run `npm run db:seed:demo`. Shared passwords:
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | Any address in `ADMIN_EMAIL` | `Admin@2026` |
+| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `hamza.malik@teachers.darsequranacademy.org` | `Teacher@2026` |
+| **Student** | `demo-student-01@seed.local` … `demo-student-25@seed.local` | `Demo@2026` |
+
+| Role | How to get access (manual / production) | Notes |
+|------|----------------------------------------|--------|
 | **Student (manual)** | Register at `/register` with an email **not** in `ADMIN_EMAIL` | Complete profile before requesting enrollment |
-| **Teacher (demo)** | Run `npm run db:seed:demo`, then sign in as e.g. `hamza.malik@teachers.darsequranacademy.org` — password `Teacher@2026` | All six seeded teachers use the same password |
 | **Teacher (manual)** | Register with a normal email, then admin adds that email under **Admin → Teachers** | Sign in → opens teacher portal; cannot access `/profile` |
-| **Admin (demo)** | Run `npm run db:seed:demo` with your email(s) in `ADMIN_EMAIL` in `.env`, then sign in — password `Admin@2026` | Opens `/admin`; role is granted on sign-in via `ADMIN_EMAIL` |
-| **Admin (manual)** | **Register** at `/register` with an `ADMIN_EMAIL` address (or sign in with Google using that email) | Same as demo — account must exist and email must match `ADMIN_EMAIL` |
+| **Admin (manual)** | Register at `/register` with an `ADMIN_EMAIL` address (or sign in with Google using that email) | Role granted on sign-in via `ADMIN_EMAIL` |
 
 Optional: Google sign-in if `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` are configured (creates the account on first sign-in for admin or student emails).
 
@@ -59,7 +64,8 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 |---------|-----|-------------------|:------:|:---:|:----:|
 | Sign in | `/login` | Email/password works; optional Google button if enabled; invalid credentials show error | ☐ | ☐ | ☐ |
 | Register | `/register` | New account with email/password; admin emails in `ADMIN_EMAIL` **can** register (bootstrap); duplicate email shows error | ☐ | ☐ | ☐ |
-| Admin bootstrap | `/register` + `/admin` | Register with `ADMIN_EMAIL` address → sign in → `/admin` loads | ☐ | ☐ | ☐ |
+| Admin bootstrap (demo) | `/login` + `/admin` | After `db:seed:demo`, sign in with `ADMIN_EMAIL` address and `Admin@2026` → `/admin` loads | ☐ | ☐ | ☐ |
+| Admin bootstrap (manual) | `/register` + `/admin` | Register with `ADMIN_EMAIL` address → sign in → `/admin` loads | ☐ | ☐ | ☐ |
 | Forgot password | `/forgot-password` | Submit email → success message; reset email if SMTP configured (or link in server logs locally) | ☐ | ☐ | ☐ |
 | Reset password | `/reset-password?token=…` | Set new password (min 8 chars); redirect to login with success message | ☐ | ☐ | ☐ |
 | Sign out | Any signed-in page | Click **Sign Out** → dialog **“Do you want to sign out?”** → **Cancel** stays signed in; **Sign out** logs out and goes home | ☐ | ☐ | ☐ |
@@ -95,7 +101,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 ## 5. Teacher portal (`/teacher`)
 
-**Access:** User email must exist as teacher in **Admin → Teachers**. Sign in → **Teacher** in header or `/teacher`.
+**Access (demo):** Sign in as a seeded teacher (e.g. `hamza.malik@teachers.darsequranacademy.org`, password `Teacher@2026`) → **Teacher** in header or `/teacher`. **Manual:** register, then admin links your email under **Admin → Teachers**.
 
 | Section | URL | Expected behavior | Mobile | Pad | PC |
 |---------|-----|-------------------|:------:|:---:|:----:|
@@ -112,7 +118,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 ## 6. Admin panel (`/admin`)
 
-**Access:** Sign in with email in `ADMIN_EMAIL`.
+**Access (demo):** Sign in with your `ADMIN_EMAIL` address and password `Admin@2026`. **Manual/production:** register or use Google with an `ADMIN_EMAIL` address.
 
 | Section | URL | Expected behavior | Mobile | Pad | PC |
 |---------|-----|-------------------|:------:|:---:|:----:|
