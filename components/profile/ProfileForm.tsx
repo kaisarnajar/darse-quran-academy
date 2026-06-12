@@ -71,7 +71,7 @@ export function ProfileForm({
     dateOfBirth,
     occupation: occupation ?? "",
     address: address ?? "",
-    whatsapp: whatsapp ?? "",
+    whatsapp: (whatsapp ?? "").replace(/\D/g, "").slice(0, 10),
   });
   const [touched, setTouched] = useState<Partial<Record<FormField, boolean>>>({});
 
@@ -259,8 +259,11 @@ export function ProfileForm({
           name="whatsapp"
           type="tel"
           required
+          inputMode="numeric"
+          maxLength={10}
+          pattern="[0-9]{10}"
           value={values.whatsapp}
-          onChange={(e) => updateField("whatsapp", e.target.value)}
+          onChange={(e) => updateField("whatsapp", e.target.value.replace(/\D/g, "").slice(0, 10))}
           onBlur={() => markTouched("whatsapp")}
           aria-invalid={showError("whatsapp") || undefined}
           aria-describedby={showError("whatsapp") ? "whatsapp-error" : undefined}

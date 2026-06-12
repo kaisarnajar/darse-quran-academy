@@ -158,9 +158,7 @@ export const profileUpdateSchema = z.object({
   whatsapp: z
     .string()
     .trim()
-    .min(10, "WhatsApp number must be at least 10 digits.")
-    .max(15, "WhatsApp number is too long.")
-    .regex(/^\+?[\d\s-]+$/, "Enter a valid WhatsApp number."),
+    .regex(/^\d{10}$/, "WhatsApp number must be exactly 10 digits."),
 });
 
 export const announcementCategoryEnum = z.enum([

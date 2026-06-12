@@ -29,8 +29,6 @@ export async function updateProfile(
     return { error: parsed.error.issues[0]?.message ?? "Invalid profile data." };
   }
 
-  const whatsapp = parsed.data.whatsapp.replace(/\s|-/g, "");
-
   await prisma.user.update({
     where: { id: session.user.id },
     data: {
@@ -39,7 +37,7 @@ export async function updateProfile(
       dateOfBirth: new Date(parsed.data.dateOfBirth),
       occupation: parsed.data.occupation,
       address: parsed.data.address,
-      whatsapp,
+      whatsapp: parsed.data.whatsapp,
     },
   });
 
