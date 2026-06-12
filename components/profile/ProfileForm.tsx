@@ -1,10 +1,11 @@
 "use client";
 
 import type { Occupation } from "@prisma/client";
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { updateProfile, type ProfileUpdateState } from "@/app/profile/actions";
 import { OCCUPATION_OPTIONS } from "@/lib/profile";
 import { inputClassName, labelClassName } from "@/lib/form";
+import { profileUpdateSchema } from "@/lib/validations";
 
 type ProfileFormProps = {
   name: string | null;
@@ -16,7 +17,43 @@ type ProfileFormProps = {
   whatsapp: string | null;
 };
 
+type FormField = keyof typeof profileUpdateSchema.shape;
+
+type ProfileFormValues = {
+  name: string;
+  fatherName: string;
+  dateOfBirth: string;
+  occupation: Occupation | "";
+  address: string;
+  whatsapp: string;
+};
+
+const FORM_FIELDS: FormField[] = [
+  "name",
+  "fatherName",
+  "dateOfBirth",
+  "occupation",
+  "address",
+  "whatsapp",
+];
+
 const initialState: ProfileUpdateState = {};
+
+const errorTextClassName = "mt-1 text-sm text-red-700";
+
+function fieldInputClass(hasError: boolean) {
+  return hasError
+    ? `${inputClassName} border-red-500 focus:border-red-500 focus:ring-red-500`
+    : inputClassName;
+}
+
+function getFieldError(field: FormField, value: string): string | undefined {
+  const result = profileUpdateSchema.shape[field].safeParse(value);
+  if (result.success) {
+    return undefined;
+  }
+  return result.error.issues[0]?.message;
+}
 
 export function ProfileForm({
   name,
@@ -28,6 +65,40 @@ export function ProfileForm({
   whatsapp,
 }: ProfileFormProps) {
   const [state, formAction, pending] = useActionState(updateProfile, initialState);
+  const [values, setValues] = useState<ProfileFormValues>({
+    name: name ?? "",
+    fatherName: fatherName ?? "",
+    dateOfBirth,
+    occupation: occupation ?? "",
+    address: address ?? "",
+    whatsapp: whatsapp ?? "",
+  });
+  const [touched, setTouched] = useState<Partial<Record<FormField, boolean>>>({});
+
+  const errors = useMemo(() => {
+    const next: Partial<Record<FormField, string>> = {};
+    for (const field of FORM_FIELDS) {
+      const message = getFieldError(field, values[field]);
+      if (message) {
+        next[field] = message;
+      }
+    }
+    return next;
+  }, [values]);
+
+  const isValid = useMemo(() => profileUpdateSchema.safeParse(values).success, [values]);
+
+  function updateField(field: FormField, value: string) {
+    setValues((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function markTouched(field: FormField) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  }
+
+  function showError(field: FormField) {
+    return Boolean(touched[field] && errors[field]);
+  }
 
   return (
     <form action={formAction} className="card-elevated max-w-lg space-y-4 p-5 sm:p-6">
@@ -56,10 +127,19 @@ export function ProfileForm({
           name="name"
           type="text"
           required
-          defaultValue={name ?? ""}
-          className={inputClassName}
+          value={values.name}
+          onChange={(e) => updateField("name", e.target.value)}
+          onBlur={() => markTouched("name")}
+          aria-invalid={showError("name") || undefined}
+          aria-describedby={showError("name") ? "name-error" : undefined}
+          className={fieldInputClass(showError("name"))}
           autoComplete="name"
         />
+        {showError("name") && (
+          <p id="name-error" className={errorTextClassName} role="alert">
+            {errors.name}
+          </p>
+        )}
       </div>
 
       <div>
@@ -71,10 +151,19 @@ export function ProfileForm({
           name="fatherName"
           type="text"
           required
-          defaultValue={fatherName ?? ""}
-          className={inputClassName}
+          value={values.fatherName}
+          onChange={(e) => updateField("fatherName", e.target.value)}
+          onBlur={() => markTouched("fatherName")}
+          aria-invalid={showError("fatherName") || undefined}
+          aria-describedby={showError("fatherName") ? "fatherName-error" : undefined}
+          className={fieldInputClass(showError("fatherName"))}
           autoComplete="off"
         />
+        {showError("fatherName") && (
+          <p id="fatherName-error" className={errorTextClassName} role="alert">
+            {errors.fatherName}
+          </p>
+        )}
       </div>
 
       <div>
@@ -86,9 +175,21 @@ export function ProfileForm({
           name="dateOfBirth"
           type="date"
           required
-          defaultValue={dateOfBirth}
-          className={inputClassName}
+          value={values.dateOfBirth}
+          onChange={(e) => {
+            updateField("dateOfBirth", e.target.value);
+            markTouched("dateOfBirth");
+          }}
+          onBlur={() => markTouched("dateOfBirth")}
+          aria-invalid={showError("dateOfBirth") || undefined}
+          aria-describedby={showError("dateOfBirth") ? "dateOfBirth-error" : undefined}
+          className={fieldInputClass(showError("dateOfBirth"))}
         />
+        {showError("dateOfBirth") && (
+          <p id="dateOfBirth-error" className={errorTextClassName} role="alert">
+            {errors.dateOfBirth}
+          </p>
+        )}
       </div>
 
       <div>
@@ -99,8 +200,15 @@ export function ProfileForm({
           id="occupation"
           name="occupation"
           required
-          defaultValue={occupation ?? ""}
-          className={inputClassName}
+          value={values.occupation}
+          onChange={(e) => {
+            updateField("occupation", e.target.value);
+            markTouched("occupation");
+          }}
+          onBlur={() => markTouched("occupation")}
+          aria-invalid={showError("occupation") || undefined}
+          aria-describedby={showError("occupation") ? "occupation-error" : undefined}
+          className={fieldInputClass(showError("occupation"))}
         >
           <option value="" disabled>
             Select…
@@ -111,6 +219,11 @@ export function ProfileForm({
             </option>
           ))}
         </select>
+        {showError("occupation") && (
+          <p id="occupation-error" className={errorTextClassName} role="alert">
+            {errors.occupation}
+          </p>
+        )}
       </div>
 
       <div>
@@ -122,10 +235,19 @@ export function ProfileForm({
           name="address"
           required
           rows={3}
-          defaultValue={address ?? ""}
-          className={inputClassName}
+          value={values.address}
+          onChange={(e) => updateField("address", e.target.value)}
+          onBlur={() => markTouched("address")}
+          aria-invalid={showError("address") || undefined}
+          aria-describedby={showError("address") ? "address-error" : undefined}
+          className={fieldInputClass(showError("address"))}
           autoComplete="street-address"
         />
+        {showError("address") && (
+          <p id="address-error" className={errorTextClassName} role="alert">
+            {errors.address}
+          </p>
+        )}
       </div>
 
       <div>
@@ -137,11 +259,20 @@ export function ProfileForm({
           name="whatsapp"
           type="tel"
           required
-          defaultValue={whatsapp ?? ""}
-          className={inputClassName}
+          value={values.whatsapp}
+          onChange={(e) => updateField("whatsapp", e.target.value)}
+          onBlur={() => markTouched("whatsapp")}
+          aria-invalid={showError("whatsapp") || undefined}
+          aria-describedby={showError("whatsapp") ? "whatsapp-error" : undefined}
+          className={fieldInputClass(showError("whatsapp"))}
           autoComplete="tel"
           placeholder="e.g. 9876543210"
         />
+        {showError("whatsapp") && (
+          <p id="whatsapp-error" className={errorTextClassName} role="alert">
+            {errors.whatsapp}
+          </p>
+        )}
       </div>
 
       <div>
@@ -157,13 +288,15 @@ export function ProfileForm({
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="min-h-11 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light disabled:opacity-60"
-      >
-        {pending ? "Saving…" : "Save profile"}
-      </button>
+      {isValid && (
+        <button
+          type="submit"
+          disabled={pending}
+          className="min-h-11 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light disabled:opacity-60"
+        >
+          {pending ? "Saving…" : "Save details"}
+        </button>
+      )}
     </form>
   );
 }
