@@ -288,15 +288,13 @@ export function ProfileForm({
         />
       </div>
 
-      {isValid && (
-        <button
-          type="submit"
-          disabled={pending}
-          className="min-h-11 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light disabled:opacity-60"
-        >
-          {pending ? "Saving…" : "Save details"}
-        </button>
-      )}
+      <button
+        type="submit"
+        disabled={!isValid || pending}
+        className="min-h-11 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {pending ? "Saving…" : "Save profile"}
+      </button>
     </form>
   );
 }
