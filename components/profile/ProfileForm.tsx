@@ -3,6 +3,14 @@
 import type { Occupation } from "@prisma/client";
 import { useActionState, useMemo, useState } from "react";
 import { updateProfile, type ProfileUpdateState } from "@/app/profile/actions";
+import {
+  DEFAULT_PROFILE_COUNTRY_CODE,
+  PROFILE_COUNTRIES,
+  formatProfileDialCode,
+  getProfileCountryOrDefault,
+  parseStoredProfileWhatsApp,
+  type ProfileCountryCode,
+} from "@/lib/countries";
 import { OCCUPATION_OPTIONS } from "@/lib/profile";
 import { inputClassName, labelClassName } from "@/lib/form";
 import { profileUpdateSchema } from "@/lib/validations";
@@ -17,16 +25,17 @@ type ProfileFormProps = {
   whatsapp: string | null;
 };
 
-type FormField = keyof typeof profileUpdateSchema.shape;
-
 type ProfileFormValues = {
   name: string;
   fatherName: string;
   dateOfBirth: string;
   occupation: Occupation | "";
   address: string;
+  country: ProfileCountryCode;
   whatsapp: string;
 };
+
+type FormField = keyof ProfileFormValues;
 
 const FORM_FIELDS: FormField[] = [
   "name",
@@ -34,6 +43,7 @@ const FORM_FIELDS: FormField[] = [
   "dateOfBirth",
   "occupation",
   "address",
+  "country",
   "whatsapp",
 ];
 
@@ -47,12 +57,12 @@ function fieldInputClass(hasError: boolean) {
     : inputClassName;
 }
 
-function getFieldError(field: FormField, value: string): string | undefined {
-  const result = profileUpdateSchema.shape[field].safeParse(value);
+function getFieldError(field: FormField, values: ProfileFormValues): string | undefined {
+  const result = profileUpdateSchema.safeParse(values);
   if (result.success) {
     return undefined;
   }
-  return result.error.issues[0]?.message;
+  return result.error.issues.find((issue) => issue.path[0] === field)?.message;
 }
 
 export function ProfileForm({
@@ -64,6 +74,7 @@ export function ProfileForm({
   address,
   whatsapp,
 }: ProfileFormProps) {
+  const parsedWhatsApp = parseStoredProfileWhatsApp(whatsapp);
   const [state, formAction, pending] = useActionState(updateProfile, initialState);
   const [values, setValues] = useState<ProfileFormValues>({
     name: name ?? "",
@@ -71,14 +82,17 @@ export function ProfileForm({
     dateOfBirth,
     occupation: occupation ?? "",
     address: address ?? "",
-    whatsapp: (whatsapp ?? "").replace(/\D/g, "").slice(0, 10),
+    country: parsedWhatsApp.countryCode ?? DEFAULT_PROFILE_COUNTRY_CODE,
+    whatsapp: parsedWhatsApp.localNumber,
   });
   const [touched, setTouched] = useState<Partial<Record<FormField, boolean>>>({});
+
+  const selectedCountry = getProfileCountryOrDefault(values.country);
 
   const errors = useMemo(() => {
     const next: Partial<Record<FormField, string>> = {};
     for (const field of FORM_FIELDS) {
-      const message = getFieldError(field, values[field]);
+      const message = getFieldError(field, values);
       if (message) {
         next[field] = message;
       }
@@ -88,8 +102,17 @@ export function ProfileForm({
 
   const isValid = useMemo(() => profileUpdateSchema.safeParse(values).success, [values]);
 
-  function updateField(field: FormField, value: string) {
+  function updateField<K extends FormField>(field: K, value: ProfileFormValues[K]) {
     setValues((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function updateCountry(countryCode: ProfileCountryCode) {
+    const country = getProfileCountryOrDefault(countryCode);
+    setValues((prev) => ({
+      ...prev,
+      country: countryCode,
+      whatsapp: prev.whatsapp.slice(0, country.localNumberMaxLength),
+    }));
   }
 
   function markTouched(field: FormField) {
@@ -202,7 +225,7 @@ export function ProfileForm({
           required
           value={values.occupation}
           onChange={(e) => {
-            updateField("occupation", e.target.value);
+            updateField("occupation", e.target.value as ProfileFormValues["occupation"]);
             markTouched("occupation");
           }}
           onBlur={() => markTouched("occupation")}
@@ -251,26 +274,74 @@ export function ProfileForm({
       </div>
 
       <div>
+        <label htmlFor="country" className={labelClassName}>
+          Country
+        </label>
+        <select
+          id="country"
+          name="country"
+          required
+          value={values.country}
+          onChange={(e) => {
+            updateCountry(e.target.value as ProfileCountryCode);
+            markTouched("country");
+          }}
+          onBlur={() => markTouched("country")}
+          aria-invalid={showError("country") || undefined}
+          aria-describedby={showError("country") ? "country-error" : undefined}
+          className={fieldInputClass(showError("country"))}
+        >
+          {PROFILE_COUNTRIES.map((country) => (
+            <option key={country.code} value={country.code}>
+              {country.flag} {country.name}
+            </option>
+          ))}
+        </select>
+        {showError("country") && (
+          <p id="country-error" className={errorTextClassName} role="alert">
+            {errors.country}
+          </p>
+        )}
+      </div>
+
+      <div>
         <label htmlFor="whatsapp" className={labelClassName}>
           WhatsApp number
         </label>
-        <input
-          id="whatsapp"
-          name="whatsapp"
-          type="tel"
-          required
-          inputMode="numeric"
-          maxLength={10}
-          pattern="[0-9]{10}"
-          value={values.whatsapp}
-          onChange={(e) => updateField("whatsapp", e.target.value.replace(/\D/g, "").slice(0, 10))}
-          onBlur={() => markTouched("whatsapp")}
-          aria-invalid={showError("whatsapp") || undefined}
-          aria-describedby={showError("whatsapp") ? "whatsapp-error" : undefined}
-          className={fieldInputClass(showError("whatsapp"))}
-          autoComplete="tel"
-          placeholder="e.g. 9876543210"
-        />
+        <div className="mt-1 flex">
+          <div
+            className={`flex shrink-0 items-center gap-1.5 rounded-l-md border border-r-0 px-3 py-2 text-sm ${
+              showError("whatsapp") ? "border-red-500" : "border-border"
+            } bg-background`}
+            aria-hidden="true"
+          >
+            <span className="text-base leading-none">{selectedCountry.flag}</span>
+            <span className="font-medium text-foreground">
+              {formatProfileDialCode(selectedCountry.dialCode)}
+            </span>
+          </div>
+          <input
+            id="whatsapp"
+            name="whatsapp"
+            type="tel"
+            required
+            inputMode="numeric"
+            maxLength={selectedCountry.localNumberMaxLength}
+            value={values.whatsapp}
+            onChange={(e) =>
+              updateField(
+                "whatsapp",
+                e.target.value.replace(/\D/g, "").slice(0, selectedCountry.localNumberMaxLength),
+              )
+            }
+            onBlur={() => markTouched("whatsapp")}
+            aria-invalid={showError("whatsapp") || undefined}
+            aria-describedby={showError("whatsapp") ? "whatsapp-error" : undefined}
+            className={`${fieldInputClass(showError("whatsapp"))} rounded-l-none`}
+            autoComplete="tel"
+            placeholder="e.g. 9876543210"
+          />
+        </div>
         {showError("whatsapp") && (
           <p id="whatsapp-error" className={errorTextClassName} role="alert">
             {errors.whatsapp}

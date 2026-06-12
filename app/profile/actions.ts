@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth-actions";
+import { buildStoredProfileWhatsApp } from "@/lib/countries";
 import { prisma } from "@/lib/prisma";
 import { profileUpdateSchema } from "@/lib/validations";
 
@@ -22,6 +23,7 @@ export async function updateProfile(
     dateOfBirth: formData.get("dateOfBirth"),
     occupation: formData.get("occupation"),
     address: formData.get("address"),
+    country: formData.get("country"),
     whatsapp: formData.get("whatsapp"),
   });
 
@@ -37,7 +39,7 @@ export async function updateProfile(
       dateOfBirth: new Date(parsed.data.dateOfBirth),
       occupation: parsed.data.occupation,
       address: parsed.data.address,
-      whatsapp: parsed.data.whatsapp,
+      whatsapp: buildStoredProfileWhatsApp(parsed.data.country, parsed.data.whatsapp),
     },
   });
 

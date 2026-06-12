@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  PROFILE_COUNTRY_CODES,
+  getProfileCountryOrDefault,
+  isValidProfileLocalNumber,
+} from "@/lib/countries";
 import { FATWA_CATEGORIES } from "@/lib/fatwa";
 import { isPaymentYearAllowed } from "@/lib/monthly-payments";
 import { OCCUPATION_VALUES } from "@/lib/occupations";
@@ -134,32 +139,58 @@ export const monthlyPaymentSubmitSchema = z.object({
 
 export const occupationEnum = z.enum(OCCUPATION_VALUES);
 
-export const profileUpdateSchema = z.object({
-  name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),
-  fatherName: z.string().trim().min(2, "Father's name must be at least 2 characters.").max(100),
-  dateOfBirth: z
-    .string()
-    .min(1, "Date of birth is required.")
-    .refine((value) => !Number.isNaN(Date.parse(value)), "Enter a valid date of birth.")
-    .refine((value) => {
-      const dob = new Date(value);
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
-      return dob <= today;
-    }, "Date of birth cannot be in the future.")
-    .refine((value) => {
-      const dob = new Date(value);
-      const minAge = new Date();
-      minAge.setFullYear(minAge.getFullYear() - 5);
-      return dob <= minAge;
-    }, "Enter a valid date of birth."),
-  occupation: occupationEnum,
-  address: z.string().trim().min(10, "Address must be at least 10 characters.").max(500),
-  whatsapp: z
-    .string()
-    .trim()
-    .regex(/^\d{10}$/, "WhatsApp number must be exactly 10 digits."),
-});
+export const profileCountryEnum = z.enum(PROFILE_COUNTRY_CODES);
+
+export const profileUpdateSchema = z
+  .object({
+    name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),
+    fatherName: z.string().trim().min(2, "Father's name must be at least 2 characters.").max(100),
+    dateOfBirth: z
+      .string()
+      .min(1, "Date of birth is required.")
+      .refine((value) => !Number.isNaN(Date.parse(value)), "Enter a valid date of birth.")
+      .refine((value) => {
+        const dob = new Date(value);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        return dob <= today;
+      }, "Date of birth cannot be in the future.")
+      .refine((value) => {
+        const dob = new Date(value);
+        const minAge = new Date();
+        minAge.setFullYear(minAge.getFullYear() - 5);
+        return dob <= minAge;
+      }, "Enter a valid date of birth."),
+    occupation: occupationEnum,
+    address: z.string().trim().min(10, "Address must be at least 10 characters.").max(500),
+    country: profileCountryEnum,
+    whatsapp: z.string().trim(),
+  })
+  .superRefine((data, ctx) => {
+    const country = getProfileCountryOrDefault(data.country);
+    const digits = data.whatsapp.replace(/\D/g, "");
+
+    if (!/^\d+$/.test(digits)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "WhatsApp number must contain only digits.",
+        path: ["whatsapp"],
+      });
+      return;
+    }
+
+    if (!isValidProfileLocalNumber(country, digits)) {
+      const lengthMessage =
+        country.localNumberMinLength === country.localNumberMaxLength
+          ? `WhatsApp number must be exactly ${country.localNumberMinLength} digits.`
+          : `WhatsApp number must be ${country.localNumberMinLength} to ${country.localNumberMaxLength} digits.`;
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: lengthMessage,
+        path: ["whatsapp"],
+      });
+    }
+  });
 
 export const announcementCategoryEnum = z.enum([
   "EXAMS_TESTS",
