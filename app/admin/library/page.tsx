@@ -33,29 +33,44 @@ export default async function AdminLibraryPage({
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Item deleted.</p>
       )}
 
-      <ul className="mt-6 divide-y divide-border rounded-lg border border-border bg-surface">
-        {items.map((item) => (
-          <li key={item.id} className="flex items-center justify-between gap-4 px-4 py-4">
-            <div>
-              <p className="font-medium text-foreground">{item.title}</p>
-              <p className="text-sm text-muted">
-                {item.author} · {item.topic}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {item.featuredOnHomepage && item.published ? (
-                <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-900">
-                  Homepage
-                </span>
-              ) : null}
-              <StatusBadge published={item.published} />
-              <Link href={`/admin/library/${item.id}/edit`} className="text-sm text-primary hover:underline">
-                Edit
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+        {items.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">No library items yet.</p>
+        ) : (
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead className="border-b border-border bg-background/50 text-muted">
+              <tr>
+                <th className="px-4 py-3 font-medium">Title</th>
+                <th className="px-4 py-3 font-medium">Author · Topic</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Homepage</th>
+                <th className="px-4 py-3 font-medium" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {items.map((item) => (
+                <tr key={item.id}>
+                  <td className="px-4 py-3 font-medium text-foreground">{item.title}</td>
+                  <td className="px-4 py-3 text-muted">
+                    {item.author} · {item.topic}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge published={item.published} />
+                  </td>
+                  <td className="px-4 py-3 text-muted">
+                    {item.featuredOnHomepage && item.published ? "Featured" : "—"}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link href={`/admin/library/${item.id}/edit`} className="font-medium text-primary hover:underline">
+                      Edit
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
