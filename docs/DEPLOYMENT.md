@@ -42,7 +42,6 @@ postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
 | `DATABASE_URL` | Neon connection string |
 | `AUTH_SECRET` | Output of `openssl rand -base64 32` |
 | `AUTH_URL` | `https://your-project.vercel.app` |
-| `NEXTAUTH_URL` | Same as `AUTH_URL` |
 | `ADMIN_EMAIL` | Comma-separated admin login emails |
 | `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, … | Optional |
 

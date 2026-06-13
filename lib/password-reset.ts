@@ -6,7 +6,7 @@ const RESET_TOKEN_BYTES = 32;
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 export function getAppBaseUrl(): string {
-  return process.env.AUTH_URL?.trim() || process.env.NEXTAUTH_URL?.trim() || "http://localhost:3000";
+  return process.env.AUTH_URL?.trim() || "http://localhost:3000";
 }
 
 export function hashResetToken(token: string): string {

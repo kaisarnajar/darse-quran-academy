@@ -92,7 +92,7 @@ export async function getFatwaQuestionById(id: string): Promise<FatwaQuestion | 
 }
 
 export function getFatwaPublicUrl(id: string): string {
-  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const base = process.env.AUTH_URL || "http://localhost:3000";
   return `${base.replace(/\/$/, "")}/fatwa/${id}`;
 }
 

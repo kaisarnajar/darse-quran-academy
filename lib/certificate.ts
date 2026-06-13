@@ -506,6 +506,6 @@ export async function generateCertificatePdf(data: CertificateData): Promise<Uin
 }
 
 export function getCertificateDownloadUrl(enrollmentId: string): string {
-  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const base = process.env.AUTH_URL || "http://localhost:3000";
   return `${base.replace(/\/$/, "")}/api/certificate/${enrollmentId}`;
 }

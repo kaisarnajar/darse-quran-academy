@@ -79,7 +79,7 @@ function formatInvoiceDate(date: Date): string {
 }
 
 export function getReceiptDownloadUrl(paymentRecordId: string): string {
-  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const base = process.env.AUTH_URL || "http://localhost:3000";
   return `${base.replace(/\/$/, "")}/api/receipt/${paymentRecordId}`;
 }
 

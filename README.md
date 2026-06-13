@@ -40,8 +40,7 @@ After `npm run db:seed:demo`, use these accounts for local QA (passwords are sha
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `AUTH_URL` | Yes | Public site URL (OAuth callbacks, email links). |
-| `NEXTAUTH_URL` | Yes | Same as `AUTH_URL` in most setups. |
+| `AUTH_URL` | Yes | Public site URL (NextAuth, OAuth callbacks, email links). |
 | `AUTH_SECRET` | Yes | Session secret. Generate: `openssl rand -base64 32` |
 | `DATABASE_URL` | Yes | Local: `"file:./dev.db"`. Production: PostgreSQL URL. |
 | `ADMIN_EMAIL` | Yes | Comma-separated admin emails for `/admin`. |

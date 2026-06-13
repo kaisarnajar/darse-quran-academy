@@ -151,7 +151,7 @@ export async function declineMonthlyPayment(
     },
   });
 
-  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const base = process.env.AUTH_URL || "http://localhost:3000";
   const paymentUrl =
     submission.paymentType === PAYMENT_TYPE_ENROLLMENT
       ? `${base.replace(/\/$/, "")}/profile/courses/${submission.courseId}/enrollment-pay`
