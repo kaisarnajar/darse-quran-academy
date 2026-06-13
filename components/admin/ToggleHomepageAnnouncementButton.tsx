@@ -7,7 +7,6 @@ type ToggleHomepageAnnouncementButtonProps = {
   id: string;
   showOnHomepage: boolean;
   published: boolean;
-  canFeatureThisAnnouncement: boolean;
 };
 
 function SubmitLabel({ showOnHomepage }: { showOnHomepage: boolean }) {
@@ -20,14 +19,9 @@ export function ToggleHomepageAnnouncementButton({
   id,
   showOnHomepage,
   published,
-  canFeatureThisAnnouncement,
 }: ToggleHomepageAnnouncementButtonProps) {
   if (!published) {
     return <span className="text-xs text-muted">Publish first</span>;
-  }
-
-  if (!showOnHomepage && !canFeatureThisAnnouncement) {
-    return <span className="text-xs text-muted">Slots full</span>;
   }
 
   return (

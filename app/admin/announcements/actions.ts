@@ -9,7 +9,7 @@ import {
   hasPartialFormDate,
 } from "@/lib/form-date";
 import { prisma } from "@/lib/prisma";
-import { resolveAnnouncementFeaturedUpdate } from "@/lib/site-announcements";
+import { enforceHomepageAnnouncementLimit } from "@/lib/site-announcements";
 import { siteAnnouncementSchema } from "@/lib/validations";
 
 function adminListPath(query = "") {
@@ -18,9 +18,9 @@ function adminListPath(query = "") {
 
 function parseSiteAnnouncementForm(formData: FormData) {
   const published = formData.get("published") === "on";
-  const requestFeatured = formData.get("showOnHomepage") === "on";
+  const showOnHomepage = formData.get("showOnHomepage") === "on";
 
-  if (requestFeatured && !published) {
+  if (showOnHomepage && !published) {
     return {
       ok: false as const,
       message: "Only published announcements can appear on the homepage.",
@@ -41,7 +41,7 @@ function parseSiteAnnouncementForm(formData: FormData) {
     body: formData.get("body"),
     eventDate,
     location: formData.get("location") ?? "",
-    showOnHomepage: requestFeatured,
+    showOnHomepage,
     published,
   });
 
@@ -63,27 +63,21 @@ export async function createSiteAnnouncement(formData: FormData) {
     redirect(`${adminListPath("/new")}?error=${encodeURIComponent(parsed.message)}`);
   }
 
-  const featured = await resolveAnnouncementFeaturedUpdate({
-    published: parsed.data.published,
-    requestFeatured: parsed.data.showOnHomepage,
-    currentlyFeatured: false,
-  });
-
-  if ("error" in featured) {
-    redirect(`${adminListPath("/new")}?error=${encodeURIComponent(featured.error)}`);
-  }
-
   await prisma.siteAnnouncement.create({
     data: {
       title: parsed.data.title,
       body: parsed.data.body,
       eventDate: parsed.data.eventDate || null,
       location: parsed.data.location || null,
-      showOnHomepage: featured.showOnHomepage,
+      showOnHomepage: parsed.data.showOnHomepage,
       published: parsed.data.published,
       createdById: session.user.id,
     },
   });
+
+  if (parsed.data.showOnHomepage) {
+    await enforceHomepageAnnouncementLimit();
+  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?posted=1`);
@@ -102,16 +96,6 @@ export async function updateSiteAnnouncement(id: string, formData: FormData) {
     redirect(`${adminListPath()}?error=notfound`);
   }
 
-  const featured = await resolveAnnouncementFeaturedUpdate({
-    published: parsed.data.published,
-    requestFeatured: parsed.data.showOnHomepage,
-    currentlyFeatured: existing.showOnHomepage,
-  });
-
-  if ("error" in featured) {
-    redirect(`${adminListPath(`/${id}/edit`)}?error=${encodeURIComponent(featured.error)}`);
-  }
-
   await prisma.siteAnnouncement.update({
     where: { id },
     data: {
@@ -119,10 +103,14 @@ export async function updateSiteAnnouncement(id: string, formData: FormData) {
       body: parsed.data.body,
       eventDate: parsed.data.eventDate || null,
       location: parsed.data.location || null,
-      showOnHomepage: featured.showOnHomepage,
+      showOnHomepage: parsed.data.showOnHomepage,
       published: parsed.data.published,
     },
   });
+
+  if (parsed.data.showOnHomepage) {
+    await enforceHomepageAnnouncementLimit();
+  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?saved=1`);
@@ -142,21 +130,16 @@ export async function toggleSiteAnnouncementHomepage(id: string) {
     );
   }
 
-  const requestFeatured = !existing.showOnHomepage;
-  const featured = await resolveAnnouncementFeaturedUpdate({
-    published: existing.published,
-    requestFeatured,
-    currentlyFeatured: existing.showOnHomepage,
-  });
-
-  if ("error" in featured) {
-    redirect(`${adminListPath()}?error=${encodeURIComponent(featured.error)}`);
-  }
+  const showOnHomepage = !existing.showOnHomepage;
 
   await prisma.siteAnnouncement.update({
     where: { id },
-    data: { showOnHomepage: featured.showOnHomepage },
+    data: { showOnHomepage },
   });
+
+  if (showOnHomepage) {
+    await enforceHomepageAnnouncementLimit();
+  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?saved=1`);

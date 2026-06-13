@@ -3,11 +3,11 @@ import { SiteAnnouncementCard } from "@/components/announcements/SiteAnnouncemen
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
 import {
   getHomepageSiteAnnouncements,
-  HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX,
+  HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
 } from "@/lib/site-announcements";
 
 export async function HomeAnnouncements() {
-  const announcements = await getHomepageSiteAnnouncements(HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX);
+  const announcements = await getHomepageSiteAnnouncements(HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT);
 
   if (announcements.length === 0) {
     return null;
@@ -18,7 +18,7 @@ export async function HomeAnnouncements() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
           <div className="text-center sm:text-left">
-            <SplitSectionTitle muted="Featured" accent="Announcements" />
+            <SplitSectionTitle muted="Academy" accent="Announcements" />
             <p className="mt-3 max-w-xl text-sm text-muted sm:text-base">
               Events, visits, and important updates from Darse Quran Academy.
             </p>

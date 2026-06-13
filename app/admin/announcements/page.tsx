@@ -3,12 +3,12 @@ import { DeleteSiteAnnouncementButton } from "@/components/admin/DeleteSiteAnnou
 import { ToggleHomepageAnnouncementButton } from "@/components/admin/ToggleHomepageAnnouncementButton";
 import {
   getAllSiteAnnouncementsForAdmin,
-  getFeaturedHomepageAnnouncementCount,
-  HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX,
+  HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
 } from "@/lib/site-announcements";
 
-function statusBadge(published: boolean) {
+function statusBadge(published: boolean, showOnHomepage: boolean) {
   if (!published) return { label: "Draft", className: "bg-stone-200 text-stone-800" };
+  if (showOnHomepage) return { label: "Home + Public", className: "bg-violet-100 text-violet-900" };
   return { label: "Published", className: "bg-emerald-100 text-emerald-900" };
 }
 
@@ -18,12 +18,7 @@ export default async function AdminAnnouncementsPage({
   searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string }>;
 }) {
   const params = await searchParams;
-  const [announcements, featuredCount] = await Promise.all([
-    getAllSiteAnnouncementsForAdmin(),
-    getFeaturedHomepageAnnouncementCount(),
-  ]);
-  const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX;
-  const displayedFeaturedCount = Math.min(featuredCount, HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX);
+  const announcements = await getAllSiteAnnouncementsForAdmin();
 
   return (
     <div>
@@ -32,9 +27,8 @@ export default async function AdminAnnouncementsPage({
           <h1 className="font-serif text-2xl font-bold text-primary">Announcements</h1>
           <p className="mt-1 text-sm text-muted">
             Academy-wide news — events, scholar visits, masjid programs, and more. Up to{" "}
-            {HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX} published items can be featured on the homepage (
-            {displayedFeaturedCount}/{HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX} slots used); all published
-            items appear on the public Announcements page.
+            {HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT} published items can be featured on the homepage; all
+            published items appear on the public Announcements page.
           </p>
         </div>
         <Link
@@ -80,9 +74,7 @@ export default async function AdminAnnouncementsPage({
             </thead>
             <tbody className="divide-y divide-border">
               {announcements.map((item) => {
-                const badge = statusBadge(item.published);
-                const canFeatureThisAnnouncement =
-                  item.showOnHomepage || !featuredSlotsFull;
+                const badge = statusBadge(item.published, item.showOnHomepage);
                 return (
                   <tr key={item.id} className="hover:bg-background/30">
                     <td className="px-4 py-3 font-medium text-foreground">{item.title}</td>
@@ -99,17 +91,11 @@ export default async function AdminAnnouncementsPage({
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex flex-col gap-1">
-                        {item.showOnHomepage && item.published ? (
-                          <span className="text-xs font-medium text-foreground">Featured</span>
-                        ) : null}
-                        <ToggleHomepageAnnouncementButton
-                          id={item.id}
-                          showOnHomepage={item.showOnHomepage}
-                          published={item.published}
-                          canFeatureThisAnnouncement={canFeatureThisAnnouncement}
-                        />
-                      </div>
+                      <ToggleHomepageAnnouncementButton
+                        id={item.id}
+                        showOnHomepage={item.showOnHomepage}
+                        published={item.published}
+                      />
                     </td>
                     <td className="px-4 py-3 text-muted">
                       {item.createdAt.toLocaleDateString("en-IN", {
