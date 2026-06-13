@@ -90,7 +90,8 @@ export async function updateLibraryItem(id: string, formData: FormData) {
   revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/admin/library");
-  redirect(`/admin/library/${id}/edit?saved=1`);
+  revalidatePath(`/admin/library/${id}`);
+  redirect("/admin/library?saved=1");
 }
 
 export async function deleteLibraryItemById(id: string): Promise<{ error?: string }> {

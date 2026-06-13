@@ -53,7 +53,7 @@ export async function replyToContactInquiry(id: string, formData: FormData) {
     savedParams.set("email", emailResult.skipped ? "skipped" : "failed");
   }
 
-  redirect(`/admin/contact-inquiries/${id}/reply?${savedParams.toString()}`);
+  redirect(`/admin/contact-inquiries?${savedParams.toString()}`);
 }
 
 export async function deleteContactInquiryById(id: string): Promise<{ error?: string }> {

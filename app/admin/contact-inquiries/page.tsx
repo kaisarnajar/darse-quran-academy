@@ -13,7 +13,7 @@ function statusClass(reply: string | null) {
 export default async function AdminContactInquiriesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; error?: string }>;
+  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; error?: string; email?: string }>;
 }) {
   const params = await searchParams;
   const filter =
@@ -56,7 +56,12 @@ export default async function AdminContactInquiriesPage({
 
       {params.saved === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Reply saved and notification sent (or logged if SMTP is not configured).
+          Reply saved.
+          {params.email === "failed"
+            ? " The notification email could not be sent — check SMTP settings in your environment."
+            : params.email === "skipped"
+              ? " SMTP is not configured, so no email was sent."
+              : " The visitor has been notified by email."}
         </p>
       )}
 

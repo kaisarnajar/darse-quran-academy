@@ -112,7 +112,8 @@ export async function updateTeacher(id: string, formData: FormData) {
   revalidatePath("/teachers");
   revalidatePath("/");
   revalidatePath("/admin/teachers");
-  redirect(teacherFormPath(`/${id}/edit`, "?saved=1"));
+  revalidatePath(`/admin/teachers/${id}`);
+  redirect(teacherFormPath("", "?saved=1"));
 }
 
 export async function deleteTeacherById(id: string): Promise<{ error?: string }> {
