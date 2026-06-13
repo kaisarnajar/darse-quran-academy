@@ -34,6 +34,10 @@ export function BlogPostForm({
   const isTeacher = mode === "teacher";
   const imageCount = post?.images.length ?? 0;
   const slotsLeft = MAX_BLOG_IMAGES - imageCount;
+  const isCurrentlyFeatured = post?.featuredOnHomepage ?? false;
+  const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_BLOGS_MAX;
+  const canFeatureThisPost = isCurrentlyFeatured || !featuredSlotsFull;
+  const displayedFeaturedCount = Math.min(featuredCount, HOMEPAGE_FEATURED_BLOGS_MAX);
 
   return (
     <form action={action} encType="multipart/form-data" className="mx-auto max-w-2xl space-y-5">
@@ -160,20 +164,32 @@ export function BlogPostForm({
               <span className="mt-0.5 block text-muted">Leave unchecked to save as a draft.</span>
             </span>
           </label>
-          <label className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
+          <label
+            className={`flex items-start gap-3 text-sm text-foreground ${
+              canFeatureThisPost ? "cursor-pointer" : ""
+            }`}
+          >
             <input
               type="checkbox"
               name="featuredOnHomepage"
-              defaultChecked={post?.featuredOnHomepage ?? false}
-              className="mt-1 rounded border-border"
+              defaultChecked={isCurrentlyFeatured}
+              disabled={!canFeatureThisPost}
+              className="mt-1 rounded border-border disabled:cursor-not-allowed"
             />
             <span>
               <span className="font-medium">Show on homepage</span>
-              <span className="mt-0.5 block text-muted">
-                Featured in the Featured Blogs section when published (up to {HOMEPAGE_FEATURED_BLOGS_MAX};{" "}
-                {featuredCount}/{HOMEPAGE_FEATURED_BLOGS_MAX} slots used). All published posts still appear on
-                the Blog page.
-              </span>
+              {canFeatureThisPost ? (
+                <span className="mt-0.5 block text-muted">
+                  Featured in the Featured Blogs section when published (up to{" "}
+                  {HOMEPAGE_FEATURED_BLOGS_MAX}; {displayedFeaturedCount}/{HOMEPAGE_FEATURED_BLOGS_MAX}{" "}
+                  slots used). All published posts still appear on the Blog page.
+                </span>
+              ) : (
+                <span className="mt-0.5 block text-muted">
+                  There are already {HOMEPAGE_FEATURED_BLOGS_MAX} featured blogs. Remove one blog from
+                  the homepage to add this post as a featured blog.
+                </span>
+              )}
             </span>
           </label>
         </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createBlogPost } from "@/app/admin/blogs/actions";
 import { BlogPostForm } from "@/components/admin/BlogPostForm";
-import { getFeaturedHomepageBlogCount } from "@/lib/blogs";
+import { getFeaturedHomepageBlogCount, HOMEPAGE_FEATURED_BLOGS_MAX } from "@/lib/blogs";
 
 export default async function NewBlogPostPage({
   searchParams,
@@ -17,7 +17,9 @@ export default async function NewBlogPostPage({
       </Link>
       <h1 className="mt-4 font-serif text-2xl font-bold text-primary">New blog post</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted">
-        Write your article and attach screenshots or photos. You can publish now or save as a draft.
+        Write your article and attach screenshots or photos. Use &quot;Show on homepage&quot; to feature up
+        to {HOMEPAGE_FEATURED_BLOGS_MAX} published posts in the Featured Blogs section; all published
+        posts appear on the Blog page.
       </p>
       <div className="mt-8">
         <BlogPostForm
