@@ -58,7 +58,7 @@ export default async function AdminLibraryPage({
                     <StatusBadge published={item.published} />
                   </td>
                   <td className="px-4 py-3 text-muted">
-                    {item.featuredOnHomepage && item.published ? "Featured" : "—"}
+                    {item.featuredOnHomepage && item.published ? "Featured" : "Not featured"}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link href={`/admin/library/${item.id}/edit`} className="font-medium text-primary hover:underline">
