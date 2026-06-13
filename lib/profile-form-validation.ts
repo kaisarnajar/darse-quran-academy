@@ -1,5 +1,5 @@
 import { zodResultToFormValidation, type FormValidationResult } from "@/lib/form-validation";
-import { contactInquirySchema, studentReviewSchema } from "@/lib/validations";
+import { contactInquirySchema, fatwaQuestionSchema, studentReviewSchema } from "@/lib/validations";
 
 export type StudentReviewFormValues = {
   quote: string;
@@ -28,4 +28,16 @@ export type ContactInquiryFormValues = {
 
 export function validateContactInquiryForm(values: ContactInquiryFormValues): FormValidationResult {
   return zodResultToFormValidation(contactInquirySchema.safeParse(values));
+}
+
+export type AskFatwaFormValues = {
+  category: string;
+  title: string;
+  question: string;
+  askerName: string;
+  askerEmail: string;
+};
+
+export function validateAskFatwaForm(values: AskFatwaFormValues): FormValidationResult {
+  return zodResultToFormValidation(fatwaQuestionSchema.safeParse(values));
 }

@@ -63,7 +63,7 @@ export const libraryItemSchema = z.object({
   published: z.coerce.boolean(),
 });
 
-export const fatwaCategoryEnum = z.enum(FATWA_CATEGORIES);
+export const fatwaCategoryEnum = z.enum(FATWA_CATEGORIES, { message: "Select a topic." });
 
 export const fatwaQuestionSchema = z.object({
   category: fatwaCategoryEnum,
