@@ -4,7 +4,6 @@ import {
   deleteCourseAnnouncement,
   deleteStudentCourseAnnouncement,
 } from "@/app/teacher/courses/actions";
-import { useState } from "react";
 
 type DeleteAnnouncementButtonProps = {
   courseId: string;
@@ -19,44 +18,29 @@ export function DeleteAnnouncementButton({
   enrollmentId,
   deleteAction,
 }: DeleteAnnouncementButtonProps) {
-  const [confirming, setConfirming] = useState(false);
-
   const submitAction = deleteAction
     ? deleteAction.bind(null, courseId, announcementId)
     : enrollmentId
       ? deleteStudentCourseAnnouncement.bind(null, courseId, enrollmentId, announcementId)
       : deleteCourseAnnouncement.bind(null, courseId, announcementId);
 
-  if (!confirming) {
-    return (
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        className="text-sm font-medium text-red-700 hover:underline"
-      >
-        Delete
-      </button>
-    );
-  }
+  const confirmMessage = enrollmentId
+    ? "Delete this message? This cannot be undone."
+    : "Delete this announcement? This cannot be undone.";
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs text-muted">Delete this announcement?</span>
-      <form action={submitAction}>
-        <button
-          type="submit"
-          className="rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700"
-        >
-          Yes, delete
-        </button>
-      </form>
-      <button
-        type="button"
-        onClick={() => setConfirming(false)}
-        className="text-xs font-medium text-muted hover:underline"
-      >
-        Cancel
+    <form
+      className="contents"
+      action={submitAction}
+      onSubmit={(e) => {
+        if (!window.confirm(confirmMessage)) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <button type="submit" className="text-sm font-medium text-red-700 hover:underline">
+        Delete
       </button>
-    </div>
+    </form>
   );
 }
