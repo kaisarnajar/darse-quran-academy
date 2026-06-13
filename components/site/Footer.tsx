@@ -18,6 +18,10 @@ const quickLinks = [
   { href: "/teachers", label: "Teachers" },
 ];
 
+const DEVELOPER_WHATSAPP_NUMBER = "917006025120";
+const developerWhatsAppHref = buildWhatsAppHref(DEVELOPER_WHATSAPP_NUMBER);
+const developerWhatsAppDisplay = formatWhatsAppForDisplay(DEVELOPER_WHATSAPP_NUMBER);
+
 export async function Footer() {
   const settings = await getSocialLinksSettings();
   const whatsappHref = buildWhatsAppHref(settings.whatsappNumber, settings.whatsappDefaultMessage);
@@ -104,6 +108,16 @@ export async function Footer() {
                 className="transition-colors hover:text-gold"
               >
                 kaisarnajar11114@gmail.com
+              </a>
+            </p>
+            <p className="mt-1">
+              <a
+                href={developerWhatsAppHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-gold"
+              >
+                {developerWhatsAppDisplay}
               </a>
             </p>
             <p className="mt-1">
