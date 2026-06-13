@@ -85,6 +85,7 @@ export async function seedDemoContent(prisma: PrismaClient) {
         published: item.published,
         approvalStatus: item.approvalStatus,
         featuredOnHomepage: isFeatured,
+        featuredAt,
         createdById,
       },
     });

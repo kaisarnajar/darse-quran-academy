@@ -1,5 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { getDefaultFeesForLevel } from "../lib/course-pricing";
+import { PAYMENT_SETTINGS_ID } from "../lib/payment-settings";
+import { SOCIAL_LINKS_SETTINGS_ID } from "../lib/social-links";
 import { courses } from "../content/courses";
 import { libraryItems } from "../content/library";
 import { studentTestimonials } from "../content/testimonials";
@@ -134,4 +136,50 @@ export async function seedBootstrap(prisma: PrismaClient) {
       },
     });
   }
+
+  await prisma.socialLinksSettings.upsert({
+    where: { id: SOCIAL_LINKS_SETTINGS_ID },
+    create: {
+      id: SOCIAL_LINKS_SETTINGS_ID,
+      contactEmail: "info@darsequranacademy.org",
+      whatsappNumber: "917006025120",
+      whatsappDefaultMessage:
+        "Assalamu Alaikum, I would like to know more about Darse Quran Academy.",
+      facebookUrl: "https://facebook.com",
+      instagramUrl: "https://instagram.com",
+      youtubeUrl: "https://youtube.com",
+    },
+    update: {
+      contactEmail: "info@darsequranacademy.org",
+      whatsappNumber: "917006025120",
+      whatsappDefaultMessage:
+        "Assalamu Alaikum, I would like to know more about Darse Quran Academy.",
+      facebookUrl: "https://facebook.com",
+      instagramUrl: "https://instagram.com",
+      youtubeUrl: "https://youtube.com",
+    },
+  });
+
+  await prisma.paymentSettings.upsert({
+    where: { id: PAYMENT_SETTINGS_ID },
+    create: {
+      id: PAYMENT_SETTINGS_ID,
+      upiId: "darsequran.demo@oksbi",
+      upiPayeeName: "Darse Quran Academy",
+      bankAccountName: "Darse Quran Academy",
+      bankName: "State Bank of India",
+      bankAccountNumber: "123456789012",
+      bankIfsc: "SBIN0001234",
+      bankBranch: "Srinagar Main Branch",
+    },
+    update: {
+      upiId: "darsequran.demo@oksbi",
+      upiPayeeName: "Darse Quran Academy",
+      bankAccountName: "Darse Quran Academy",
+      bankName: "State Bank of India",
+      bankAccountNumber: "123456789012",
+      bankIfsc: "SBIN0001234",
+      bankBranch: "Srinagar Main Branch",
+    },
+  });
 }

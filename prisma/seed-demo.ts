@@ -31,8 +31,24 @@ function assertDemoSeedAllowed() {
 
 const prisma = new PrismaClient();
 
+async function assertDatabaseMigrated() {
+  try {
+    await prisma.teacher.findFirst({ select: { id: true } });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("does not exist")) {
+      console.error(
+        "Database schema is missing. Run `npm run db:migrate` first, then `npm run db:seed:demo`.",
+      );
+      process.exit(1);
+    }
+    throw error;
+  }
+}
+
 async function main() {
   assertDemoSeedAllowed();
+  await assertDatabaseMigrated();
 
   await seedBootstrap(prisma);
   await seedDemoAdmins(prisma);

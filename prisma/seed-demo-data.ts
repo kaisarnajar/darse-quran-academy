@@ -95,6 +95,8 @@ async function seedDemoPayment(
   if (payment.status === "approved") {
     const recordId = demoPaymentRecordId(studentId, courseId, payment);
     const paidAt = paymentPaidAt(payment);
+    const receiptEmailSentAt =
+      studentId === "06" && paymentType === PAYMENT_TYPE_ENROLLMENT ? paidAt : null;
 
     await prisma.paymentRecord.upsert({
       where: { id: recordId },
@@ -105,11 +107,13 @@ async function seedDemoPayment(
         amountInrPaise,
         paidAt,
         description: label,
+        receiptEmailSentAt,
       },
       update: {
         amountInrPaise,
         paidAt,
         description: label,
+        receiptEmailSentAt,
       },
     });
 
@@ -188,6 +192,10 @@ async function seedDemoEnrollment(
       : enrollment.status === "completed"
         ? new Date("2026-03-01T12:00:00.000Z")
         : null;
+  const certificateEmailSentAt =
+    enrollment.status === "completed" && studentId === "19"
+      ? new Date("2026-03-20T10:00:00.000Z")
+      : null;
 
   await prisma.enrollment.upsert({
     where: { id: enrollmentId },
@@ -197,10 +205,12 @@ async function seedDemoEnrollment(
       courseId: enrollment.courseId,
       status: enrollment.status,
       completedAt,
+      certificateEmailSentAt,
     },
     update: {
       status: enrollment.status,
       completedAt,
+      certificateEmailSentAt,
     },
   });
 
@@ -329,6 +339,56 @@ export async function seedDemoData(prisma: PrismaClient) {
       await seedDemoEnrollment(prisma, student.id, userId, enrollment, courseMetaById);
     }
   }
+
+  await seedDemoStudentReviews(prisma);
+}
+
+const demoStudentReviews = [
+  {
+    id: "seed-demo-review-pending",
+    studentId: "07",
+    quote:
+      "The Tajweed sessions helped me fix long-standing mistakes. I hope this review can be published soon.",
+    course: "Tajweed Intensive",
+    location: "Sopore, J&K",
+    rating: 5,
+    status: "PENDING" as const,
+  },
+  {
+    id: "seed-demo-review-rejected",
+    studentId: "08",
+    quote: "Great teachers and flexible timings for working professionals.",
+    course: "Arabic Grammar",
+    location: "Kupwara, J&K",
+    rating: 3,
+    status: "REJECTED" as const,
+  },
+];
+
+async function seedDemoStudentReviews(prisma: PrismaClient) {
+  for (const review of demoStudentReviews) {
+    await prisma.studentReview.upsert({
+      where: { id: review.id },
+      create: {
+        id: review.id,
+        userId: demoUserId(review.studentId),
+        quote: review.quote,
+        course: review.course,
+        location: review.location,
+        rating: review.rating,
+        status: review.status,
+        featuredOnHomepage: false,
+      },
+      update: {
+        quote: review.quote,
+        course: review.course,
+        location: review.location,
+        rating: review.rating,
+        status: review.status,
+        featuredOnHomepage: false,
+      },
+    });
+  }
 }
 
 export function demoStudentLoginHint(): string {
@@ -353,7 +413,9 @@ export function demoAdminLoginHint(): string {
 export function demoDataSummaryHint(): string {
   return [
     `Demo dataset: ${courses.length} courses, ${teachers.length} teachers, ${DEMO_STUDENT_COUNT} students`,
-    "  Enrollments — pending approval (free), awaiting fee, active, completed",
-    "  Payments — enrollment fee + monthly fee (approved, pending, declined)",
+    "  Enrollments — pending approval (free), awaiting fee, active, completed (student 19 has certificate sent)",
+    "  Payments — enrollment fee + monthly fee (approved, pending, declined; student 06 receipt sent)",
+    "  Reviews — 10 featured + 1 pending + 1 rejected for /admin/review-approvals",
+    "  Settings — demo UPI/bank and social links for payment + footer QA",
   ].join("\n");
 }
