@@ -72,10 +72,23 @@ export type PendingEnrollmentWithUser = CourseEnrollmentWithUser & {
   courseId: string;
 };
 
-export async function getPendingEnrollmentApprovals(): Promise<PendingEnrollmentWithUser[]> {
+export async function getPendingFreeEnrollmentApprovals(): Promise<PendingEnrollmentWithUser[]> {
   noStore();
   return prisma.enrollment.findMany({
-    where: { status: { in: [PENDING_ENROLLMENT_APPROVAL, AWAITING_ENROLLMENT_FEE] } },
+    where: { status: PENDING_ENROLLMENT_APPROVAL },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+  });
+}
+
+export async function getAwaitingEnrollmentFeeEnrollments(): Promise<PendingEnrollmentWithUser[]> {
+  noStore();
+  return prisma.enrollment.findMany({
+    where: { status: AWAITING_ENROLLMENT_FEE },
     orderBy: { createdAt: "desc" },
     include: {
       user: {
@@ -88,7 +101,14 @@ export async function getPendingEnrollmentApprovals(): Promise<PendingEnrollment
 export async function getPendingEnrollmentApprovalCount(): Promise<number> {
   noStore();
   return prisma.enrollment.count({
-    where: { status: { in: [PENDING_ENROLLMENT_APPROVAL, AWAITING_ENROLLMENT_FEE] } },
+    where: { status: PENDING_ENROLLMENT_APPROVAL },
+  });
+}
+
+export async function getAwaitingEnrollmentFeeCount(): Promise<number> {
+  noStore();
+  return prisma.enrollment.count({
+    where: { status: AWAITING_ENROLLMENT_FEE },
   });
 }
 

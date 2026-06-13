@@ -3,7 +3,7 @@ import { getPendingBlogApprovalCount } from "@/lib/blog-approval";
 import { getPendingContactInquiryCount } from "@/lib/contact-inquiries";
 import { getPendingEnrollmentApprovalCount } from "@/lib/enrollments";
 import { getPendingStudentReviewCount } from "@/lib/student-reviews";
-import { getPendingMonthlyPaymentCount } from "@/lib/monthly-payments";
+import { getPendingPaymentCount } from "@/lib/monthly-payments";
 import { prisma } from "@/lib/prisma";
 import { getStudentCount } from "@/lib/students";
 
@@ -29,7 +29,7 @@ export default async function AdminDashboardPage() {
     getStudentCount(),
     prisma.enrollment.count({ where: { status: "active" } }),
     getPendingEnrollmentApprovalCount(),
-    getPendingMonthlyPaymentCount(),
+    getPendingPaymentCount(),
     prisma.blogPost.count(),
     getPendingBlogApprovalCount(),
     getPendingStudentReviewCount(),

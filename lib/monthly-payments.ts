@@ -71,7 +71,18 @@ export async function getApprovedMonthlyPaymentsForReceipt(): Promise<ApprovedPa
 export async function getPendingMonthlyPayments(): Promise<CoursePaymentSubmissionWithUser[]> {
   noStore();
   return prisma.coursePaymentSubmission.findMany({
-    where: { status: MONTHLY_PAYMENT_PENDING },
+    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+  });
+}
+
+export async function getPendingEnrollmentFeePayments(): Promise<CoursePaymentSubmissionWithUser[]> {
+  noStore();
+  return prisma.coursePaymentSubmission.findMany({
+    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT },
     orderBy: { updatedAt: "desc" },
     include: {
       user: { select: { id: true, name: true, email: true } },
@@ -80,6 +91,20 @@ export async function getPendingMonthlyPayments(): Promise<CoursePaymentSubmissi
 }
 
 export async function getPendingMonthlyPaymentCount(): Promise<number> {
+  noStore();
+  return prisma.coursePaymentSubmission.count({
+    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY },
+  });
+}
+
+export async function getPendingEnrollmentFeePaymentCount(): Promise<number> {
+  noStore();
+  return prisma.coursePaymentSubmission.count({
+    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT },
+  });
+}
+
+export async function getPendingPaymentCount(): Promise<number> {
   noStore();
   return prisma.coursePaymentSubmission.count({
     where: { status: MONTHLY_PAYMENT_PENDING },
