@@ -33,10 +33,24 @@ const prisma = new PrismaClient();
 
 async function assertDatabaseMigrated() {
   const checks = [
-    () => prisma.course.findFirst({ select: { id: true } }),
+    () => prisma.course.findFirst({ select: { featuredOnHomepage: true, status: true } }),
     () => prisma.paymentSettings.findFirst({ select: { id: true } }),
-    () => prisma.coursePaymentSubmission.findFirst({ select: { id: true } }),
-    () => prisma.enrollment.findFirst({ select: { id: true } }),
+    () => prisma.socialLinksSettings.findFirst({ select: { id: true } }),
+    () =>
+      prisma.coursePaymentSubmission.findFirst({
+        select: { paymentType: true, paymentReference: true },
+      }),
+    () =>
+      prisma.enrollment.findFirst({
+        select: { uploadedCertificatePath: true, certificateEmailSentAt: true },
+      }),
+    () =>
+      prisma.paymentRecord.findFirst({
+        select: { uploadedReceiptPath: true, receiptEmailSentAt: true },
+      }),
+    () => prisma.blogImage.findFirst({ select: { id: true } }),
+    () => prisma.fatwaQuestion.findFirst({ select: { featuredOnHomepage: true } }),
+    () => prisma.studentReview.findFirst({ select: { rating: true, status: true } }),
   ];
 
   try {

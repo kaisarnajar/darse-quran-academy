@@ -1,7 +1,9 @@
 import { hash } from "bcryptjs";
 import type { PrismaClient } from "@prisma/client";
 import { getAdminEmails } from "../lib/admin";
+import { certificateUploadPath } from "../lib/certificate-upload";
 import { syncEnrollmentsWithCourseStatus } from "../lib/completion";
+import { receiptUploadPath } from "../lib/receipt-upload";
 import { courses } from "../content/courses";
 import {
   DEMO_ADMIN_PASSWORD,
@@ -30,6 +32,7 @@ import {
   demoStudentUserId,
   demoTeacherUserId,
 } from "./seed-helpers";
+import { writeDemoPdfFile } from "./seed-demo-assets";
 
 type CourseSeedMeta = {
   monthlyFeeInrPaise: number;
@@ -105,6 +108,15 @@ async function seedDemoPayment(
     const paidAt = paymentPaidAt(payment);
     const receiptEmailSentAt =
       studentId === "06" && paymentType === PAYMENT_TYPE_ENROLLMENT ? paidAt : null;
+    const uploadedReceiptPath = receiptEmailSentAt ? receiptUploadPath(recordId) : null;
+
+    if (uploadedReceiptPath) {
+      await writeDemoPdfFile(uploadedReceiptPath, [
+        "Darse Quran Academy — Demo Receipt",
+        label,
+        `Amount: Rs ${(amountInrPaise / 100).toFixed(2)}`,
+      ]);
+    }
 
     await prisma.paymentRecord.upsert({
       where: { id: recordId },
@@ -116,12 +128,14 @@ async function seedDemoPayment(
         paidAt,
         description: label,
         receiptEmailSentAt,
+        uploadedReceiptPath,
       },
       update: {
         amountInrPaise,
         paidAt,
         description: label,
         receiptEmailSentAt,
+        uploadedReceiptPath,
       },
     });
 
@@ -228,21 +242,31 @@ async function seedCompletedCourseScenario(prisma: PrismaClient) {
   const courseId = "qiraat-advanced";
   const studentId = "19";
   const userId = demoUserId(studentId);
+  const enrollmentId = demoEnrollmentIdFor(studentId, courseId);
+  const uploadedCertificatePath = certificateUploadPath(enrollmentId);
+
+  await writeDemoPdfFile(uploadedCertificatePath, [
+    "Darse Quran Academy — Demo Certificate",
+    "Course: Advanced Qiraat",
+    "Student: Tabassum Gul",
+  ]);
 
   await prisma.enrollment.upsert({
     where: {
       userId_courseId: { userId, courseId },
     },
     create: {
-      id: demoEnrollmentIdFor(studentId, courseId),
+      id: enrollmentId,
       userId,
       courseId,
       status: "completed",
       completedAt: new Date("2026-05-01T12:00:00.000Z"),
+      uploadedCertificatePath,
     },
     update: {
       status: "completed",
       completedAt: new Date("2026-05-01T12:00:00.000Z"),
+      uploadedCertificatePath,
     },
   });
 
@@ -449,8 +473,8 @@ export function demoDataSummaryHint(): string {
   return [
     `Demo dataset: ${courses.length} courses, ${teachers.length} teachers, ${DEMO_STUDENT_COUNT} students`,
     "  Courses — PUBLISHED, ONGOING, COMPLETED, ON_HOLD, and DRAFT examples",
-    "  Enrollments — pending approval (free), awaiting fee, active, completed",
-    "  Payments — enrollment fee + monthly fee (approved, pending, declined; student 06 receipt sent)",
+    "  Enrollments — pending approval (free), awaiting fee, active, completed (student 19 certificate on qiraat-advanced)",
+    "  Payments — enrollment fee + monthly fee (approved, pending, declined; student 06 uploaded receipt)",
     "  Reviews — 10 featured + 1 pending + 1 rejected for /admin/review-approvals",
     "  Settings — demo UPI/bank and social links for payment + footer QA",
   ].join("\n");
