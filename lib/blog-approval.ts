@@ -40,6 +40,11 @@ export function canTeacherDeleteBlogPost(post: Pick<BlogPost, "createdById">, us
   return post.createdById === userId;
 }
 
+/** Teacher submissions awaiting admin review — content is read-only for admins. */
+export function isBlogPendingTeacherApproval(post: Pick<BlogPost, "approvalStatus">) {
+  return post.approvalStatus === "PENDING";
+}
+
 export async function getPendingBlogApprovalCount() {
   return prisma.blogPost.count({ where: { approvalStatus: "PENDING" } });
 }

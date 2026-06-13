@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { deleteBlogImageFile } from "@/lib/blog-upload";
 import { addImagesToPost, getRemoveImageIds, parseBlogForm, removeBlogImages } from "@/lib/blog-mutations";
+import { isBlogPendingTeacherApproval } from "@/lib/blog-approval";
 import { resolveBlogFeaturedUpdate } from "@/lib/blogs";
 import { prisma } from "@/lib/prisma";
 
@@ -90,14 +91,19 @@ export async function updateBlogPost(id: string, formData: FormData) {
     redirect(adminListPath("?error=notfound"));
   }
 
-  const removeIds = getRemoveImageIds(formData);
-  await removeBlogImages(removeIds, id);
+  const contentLocked = isBlogPendingTeacherApproval(existing);
 
-  const remainingCount = existing.images.length - existing.images.filter((img) => removeIds.includes(img.id)).length;
+  if (!contentLocked) {
+    const removeIds = getRemoveImageIds(formData);
+    await removeBlogImages(removeIds, id);
 
-  const imageResult = await addImagesToPost(id, formData, remainingCount);
-  if (imageResult.error) {
-    redirect(adminListPath(`/${id}/edit?error=${encodeURIComponent(imageResult.error)}`));
+    const remainingCount =
+      existing.images.length - existing.images.filter((img) => removeIds.includes(img.id)).length;
+
+    const imageResult = await addImagesToPost(id, formData, remainingCount);
+    if (imageResult.error) {
+      redirect(adminListPath(`/${id}/edit?error=${encodeURIComponent(imageResult.error)}`));
+    }
   }
 
   const published = parsed.data.published;
@@ -125,9 +131,9 @@ export async function updateBlogPost(id: string, formData: FormData) {
   await prisma.blogPost.update({
     where: { id },
     data: {
-      title: parsed.data.title,
-      excerpt: parsed.data.excerpt || null,
-      body: parsed.data.body,
+      title: contentLocked ? existing.title : parsed.data.title,
+      excerpt: contentLocked ? existing.excerpt : parsed.data.excerpt || null,
+      body: contentLocked ? existing.body : parsed.data.body,
       published,
       approvalStatus,
       ...featured,

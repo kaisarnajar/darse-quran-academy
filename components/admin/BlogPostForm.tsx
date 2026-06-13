@@ -29,6 +29,7 @@ type BlogPostFormProps = {
   featuredCount?: number;
   error?: string;
   mode?: "admin" | "teacher";
+  contentReadOnly?: boolean;
 };
 
 const BLOG_FIELDS: (keyof BlogPostFormValues)[] = ["title", "excerpt", "body"];
@@ -40,6 +41,7 @@ export function BlogPostForm({
   featuredCount = 0,
   error,
   mode = "admin",
+  contentReadOnly = false,
 }: BlogPostFormProps) {
   const isTeacher = mode === "teacher";
   const imageCount = post?.images.length ?? 0;
@@ -73,6 +75,14 @@ export function BlogPostForm({
         </p>
       )}
 
+      {contentReadOnly && (
+        <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          This post was submitted by a teacher for approval. Title, summary, content, and images cannot
+          be changed here. You can update publishing and homepage settings below, or use Approve / Reject on
+          Blog approvals.
+        </p>
+      )}
+
       <div>
         <label htmlFor="title" className={labelClassName}>
           Title
@@ -82,12 +92,13 @@ export function BlogPostForm({
           name="title"
           required
           maxLength={200}
+          readOnly={contentReadOnly}
           value={values.title}
           onChange={(e) => updateField("title", e.target.value)}
           onBlur={() => markTouched("title")}
           aria-invalid={showError("title") || undefined}
           placeholder="e.g. Tips for memorizing Quran with tajweed"
-          className={formFieldInputClass(showError("title"))}
+          className={`${formFieldInputClass(showError("title"))}${contentReadOnly ? " cursor-default bg-background/60" : ""}`}
         />
         {showError("title") && (
           <p className={formErrorTextClassName} role="alert">
@@ -105,12 +116,13 @@ export function BlogPostForm({
           name="excerpt"
           rows={2}
           maxLength={400}
+          readOnly={contentReadOnly}
           value={values.excerpt}
           onChange={(e) => updateField("excerpt", e.target.value)}
           onBlur={() => markTouched("excerpt")}
           aria-invalid={showError("excerpt") || undefined}
           placeholder="A brief line shown on the blog listing page…"
-          className={formFieldInputClass(showError("excerpt"))}
+          className={`${formFieldInputClass(showError("excerpt"))}${contentReadOnly ? " cursor-default bg-background/60" : ""}`}
         />
         {showError("excerpt") && (
           <p className={formErrorTextClassName} role="alert">
@@ -128,12 +140,13 @@ export function BlogPostForm({
           name="body"
           required
           rows={14}
+          readOnly={contentReadOnly}
           value={values.body}
           onChange={(e) => updateField("body", e.target.value)}
           onBlur={() => markTouched("body")}
           aria-invalid={showError("body") || undefined}
           placeholder="Write your article here. You can add screenshots below."
-          className={formFieldInputClass(showError("body"))}
+          className={`${formFieldInputClass(showError("body"))}${contentReadOnly ? " cursor-default bg-background/60" : ""}`}
         />
         {showError("body") && (
           <p className={formErrorTextClassName} role="alert">
@@ -160,14 +173,19 @@ export function BlogPostForm({
                     sizes="(max-width: 672px) 100vw, 672px"
                   />
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm text-foreground">
-                  <input
-                    type="checkbox"
-                    name="removeImage"
-                    value={img.id}
-                    className="rounded border-border"
-                  />
-                  Remove this image
+                <label className="flex items-center gap-2 px-4 py-3 text-sm text-foreground">
+                  {!contentReadOnly && (
+                    <>
+                      <input
+                        type="checkbox"
+                        name="removeImage"
+                        value={img.id}
+                        className="rounded border-border"
+                      />
+                      Remove this image
+                    </>
+                  )}
+                  {contentReadOnly && <span className="text-muted">Image {img.sortOrder + 1}</span>}
                 </label>
               </li>
             ))}
@@ -175,25 +193,27 @@ export function BlogPostForm({
         </div>
       )}
 
-      <div>
-        <label htmlFor="images" className={labelClassName}>
-          {post ? "Add more images" : "Screenshots & photos (optional)"}
-        </label>
-        <input
-          id="images"
-          name="images"
-          type="file"
-          multiple
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="mt-1 block w-full text-sm text-foreground file:mr-4 file:rounded-full file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary"
-        />
-        <p className="mt-1.5 text-xs text-muted">
-          JPEG, PNG, WebP, or GIF — up to 5 MB each.{" "}
-          {post
-            ? `You can add ${slotsLeft} more image${slotsLeft === 1 ? "" : "s"} (max ${MAX_BLOG_IMAGES} total).`
-            : `Up to ${MAX_BLOG_IMAGES} images per post.`}
-        </p>
-      </div>
+      {!contentReadOnly && (
+        <div>
+          <label htmlFor="images" className={labelClassName}>
+            {post ? "Add more images" : "Screenshots & photos (optional)"}
+          </label>
+          <input
+            id="images"
+            name="images"
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="mt-1 block w-full text-sm text-foreground file:mr-4 file:rounded-full file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary"
+          />
+          <p className="mt-1.5 text-xs text-muted">
+            JPEG, PNG, WebP, or GIF — up to 5 MB each.{" "}
+            {post
+              ? `You can add ${slotsLeft} more image${slotsLeft === 1 ? "" : "s"} (max ${MAX_BLOG_IMAGES} total).`
+              : `Up to ${MAX_BLOG_IMAGES} images per post.`}
+          </p>
+        </div>
+      )}
 
       {isTeacher ? (
         <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">

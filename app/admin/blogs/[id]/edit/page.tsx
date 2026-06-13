@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateBlogPost } from "@/app/admin/blogs/actions";
 import { BlogPostForm } from "@/components/admin/BlogPostForm";
+import { isBlogPendingTeacherApproval } from "@/lib/blog-approval";
 import { getBlogPostForAdmin, getFeaturedHomepageBlogCount } from "@/lib/blogs";
 
 export default async function EditBlogPostPage({
@@ -17,14 +18,20 @@ export default async function EditBlogPostPage({
 
   if (!post) notFound();
 
+  const contentReadOnly = isBlogPendingTeacherApproval(post);
   const action = updateBlogPost.bind(null, id);
 
   return (
     <div>
-      <Link href="/admin/blogs" className="text-sm text-primary hover:underline">
-        ← Back to blogs
+      <Link
+        href={contentReadOnly ? "/admin/blog-approvals" : "/admin/blogs"}
+        className="text-sm text-primary hover:underline"
+      >
+        {contentReadOnly ? "← Back to blog approvals" : "← Back to blogs"}
       </Link>
-      <h1 className="mt-4 font-serif text-2xl font-bold text-primary">Edit blog post</h1>
+      <h1 className="mt-4 font-serif text-2xl font-bold text-primary">
+        {contentReadOnly ? "Review blog post" : "Edit blog post"}
+      </h1>
 
       {query.saved === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
@@ -39,6 +46,7 @@ export default async function EditBlogPostPage({
           action={action}
           submitLabel="Save changes"
           featuredCount={featuredCount}
+          contentReadOnly={contentReadOnly}
           error={query.error ? decodeURIComponent(query.error) : undefined}
         />
       </div>
