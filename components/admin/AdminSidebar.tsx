@@ -15,7 +15,7 @@ const links = [
   { href: "/admin/social-links", label: "Social links" },
   { href: "/admin/students", label: "Students" },
   { href: "/admin/teachers", label: "Teachers" },
-  { href: "/admin/library", label: "Library" },
+  { href: "/admin/library", label: "Digital Library" },
   { href: "/admin/fatwa", label: "Fatwa" },
   { href: "/admin/blog-approvals", label: "Blog approvals" },
   { href: "/admin/review-approvals", label: "Review approvals" },
