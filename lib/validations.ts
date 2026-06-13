@@ -6,6 +6,7 @@ import {
 } from "@/lib/countries";
 import { COURSE_CATEGORIES } from "@/lib/course-categories";
 import { FATWA_CATEGORIES } from "@/lib/fatwa";
+import { LIBRARY_LANGUAGES, LIBRARY_TOPICS } from "@/lib/library-options";
 import { isPaymentYearAllowed } from "@/lib/monthly-payments";
 import { OCCUPATION_VALUES } from "@/lib/occupations";
 
@@ -48,12 +49,15 @@ export const teacherAdminSchema = z.object({
   published: z.coerce.boolean(),
 });
 
+export const libraryLanguageEnum = z.enum(LIBRARY_LANGUAGES);
+export const libraryTopicEnum = z.enum(LIBRARY_TOPICS);
+
 export const libraryItemSchema = z.object({
   title: z.string().min(2, "Title is required"),
   author: z.string().min(2, "Author is required"),
-  topic: z.string().min(2, "Topic is required"),
+  topic: libraryTopicEnum,
   level: levelEnum,
-  language: z.string().min(2, "Language is required"),
+  language: libraryLanguageEnum,
   pdfUrl: z.string().url().optional().or(z.literal("")),
   published: z.coerce.boolean(),
 });

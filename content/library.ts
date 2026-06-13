@@ -12,9 +12,9 @@ export const libraryItems: LibraryItem[] = [
     id: "1",
     title: "Noorani Qaida",
     author: "Moulana Noor Muhammad",
-    topic: "Quran Reading",
+    topic: "Quran",
     level: "Beginner",
-    language: "Urdu / Arabic",
+    language: "Urdu",
   },
   {
     id: "2",
@@ -54,7 +54,7 @@ export const libraryItems: LibraryItem[] = [
     author: "Imam An-Nawawi",
     topic: "Hadith",
     level: "Intermediate",
-    language: "Arabic / Urdu",
+    language: "Other",
   },
   {
     id: "7",

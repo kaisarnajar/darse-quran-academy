@@ -1,5 +1,6 @@
 import type { LibraryItem } from "@prisma/client";
 import { HOMEPAGE_FEATURED_RESOURCES_MAX } from "@/lib/library";
+import { getLibraryLanguageOptions, getLibraryTopicOptions } from "@/lib/library-options";
 import { inputClassName, labelClassName } from "@/lib/form";
 
 type LibraryFormProps = {
@@ -14,6 +15,8 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
   const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_RESOURCES_MAX;
   const canFeatureThisItem = isCurrentlyFeatured || !featuredSlotsFull;
   const displayedFeaturedCount = Math.min(featuredCount, HOMEPAGE_FEATURED_RESOURCES_MAX);
+  const topicOptions = getLibraryTopicOptions(item?.topic);
+  const languageOptions = getLibraryLanguageOptions(item?.language);
 
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
@@ -34,7 +37,22 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
           <label htmlFor="topic" className={labelClassName}>
             Topic
           </label>
-          <input id="topic" name="topic" required defaultValue={item?.topic} className={inputClassName} />
+          <select
+            id="topic"
+            name="topic"
+            required
+            defaultValue={item?.topic ?? ""}
+            className={inputClassName}
+          >
+            <option value="" disabled>
+              Select…
+            </option>
+            {topicOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
@@ -52,7 +70,22 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
           <label htmlFor="language" className={labelClassName}>
             Language
           </label>
-          <input id="language" name="language" required defaultValue={item?.language} className={inputClassName} />
+          <select
+            id="language"
+            name="language"
+            required
+            defaultValue={item?.language ?? ""}
+            className={inputClassName}
+          >
+            <option value="" disabled>
+              Select…
+            </option>
+            {languageOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
       <div>
