@@ -18,6 +18,12 @@ export function formatBlogDate(date: Date): string {
   });
 }
 
+export function formatBlogAuthorName(
+  createdBy: { name: string | null; email?: string | null } | null,
+): string {
+  return createdBy?.name?.trim() || createdBy?.email?.trim() || "Darse Quran Academy";
+}
+
 export function isBlogPubliclyVisible(post: Pick<BlogPost, "published" | "approvalStatus">): boolean {
   return post.published && post.approvalStatus === "APPROVED";
 }

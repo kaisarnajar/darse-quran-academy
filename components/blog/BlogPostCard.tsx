@@ -1,5 +1,5 @@
 import type { BlogPostWithImages } from "@/lib/blogs";
-import { formatBlogDate } from "@/lib/blogs";
+import { formatBlogAuthorName, formatBlogDate } from "@/lib/blogs";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,6 +10,7 @@ type BlogPostCardProps = {
 export function BlogPostCard({ post }: BlogPostCardProps) {
   const cover = post.images[0];
   const summary = post.excerpt || post.body.slice(0, 160) + (post.body.length > 160 ? "…" : "");
+  const authorName = formatBlogAuthorName(post.createdBy);
 
   return (
     <article className="card-elevated flex h-full flex-col overflow-hidden transition-transform hover:-translate-y-0.5">
@@ -25,7 +26,9 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
         </Link>
       )}
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-xs text-muted">{formatBlogDate(post.createdAt)}</p>
+        <p className="text-xs text-muted">
+          {formatBlogDate(post.createdAt)} · By {authorName}
+        </p>
         <h2 className="mt-2 font-serif text-lg font-semibold text-foreground">
           <Link href={`/blog/${post.id}`} className="hover:text-gold">
             {post.title}
