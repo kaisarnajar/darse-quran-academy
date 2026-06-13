@@ -217,7 +217,12 @@ export type PaymentSettingsFormValues = {
 };
 
 export function validatePaymentSettingsForm(values: PaymentSettingsFormValues): FormValidationResult {
-  return zodResultToFormValidation(paymentSettingsSchema.safeParse(values));
+  return zodResultToFormValidation(
+    paymentSettingsSchema.safeParse({
+      ...values,
+      bankIfsc: values.bankIfsc.trim().toUpperCase(),
+    }),
+  );
 }
 
 export type SocialLinksFormValues = {
