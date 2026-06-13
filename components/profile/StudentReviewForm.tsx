@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback } from "react";
-import { createStudentReview, updateStudentReview } from "@/app/profile/reviews/actions";
 import type { StudentReview } from "@prisma/client";
 import { StarRatingInput } from "@/components/reviews/StarRatingInput";
 import { labelClassName } from "@/lib/form";
@@ -13,8 +12,10 @@ import {
 import { useZodForm } from "@/lib/use-zod-form";
 
 type StudentReviewFormProps = {
+  action: (formData: FormData) => Promise<void>;
   review?: Pick<StudentReview, "id" | "quote" | "course" | "location" | "rating">;
   defaultLocation?: string | null;
+  submitLabel?: string;
 };
 
 const STUDENT_REVIEW_FIELDS: (keyof StudentReviewFormValues)[] = [
@@ -24,8 +25,12 @@ const STUDENT_REVIEW_FIELDS: (keyof StudentReviewFormValues)[] = [
   "location",
 ];
 
-export function StudentReviewForm({ review, defaultLocation }: StudentReviewFormProps) {
-  const action = review ? updateStudentReview.bind(null, review.id) : createStudentReview;
+export function StudentReviewForm({
+  action,
+  review,
+  defaultLocation,
+  submitLabel,
+}: StudentReviewFormProps) {
 
   const validate = useCallback(
     (values: StudentReviewFormValues) => validateStudentReviewForm(values),
@@ -141,7 +146,7 @@ export function StudentReviewForm({ review, defaultLocation }: StudentReviewForm
         disabled={!isValid}
         className="min-h-11 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {review ? "Resubmit for approval" : "Submit review"}
+        {submitLabel ?? (review ? "Resubmit for approval" : "Submit review")}
       </button>
     </form>
   );

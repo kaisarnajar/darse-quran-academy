@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DeleteStudentReviewButton } from "@/components/profile/DeleteStudentReviewButton";
 import { StudentReviewForm } from "@/components/profile/StudentReviewForm";
 import { StarRating } from "@/components/reviews/StarRating";
+import { createStudentReview, updateStudentReview } from "@/app/profile/reviews/actions";
 import { requireUser } from "@/lib/auth-actions";
 import { prisma } from "@/lib/prisma";
 import {
@@ -72,6 +73,12 @@ export default async function ProfileReviewsPage({
         </p>
       )}
 
+      {params.edit && !editingReview && params.error !== "locked" && params.error !== "notfound" && (
+        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          This review cannot be edited. Only pending or rejected reviews can be changed.
+        </p>
+      )}
+
       {editingReview ? (
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between">
@@ -80,12 +87,17 @@ export default async function ProfileReviewsPage({
               Cancel
             </Link>
           </div>
-          <StudentReviewForm review={editingReview} defaultLocation={user?.address} />
+          <StudentReviewForm
+            key={editingReview.id}
+            review={editingReview}
+            action={updateStudentReview.bind(null, editingReview.id)}
+            defaultLocation={user?.address}
+          />
         </div>
       ) : (
         <div className="mt-6">
           <h3 className="mb-3 text-sm font-semibold text-foreground">Write a review</h3>
-          <StudentReviewForm defaultLocation={user?.address} />
+          <StudentReviewForm action={createStudentReview} defaultLocation={user?.address} />
         </div>
       )}
 
