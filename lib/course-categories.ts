@@ -10,6 +10,7 @@ export const COURSE_CATEGORIES = [
   "Aqeedah",
   "Hadith",
   "Duas & Adhkar",
+  "Other",
 ] as const;
 
 export type CourseCategory = (typeof COURSE_CATEGORIES)[number];
