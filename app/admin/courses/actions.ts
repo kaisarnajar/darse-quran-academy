@@ -128,14 +128,23 @@ export async function updateCourse(id: string, formData: FormData) {
 export async function deleteCourse(id: string) {
   await requireAdmin();
 
+  const course = await prisma.course.findUnique({
+    where: { id },
+    select: { title: true },
+  });
+
+  if (!course) {
+    redirect("/admin/courses?deleteError=Course%20not%20found.");
+  }
+
   const enrollmentCount = await prisma.enrollment.count({
     where: { courseId: id },
   });
 
   if (enrollmentCount > 0) {
     redirect(
-      `/admin/courses/${id}/edit?deleteError=${encodeURIComponent(
-        `Cannot delete: ${enrollmentCount} enrollment(s) exist. Set status to Draft instead.`,
+      `/admin/courses?deleteError=${encodeURIComponent(
+        `This course can't be deleted because ${enrollmentCount} student${enrollmentCount === 1 ? "" : "s"} ${enrollmentCount === 1 ? "is" : "are"} enrolled.`,
       )}`,
     );
   }

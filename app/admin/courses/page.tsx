@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteCourseButton } from "@/components/admin/DeleteCourseButton";
 import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { getCoursePricingFromCourse } from "@/lib/course-pricing";
 import { getAllCourses } from "@/lib/courses";
@@ -7,7 +8,7 @@ import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
 export default async function AdminCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; created?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string; deleteError?: string }>;
 }) {
   const params = await searchParams;
   const [courses, enrollmentCounts] = await Promise.all([getAllCourses(), getEnrollmentCountsByCourse()]);
@@ -34,6 +35,11 @@ export default async function AdminCoursesPage({
       {params.deleted === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Course deleted.</p>
       )}
+      {params.deleteError && (
+        <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
+          {decodeURIComponent(params.deleteError)}
+        </p>
+      )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
         <table className="w-full min-w-[840px] text-left text-sm">
@@ -48,7 +54,7 @@ export default async function AdminCoursesPage({
               <th className="px-4 py-3 font-medium">Students</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Homepage</th>
-              <th className="px-4 py-3 font-medium" />
+              <th className="w-[1%] whitespace-nowrap px-4 py-3 font-medium" />
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -79,16 +85,23 @@ export default async function AdminCoursesPage({
                   <td className="px-4 py-3 text-muted">
                     {course.featuredOnHomepage && course.status !== "DRAFT" ? "Featured" : "—"}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/courses/${course.id}/announcements`}
-                      className="mr-4 text-primary hover:underline"
-                    >
-                      Announcements
-                    </Link>
-                    <Link href={`/admin/courses/${course.id}/edit`} className="text-primary hover:underline">
-                      Edit
-                    </Link>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        href={`/admin/courses/${course.id}/announcements`}
+                        className="text-primary hover:underline"
+                      >
+                        Announcements
+                      </Link>
+                      <Link href={`/admin/courses/${course.id}/edit`} className="font-medium text-primary hover:underline">
+                        Edit
+                      </Link>
+                      <DeleteCourseButton
+                        id={course.id}
+                        title={course.title}
+                        studentCount={studentCount}
+                      />
+                    </div>
                   </td>
                 </tr>
               );
