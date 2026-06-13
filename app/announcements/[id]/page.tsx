@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Section } from "@/components/site/Section";
@@ -32,19 +31,6 @@ export default async function AnnouncementDetailPage({ params }: PageProps) {
       </Link>
 
       <article className="mx-auto mt-6 max-w-3xl">
-        {announcement.imagePath && (
-          <div className="relative mb-8 aspect-[16/10] overflow-hidden rounded-xl border border-border bg-background">
-            <Image
-              src={announcement.imagePath}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 768px"
-              priority
-            />
-          </div>
-        )}
-
         {(announcement.eventDate || announcement.location) && (
           <div className="text-sm font-semibold uppercase tracking-wide text-gold">
             {announcement.eventDate && <p>{announcement.eventDate}</p>}

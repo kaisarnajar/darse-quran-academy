@@ -68,7 +68,6 @@ export default async function AdminAnnouncementsPage({
                 <th className="px-4 py-3 font-medium">When / Where</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Homepage</th>
-                <th className="px-4 py-3 font-medium">Photo</th>
                 <th className="px-4 py-3 font-medium">Created</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
@@ -98,7 +97,6 @@ export default async function AdminAnnouncementsPage({
                         published={item.published}
                       />
                     </td>
-                    <td className="px-4 py-3 text-muted">{item.imagePath ? "Yes" : "—"}</td>
                     <td className="px-4 py-3 text-muted">
                       {item.createdAt.toLocaleDateString("en-IN", {
                         day: "numeric",

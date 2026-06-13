@@ -1,5 +1,4 @@
 import type { SiteAnnouncement } from "@prisma/client";
-import Image from "next/image";
 import { DateDropdownFields } from "@/components/form/DateDropdownFields";
 import { getFormDateParts, getFormDateYearOptions } from "@/lib/form-date";
 import { inputClassName, labelClassName } from "@/lib/form";
@@ -18,14 +17,13 @@ export function SiteAnnouncementForm({
   announcement,
   error,
 }: SiteAnnouncementFormProps) {
-  const hasImage = Boolean(announcement?.imagePath);
   const eventDateParts = getFormDateParts(announcement?.eventDate);
   const eventDateYears = getFormDateYearOptions(
     eventDateParts.year ? Number(eventDateParts.year) : undefined,
   );
 
   return (
-    <form action={action} encType="multipart/form-data" className="mx-auto max-w-2xl space-y-5">
+    <form action={action} className="mx-auto max-w-2xl space-y-5">
       {error && (
         <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
           {error}
@@ -81,37 +79,6 @@ export function SiteAnnouncementForm({
           placeholder="Full details for students and visitors…"
           className={inputClassName}
         />
-      </div>
-
-      <div>
-        <label htmlFor="image" className={labelClassName}>
-          Photo (optional)
-        </label>
-        {hasImage && (
-          <div className="mb-3 overflow-hidden rounded-lg border border-border bg-background/50">
-            <div className="relative aspect-[16/10] max-h-56 w-full">
-              <Image
-                src={announcement!.imagePath!}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 672px) 100vw, 672px"
-              />
-            </div>
-            <label className="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm text-foreground">
-              <input type="checkbox" name="removeImage" className="rounded border-border" />
-              Remove current photo
-            </label>
-          </div>
-        )}
-        <input
-          id="image"
-          name="image"
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="mt-1 block w-full text-sm text-foreground file:mr-4 file:rounded-full file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary"
-        />
-        <p className="mt-1.5 text-xs text-muted">JPEG, PNG, WebP, or GIF — up to 5 MB. One photo per announcement.</p>
       </div>
 
       <div className="space-y-3 rounded-lg border border-border bg-background/40 px-4 py-4">
