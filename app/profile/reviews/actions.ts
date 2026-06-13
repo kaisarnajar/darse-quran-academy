@@ -27,6 +27,7 @@ function parseReviewForm(formData: FormData) {
     quote: formData.get("quote"),
     course: formData.get("course") ?? "",
     location: formData.get("location") ?? "",
+    rating: formData.get("rating"),
   });
 }
 
@@ -50,6 +51,7 @@ export async function createStudentReview(formData: FormData) {
       quote: parsed.data.quote,
       course: parsed.data.course || null,
       location: parsed.data.location || null,
+      rating: parsed.data.rating,
       status: "PENDING",
     },
   });
@@ -87,6 +89,7 @@ export async function updateStudentReview(id: string, formData: FormData) {
       quote: parsed.data.quote,
       course: parsed.data.course || null,
       location: parsed.data.location || null,
+      rating: parsed.data.rating,
       status: "PENDING",
       featuredOnHomepage: false,
       featuredAt: null,

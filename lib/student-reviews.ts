@@ -14,6 +14,7 @@ export type HomepageReview = {
   location: string;
   name: string;
   initials: string;
+  rating: number;
 };
 
 export function reviewStatusLabel(status: StudentReviewStatus): string {
@@ -51,6 +52,7 @@ export function toHomepageReview(review: StudentReviewWithUser): HomepageReview 
     location: review.location?.trim() || "—",
     name,
     initials: getInitialsFromName(name),
+    rating: review.rating,
   };
 }
 

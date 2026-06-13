@@ -266,6 +266,7 @@ model StudentReview {
   quote              String
   course             String?
   location           String?
+  rating             Int                  @default(5)
   status             StudentReviewStatus  @default(PENDING)
   featuredOnHomepage Boolean              @default(false)
   featuredAt         DateTime?

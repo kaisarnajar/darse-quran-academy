@@ -5,6 +5,7 @@ export type Testimonial = {
   course: string;
   quote: string;
   initials: string;
+  rating?: number;
 };
 
 export const studentTestimonials: Testimonial[] = [
@@ -16,6 +17,7 @@ export const studentTestimonials: Testimonial[] = [
     initials: "AB",
     quote:
       "Alhamdulillah, my recitation improved within weeks. The teachers correct every mistake with patience, and classes after Isha fit perfectly with my routine.",
+    rating: 5,
   },
   {
     id: "2",
@@ -25,6 +27,7 @@ export const studentTestimonials: Testimonial[] = [
     initials: "MI",
     quote:
       "The Hifz program is well structured—daily targets, revision, and regular checks. I feel supported and accountable, even while studying from home.",
+    rating: 5,
   },
   {
     id: "3",
@@ -34,6 +37,7 @@ export const studentTestimonials: Testimonial[] = [
     initials: "FJ",
     quote:
       "I joined with very little Arabic. The lessons are clear, step by step, and rooted in proper scholarship. Darse Quran Academy is sincere about student progress.",
+    rating: 4,
   },
   {
     id: "4",
@@ -43,6 +47,7 @@ export const studentTestimonials: Testimonial[] = [
     initials: "OF",
     quote:
       "What I appreciate most is the adab in teaching and the focus on understanding, not rushing through the text. The online setup is stable and easy to follow.",
+    rating: 5,
   },
   {
     id: "5",
@@ -52,6 +57,7 @@ export const studentTestimonials: Testimonial[] = [
     initials: "KA",
     quote:
       "As a working mother, evening classes after Isha are a blessing. My children see me learning, and the academy’s reminders keep me consistent with revision.",
+    rating: 4,
   },
   {
     id: "6",
@@ -61,5 +67,6 @@ export const studentTestimonials: Testimonial[] = [
     initials: "BA",
     quote:
       "I completed my course and received a certificate that reflects real effort. The admin team and teachers are responsive, and payment verification was handled fairly.",
+    rating: 5,
   },
 ];

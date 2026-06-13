@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ApproveStudentReviewForm } from "@/components/admin/ApproveStudentReviewForm";
 import { FeatureStudentReviewButton } from "@/components/admin/FeatureStudentReviewButton";
 import { UnfeatureStudentReviewButton } from "@/components/admin/UnfeatureStudentReviewButton";
+import { StarRating } from "@/components/reviews/StarRating";
 import {
   HOMEPAGE_FEATURED_REVIEWS_MAX,
   getApprovedStudentReviewsForAdmin,
@@ -25,6 +26,7 @@ function ReviewCard({
         <p className="text-xs text-muted">
           {display.course} · {display.location}
         </p>
+        <StarRating rating={display.rating} className="mt-2" />
         <p className="mt-2 text-sm text-foreground">&ldquo;{display.quote}&rdquo;</p>
       </div>
       <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">{children}</div>
@@ -178,6 +180,7 @@ export default async function AdminReviewApprovalsPage({
                         {[review.course, review.location].filter(Boolean).join(" · ")}
                       </p>
                     )}
+                    <StarRating rating={review.rating} className="mt-2" />
                     <blockquote className="mt-3 text-sm leading-relaxed text-foreground">
                       &ldquo;{review.quote}&rdquo;
                     </blockquote>

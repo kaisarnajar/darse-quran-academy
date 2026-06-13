@@ -225,6 +225,11 @@ export const studentReviewSchema = z.object({
     .max(1000, "Review must be at most 1000 characters."),
   course: z.string().trim().max(120).optional().or(z.literal("")),
   location: z.string().trim().max(120).optional().or(z.literal("")),
+  rating: z.coerce
+    .number()
+    .int("Select a star rating from 1 to 5.")
+    .min(1, "Select a star rating from 1 to 5.")
+    .max(5, "Rating must be at most 5 stars."),
 });
 
 export const dailyInspirationKindEnum = z.enum(["QURAN", "HADITH"]);

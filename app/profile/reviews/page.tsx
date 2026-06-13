@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DeleteStudentReviewButton } from "@/components/profile/DeleteStudentReviewButton";
 import { StudentReviewForm } from "@/components/profile/StudentReviewForm";
+import { StarRating } from "@/components/reviews/StarRating";
 import { requireUser } from "@/lib/auth-actions";
 import { prisma } from "@/lib/prisma";
 import {
@@ -137,7 +138,8 @@ export default async function ProfileReviewsPage({
                       </div>
                     )}
                   </div>
-                  <p className="mt-3 text-sm leading-relaxed text-foreground">&ldquo;{review.quote}&rdquo;</p>
+                  <StarRating rating={review.rating} className="mt-3" />
+                  <p className="mt-2 text-sm leading-relaxed text-foreground">&ldquo;{review.quote}&rdquo;</p>
                   {(review.course || review.location) && (
                     <p className="mt-2 text-xs text-muted">
                       {[review.course, review.location].filter(Boolean).join(" · ")}
