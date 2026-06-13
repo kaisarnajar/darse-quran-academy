@@ -83,7 +83,7 @@ export default async function AdminCoursesPage({
                     <CourseStatusBadge status={course.status} />
                   </td>
                   <td className="px-4 py-3 text-muted">
-                    {course.featuredOnHomepage && course.status !== "DRAFT" ? "Featured" : ""}
+                    {course.featuredOnHomepage && course.status !== "DRAFT" ? "Featured" : "Not featured"}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3">
                     <div className="flex items-center justify-end gap-3">
