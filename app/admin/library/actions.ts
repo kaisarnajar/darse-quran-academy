@@ -55,7 +55,7 @@ export async function createLibraryItem(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/admin/library");
-  redirect(`/admin/library/${id}/edit?created=1`);
+  redirect("/admin/library?created=1");
 }
 
 export async function updateLibraryItem(id: string, formData: FormData) {

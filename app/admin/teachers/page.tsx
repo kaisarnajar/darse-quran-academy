@@ -5,7 +5,7 @@ import { getAllTeachers } from "@/lib/teachers";
 export default async function AdminTeachersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string }>;
 }) {
   const params = await searchParams;
   const teachers = await getAllTeachers();
@@ -26,6 +26,10 @@ export default async function AdminTeachersPage({
           Add teacher
         </Link>
       </div>
+
+      {params.created === "1" && (
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Teacher created.</p>
+      )}
 
       {params.deleted === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Teacher deleted.</p>

@@ -68,7 +68,7 @@ export async function createBlogPost(formData: FormData) {
   }
 
   revalidateBlogPaths();
-  redirect(adminListPath(`/${post.id}/edit?posted=1`));
+  redirect(adminListPath("?posted=1"));
 }
 
 export async function updateBlogPost(id: string, formData: FormData) {

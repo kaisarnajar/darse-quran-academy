@@ -68,7 +68,7 @@ export async function createTeacher(formData: FormData) {
   revalidatePath("/teachers");
   revalidatePath("/");
   revalidatePath("/admin/teachers");
-  redirect(teacherFormPath(`/${id}/edit`, "?created=1"));
+  redirect(teacherFormPath("", "?created=1"));
 }
 
 export async function updateTeacher(id: string, formData: FormData) {

@@ -5,7 +5,7 @@ import { getAllLibraryItems } from "@/lib/library";
 export default async function AdminLibraryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string }>;
 }) {
   const params = await searchParams;
   const items = await getAllLibraryItems();
@@ -24,6 +24,10 @@ export default async function AdminLibraryPage({
           Add item
         </Link>
       </div>
+
+      {params.created === "1" && (
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Item created.</p>
+      )}
 
       {params.deleted === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Item deleted.</p>

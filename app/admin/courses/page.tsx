@@ -7,7 +7,7 @@ import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
 export default async function AdminCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string }>;
 }) {
   const params = await searchParams;
   const [courses, enrollmentCounts] = await Promise.all([getAllCourses(), getEnrollmentCountsByCourse()]);
@@ -26,6 +26,10 @@ export default async function AdminCoursesPage({
           Add course
         </Link>
       </div>
+
+      {params.created === "1" && (
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Course created.</p>
+      )}
 
       {params.deleted === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Course deleted.</p>
