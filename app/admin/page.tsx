@@ -18,6 +18,11 @@ type DashboardStat = {
   highlight?: boolean;
 };
 
+const DASHBOARD_EXCLUDED_HREFS = new Set([
+  "/admin/payment-settings",
+  "/admin/social-links",
+]);
+
 export default async function AdminDashboardPage() {
   const [
     announcementCount,
@@ -63,8 +68,6 @@ export default async function AdminDashboardPage() {
         highlight: pendingEnrollmentCount + awaitingEnrollmentFeeCount > 0,
       },
     ],
-    ["/admin/payment-settings", { count: null }],
-    ["/admin/social-links", { count: null }],
     ["/admin/students", { count: studentCount }],
     ["/admin/teachers", { count: teacherCount }],
     ["/admin/library", { count: libraryCount }],
@@ -90,7 +93,9 @@ export default async function AdminDashboardPage() {
     ],
   ]);
 
-  const stats: DashboardStat[] = ADMIN_NAV_LINKS.map((link) => {
+  const stats: DashboardStat[] = ADMIN_NAV_LINKS.filter(
+    (link) => !DASHBOARD_EXCLUDED_HREFS.has(link.href),
+  ).map((link) => {
     const meta = countByHref.get(link.href) ?? { count: null };
     return {
       label: link.label,
