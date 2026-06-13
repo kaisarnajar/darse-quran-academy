@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SignOutButton } from "@/components/auth/SignOutButton";
 
 const links = [
   { href: "/teacher", label: "My courses", exact: true },
@@ -36,15 +35,6 @@ export function TeacherSidebar({ teacherName }: { teacherName: string }) {
             </Link>
           );
         })}
-        <Link
-          href="/"
-          className="mt-3 rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-accent-muted/50"
-        >
-          ← Public site
-        </Link>
-        <SignOutButton className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-muted hover:bg-accent-muted/50">
-          Sign out
-        </SignOutButton>
       </nav>
     </aside>
   );
