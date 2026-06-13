@@ -56,7 +56,7 @@ export default async function AboutPage() {
           </p>
           <p className="mt-4 text-base leading-relaxed text-muted">
             Our instructors guide students in Quran recitation (Nazira), memorization (Hifz), Tajweed,
-            Arabic grammar, Islamic studies, and Seerah. Classes are generally held after Isha salah, so
+            Arabic grammar, Islamic studies, and Seerah. Classes are generally after Isha salah, so
             learners can work or study during the day and give prayer its proper place in their routine.
           </p>
           <p className="mt-4 text-base leading-relaxed text-muted">

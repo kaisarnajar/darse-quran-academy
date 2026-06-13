@@ -16,7 +16,7 @@ export function HomeAbout() {
         </p>
         <p className="mt-4 text-sm leading-relaxed text-white/80 sm:text-base">
           Darse Quran Academy is our online platform for structured Quran and Islamic studies—with
-          qualified teachers, classes after Isha salah, and certificates upon course completion.
+          qualified teachers, classes are generally after Isha salah, and certificates upon course completion.
         </p>
         <Link
           href="/about"
