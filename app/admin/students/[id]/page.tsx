@@ -176,20 +176,12 @@ export default async function AdminStudentDetailPage({
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <Link
-                          href={`/admin/courses/${enrollment.courseId}/students`}
-                          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent-muted/50"
-                        >
-                          Course roster
-                        </Link>
-                        <RemoveEnrollmentButton
-                          enrollmentId={enrollment.id}
-                          courseId={enrollment.courseId}
-                          studentLabel={student.name ?? student.email}
-                        />
-                      </div>
+                    <td className="px-4 py-3 text-right">
+                      <RemoveEnrollmentButton
+                        enrollmentId={enrollment.id}
+                        courseId={enrollment.courseId}
+                        studentLabel={student.name ?? student.email}
+                      />
                     </td>
                   </tr>
                 ))}
