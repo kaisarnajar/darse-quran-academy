@@ -1,15 +1,12 @@
 import Link from "next/link";
 import { SiteLogo } from "@/components/site/SiteLogo";
 import { FacebookIcon, InstagramIcon, YouTubeIcon } from "@/components/site/SocialIcons";
-import { getFlaticonCourseIconAttributions } from "@/lib/flaticon-course-icons";
 import {
   buildWhatsAppHref,
   formatWhatsAppForDisplay,
   getConfiguredSocialNetworkLinks,
   getSocialLinksSettings,
 } from "@/lib/social-links";
-
-const flaticonAttributions = getFlaticonCourseIconAttributions();
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -94,33 +91,6 @@ export async function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10 bg-[#1a1a1a] px-4 py-5 text-xs text-white/70 sm:px-6">
-        <div className="mx-auto max-w-6xl pb-4 text-center text-white/55 sm:text-left">
-          <p>
-            Course category icons made by{" "}
-            {flaticonAttributions.map((attribution, index) => (
-              <span key={attribution.author}>
-                {index > 0 && (index === flaticonAttributions.length - 1 ? " and " : ", ")}
-                <a
-                  href={attribution.authorUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition-colors hover:text-gold"
-                >
-                  {attribution.author}
-                </a>
-              </span>
-            ))}{" "}
-            from{" "}
-            <a
-              href="https://www.flaticon.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-gold"
-            >
-              www.flaticon.com
-            </a>
-          </p>
-        </div>
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row sm:items-start sm:gap-6">
           <p className="text-center sm:text-left">
             © {new Date().getFullYear()} Darse Quran Academy. All rights reserved.

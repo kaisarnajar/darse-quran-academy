@@ -156,22 +156,3 @@ export function getFlaticonCourseIcon(category: string): FlaticonCourseIcon {
   const key = getCourseCategoryIconKey(category);
   return FLATICON_COURSE_ICONS[key];
 }
-
-export type FlaticonAttribution = {
-  author: string;
-  authorUrl: string;
-};
-
-/** Unique authors for footer attribution (Flaticon free license). */
-export function getFlaticonCourseIconAttributions(): FlaticonAttribution[] {
-  const seen = new Set<string>();
-  const attributions: FlaticonAttribution[] = [];
-
-  for (const icon of Object.values(FLATICON_COURSE_ICONS)) {
-    if (seen.has(icon.author)) continue;
-    seen.add(icon.author);
-    attributions.push({ author: icon.author, authorUrl: icon.authorUrl });
-  }
-
-  return attributions.sort((a, b) => a.author.localeCompare(b.author));
-}
