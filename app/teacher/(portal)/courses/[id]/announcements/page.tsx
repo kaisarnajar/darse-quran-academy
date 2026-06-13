@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
-import { DeleteAnnouncementButton } from "@/components/teacher/DeleteAnnouncementButton";
+import { TeacherCourseAnnouncementCard } from "@/components/teacher/TeacherCourseAnnouncementCard";
 import { requireTeacher } from "@/lib/auth-actions";
 import {
   canTeacherManageCourseAnnouncement,
@@ -31,7 +30,7 @@ export default async function TeacherCourseAnnouncementsPage({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted">
           Course-wide updates for all enrolled students. To message one student (e.g. exam marks), use{" "}
-          <span className="font-medium text-foreground">Message student</span> on the Students tab.
+          <span className="font-medium text-foreground">Message</span> on the Students tab.
         </p>
         <Link
           href={`/teacher/courses/${course.id}/announcements/new`}
@@ -57,28 +56,29 @@ export default async function TeacherCourseAnnouncementsPage({
         </p>
       )}
       {query.error === "notfound" && (
-        <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
           That announcement could not be found.
         </p>
       )}
       {query.error === "forbidden" && (
-        <p className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Only your own announcements can be edited or deleted. Academy admin posts are managed from the admin portal.
         </p>
       )}
 
       {announcements.length === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
-          No announcements yet. Create one to notify your students.
+          No announcements for this course yet.
         </p>
       ) : (
-        <ul className="mt-8 space-y-4">
+        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {announcements.map((announcement) => {
             const canManage = canTeacherManageCourseAnnouncement(announcement, teacher.id);
             return (
-            <li key={announcement.id}>
-              <div className="relative">
-                <AnnouncementCard
+              <li key={announcement.id} className="h-full">
+                <TeacherCourseAnnouncementCard
+                  courseId={course.id}
+                  announcementId={announcement.id}
                   category={announcement.category}
                   title={announcement.title}
                   body={announcement.body}
@@ -87,24 +87,10 @@ export default async function TeacherCourseAnnouncementsPage({
                   updatedAt={announcement.updatedAt}
                   attachmentPath={announcement.attachmentPath}
                   attachmentName={announcement.attachmentName}
+                  canManage={canManage}
+                  postedByAdmin={announcement.postedByAdmin}
                 />
-                {canManage ? (
-                  <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border pt-3">
-                    <Link
-                      href={`/teacher/courses/${course.id}/announcements/${announcement.id}/edit`}
-                      className="text-sm font-medium text-primary hover:underline"
-                    >
-                      Edit
-                    </Link>
-                    <DeleteAnnouncementButton courseId={course.id} announcementId={announcement.id} />
-                  </div>
-                ) : announcement.postedByAdmin ? (
-                  <p className="mt-3 border-t border-border pt-3 text-xs text-muted">
-                    Posted by the academy administration
-                  </p>
-                ) : null}
-              </div>
-            </li>
+              </li>
             );
           })}
         </ul>

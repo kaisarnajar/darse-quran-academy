@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
-import { DeleteAnnouncementButton } from "@/components/teacher/DeleteAnnouncementButton";
+import { TeacherCourseAnnouncementCard } from "@/components/teacher/TeacherCourseAnnouncementCard";
 import { requireTeacher } from "@/lib/auth-actions";
 import {
   canTeacherManageCourseAnnouncement,
@@ -60,7 +59,7 @@ export default async function TeacherStudentAnnouncementsPage({
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Message deleted.</p>
       )}
       {query.error === "notfound" && (
-        <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">That message could not be found.</p>
+        <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">That message could not be found.</p>
       )}
 
       {announcements.length === 0 ? (
@@ -68,12 +67,14 @@ export default async function TeacherStudentAnnouncementsPage({
           No private messages for {studentName} yet.
         </p>
       ) : (
-        <ul className="mt-8 space-y-4">
+        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {announcements.map((announcement) => {
             const canManage = canTeacherManageCourseAnnouncement(announcement, teacher.id);
             return (
-              <li key={announcement.id}>
-                <AnnouncementCard
+              <li key={announcement.id} className="h-full">
+                <TeacherCourseAnnouncementCard
+                  courseId={course.id}
+                  announcementId={announcement.id}
                   category={announcement.category}
                   title={announcement.title}
                   body={announcement.body}
@@ -82,23 +83,10 @@ export default async function TeacherStudentAnnouncementsPage({
                   updatedAt={announcement.updatedAt}
                   attachmentPath={announcement.attachmentPath}
                   attachmentName={announcement.attachmentName}
+                  canManage={canManage}
+                  enrollmentId={enrollment.id}
                   audienceLabel={`For ${studentName}`}
                 />
-                {canManage && (
-                  <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border pt-3">
-                    <Link
-                      href={`/teacher/courses/${course.id}/students/${enrollment.id}/announcements/${announcement.id}/edit`}
-                      className="text-sm font-medium text-primary hover:underline"
-                    >
-                      Edit
-                    </Link>
-                    <DeleteAnnouncementButton
-                      courseId={course.id}
-                      announcementId={announcement.id}
-                      enrollmentId={enrollment.id}
-                    />
-                  </div>
-                )}
               </li>
             );
           })}
