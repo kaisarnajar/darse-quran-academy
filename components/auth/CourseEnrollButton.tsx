@@ -181,17 +181,12 @@ export function CourseEnrollButton({
 
   if (!profileComplete) {
     return (
-      <div className="mt-4">
-        <p className="mb-2 text-center text-xs text-amber-900" role="status">
-          Complete your profile to enroll in this course.
-        </p>
-        <Link
-          href={PROFILE_COMPLETE_REDIRECT}
-          className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
-        >
-          Complete profile to enroll
-        </Link>
-      </div>
+      <Link
+        href={PROFILE_COMPLETE_REDIRECT}
+        className="mt-4 flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
+      >
+        Complete profile to enroll
+      </Link>
     );
   }
 
