@@ -56,8 +56,8 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
       <div>
         <h2 className="font-serif text-lg font-semibold text-primary">Enroll a student manually</h2>
         <p className="mt-1 text-sm text-muted">
-          The student must already have registered. Verify their email, choose a course, and optionally
-          approve access immediately.
+          The student must already have registered. Verify their email and choose a course to enroll
+          them directly with full access.
         </p>
       </div>
 
@@ -128,18 +128,6 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
           ))}
         </select>
       </div>
-
-      <label className="flex cursor-pointer items-start gap-2 text-sm text-foreground">
-        <input
-          type="checkbox"
-          name="approveImmediately"
-          className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-        />
-        <span>
-          <span className="font-medium">Approve immediately</span>
-          <span className="block text-muted">Grant course access without waiting for a separate approval.</span>
-        </span>
-      </label>
 
       <button
         type="submit"

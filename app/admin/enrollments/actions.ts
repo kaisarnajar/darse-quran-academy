@@ -8,14 +8,8 @@ import {
   saveUploadedCertificate,
   validateCertificatePdf,
 } from "@/lib/certificate-upload";
-import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
-import {
-  AWAITING_ENROLLMENT_FEE,
-  canApproveEnrollment,
-  canRejectEnrollment,
-  PENDING_ENROLLMENT_APPROVAL,
-} from "@/lib/enrollment-status";
+import { canApproveEnrollment, canRejectEnrollment } from "@/lib/enrollment-status";
 import { getRosterEnrollmentStatusForCourse } from "@/lib/enrollments";
 import { prisma } from "@/lib/prisma";
 import {
@@ -132,7 +126,6 @@ export async function adminEnrollUser(
   const parsed = adminEnrollUserSchema.safeParse({
     email: formData.get("email"),
     courseId: formData.get("courseId"),
-    approveImmediately: formData.get("approveImmediately") === "on",
   });
 
   if (!parsed.success) {
@@ -149,14 +142,7 @@ export async function adminEnrollUser(
     return { error: "Course not found." };
   }
 
-  let status: string;
-  if (parsed.data.approveImmediately) {
-    status = getRosterEnrollmentStatusForCourse(course.status);
-  } else if (getRegistrationFeePaise(course) > 0) {
-    status = AWAITING_ENROLLMENT_FEE;
-  } else {
-    status = PENDING_ENROLLMENT_APPROVAL;
-  }
+  const status = getRosterEnrollmentStatusForCourse(course.status);
 
   await prisma.enrollment.upsert({
     where: {
@@ -172,17 +158,7 @@ export async function adminEnrollUser(
 
   revalidateEnrollmentPaths(course.id);
 
-  if (status === "active" || status === "completed") {
-    return { success: `${account.name} is now enrolled in ${course.title}.` };
-  }
-  if (status === AWAITING_ENROLLMENT_FEE) {
-    return {
-      success: `${account.name} was added to ${course.title}. They must pay the enrollment fee before access is granted.`,
-    };
-  }
-  return {
-    success: `${account.name} was added to ${course.title}. Approve the request to grant course access.`,
-  };
+  return { success: `${account.name} is now enrolled in ${course.title}.` };
 }
 
 export async function previewStudentAccountForEnrollment(email: string) {

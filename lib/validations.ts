@@ -84,7 +84,6 @@ export const fatwaAnswerSchema = z.object({
 export const adminEnrollUserSchema = z.object({
   email: z.string().trim().email("Enter a valid student email."),
   courseId: z.string().min(1, "Select a course."),
-  approveImmediately: z.coerce.boolean().optional(),
 });
 
 export const forgotPasswordSchema = z.object({
