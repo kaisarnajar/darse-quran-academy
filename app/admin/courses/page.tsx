@@ -76,7 +76,7 @@ export default async function AdminCoursesPage({
                       href={`/admin/courses/${course.id}/students`}
                       className="font-medium text-primary hover:underline"
                     >
-                      {studentCount} student{studentCount === 1 ? "" : "s"}
+                      {studentCount}
                     </Link>
                   </td>
                   <td className="px-4 py-3">
