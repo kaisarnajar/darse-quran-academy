@@ -1,7 +1,3 @@
-import { sendCertificateEmail } from "@/lib/email";
-import { deleteUploadedCertificate } from "@/lib/certificate-upload";
-import { getCertificateDownloadUrl } from "@/lib/certificate";
-import { getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 
 export async function markEnrollmentComplete(enrollmentId: string): Promise<{ error?: string }> {
@@ -23,52 +19,6 @@ export async function markEnrollmentComplete(enrollmentId: string): Promise<{ er
       status: "completed",
       completedAt: enrollment.completedAt ?? new Date(),
     },
-  });
-
-  return {};
-}
-
-export async function sendCertificateEmailForEnrollment(
-  enrollmentId: string,
-  options?: { useGeneratedCertificate?: boolean },
-): Promise<{ error?: string }> {
-  const enrollment = await prisma.enrollment.findUnique({
-    where: { id: enrollmentId },
-    include: { user: { select: { name: true, email: true } } },
-  });
-
-  if (!enrollment) {
-    return { error: "Enrollment not found." };
-  }
-
-  if (!isEnrollmentCertificateReady(enrollment)) {
-    return { error: "Mark the student as complete before sending a certificate." };
-  }
-
-  const course = await getCourseById(enrollment.courseId);
-  if (!course) {
-    return { error: "Course not found." };
-  }
-
-  if (options?.useGeneratedCertificate && enrollment.uploadedCertificatePath) {
-    await deleteUploadedCertificate(enrollment.uploadedCertificatePath);
-    await prisma.enrollment.update({
-      where: { id: enrollmentId },
-      data: { uploadedCertificatePath: null },
-    });
-  }
-
-  const certificateUrl = getCertificateDownloadUrl(enrollmentId);
-  await sendCertificateEmail({
-    to: enrollment.user.email,
-    studentName: enrollment.user.name ?? "",
-    courseTitle: course.title,
-    certificateUrl,
-  });
-
-  await prisma.enrollment.update({
-    where: { id: enrollmentId },
-    data: { certificateEmailSentAt: new Date() },
   });
 
   return {};
@@ -96,20 +46,4 @@ export async function markAllActiveStudentsComplete(courseId: string): Promise<{
   }
 
   return { completed, errors };
-}
-
-export function isEnrollmentCertificateReady(enrollment: {
-  status: string;
-  completedAt: Date | null;
-}): boolean {
-  return enrollment.status === "completed" && enrollment.completedAt != null;
-}
-
-export function getCertificateFilename(courseTitle: string, enrollmentId: string): string {
-  const slug = courseTitle
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 40);
-  return `certificate-${slug || "course"}-${enrollmentId.slice(0, 8)}.pdf`;
 }

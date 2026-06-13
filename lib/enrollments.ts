@@ -9,7 +9,6 @@ export type CourseEnrollmentWithUser = {
   id: string;
   status: string;
   completedAt: Date | null;
-  certificateEmailSentAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   user: {

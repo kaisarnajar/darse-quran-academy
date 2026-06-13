@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { DownloadCertificateButton } from "@/components/certificate/DownloadCertificateButton";
 import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { requireUser } from "@/lib/auth-actions";
-import { isEnrollmentCertificateReady } from "@/lib/completion";
 import { getCourseById } from "@/lib/courses";
 import {
   AWAITING_ENROLLMENT_FEE,
@@ -58,7 +56,6 @@ export default async function ProfileCoursesPage({
         <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {enrollmentRows.map(({ enrollment, course }) => {
             if (!course) return null;
-            const certificateReady = isEnrollmentCertificateReady(enrollment);
             const isActive = enrollment.status === "active" || enrollment.status === "completed";
             const awaitingEnrollmentFee = enrollment.status === AWAITING_ENROLLMENT_FEE;
             const hasPendingEnrollmentPayment = pendingEnrollmentPayments.has(course.id);
@@ -92,17 +89,13 @@ export default async function ProfileCoursesPage({
                   <p className="mt-4 text-sm text-amber-900">Awaiting enrollment approval by the academy.</p>
                 )}
 
-                {isActive && (
+                {isActive && enrollment.status === "active" && (
                   <Link
                     href={`/profile/courses/${course.id}/pay`}
                     className="mt-4 flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light"
                   >
                     Pay monthly fee
                   </Link>
-                )}
-
-                {certificateReady && (
-                  <DownloadCertificateButton enrollmentId={enrollment.id} courseTitle={course.title} />
                 )}
 
                 <Link
@@ -118,7 +111,7 @@ export default async function ProfileCoursesPage({
                   </p>
                 )}
 
-                {!certificateReady && !isActive && !awaitingEnrollmentFee && (
+                {!isActive && !awaitingEnrollmentFee && enrollment.status !== PENDING_ENROLLMENT_APPROVAL && (
                   <p className="mt-4 text-xs text-muted">
                     Requested {enrollment.createdAt.toLocaleDateString("en-IN")}
                   </p>

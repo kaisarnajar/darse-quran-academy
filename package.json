@@ -14,8 +14,7 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed:demo": "tsx prisma/seed-demo.ts",
-    "optimize-logo": "node scripts/optimize-logo.mjs",
-    "build:certificate-assets": "node scripts/build-certificate-assets.mjs"
+    "optimize-logo": "node scripts/optimize-logo.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

@@ -42,9 +42,9 @@ export function CourseEnrollButton({
       <div className="mt-4">
         <Link
           href="/profile/courses"
-          className="flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-medium text-white hover:opacity-90"
+          className="flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
         >
-          Download certificate
+          Completed — View My Courses
         </Link>
       </div>
     );

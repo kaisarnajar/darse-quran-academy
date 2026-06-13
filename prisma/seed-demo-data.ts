@@ -192,10 +192,6 @@ async function seedDemoEnrollment(
       : enrollment.status === "completed"
         ? new Date("2026-03-01T12:00:00.000Z")
         : null;
-  const certificateEmailSentAt =
-    enrollment.status === "completed" && studentId === "19"
-      ? new Date("2026-03-20T10:00:00.000Z")
-      : null;
 
   await prisma.enrollment.upsert({
     where: { id: enrollmentId },
@@ -205,12 +201,10 @@ async function seedDemoEnrollment(
       courseId: enrollment.courseId,
       status: enrollment.status,
       completedAt,
-      certificateEmailSentAt,
     },
     update: {
       status: enrollment.status,
       completedAt,
-      certificateEmailSentAt,
     },
   });
 
@@ -413,7 +407,7 @@ export function demoAdminLoginHint(): string {
 export function demoDataSummaryHint(): string {
   return [
     `Demo dataset: ${courses.length} courses, ${teachers.length} teachers, ${DEMO_STUDENT_COUNT} students`,
-    "  Enrollments — pending approval (free), awaiting fee, active, completed (student 19 has certificate sent)",
+    "  Enrollments — pending approval (free), awaiting fee, active, completed",
     "  Payments — enrollment fee + monthly fee (approved, pending, declined; student 06 receipt sent)",
     "  Reviews — 10 featured + 1 pending + 1 rejected for /admin/review-approvals",
     "  Settings — demo UPI/bank and social links for payment + footer QA",
