@@ -46,9 +46,12 @@ export default async function AnnouncementDetailPage({ params }: PageProps) {
         )}
 
         {(announcement.eventDate || announcement.location) && (
-          <p className="text-sm font-semibold uppercase tracking-wide text-gold">
-            {[announcement.eventDate, announcement.location].filter(Boolean).join(" · ")}
-          </p>
+          <div className="text-sm font-semibold uppercase tracking-wide text-gold">
+            {announcement.eventDate && <p>{announcement.eventDate}</p>}
+            {announcement.location && (
+              <p className={announcement.eventDate ? "mt-1" : undefined}>{announcement.location}</p>
+            )}
+          </div>
         )}
 
         <h1 className="mt-3 font-serif text-2xl font-bold text-foreground sm:text-3xl">

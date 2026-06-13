@@ -24,9 +24,12 @@ export function SiteAnnouncementCard({ announcement, compact = false }: SiteAnno
       )}
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         {(announcement.eventDate || announcement.location) && (
-          <p className="text-xs font-semibold uppercase tracking-wide text-gold">
-            {[announcement.eventDate, announcement.location].filter(Boolean).join(" · ")}
-          </p>
+          <div className="text-xs font-semibold uppercase tracking-wide text-gold">
+            {announcement.eventDate && <p>{announcement.eventDate}</p>}
+            {announcement.location && (
+              <p className={announcement.eventDate ? "mt-1" : undefined}>{announcement.location}</p>
+            )}
+          </div>
         )}
         <h3 className={`font-serif font-semibold text-foreground ${compact ? "mt-2 text-lg" : "mt-2 text-xl"}`}>
           {announcement.title}
