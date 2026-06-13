@@ -6,7 +6,7 @@ import {
   validateSocialLinksForm,
 } from "@/lib/admin-form-validation";
 import type { SocialLinksSettingsData } from "@/lib/social-links";
-import { formatWhatsAppForDisplay } from "@/lib/social-links";
+import { formatWhatsAppForDisplay, normalizeWhatsAppNumber } from "@/lib/social-links";
 import { labelClassName } from "@/lib/form";
 import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
 import { useZodForm } from "@/lib/use-zod-form";
@@ -25,9 +25,9 @@ const SOCIAL_FIELDS: (keyof SocialLinksFormValues)[] = [
   "youtubeUrl",
 ];
 
-export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
-  const whatsappPreview = formatWhatsAppForDisplay(settings.whatsappNumber);
+const WHATSAPP_MAX_DIGITS = 15;
 
+export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
   const validate = useCallback(
     (values: SocialLinksFormValues) => validateSocialLinksForm(values),
     [],
@@ -36,7 +36,7 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
   const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
     initialValues: {
       contactEmail: settings.contactEmail,
-      whatsappNumber: whatsappPreview || settings.whatsappNumber,
+      whatsappNumber: normalizeWhatsAppNumber(settings.whatsappNumber),
       whatsappDefaultMessage: settings.whatsappDefaultMessage,
       facebookUrl: settings.facebookUrl,
       instagramUrl: settings.instagramUrl,
@@ -80,8 +80,8 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
       <section className="space-y-4 rounded-lg border border-border bg-background/40 p-5">
         <h2 className="font-serif text-lg font-semibold text-foreground">WhatsApp</h2>
         <p className="text-sm text-muted">
-          Used for the floating chat button, footer contact, and About page. Enter with country code
-          (e.g. +91 70060 25120).
+          Used for the floating chat button, footer contact, and About page. Enter digits only with
+          country code (e.g. 917006025120).
         </p>
         <div>
           <label htmlFor="whatsappNumber" className={labelClassName}>
@@ -91,14 +91,26 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
             id="whatsappNumber"
             name="whatsappNumber"
             type="tel"
+            inputMode="numeric"
+            autoComplete="tel"
             required
             value={values.whatsappNumber}
-            onChange={(e) => updateField("whatsappNumber", e.target.value)}
+            onChange={(e) =>
+              updateField(
+                "whatsappNumber",
+                e.target.value.replace(/\D/g, "").slice(0, WHATSAPP_MAX_DIGITS),
+              )
+            }
             onBlur={() => markTouched("whatsappNumber")}
             aria-invalid={showError("whatsappNumber") || undefined}
-            placeholder="+91 70060 25120"
+            placeholder="917006025120"
             className={formFieldInputClass(showError("whatsappNumber"))}
           />
+          {values.whatsappNumber && !showError("whatsappNumber") && (
+            <p className="mt-1.5 text-xs text-muted">
+              Displayed as {formatWhatsAppForDisplay(values.whatsappNumber)}
+            </p>
+          )}
           {showError("whatsappNumber") && (
             <p className={formErrorTextClassName} role="alert">
               {errors.whatsappNumber}

@@ -114,8 +114,8 @@ export const socialLinksSettingsSchema = z.object({
     .string()
     .trim()
     .min(10, "WhatsApp number must be at least 10 digits.")
-    .max(20, "WhatsApp number is too long.")
-    .regex(/^\+?[\d\s-]+$/, "Enter a valid WhatsApp number."),
+    .max(15, "WhatsApp number is too long.")
+    .regex(/^\d+$/, "WhatsApp number must contain only digits."),
   whatsappDefaultMessage: z.string().trim().max(500),
   facebookUrl: optionalHttpUrl,
   instagramUrl: optionalHttpUrl,
