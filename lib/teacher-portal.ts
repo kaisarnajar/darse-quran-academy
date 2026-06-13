@@ -1,4 +1,4 @@
-import type { Course, CourseStatus, Teacher } from "@prisma/client";
+import type { Course, CourseStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getEnrollmentsForCourse } from "@/lib/enrollments";
 
@@ -73,5 +73,3 @@ export function teacherDashboardStats(courses: TeacherCourse[]) {
     byStatus,
   };
 }
-
-export type TeacherProfile = Pick<Teacher, "id" | "name" | "email" | "specialization" | "initials">;

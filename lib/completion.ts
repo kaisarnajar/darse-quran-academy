@@ -113,5 +113,3 @@ export function getCertificateFilename(courseTitle: string, enrollmentId: string
     .slice(0, 40);
   return `certificate-${slug || "course"}-${enrollmentId.slice(0, 8)}.pdf`;
 }
-
-export { formatCertificateId } from "@/lib/certificate";

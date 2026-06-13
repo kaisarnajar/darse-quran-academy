@@ -1,8 +1,5 @@
 import Image from "next/image";
-import {
-  getFlaticonCourseIcon,
-  type CourseCategoryIconKey,
-} from "@/lib/flaticon-course-icons";
+import { getFlaticonCourseIcon } from "@/lib/flaticon-course-icons";
 
 type CourseCategoryIconProps = {
   category: string;
@@ -49,5 +46,3 @@ export function CourseCategoryIcon({
     </span>
   );
 }
-
-export type { CourseCategoryIconKey };

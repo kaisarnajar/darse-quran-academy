@@ -86,19 +86,6 @@ export async function getPendingMonthlyPaymentCount(): Promise<number> {
   });
 }
 
-export async function getUserPaymentSubmissions(userId: string) {
-  return prisma.coursePaymentSubmission.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-export async function getUserActiveEnrollmentForCourse(userId: string, courseId: string) {
-  return prisma.enrollment.findUnique({
-    where: { userId_courseId: { userId, courseId } },
-  });
-}
-
 /** How many calendar years before the current year students may select. */
 export const PAYMENT_YEARS_BACK = 2;
 

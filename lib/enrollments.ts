@@ -24,28 +24,11 @@ export async function getUserCourseEnrollmentMap(userId: string) {
   return new Map(rows.map((row) => [row.courseId, row]));
 }
 
-export async function getEnrolledCourseIds(userId: string): Promise<string[]> {
-  const enrollments = await prisma.enrollment.findMany({
-    where: { userId, status: { in: ["active", "completed"] } },
-    select: { courseId: true },
-  });
-  return enrollments.map((e) => e.courseId);
-}
-
 export async function getUserEnrollments(userId: string) {
   return prisma.enrollment.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
   });
-}
-
-export async function isUserEnrolled(userId: string, courseId: string): Promise<boolean> {
-  const enrollment = await prisma.enrollment.findUnique({
-    where: {
-      userId_courseId: { userId, courseId },
-    },
-  });
-  return enrollment?.status === "active" || enrollment?.status === "completed";
 }
 
 export function enrollmentStatusLabel(status: string) {
@@ -75,10 +58,6 @@ export async function getEnrollmentsForCourse(courseId: string): Promise<CourseE
       },
     },
   });
-}
-
-export async function getEnrollmentCountForCourse(courseId: string): Promise<number> {
-  return prisma.enrollment.count({ where: { courseId } });
 }
 
 export async function getEnrollmentCountsByCourse(): Promise<Map<string, number>> {

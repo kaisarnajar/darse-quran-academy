@@ -50,7 +50,3 @@ export async function sendReceiptEmailForPayment(
 
   return {};
 }
-
-export function isPaymentReceiptAvailable(record: { id: string }): boolean {
-  return Boolean(record.id);
-}

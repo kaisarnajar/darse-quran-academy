@@ -60,15 +60,6 @@ export function getAnnouncementAuthorName(announcement: {
   return announcement.authorName.trim() || announcement.teacher?.name || "Academy";
 }
 
-export function getAnnouncementRecipientLabel(announcement: {
-  enrollmentId: string | null;
-  enrollment: { user: { name: string | null; email: string } } | null;
-}): string | null {
-  if (!announcement.enrollmentId) return null;
-  const student = announcement.enrollment?.user;
-  return student?.name?.trim() || student?.email || "Student";
-}
-
 /** Course-wide posts visible to all enrolled students. */
 export async function getCourseWideAnnouncementsForCourse(courseId: string) {
   return prisma.courseAnnouncement.findMany({
@@ -124,8 +115,3 @@ export function canTeacherManageCourseAnnouncement(
 ): boolean {
   return !announcement.postedByAdmin && announcement.teacherId === teacherId;
 }
-
-export type CourseAnnouncementWithTeacher = CourseAnnouncement & {
-  teacher: { name: string } | null;
-  enrollment: { user: { name: string | null; email: string } } | null;
-};

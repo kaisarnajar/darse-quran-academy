@@ -280,11 +280,6 @@ export const paymentRecordSchema = z.object({
   description: z.string().trim().max(500).optional(),
 });
 
-export type CourseInput = z.infer<typeof courseSchema>;
-export type TeacherAdminInput = z.infer<typeof teacherAdminSchema>;
-export type LibraryItemInput = z.infer<typeof libraryItemSchema>;
-export type FatwaQuestionInput = z.infer<typeof fatwaQuestionSchema>;
-
 export const contactInquirySchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),
   email: z.string().trim().email("Enter a valid email address."),
@@ -311,5 +306,3 @@ export const contactInquiryReplySchema = z.object({
     .min(10, "Reply must be at least 10 characters.")
     .max(10000, "Reply must be at most 10000 characters."),
 });
-
-export type ContactInquiryInput = z.infer<typeof contactInquirySchema>;
