@@ -1,16 +1,10 @@
 import Link from "next/link";
 import { PendingPaymentApprovalsTable } from "@/components/admin/PendingPaymentApprovalsTable";
-import { SendReceiptApprovalsTable } from "@/components/admin/SendReceiptApprovalsTable";
 import { getAllCourses } from "@/lib/courses";
 import {
-  getApprovedMonthlyPaymentsForReceipt,
   getPendingEnrollmentFeePayments,
   getPendingMonthlyPayments,
 } from "@/lib/monthly-payments";
-import {
-  PAYMENT_TYPE_ENROLLMENT,
-  PAYMENT_TYPE_MONTHLY,
-} from "@/lib/monthly-payment-status";
 
 export default async function AdminPaymentApprovalsPage({
   searchParams,
@@ -18,20 +12,13 @@ export default async function AdminPaymentApprovalsPage({
   searchParams: Promise<{ confirmed?: string; declined?: string }>;
 }) {
   const params = await searchParams;
-  const [pendingEnrollmentFees, pendingMonthlyFees, approvedPayments, courses] = await Promise.all([
+  const [pendingEnrollmentFees, pendingMonthlyFees, courses] = await Promise.all([
     getPendingEnrollmentFeePayments(),
     getPendingMonthlyPayments(),
-    getApprovedMonthlyPaymentsForReceipt(),
     getAllCourses(),
   ]);
 
   const titleById = new Map(courses.map((c) => [c.id, c.title]));
-  const approvedEnrollmentFees = approvedPayments.filter(
-    (submission) => submission.paymentType === PAYMENT_TYPE_ENROLLMENT,
-  );
-  const approvedMonthlyFees = approvedPayments.filter(
-    (submission) => submission.paymentType === PAYMENT_TYPE_MONTHLY,
-  );
 
   return (
     <div>
@@ -47,8 +34,7 @@ export default async function AdminPaymentApprovalsPage({
 
       {params.confirmed === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Payment approved and recorded. Use &quot;Generate receipt&quot; or &quot;Upload receipt&quot; below
-          when you are ready to send the student their receipt.
+          Payment approved and recorded.
         </p>
       )}
       {params.declined === "1" && (
