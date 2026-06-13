@@ -17,8 +17,8 @@ const items = [
     body: "Understand the language of the Quran and core Islamic knowledge—Aqeedah, Fiqh, and Seerah.",
   },
   {
-    title: "One-to-One & Group Classes",
-    body: "Choose private lessons for focused attention or group sessions for community learning.",
+    title: "Group Classes",
+    body: "Join live online group sessions with fellow students—structured lessons, teacher guidance, and a supportive learning community.",
   },
 ];
 
