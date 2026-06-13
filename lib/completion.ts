@@ -1,49 +1,24 @@
+import type { CourseStatus } from "@prisma/client";
+import { getRosterEnrollmentStatusForCourse } from "@/lib/enrollments";
 import { prisma } from "@/lib/prisma";
 
-export async function markEnrollmentComplete(enrollmentId: string): Promise<{ error?: string }> {
-  const enrollment = await prisma.enrollment.findUnique({
-    where: { id: enrollmentId },
-  });
+/** Keep roster enrollments aligned with course status from Edit Course. */
+export async function syncEnrollmentsWithCourseStatus(
+  courseId: string,
+  courseStatus: CourseStatus,
+): Promise<void> {
+  const rosterStatus = getRosterEnrollmentStatusForCourse(courseStatus);
 
-  if (!enrollment) {
-    return { error: "Enrollment not found." };
+  if (rosterStatus === "completed") {
+    await prisma.enrollment.updateMany({
+      where: { courseId, status: "active" },
+      data: { status: "completed", completedAt: new Date() },
+    });
+    return;
   }
 
-  if (enrollment.status !== "active") {
-    return { error: "Only active enrollments can be marked complete." };
-  }
-
-  await prisma.enrollment.update({
-    where: { id: enrollmentId },
-    data: {
-      status: "completed",
-      completedAt: enrollment.completedAt ?? new Date(),
-    },
+  await prisma.enrollment.updateMany({
+    where: { courseId, status: "completed" },
+    data: { status: "active", completedAt: null },
   });
-
-  return {};
-}
-
-export async function markAllActiveStudentsComplete(courseId: string): Promise<{
-  completed: number;
-  errors: string[];
-}> {
-  const activeEnrollments = await prisma.enrollment.findMany({
-    where: { courseId, status: "active" },
-    select: { id: true },
-  });
-
-  let completed = 0;
-  const errors: string[] = [];
-
-  for (const { id } of activeEnrollments) {
-    const result = await markEnrollmentComplete(id);
-    if (result.error) {
-      errors.push(result.error);
-    } else {
-      completed += 1;
-    }
-  }
-
-  return { completed, errors };
 }

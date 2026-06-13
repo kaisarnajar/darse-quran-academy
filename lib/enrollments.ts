@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import type { CourseStatus } from "@prisma/client";
 import {
   AWAITING_ENROLLMENT_FEE,
   PENDING_ENROLLMENT_APPROVAL,
@@ -59,12 +60,60 @@ export async function getEnrollmentsForCourse(courseId: string): Promise<CourseE
   });
 }
 
-export async function getEnrollmentCountsByCourse(): Promise<Map<string, number>> {
-  const rows = await prisma.enrollment.groupBy({
-    by: ["courseId"],
-    _count: { _all: true },
+/** Active roster for in-progress courses; completed roster when the course is completed. */
+export function getRosterEnrollmentStatusForCourse(courseStatus: CourseStatus): "active" | "completed" {
+  return courseStatus === "COMPLETED" ? "completed" : "active";
+}
+
+export async function getCourseRosterEnrollments(
+  courseId: string,
+  courseStatus: CourseStatus,
+): Promise<CourseEnrollmentWithUser[]> {
+  noStore();
+  return prisma.enrollment.findMany({
+    where: {
+      courseId,
+      status: getRosterEnrollmentStatusForCourse(courseStatus),
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
   });
-  return new Map(rows.map((row) => [row.courseId, row._count._all]));
+}
+
+export async function getEnrollmentCountsByCourse(): Promise<Map<string, number>> {
+  noStore();
+  const courses = await prisma.course.findMany({
+    select: { id: true, status: true },
+  });
+
+  const [activeCounts, completedCounts] = await Promise.all([
+    prisma.enrollment.groupBy({
+      by: ["courseId"],
+      where: { status: "active" },
+      _count: { _all: true },
+    }),
+    prisma.enrollment.groupBy({
+      by: ["courseId"],
+      where: { status: "completed" },
+      _count: { _all: true },
+    }),
+  ]);
+
+  const activeByCourse = new Map(activeCounts.map((row) => [row.courseId, row._count._all]));
+  const completedByCourse = new Map(completedCounts.map((row) => [row.courseId, row._count._all]));
+
+  return new Map(
+    courses.map((course) => [
+      course.id,
+      getRosterEnrollmentStatusForCourse(course.status) === "completed"
+        ? (completedByCourse.get(course.id) ?? 0)
+        : (activeByCourse.get(course.id) ?? 0),
+    ]),
+  );
 }
 
 export type PendingEnrollmentWithUser = CourseEnrollmentWithUser & {

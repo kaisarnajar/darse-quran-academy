@@ -3,10 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
-import {
-  markAllActiveStudentsComplete,
-  markEnrollmentComplete,
-} from "@/lib/completion";
 import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
 import {
@@ -15,6 +11,7 @@ import {
   canRejectEnrollment,
   PENDING_ENROLLMENT_APPROVAL,
 } from "@/lib/enrollment-status";
+import { getRosterEnrollmentStatusForCourse } from "@/lib/enrollments";
 import { prisma } from "@/lib/prisma";
 import {
   lookupStudentAccountForEnrollment,
@@ -89,7 +86,7 @@ export async function approveEnrollmentRequest(
 
   await prisma.enrollment.update({
     where: { id: enrollmentId },
-    data: { status: "active" },
+    data: { status: getRosterEnrollmentStatusForCourse(course.status) },
   });
 
   revalidateEnrollmentPaths(courseId);
@@ -159,7 +156,7 @@ export async function adminEnrollUser(
 
   let status: string;
   if (parsed.data.approveImmediately) {
-    status = "active";
+    status = getRosterEnrollmentStatusForCourse(course.status);
   } else if (getRegistrationFeePaise(course) > 0) {
     status = AWAITING_ENROLLMENT_FEE;
   } else {
@@ -180,7 +177,7 @@ export async function adminEnrollUser(
 
   revalidateEnrollmentPaths(course.id);
 
-  if (status === "active") {
+  if (status === "active" || status === "completed") {
     return { success: `${account.name} is now enrolled in ${course.title}.` };
   }
   if (status === AWAITING_ENROLLMENT_FEE) {
@@ -201,23 +198,6 @@ export async function previewStudentAccountForEnrollment(email: string) {
   return lookupStudentAccountForEnrollment(normalizeStudentEmail(email));
 }
 
-export async function completeEnrollment(enrollmentId: string, courseId: string) {
-  await requireAdmin();
-
-  const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
-  if (!enrollment || enrollment.courseId !== courseId) {
-    return { error: "Enrollment not found." };
-  }
-
-  const result = await markEnrollmentComplete(enrollmentId);
-  if (result.error) {
-    return { error: result.error };
-  }
-
-  revalidateEnrollmentPaths(courseId);
-  return { success: true };
-}
-
 export async function removeEnrollmentFromCourse(enrollmentId: string, courseId: string) {
   await requireAdmin();
 
@@ -235,23 +215,4 @@ export async function removeEnrollmentFromCourse(enrollmentId: string, courseId:
   revalidatePath(`/admin/students/${enrollment.userId}`);
 
   return { success: true };
-}
-
-export async function completeAllActiveStudents(courseId: string) {
-  await requireAdmin();
-
-  const course = await getCourseById(courseId);
-  if (!course) {
-    return { error: "Course not found." };
-  }
-
-  const { completed, errors } = await markAllActiveStudentsComplete(courseId);
-
-  revalidateEnrollmentPaths(courseId);
-
-  if (completed === 0 && errors.length > 0) {
-    return { error: errors[0] ?? "No active students to complete." };
-  }
-
-  return { success: true, completed, errors };
 }

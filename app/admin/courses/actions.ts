@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
+import { syncEnrollmentsWithCourseStatus } from "@/lib/completion";
 import { resolveCourseFeaturedUpdate } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 import { getDefaultFeesForLevel } from "@/lib/course-pricing";
@@ -118,10 +119,15 @@ export async function updateCourse(id: string, formData: FormData) {
     data: { title, ...courseData, ...featured },
   });
 
+  await syncEnrollmentsWithCourseStatus(id, courseData.status);
+
   revalidatePath("/");
   revalidatePath("/courses");
   revalidatePath("/admin/courses");
   revalidatePath(`/admin/courses/${id}/edit`);
+  revalidatePath(`/admin/courses/${id}/students`);
+  revalidatePath("/admin/enrollments");
+  revalidatePath("/profile/courses");
   redirect(`/admin/courses/${id}/edit?saved=1`);
 }
 

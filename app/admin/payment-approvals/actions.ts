@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { sendPaymentDeclinedEmail } from "@/lib/email";
 import { AWAITING_ENROLLMENT_FEE } from "@/lib/enrollment-status";
+import { getRosterEnrollmentStatusForCourse } from "@/lib/enrollments";
 import {
   MONTHLY_PAYMENT_APPROVED,
   MONTHLY_PAYMENT_DECLINED,
@@ -101,13 +102,18 @@ export async function confirmMonthlyPayment(
   });
 
   if (submission.paymentType === PAYMENT_TYPE_ENROLLMENT) {
+    const course = await getCourseById(submission.courseId);
+    if (!course) {
+      return { error: "Course not found." };
+    }
+
     await prisma.enrollment.updateMany({
       where: {
         userId: submission.userId,
         courseId: submission.courseId,
         status: AWAITING_ENROLLMENT_FEE,
       },
-      data: { status: "active" },
+      data: { status: getRosterEnrollmentStatusForCourse(course.status) },
     });
   }
 
