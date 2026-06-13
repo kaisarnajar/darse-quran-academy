@@ -70,7 +70,7 @@ export default async function AdminCoursesPage({
                   </td>
                   <td className="px-4 py-3 text-muted">{course.duration || "—"}</td>
                   <td className="px-4 py-3 text-muted">₹{fees.registrationFeeInr}</td>
-                  <td className="px-4 py-3 text-muted">₹{fees.monthlyFeeInr}/mo</td>
+                  <td className="px-4 py-3 text-muted">₹{fees.monthlyFeeInr}</td>
                   <td className="px-4 py-3">
                     <Link
                       href={`/admin/courses/${course.id}/students`}
