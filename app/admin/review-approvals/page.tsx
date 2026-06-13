@@ -6,7 +6,6 @@ import {
   HOMEPAGE_FEATURED_REVIEWS_MAX,
   getApprovedStudentReviewsForAdmin,
   getFeaturedHomepageReviewCount,
-  getFeaturedStudentReviewsForAdmin,
   getPendingStudentReviewsForAdmin,
   type StudentReviewWithUser,
 } from "@/lib/student-reviews";
@@ -120,9 +119,8 @@ export default async function AdminReviewApprovalsPage({
   searchParams: Promise<{ approved?: string; rejected?: string; unfeatured?: string; featured?: string; saved?: string }>;
 }) {
   const params = await searchParams;
-  const [pendingReviews, featuredReviews, approvedReviews, featuredCount] = await Promise.all([
+  const [pendingReviews, approvedReviews, featuredCount] = await Promise.all([
     getPendingStudentReviewsForAdmin(),
-    getFeaturedStudentReviewsForAdmin(),
     getApprovedStudentReviewsForAdmin(),
     getFeaturedHomepageReviewCount(),
   ]);
@@ -145,7 +143,7 @@ export default async function AdminReviewApprovalsPage({
       )}
       {params.unfeatured === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Review removed from the homepage. It is still listed under All reviews.
+          Review removed from the homepage.
         </p>
       )}
       {params.featured === "1" && (
