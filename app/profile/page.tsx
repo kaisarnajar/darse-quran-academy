@@ -37,7 +37,7 @@ export default async function ProfilePage({
           <p className="font-medium">Complete your profile to enroll in courses</p>
           <p className="mt-1 text-amber-900/90">
             The academy needs your full details for course registration. Fill in all fields below,
-            then return to the course page to pay the registration fee.
+            then return to the course page to request enrollment.
           </p>
         </div>
       )}
@@ -47,7 +47,7 @@ export default async function ProfilePage({
           role="status"
         >
           <p className="font-medium">Your profile is complete</p>
-          <p className="mt-1">You can enroll in courses and pay the registration fee.</p>
+          <p className="mt-1">You can browse courses and request enrollment. Any enrollment or monthly fees are shown on each course.</p>
           <Link href="/courses" className="mt-2 inline-block font-medium text-primary hover:underline">
             Browse courses →
           </Link>

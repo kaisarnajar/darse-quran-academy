@@ -1,4 +1,4 @@
-/** Student requested enrollment; awaiting admin approval (no registration fee). */
+/** Student requested enrollment; awaiting admin approval. */
 export const PENDING_ENROLLMENT_APPROVAL = "pending_approval" as const;
 
 /** @deprecated Legacy registration payment flow */

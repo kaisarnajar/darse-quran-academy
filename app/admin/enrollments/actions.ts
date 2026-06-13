@@ -57,7 +57,7 @@ function enrollmentReturnUrl(returnTo: string | undefined, event: "approved" | "
   return qs ? `${pathname}?${qs}` : `${pathname}?${param}=1`;
 }
 
-/** Approve a student's enrollment request (free registration). */
+/** Approve a student's enrollment request. */
 export async function approveEnrollmentRequest(
   enrollmentId: string,
   courseId: string,

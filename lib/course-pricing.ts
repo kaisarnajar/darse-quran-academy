@@ -60,6 +60,6 @@ export function getMonthlyFeePaise(course: CourseFeeSource): number {
 
 export function formatEnrollmentFeeLabel(course: CourseFeeSource): string {
   const { registrationFeeInr } = getCoursePricingFromCourse(course);
-  if (registrationFeeInr <= 0) return "Free";
+  if (registrationFeeInr <= 0) return "₹0";
   return `₹${registrationFeeInr}`;
 }

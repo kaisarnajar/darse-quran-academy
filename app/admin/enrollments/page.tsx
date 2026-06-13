@@ -47,7 +47,7 @@ export default async function AdminEnrollmentsPage({
           )}
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Students who requested free enrollment and are waiting for your approval.
+          Students who requested enrollment and are waiting for your approval.
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">

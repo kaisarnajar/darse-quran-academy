@@ -272,7 +272,7 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
               {errors.enrollmentFeeInr}
             </p>
           )}
-          <p className="mt-1 text-xs text-muted">Use 0 for free enrollment (student requests access).</p>
+          <p className="mt-1 text-xs text-muted">Use 0 when there is no one-time enrollment fee.</p>
         </div>
         <div>
           <label htmlFor="monthlyFeeInr" className={labelClassName}>

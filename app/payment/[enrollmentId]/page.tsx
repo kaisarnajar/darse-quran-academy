@@ -69,7 +69,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ enroll
             className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"
             role="alert"
           >
-            Your previous payment could not be verified. Please pay the registration fee again and
+            Your previous payment could not be verified. Please pay the enrollment fee again and
             submit a new transaction reference or screenshot for verification.
           </p>
         )}

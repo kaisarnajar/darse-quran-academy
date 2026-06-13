@@ -26,7 +26,7 @@ export default async function CoursesPage() {
     <Section>
       <PageHeader
         title="Course Announcements"
-        description="Browse programs and request enrollment. Course access is free; monthly fees are paid after approval."
+        description="Browse programs and request enrollment. Enrollment and monthly fees are set per course; see each listing for details."
       />
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
