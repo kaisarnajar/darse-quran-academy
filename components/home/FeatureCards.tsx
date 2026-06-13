@@ -2,7 +2,7 @@ const features = [
   {
     title: "After Isha Salah",
     description:
-      "Classes are held after Isha salah, so you can work during the day and manage your prayers properly.",
+      "Generally, classes are held after Isha salah, so you can work during the day and manage your prayers properly.",
     icon: (
       <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
         <path
