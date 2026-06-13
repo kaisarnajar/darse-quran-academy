@@ -7,11 +7,6 @@ export async function getStudentUsers() {
   return prisma.user.findMany({
     where: adminEmails.length > 0 ? { email: { notIn: adminEmails } } : undefined,
     orderBy: { createdAt: "desc" },
-    include: {
-      enrollments: {
-        orderBy: { createdAt: "desc" },
-      },
-    },
   });
 }
 

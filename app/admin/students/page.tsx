@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { DeleteStudentButton } from "@/components/admin/DeleteStudentButton";
-import { enrollmentStatusLabel } from "@/lib/enrollments";
-import { getAllCourses } from "@/lib/courses";
 import { getStudentUsers } from "@/lib/students";
 
 export default async function AdminStudentsPage({
@@ -10,8 +8,7 @@ export default async function AdminStudentsPage({
   searchParams: Promise<{ deleted?: string }>;
 }) {
   const params = await searchParams;
-  const [students, courses] = await Promise.all([getStudentUsers(), getAllCourses()]);
-  const titleById = new Map(courses.map((c) => [c.id, c.title]));
+  const students = await getStudentUsers();
 
   return (
     <div>
@@ -33,11 +30,10 @@ export default async function AdminStudentsPage({
         {students.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No student accounts yet.</p>
         ) : (
-          <table className="w-full min-w-[880px] text-left text-sm">
+          <table className="w-full min-w-[520px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Student</th>
-                <th className="px-4 py-3 font-medium">Courses</th>
                 <th className="px-4 py-3 font-medium">Registered</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
@@ -48,22 +44,6 @@ export default async function AdminStudentsPage({
                   <td className="px-4 py-3">
                     <p className="font-medium text-foreground">{student.name ?? "—"}</p>
                     <p className="text-xs text-muted">{student.email}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    {student.enrollments.length === 0 ? (
-                      <span className="text-muted">No enrollments</span>
-                    ) : (
-                      <ul className="space-y-1.5">
-                        {student.enrollments.map((enrollment) => (
-                          <li key={enrollment.id} className="text-foreground">
-                            <span>{titleById.get(enrollment.courseId) ?? enrollment.courseId}</span>
-                            <span className="ml-1.5 text-xs text-muted">
-                              ({enrollmentStatusLabel(enrollment.status)})
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </td>
                   <td className="px-4 py-3 text-muted">
                     {student.createdAt.toLocaleDateString("en-IN", {
