@@ -107,7 +107,7 @@ export default async function ProfileReviewsPage({
                         : reviewStatusLabel(review.status)}
                     </span>
                     {(editable || deletable) && (
-                      <div className="flex gap-3">
+                      <div className="flex items-center gap-3">
                         {editable && (
                           <Link
                             href={`/profile/reviews?edit=${review.id}`}

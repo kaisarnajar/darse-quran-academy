@@ -14,6 +14,7 @@ export function DeleteStudentReviewButton({ id, onHomepage = false }: DeleteStud
 
   return (
     <form
+      className="contents"
       action={deleteStudentReview.bind(null, id)}
       onSubmit={(e) => {
         if (!confirm(message)) {
