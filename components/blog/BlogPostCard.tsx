@@ -28,7 +28,7 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
       <div className="flex flex-1 flex-col p-5">
         <p className="text-xs text-muted">{formatBlogDate(post.createdAt)}</p>
         <h2 className="mt-2 font-serif text-lg font-semibold text-foreground">
-          <Link href={`/blog/${post.id}`} className="hover:text-gold">
+          <Link href={`/blog/${post.id}`} className="line-clamp-2 block hover:text-gold">
             {post.title}
           </Link>
         </h2>

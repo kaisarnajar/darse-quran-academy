@@ -19,7 +19,9 @@ export function SiteAnnouncementCard({ announcement, compact = false }: SiteAnno
             )}
           </div>
         )}
-        <h3 className={`font-serif font-semibold text-foreground ${compact ? "mt-2 text-lg" : "mt-2 text-xl"}`}>
+        <h3
+          className={`line-clamp-2 font-serif font-semibold text-foreground ${compact ? "mt-2 text-lg" : "mt-2 text-xl"}`}
+        >
           {announcement.title}
         </h3>
         <p className={`mt-3 flex-1 text-muted ${compact ? "line-clamp-3 text-sm" : "line-clamp-4 text-sm leading-relaxed"}`}>
