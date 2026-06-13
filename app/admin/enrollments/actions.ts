@@ -17,6 +17,7 @@ import { getCourseById } from "@/lib/courses";
 import {
   AWAITING_PAYMENT_VERIFICATION,
   canApproveEnrollment,
+  canRejectEnrollment,
   PAYMENT_DECLINED,
   PENDING_ENROLLMENT_APPROVAL,
 } from "@/lib/enrollment-status";
@@ -46,8 +47,12 @@ function revalidateEnrollmentPaths(courseId: string) {
   }
 }
 
-function enrollmentReturnUrl(returnTo: string | undefined, event: "approved" | "declined"): string {
-  const param = event === "approved" ? "approved" : "declined";
+function enrollmentReturnUrl(
+  returnTo: string | undefined,
+  event: "approved" | "declined" | "rejected",
+): string {
+  const param =
+    event === "approved" ? "approved" : event === "rejected" ? "rejected" : "declined";
   const fallback = `/admin/enrollments?${param}=1`;
   if (!returnTo?.startsWith("/admin")) return fallback;
   const [pathname, query = ""] = returnTo.split("?");
@@ -106,6 +111,34 @@ export async function approveEnrollmentRequest(
   revalidatePath(`/admin/students/${enrollment.userId}`, "page");
 
   redirect(enrollmentReturnUrl(returnTo, "approved"));
+}
+
+/** Reject a student's pending enrollment request. */
+export async function rejectEnrollmentRequest(
+  enrollmentId: string,
+  courseId: string,
+  returnTo?: string,
+): Promise<{ error?: string }> {
+  await requireAdmin();
+
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { id: enrollmentId },
+  });
+
+  if (!enrollment || enrollment.courseId !== courseId) {
+    return { error: "Enrollment not found." };
+  }
+
+  if (!canRejectEnrollment(enrollment.status)) {
+    return { error: "Only pending enrollment requests can be rejected." };
+  }
+
+  await prisma.enrollment.delete({ where: { id: enrollmentId } });
+
+  revalidateEnrollmentPaths(courseId);
+  revalidatePath(`/admin/students/${enrollment.userId}`, "page");
+
+  redirect(enrollmentReturnUrl(returnTo, "rejected"));
 }
 
 /** @deprecated Legacy registration payment decline */

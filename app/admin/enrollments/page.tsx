@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AdminEnrollUserForm } from "@/components/admin/AdminEnrollUserForm";
 import { ApproveEnrollmentButton } from "@/components/admin/ApproveEnrollmentButton";
+import { RejectEnrollmentButton } from "@/components/admin/RejectEnrollmentButton";
 import { isCourseEnrollmentOpen } from "@/lib/course-status";
 import { getAllCourses } from "@/lib/courses";
 import { getPendingEnrollmentApprovals } from "@/lib/enrollments";
@@ -8,7 +9,7 @@ import { getPendingEnrollmentApprovals } from "@/lib/enrollments";
 export default async function AdminEnrollmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ approved?: string }>;
+  searchParams: Promise<{ approved?: string; rejected?: string }>;
 }) {
   const params = await searchParams;
   const [pendingApprovals, courses] = await Promise.all([
@@ -34,6 +35,11 @@ export default async function AdminEnrollmentsPage({
       {params.approved === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Enrollment approved. The student now has access to the course.
+        </p>
+      )}
+      {params.rejected === "1" && (
+        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Enrollment rejected. The student can request enrollment again from the course page.
         </p>
       )}
 
@@ -83,6 +89,10 @@ export default async function AdminEnrollmentsPage({
                     <td className="px-4 py-3 text-right">
                       <div className="flex flex-wrap justify-end gap-2">
                         <ApproveEnrollmentButton
+                          enrollmentId={enrollment.id}
+                          courseId={enrollment.courseId}
+                        />
+                        <RejectEnrollmentButton
                           enrollmentId={enrollment.id}
                           courseId={enrollment.courseId}
                         />

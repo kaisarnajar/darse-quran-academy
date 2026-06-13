@@ -33,3 +33,7 @@ export function canApproveEnrollment(status: string): boolean {
     status === NEEDS_PAYMENT_SUBMISSION
   );
 }
+
+export function canRejectEnrollment(status: string): boolean {
+  return status === PENDING_ENROLLMENT_APPROVAL;
+}

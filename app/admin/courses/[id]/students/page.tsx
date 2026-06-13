@@ -4,6 +4,7 @@ import { CompleteAllStudentsButton } from "@/components/admin/CompleteAllStudent
 import { CompleteCourseButton } from "@/components/admin/CompleteCourseButton";
 import { SendCertificateButton } from "@/components/admin/SendCertificateButton";
 import { ApproveEnrollmentButton } from "@/components/admin/ApproveEnrollmentButton";
+import { RejectEnrollmentButton } from "@/components/admin/RejectEnrollmentButton";
 import { ConfirmPaymentButton } from "@/components/admin/ConfirmPaymentButton";
 import { DeclinePaymentButton } from "@/components/admin/DeclinePaymentButton";
 import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
@@ -32,7 +33,7 @@ export default async function CourseStudentsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ completed?: string; confirmed?: string; declined?: string }>;
+  searchParams: Promise<{ completed?: string; confirmed?: string; declined?: string; rejected?: string }>;
 }) {
   const { id } = await params;
   const query = await searchParams;
@@ -80,6 +81,11 @@ export default async function CourseStudentsPage({
       {query.declined === "1" && (
         <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Payment declined. The student can submit payment again from their profile.
+        </p>
+      )}
+      {query.rejected === "1" && (
+        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Enrollment rejected. The student can request enrollment again from the course page.
         </p>
       )}
 
@@ -137,7 +143,10 @@ export default async function CourseStudentsPage({
                   <td className="px-4 py-3 text-right align-top">
                     <div className="flex flex-wrap items-start justify-end gap-2">
                       {enrollment.status === PENDING_ENROLLMENT_APPROVAL && (
-                        <ApproveEnrollmentButton enrollmentId={enrollment.id} courseId={id} />
+                        <>
+                          <ApproveEnrollmentButton enrollmentId={enrollment.id} courseId={id} />
+                          <RejectEnrollmentButton enrollmentId={enrollment.id} courseId={id} />
+                        </>
                       )}
                       {enrollment.status === "pending_verification" && (
                         <>
