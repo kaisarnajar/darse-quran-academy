@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
+import {
+  deleteUploadedCertificate,
+  saveUploadedCertificate,
+  validateCertificatePdf,
+} from "@/lib/certificate-upload";
 import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
 import {
@@ -198,6 +203,54 @@ export async function previewStudentAccountForEnrollment(email: string) {
   return lookupStudentAccountForEnrollment(normalizeStudentEmail(email));
 }
 
+export async function uploadCertificate(
+  enrollmentId: string,
+  courseId: string,
+  formData: FormData,
+) {
+  await requireAdmin();
+
+  const enrollment = await prisma.enrollment.findUnique({ where: { id: enrollmentId } });
+  if (!enrollment || enrollment.courseId !== courseId) {
+    return { error: "Enrollment not found." };
+  }
+
+  if (enrollment.status !== "completed") {
+    return { error: "Certificates can only be uploaded for completed students." };
+  }
+
+  const course = await getCourseById(courseId);
+  if (!course) {
+    return { error: "Course not found." };
+  }
+
+  if (course.status !== "COMPLETED") {
+    return { error: "Upload certificates after the course status is set to Completed." };
+  }
+
+  const file = formData.get("certificate");
+  const validation = validateCertificatePdf(file instanceof File ? file : null);
+  if (validation.error) {
+    return { error: validation.error };
+  }
+
+  if (enrollment.uploadedCertificatePath) {
+    await deleteUploadedCertificate(enrollment.uploadedCertificatePath);
+  }
+
+  const uploadedPath = await saveUploadedCertificate(enrollmentId, file as File);
+
+  await prisma.enrollment.update({
+    where: { id: enrollmentId },
+    data: { uploadedCertificatePath: uploadedPath },
+  });
+
+  revalidateEnrollmentPaths(courseId);
+  revalidatePath("/profile/courses");
+
+  return { success: true };
+}
+
 export async function removeEnrollmentFromCourse(enrollmentId: string, courseId: string) {
   await requireAdmin();
 
@@ -209,6 +262,7 @@ export async function removeEnrollmentFromCourse(enrollmentId: string, courseId:
     return { error: "Enrollment not found." };
   }
 
+  await deleteUploadedCertificate(enrollment.uploadedCertificatePath);
   await prisma.enrollment.delete({ where: { id: enrollmentId } });
 
   revalidateEnrollmentPaths(courseId);

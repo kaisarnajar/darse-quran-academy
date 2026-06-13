@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
+import { DownloadCertificateButton } from "@/components/certificate/DownloadCertificateButton";
 import { requireUser } from "@/lib/auth-actions";
+import { hasUploadedCertificate } from "@/lib/certificate";
 import { getCourseById } from "@/lib/courses";
 import {
   AWAITING_ENROLLMENT_FEE,
@@ -104,6 +106,10 @@ export default async function ProfileCoursesPage({
                 >
                   Course announcements
                 </Link>
+
+                {hasUploadedCertificate(enrollment) && (
+                  <DownloadCertificateButton enrollmentId={enrollment.id} courseTitle={course.title} />
+                )}
 
                 {enrollment.completedAt && (
                   <p className="mt-3 text-xs text-muted">

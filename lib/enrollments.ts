@@ -10,6 +10,7 @@ export type CourseEnrollmentWithUser = {
   id: string;
   status: string;
   completedAt: Date | null;
+  uploadedCertificatePath: string | null;
   createdAt: Date;
   updatedAt: Date;
   user: {
