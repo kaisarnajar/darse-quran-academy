@@ -29,7 +29,6 @@ export function CourseEnrollButton({
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
 
   const enrollmentClosedMessage = getCourseEnrollmentClosedMessage(courseStatus);
 
@@ -63,7 +62,7 @@ export function CourseEnrollButton({
     return (
       <div className="mt-4">
         <Link
-          href="/profile/courses?requested=1"
+          href="/profile/courses"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
         >
           Awaiting enrollment approval
@@ -100,7 +99,6 @@ export function CourseEnrollButton({
 
   async function handleEnroll() {
     setError("");
-    setInfo("");
     setLoading(true);
 
     try {
@@ -139,7 +137,6 @@ export function CourseEnrollButton({
       }
 
       if (data.redirectUrl) {
-        if (data.message) setInfo(data.message);
         window.location.href = data.redirectUrl;
         return;
       }
@@ -184,11 +181,6 @@ export function CourseEnrollButton({
       {error && (
         <p className="mb-2 text-center text-xs text-red-600" role="alert">
           {error}
-        </p>
-      )}
-      {info && (
-        <p className="mb-2 text-center text-xs text-violet-800" role="status">
-          {info}
         </p>
       )}
       <button

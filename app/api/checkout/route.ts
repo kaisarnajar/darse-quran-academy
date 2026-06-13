@@ -46,8 +46,7 @@ export async function POST(request: Request) {
 
     if (existing?.status === PENDING_ENROLLMENT_APPROVAL) {
       return NextResponse.json({
-        redirectUrl: "/profile/courses?requested=1",
-        message: "Your enrollment request is already awaiting approval by the academy.",
+        redirectUrl: "/profile/courses",
         alreadyEnrolled: true,
       });
     }
@@ -55,7 +54,6 @@ export async function POST(request: Request) {
     if (existing) {
       return NextResponse.json({
         redirectUrl: "/profile/courses",
-        message: "You already have an enrollment request for this course.",
         alreadyEnrolled: true,
       });
     }
@@ -81,8 +79,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      redirectUrl: "/profile/courses?requested=1",
-      message: "Enrollment request submitted. The academy will approve your access shortly.",
+      redirectUrl: "/profile/courses",
     });
   } catch {
     return NextResponse.json({ error: "Could not submit enrollment request. Please try again." }, { status: 500 });

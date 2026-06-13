@@ -19,7 +19,7 @@ function statusLabel(status: string) {
 export default async function ProfileCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ requested?: string; declined?: string }>;
+  searchParams: Promise<{ declined?: string }>;
 }) {
   const session = await requireUser();
   const params = await searchParams;
@@ -40,11 +40,6 @@ export default async function ProfileCoursesPage({
         Enrolled programs and monthly fee payments appear below.
       </p>
 
-      {params.requested === "1" && (
-        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Your enrollment request was submitted. The academy will approve your access shortly.
-        </p>
-      )}
       {params.declined === "1" && (
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-900">
           Your previous payment was declined. Use &quot;Pay monthly fee&quot; to submit again.
