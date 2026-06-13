@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApproveBlogPostButton } from "@/components/admin/ApproveBlogPostButton";
 import { RejectBlogPostButton } from "@/components/admin/RejectBlogPostButton";
-import { blogApprovalStatusClass, blogApprovalStatusLabel } from "@/lib/blog-approval";
 import { getBlogPostForAdmin } from "@/lib/blogs";
 import Image from "next/image";
 
@@ -17,7 +16,6 @@ export default async function AdminBlogApprovalDetailPage({
   if (!post || post.approvalStatus !== "PENDING") notFound();
 
   const submittedBy = post.createdBy?.name ?? post.createdBy?.email ?? "Teacher";
-  const badgeClass = blogApprovalStatusClass(post.approvalStatus, post.published);
 
   return (
     <div>
@@ -46,16 +44,6 @@ export default async function AdminBlogApprovalDetailPage({
       </div>
 
       <dl className="mt-6 grid max-w-2xl gap-3 text-sm">
-        <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
-          <dt className="shrink-0 font-medium text-foreground sm:w-32">Status</dt>
-          <dd>
-            <span
-              className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}
-            >
-              {blogApprovalStatusLabel(post.approvalStatus, post.published)}
-            </span>
-          </dd>
-        </div>
         <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
           <dt className="shrink-0 font-medium text-foreground sm:w-32">Submitted</dt>
           <dd className="text-muted">

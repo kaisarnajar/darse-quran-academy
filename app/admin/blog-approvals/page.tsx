@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { ApproveBlogPostButton } from "@/components/admin/ApproveBlogPostButton";
 import { RejectBlogPostButton } from "@/components/admin/RejectBlogPostButton";
-import {
-  blogApprovalStatusClass,
-  blogApprovalStatusLabel,
-  getPendingBlogPostsForAdmin,
-} from "@/lib/blog-approval";
+import { getPendingBlogPostsForAdmin } from "@/lib/blog-approval";
 
 export default async function AdminBlogApprovalsPage({
   searchParams,
@@ -38,62 +34,51 @@ export default async function AdminBlogApprovalsPage({
         {pendingPosts.length === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">No teacher blog posts awaiting approval.</p>
         ) : (
-          <table className="w-full min-w-[960px] text-left text-sm">
+          <table className="w-full min-w-[880px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Title</th>
                 <th className="px-4 py-3 font-medium">Submitted by</th>
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Images</th>
-                <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Submitted</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {pendingPosts.map((post) => {
-                const badgeClass = blogApprovalStatusClass(post.approvalStatus, post.published);
-                return (
-                  <tr key={post.id}>
-                    <td className="px-4 py-3 font-medium text-foreground">{post.title}</td>
-                    <td className="px-4 py-3 text-muted">{post.createdBy?.name ?? "—"}</td>
-                    <td className="px-4 py-3 text-muted">{post.createdBy?.email ?? "—"}</td>
-                    <td className="px-4 py-3 text-muted">{post.images.length}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}
+              {pendingPosts.map((post) => (
+                <tr key={post.id}>
+                  <td className="px-4 py-3 font-medium text-foreground">{post.title}</td>
+                  <td className="px-4 py-3 text-muted">{post.createdBy?.name ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted">{post.createdBy?.email ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted">{post.images.length}</td>
+                  <td className="px-4 py-3 text-muted">
+                    {post.createdAt.toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/blog-approvals/${post.id}`}
+                        className="font-medium text-primary hover:underline"
                       >
-                        {blogApprovalStatusLabel(post.approvalStatus, post.published)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-muted">
-                      {post.createdAt.toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <Link
-                          href={`/admin/blog-approvals/${post.id}`}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          View
-                        </Link>
-                        <Link
-                          href={`/admin/blogs/${post.id}/edit`}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          Edit
-                        </Link>
-                        <ApproveBlogPostButton postId={post.id} />
-                        <RejectBlogPostButton postId={post.id} />
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                        View
+                      </Link>
+                      <Link
+                        href={`/admin/blogs/${post.id}/edit`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Edit
+                      </Link>
+                      <ApproveBlogPostButton postId={post.id} />
+                      <RejectBlogPostButton postId={post.id} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
