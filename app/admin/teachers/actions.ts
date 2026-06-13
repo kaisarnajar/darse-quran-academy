@@ -115,12 +115,37 @@ export async function updateTeacher(id: string, formData: FormData) {
   redirect(teacherFormPath(`/${id}/edit`, "?saved=1"));
 }
 
-export async function deleteTeacher(id: string) {
+export async function deleteTeacherById(id: string): Promise<{ error?: string }> {
   await requireAdmin();
+
+  const existing = await prisma.teacher.findUnique({ where: { id } });
+  if (!existing) {
+    return { error: "Teacher not found." };
+  }
+
   await prisma.teacher.delete({ where: { id } });
+
   revalidatePath("/teachers");
   revalidatePath("/");
   revalidatePath("/admin/teachers");
+  revalidatePath(`/admin/teachers/${id}`);
+
+  return {};
+}
+
+export async function deleteTeacher(id: string) {
+  const result = await deleteTeacherById(id);
+  if (result.error) {
+    redirect(teacherFormPath(`/${id}/edit`, `?error=${encodeURIComponent(result.error)}`));
+  }
+  redirect(teacherFormPath("", "?deleted=1"));
+}
+
+export async function deleteTeacherFromProfile(id: string) {
+  const result = await deleteTeacherById(id);
+  if (result.error) {
+    redirect(teacherFormPath(`/${id}`, `?error=${encodeURIComponent(result.error)}`));
+  }
   redirect(teacherFormPath("", "?deleted=1"));
 }
 

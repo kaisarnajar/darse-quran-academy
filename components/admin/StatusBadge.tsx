@@ -5,7 +5,7 @@ export function StatusBadge({ published }: { published: boolean }) {
         published ? "bg-violet-100 text-violet-800" : "bg-stone-200 text-stone-700"
       }`}
     >
-      {published ? "Published" : "Draft"}
+      {published ? "Published" : "Not published"}
     </span>
   );
 }

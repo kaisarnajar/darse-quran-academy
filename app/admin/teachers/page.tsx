@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteTeacherButton } from "@/components/admin/DeleteTeacherButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { getAllTeachers } from "@/lib/teachers";
 
@@ -35,27 +36,61 @@ export default async function AdminTeachersPage({
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Teacher deleted.</p>
       )}
 
-      <ul className="mt-6 divide-y divide-border rounded-lg border border-border bg-surface">
-        {teachers.map((teacher) => (
-          <li key={teacher.id} className="flex items-center justify-between gap-4 px-4 py-4">
-            <div>
-              <p className="font-medium text-foreground">{teacher.name}</p>
-              <p className="text-sm text-muted">{teacher.specialization}</p>
-              {teacher.email ? (
-                <p className="mt-0.5 text-xs text-muted">Login: {teacher.email}</p>
-              ) : (
-                <p className="mt-0.5 text-xs text-amber-700">No login email — add in Edit</p>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <StatusBadge published={teacher.published} />
-              <Link href={`/admin/teachers/${teacher.id}/edit`} className="text-sm text-primary hover:underline">
-                Edit
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+        {teachers.length === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">No teachers yet.</p>
+        ) : (
+          <table className="w-full min-w-[760px] text-left text-sm">
+            <thead className="border-b border-border bg-background/50 text-muted">
+              <tr>
+                <th className="px-4 py-3 font-medium">Teacher</th>
+                <th className="px-4 py-3 font-medium">Email</th>
+                <th className="px-4 py-3 font-medium">Registered</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {teachers.map((teacher) => (
+                <tr key={teacher.id}>
+                  <td className="px-4 py-3 font-medium text-foreground">{teacher.name}</td>
+                  <td className="px-4 py-3 text-muted">{teacher.email ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted">
+                    {teacher.createdAt.toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge published={teacher.published} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/teachers/${teacher.id}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/admin/teachers/${teacher.id}/edit`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Edit
+                      </Link>
+                      <DeleteTeacherButton
+                        id={teacher.id}
+                        label={`${teacher.name}${teacher.email ? ` (${teacher.email})` : ""}`}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

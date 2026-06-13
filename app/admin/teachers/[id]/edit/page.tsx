@@ -23,8 +23,8 @@ export default async function EditTeacherPage({
 
   return (
     <div>
-      <Link href="/admin/teachers" className="text-sm text-primary hover:underline">
-        ← Back to teachers
+      <Link href={`/admin/teachers/${id}`} className="text-sm text-primary hover:underline">
+        ← Back to teacher profile
       </Link>
       <h1 className="mt-4 font-serif text-2xl font-bold text-primary">Edit teacher</h1>
 
