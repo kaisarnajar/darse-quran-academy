@@ -105,7 +105,7 @@ export default async function TeacherBlogsPage({
                             rel="noopener noreferrer"
                             className="text-sm text-muted hover:text-primary"
                           >
-                            View live
+                            View
                           </Link>
                         )}
                         {editable && (
