@@ -45,13 +45,28 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
     validate,
   });
 
+  function markAllTouched() {
+    for (const field of PAYMENT_FIELDS) {
+      markTouched(field);
+    }
+  }
+
   return (
-    <form action={action} className="mx-auto max-w-2xl space-y-8">
+    <form
+      action={action}
+      className="mx-auto max-w-2xl space-y-8"
+      noValidate
+      onSubmit={(event) => {
+        if (!isValid) {
+          event.preventDefault();
+          markAllTouched();
+        }
+      }}
+    >
       <section className="space-y-4 rounded-lg border border-border bg-background/40 p-5">
         <h2 className="font-serif text-lg font-semibold text-foreground">UPI</h2>
         <p className="text-sm text-muted">
-          Shown on student payment pages and used for QR codes. Leave UPI ID empty only if you do not
-          accept UPI.
+          Shown on student payment pages and used for QR codes.
         </p>
         <div>
           <label htmlFor="upiId" className={labelClassName}>
@@ -65,6 +80,7 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             onChange={(e) => updateField("upiId", e.target.value)}
             onBlur={() => markTouched("upiId")}
             placeholder="yourname@bank"
+            aria-invalid={showError("upiId") || undefined}
             className={formFieldInputClass(showError("upiId"))}
           />
           {showError("upiId") && (
@@ -81,7 +97,6 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="upiPayeeName"
             name="upiPayeeName"
             type="text"
-            required
             value={values.upiPayeeName}
             onChange={(e) => updateField("upiPayeeName", e.target.value)}
             onBlur={() => markTouched("upiPayeeName")}
@@ -107,7 +122,6 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="bankAccountName"
             name="bankAccountName"
             type="text"
-            required
             value={values.bankAccountName}
             onChange={(e) => updateField("bankAccountName", e.target.value)}
             onBlur={() => markTouched("bankAccountName")}
@@ -128,7 +142,6 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="bankName"
             name="bankName"
             type="text"
-            required
             value={values.bankName}
             onChange={(e) => updateField("bankName", e.target.value)}
             onBlur={() => markTouched("bankName")}
@@ -149,7 +162,6 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="bankAccountNumber"
             name="bankAccountNumber"
             type="text"
-            required
             value={values.bankAccountNumber}
             onChange={(e) => updateField("bankAccountNumber", e.target.value)}
             onBlur={() => markTouched("bankAccountNumber")}
@@ -171,7 +183,6 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
               id="bankIfsc"
               name="bankIfsc"
               type="text"
-              required
               value={values.bankIfsc}
               onChange={(e) => updateField("bankIfsc", e.target.value)}
               onBlur={() => markTouched("bankIfsc")}
@@ -195,6 +206,7 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
               value={values.bankBranch}
               onChange={(e) => updateField("bankBranch", e.target.value)}
               onBlur={() => markTouched("bankBranch")}
+              aria-invalid={showError("bankBranch") || undefined}
               className={formFieldInputClass(showError("bankBranch"))}
             />
             {showError("bankBranch") && (

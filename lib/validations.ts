@@ -123,7 +123,12 @@ export const socialLinksSettingsSchema = z.object({
 });
 
 export const paymentSettingsSchema = z.object({
-  upiId: z.string().trim().max(120),
+  upiId: z
+    .string()
+    .trim()
+    .min(1, "UPI ID is required.")
+    .max(120)
+    .regex(/^[\w.-]+@[\w.-]+$/, "Enter a valid UPI ID (e.g. name@bank)."),
   upiPayeeName: z.string().trim().min(1, "Payee name is required.").max(100),
   bankAccountName: z.string().trim().min(1, "Account name is required.").max(120),
   bankName: z.string().trim().min(1, "Bank name is required.").max(120),
