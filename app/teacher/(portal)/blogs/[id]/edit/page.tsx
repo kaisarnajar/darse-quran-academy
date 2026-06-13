@@ -29,11 +29,11 @@ export default async function EditTeacherBlogPage({
 
   return (
     <div>
-      <Link href="/teacher/blogs" className="text-sm text-teal hover:underline">
+      <Link href="/teacher/blogs" className="text-sm text-primary hover:underline">
         ← Back to my blogs
       </Link>
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <h1 className="font-serif text-2xl font-bold text-teal">Edit blog post</h1>
+        <h1 className="font-serif text-2xl font-bold text-primary">Edit blog post</h1>
         <DeleteTeacherBlogPostButton id={post.id} title={post.title} />
       </div>
 

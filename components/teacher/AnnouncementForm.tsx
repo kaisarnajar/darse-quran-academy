@@ -146,7 +146,7 @@ export function AnnouncementForm({
               href={announcement!.attachmentPath!}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm font-medium text-teal hover:underline"
+              className="mt-1 inline-block text-sm font-medium text-primary hover:underline"
             >
               {announcement!.attachmentName}
             </Link>
@@ -161,7 +161,7 @@ export function AnnouncementForm({
           name="attachment"
           type="file"
           accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp,image/gif"
-          className="mt-1 block w-full text-sm text-foreground file:mr-4 file:rounded-full file:border-0 file:bg-teal/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-teal hover:file:bg-teal/20"
+          className="mt-1 block w-full text-sm text-foreground file:mr-4 file:rounded-full file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary hover:file:bg-primary/20"
         />
         <p className="mt-1.5 text-xs text-muted">
           PDF, Word (.doc, .docx), or image — up to 10 MB. Leave empty if you only need a text announcement.
@@ -171,7 +171,7 @@ export function AnnouncementForm({
       <button
         type="submit"
         disabled={!isValid}
-        className="min-h-11 w-full rounded-full bg-teal px-4 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
+        className="min-h-11 w-full rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
         {submitLabel}
       </button>

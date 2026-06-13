@@ -27,7 +27,7 @@ export default async function NewStudentCourseAnnouncementPage({
     <div>
       <Link
         href={`/teacher/courses/${course.id}/students/${enrollment.id}/announcements`}
-        className="text-sm font-medium text-teal hover:underline"
+        className="text-sm font-medium text-primary hover:underline"
       >
         ← Back to messages
       </Link>

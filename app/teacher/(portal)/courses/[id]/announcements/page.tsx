@@ -35,24 +35,24 @@ export default async function TeacherCourseAnnouncementsPage({
         </p>
         <Link
           href={`/teacher/courses/${course.id}/announcements/new`}
-          className="btn-gold-solid inline-flex shrink-0 items-center justify-center px-5 py-2.5 text-xs"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-light"
         >
           New announcement
         </Link>
       </div>
 
       {query.posted === "1" && (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Announcement posted successfully.
         </p>
       )}
       {query.saved === "1" && (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Announcement updated.
         </p>
       )}
       {query.deleted === "1" && (
-        <p className="mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-800">
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Announcement deleted.
         </p>
       )}
@@ -92,7 +92,7 @@ export default async function TeacherCourseAnnouncementsPage({
                   <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border pt-3">
                     <Link
                       href={`/teacher/courses/${course.id}/announcements/${announcement.id}/edit`}
-                      className="text-sm font-medium text-teal hover:underline"
+                      className="text-sm font-medium text-primary hover:underline"
                     >
                       Edit
                     </Link>

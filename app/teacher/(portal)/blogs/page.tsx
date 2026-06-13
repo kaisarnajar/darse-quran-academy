@@ -27,14 +27,14 @@ export default async function TeacherBlogsPage({
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-teal">My blog posts</h1>
+          <h1 className="font-serif text-2xl font-bold text-primary">My blog posts</h1>
           <p className="mt-1 text-sm text-muted">
             Write articles for the academy blog. Posts are reviewed by an admin before they go live.
           </p>
         </div>
         <Link
           href="/teacher/blogs/new"
-          className="inline-flex min-h-11 items-center justify-center rounded-full bg-teal px-5 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark"
+          className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-light"
         >
           New blog post
         </Link>
@@ -103,7 +103,7 @@ export default async function TeacherBlogsPage({
                             href={`/blog/${post.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-muted hover:text-teal"
+                            className="text-sm text-muted hover:text-primary"
                           >
                             View live
                           </Link>
@@ -111,7 +111,7 @@ export default async function TeacherBlogsPage({
                         {editable && (
                           <Link
                             href={`/teacher/blogs/${post.id}/edit`}
-                            className="font-medium text-teal hover:underline"
+                            className="font-medium text-primary hover:underline"
                           >
                             Edit
                           </Link>

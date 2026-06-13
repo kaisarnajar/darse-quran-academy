@@ -29,7 +29,7 @@ export default async function EditCourseAnnouncementPage({
     <div>
       <Link
         href={`/teacher/courses/${course.id}/announcements`}
-        className="text-sm font-medium text-teal hover:underline"
+        className="text-sm font-medium text-primary hover:underline"
       >
         ← Back to announcements
       </Link>

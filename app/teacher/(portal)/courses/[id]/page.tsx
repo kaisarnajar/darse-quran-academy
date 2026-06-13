@@ -38,7 +38,7 @@ export default async function TeacherCourseStudentsPage({
         {enrollments.length} student{enrollments.length === 1 ? "" : "s"} enrolled
       </p>
 
-      <p className="mt-4 rounded-lg border border-teal/20 bg-teal/5 px-4 py-3 text-sm text-teal-dark">
+      <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
         This is a read-only view. To change enrollments or payments, contact the academy admin.
       </p>
 
@@ -101,7 +101,7 @@ export default async function TeacherCourseStudentsPage({
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/teacher/courses/${id}/students/${enrollment.id}/announcements`}
-                        className="text-sm font-medium text-teal hover:underline"
+                        className="text-sm font-medium text-primary hover:underline"
                       >
                         Message student
                       </Link>

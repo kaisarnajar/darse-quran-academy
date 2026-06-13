@@ -21,7 +21,7 @@ export default async function TeacherCourseLayout({
 
   return (
     <div>
-      <Link href="/teacher" className="text-sm font-medium text-teal hover:underline">
+      <Link href="/teacher" className="text-sm font-medium text-primary hover:underline">
         ← My courses
       </Link>
 

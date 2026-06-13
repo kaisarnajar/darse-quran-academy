@@ -29,7 +29,7 @@ export function TeacherCourseNav({ courseId }: TeacherCourseNavProps) {
             href={link.href}
             className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               active
-                ? "bg-teal text-white"
+                ? "bg-primary text-white"
                 : "border border-border text-foreground hover:bg-accent-muted/50"
             }`}
           >

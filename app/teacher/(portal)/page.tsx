@@ -13,8 +13,8 @@ export default async function TeacherDashboardPage() {
 
   return (
     <div>
-      <div className="rounded-xl border border-teal/20 bg-gradient-to-br from-teal/10 via-surface to-surface p-6 sm:p-8">
-        <p className="text-sm font-semibold uppercase tracking-wide text-teal">Welcome back</p>
+      <div className="rounded-lg border border-border bg-surface p-6 sm:p-8">
+        <p className="text-sm font-semibold uppercase tracking-wide text-primary">Welcome back</p>
         <h1 className="mt-2 font-serif text-2xl font-bold text-foreground sm:text-3xl">{teacher.name}</h1>
         <p className="mt-2 max-w-xl text-sm text-muted">{teacher.specialization}</p>
         <dl className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -78,7 +78,7 @@ export default async function TeacherDashboardPage() {
                     </Link>
                     <Link
                       href={`/teacher/courses/${course.id}/announcements`}
-                      className="inline-flex flex-1 items-center justify-center rounded-full border border-teal bg-surface py-2.5 text-xs font-semibold text-teal transition-colors hover:bg-teal/5"
+                      className="inline-flex flex-1 items-center justify-center rounded-md border border-border bg-surface py-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-accent-muted/50"
                     >
                       Announcements
                     </Link>

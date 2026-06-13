@@ -11,10 +11,10 @@ export default async function NewTeacherBlogPage({
 
   return (
     <div>
-      <Link href="/teacher/blogs" className="text-sm text-teal hover:underline">
+      <Link href="/teacher/blogs" className="text-sm text-primary hover:underline">
         ← Back to my blogs
       </Link>
-      <h1 className="mt-4 font-serif text-2xl font-bold text-teal">New blog post</h1>
+      <h1 className="mt-4 font-serif text-2xl font-bold text-primary">New blog post</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted">
         Share guidance or reflections with students. Your post will be reviewed before it appears on the
         public blog.

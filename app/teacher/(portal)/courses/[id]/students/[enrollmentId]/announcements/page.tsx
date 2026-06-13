@@ -30,7 +30,7 @@ export default async function TeacherStudentAnnouncementsPage({
 
   return (
     <div>
-      <Link href={`/teacher/courses/${course.id}`} className="text-sm font-medium text-teal hover:underline">
+      <Link href={`/teacher/courses/${course.id}`} className="text-sm font-medium text-primary hover:underline">
         ← Back to students
       </Link>
       <h2 className="mt-4 font-serif text-xl font-semibold text-foreground">{studentName}</h2>
@@ -42,22 +42,22 @@ export default async function TeacherStudentAnnouncementsPage({
         <p className="text-sm text-muted">Only {studentName} will see messages posted here.</p>
         <Link
           href={`/teacher/courses/${course.id}/students/${enrollment.id}/announcements/new`}
-          className="btn-gold-solid inline-flex shrink-0 items-center justify-center px-5 py-2.5 text-xs"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-light"
         >
           New message
         </Link>
       </div>
 
       {query.posted === "1" && (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Message sent to {studentName}.
         </p>
       )}
       {query.saved === "1" && (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Message updated.</p>
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Message updated.</p>
       )}
       {query.deleted === "1" && (
-        <p className="mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-800">Message deleted.</p>
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Message deleted.</p>
       )}
       {query.error === "notfound" && (
         <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">That message could not be found.</p>
@@ -88,7 +88,7 @@ export default async function TeacherStudentAnnouncementsPage({
                   <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border pt-3">
                     <Link
                       href={`/teacher/courses/${course.id}/students/${enrollment.id}/announcements/${announcement.id}/edit`}
-                      className="text-sm font-medium text-teal hover:underline"
+                      className="text-sm font-medium text-primary hover:underline"
                     >
                       Edit
                     </Link>
