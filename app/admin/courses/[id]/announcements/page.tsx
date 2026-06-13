@@ -58,7 +58,7 @@ export default async function AdminCourseAnnouncementsPage({
           No announcements for this course yet.
         </p>
       ) : (
-        <ul className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {announcements.map((announcement) => (
             <li key={announcement.id} className="h-full">
               <AdminCourseAnnouncementCard

@@ -32,46 +32,46 @@ export function AdminCourseAnnouncementCard({
   deleteAction,
 }: AdminCourseAnnouncementCardProps) {
   const edited = updatedAt.getTime() - createdAt.getTime() > 1000;
-  const preview = body.length > 220 ? `${body.slice(0, 220).trimEnd()}…` : body;
+  const preview = body.length > 160 ? `${body.slice(0, 160).trimEnd()}…` : body;
 
   return (
-    <article className="card-elevated flex h-full flex-col overflow-hidden">
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <div className="flex flex-wrap items-center gap-2">
+    <article className="card-elevated flex h-full flex-col overflow-hidden p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <AnnouncementCategoryBadge category={category} />
           {edited && <span className="text-xs text-muted">Edited</span>}
         </div>
-        <h3 className="mt-3 line-clamp-2 font-serif text-lg font-semibold text-foreground">{title}</h3>
-        <p className="mt-3 line-clamp-4 flex-1 whitespace-pre-wrap text-sm leading-relaxed text-muted">
-          {preview}
-        </p>
-        {attachmentPath && attachmentName && (
+        <div className="flex shrink-0 items-center gap-3">
           <Link
-            href={attachmentPath}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex text-sm font-medium text-primary hover:underline"
+            href={`/admin/courses/${courseId}/announcements/${announcementId}/edit`}
+            className="text-sm font-medium text-primary hover:underline"
           >
-            {attachmentName}
+            Edit
           </Link>
-        )}
-        <p className="mt-4 text-xs text-muted">
-          Posted by {authorName} · {formatAnnouncementDate(createdAt)}
-        </p>
+          <DeleteAnnouncementButton
+            courseId={courseId}
+            announcementId={announcementId}
+            deleteAction={deleteAction}
+          />
+        </div>
       </div>
-      <div className="flex items-center justify-end gap-4 border-t border-border bg-background/40 px-5 py-3 sm:px-6">
+      <h3 className="mt-3 line-clamp-2 font-serif text-base font-semibold text-foreground">{title}</h3>
+      <p className="mt-2 line-clamp-3 flex-1 whitespace-pre-wrap text-sm leading-relaxed text-muted">
+        {preview}
+      </p>
+      {attachmentPath && attachmentName && (
         <Link
-          href={`/admin/courses/${courseId}/announcements/${announcementId}/edit`}
-          className="text-sm font-medium text-primary hover:underline"
+          href={attachmentPath}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex truncate text-sm font-medium text-primary hover:underline"
         >
-          Edit
+          {attachmentName}
         </Link>
-        <DeleteAnnouncementButton
-          courseId={courseId}
-          announcementId={announcementId}
-          deleteAction={deleteAction}
-        />
-      </div>
+      )}
+      <p className="mt-3 text-xs text-muted">
+        Posted by {authorName} · {formatAnnouncementDate(createdAt)}
+      </p>
     </article>
   );
 }
