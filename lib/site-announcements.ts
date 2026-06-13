@@ -1,8 +1,11 @@
 import type { SiteAnnouncement } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-/** Maximum announcements shown in the homepage section. */
-export const HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT = 4;
+/** Maximum announcements featured on the homepage. */
+export const HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX = 4;
+
+/** @deprecated Use {@link HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX}. */
+export const HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT = HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX;
 
 export type SiteAnnouncementPublic = SiteAnnouncement & {
   createdBy: { name: string | null } | null;
@@ -28,7 +31,7 @@ export async function getPublishedSiteAnnouncements(limit?: number) {
 }
 
 export async function getHomepageSiteAnnouncements(
-  limit = HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
+  limit = HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX,
 ) {
   return prisma.siteAnnouncement.findMany({
     where: { published: true, showOnHomepage: true },
@@ -40,7 +43,36 @@ export async function getHomepageSiteAnnouncements(
   });
 }
 
-/** Keeps at most {@link HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT} published homepage announcements (newest). */
+export async function getFeaturedHomepageAnnouncementCount(): Promise<number> {
+  return prisma.siteAnnouncement.count({
+    where: { published: true, showOnHomepage: true },
+  });
+}
+
+export async function resolveAnnouncementFeaturedUpdate(options: {
+  published: boolean;
+  requestFeatured: boolean;
+  currentlyFeatured: boolean;
+}): Promise<{ showOnHomepage: boolean } | { error: string }> {
+  if (!options.published || !options.requestFeatured) {
+    return { showOnHomepage: false };
+  }
+
+  if (options.currentlyFeatured) {
+    return { showOnHomepage: true };
+  }
+
+  const featuredCount = await getFeaturedHomepageAnnouncementCount();
+  if (featuredCount >= HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX) {
+    return {
+      error: `The homepage already has ${HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX} featured announcements. Remove one before adding another.`,
+    };
+  }
+
+  return { showOnHomepage: true };
+}
+
+/** Keeps at most {@link HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX} published homepage announcements (newest). */
 export async function enforceHomepageAnnouncementLimit() {
   const featured = await prisma.siteAnnouncement.findMany({
     where: { published: true, showOnHomepage: true },
@@ -48,10 +80,10 @@ export async function enforceHomepageAnnouncementLimit() {
     select: { id: true },
   });
 
-  if (featured.length <= HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT) return;
+  if (featured.length <= HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX) return;
 
   const demoteIds = featured
-    .slice(HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT)
+    .slice(HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX)
     .map((announcement) => announcement.id);
 
   await prisma.siteAnnouncement.updateMany({

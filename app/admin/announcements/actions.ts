@@ -9,7 +9,7 @@ import {
   hasPartialFormDate,
 } from "@/lib/form-date";
 import { prisma } from "@/lib/prisma";
-import { enforceHomepageAnnouncementLimit } from "@/lib/site-announcements";
+import { enforceHomepageAnnouncementLimit, resolveAnnouncementFeaturedUpdate } from "@/lib/site-announcements";
 import { siteAnnouncementSchema } from "@/lib/validations";
 
 function adminListPath(query = "") {
@@ -63,21 +63,27 @@ export async function createSiteAnnouncement(formData: FormData) {
     redirect(`${adminListPath("/new")}?error=${encodeURIComponent(parsed.message)}`);
   }
 
+  const featured = await resolveAnnouncementFeaturedUpdate({
+    published: parsed.data.published,
+    requestFeatured: parsed.data.showOnHomepage,
+    currentlyFeatured: false,
+  });
+
+  if ("error" in featured) {
+    redirect(`${adminListPath("/new")}?error=${encodeURIComponent(featured.error)}`);
+  }
+
   await prisma.siteAnnouncement.create({
     data: {
       title: parsed.data.title,
       body: parsed.data.body,
       eventDate: parsed.data.eventDate || null,
       location: parsed.data.location || null,
-      showOnHomepage: parsed.data.showOnHomepage,
+      showOnHomepage: featured.showOnHomepage,
       published: parsed.data.published,
       createdById: session.user.id,
     },
   });
-
-  if (parsed.data.showOnHomepage) {
-    await enforceHomepageAnnouncementLimit();
-  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?posted=1`);
@@ -96,6 +102,16 @@ export async function updateSiteAnnouncement(id: string, formData: FormData) {
     redirect(`${adminListPath()}?error=notfound`);
   }
 
+  const featured = await resolveAnnouncementFeaturedUpdate({
+    published: parsed.data.published,
+    requestFeatured: parsed.data.showOnHomepage,
+    currentlyFeatured: existing.showOnHomepage,
+  });
+
+  if ("error" in featured) {
+    redirect(`${adminListPath(`/${id}/edit`)}?error=${encodeURIComponent(featured.error)}`);
+  }
+
   await prisma.siteAnnouncement.update({
     where: { id },
     data: {
@@ -103,14 +119,10 @@ export async function updateSiteAnnouncement(id: string, formData: FormData) {
       body: parsed.data.body,
       eventDate: parsed.data.eventDate || null,
       location: parsed.data.location || null,
-      showOnHomepage: parsed.data.showOnHomepage,
+      showOnHomepage: featured.showOnHomepage,
       published: parsed.data.published,
     },
   });
-
-  if (parsed.data.showOnHomepage) {
-    await enforceHomepageAnnouncementLimit();
-  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?saved=1`);

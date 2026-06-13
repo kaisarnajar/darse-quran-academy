@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateSiteAnnouncement } from "@/app/admin/announcements/actions";
 import { SiteAnnouncementForm } from "@/components/admin/SiteAnnouncementForm";
-import { getSiteAnnouncementForAdmin } from "@/lib/site-announcements";
+import {
+  getFeaturedHomepageAnnouncementCount,
+  getSiteAnnouncementForAdmin,
+} from "@/lib/site-announcements";
 
 export default async function EditSiteAnnouncementPage({
   params,
@@ -13,7 +16,10 @@ export default async function EditSiteAnnouncementPage({
 }) {
   const { id } = await params;
   const { error } = await searchParams;
-  const announcement = await getSiteAnnouncementForAdmin(id);
+  const [announcement, featuredCount] = await Promise.all([
+    getSiteAnnouncementForAdmin(id),
+    getFeaturedHomepageAnnouncementCount(),
+  ]);
 
   if (!announcement) notFound();
 
@@ -30,6 +36,7 @@ export default async function EditSiteAnnouncementPage({
           action={action}
           submitLabel="Save changes"
           announcement={announcement}
+          featuredCount={featuredCount}
           error={error ? decodeURIComponent(error) : undefined}
         />
       </div>
