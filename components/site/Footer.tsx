@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { SiteLogo } from "@/components/site/SiteLogo";
-import { FacebookIcon, InstagramIcon, YouTubeIcon } from "@/components/site/SocialIcons";
+import {
+  EmailIcon,
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  WhatsAppIcon,
+  YouTubeIcon,
+} from "@/components/site/SocialIcons";
 import {
   buildWhatsAppHref,
   formatWhatsAppForDisplay,
@@ -32,10 +39,12 @@ type FooterCreditBlockProps = {
   email: string;
   emailHref: string;
   whatsappHref: string;
-  whatsappDisplay: string;
+  whatsappLabel: string;
   linkedInHref: string;
-  linkedInLabel: string;
 };
+
+const footerIconLinkClassName =
+  "inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/80 transition-colors hover:border-gold hover:text-gold";
 
 function FooterCreditBlock({
   title,
@@ -43,39 +52,36 @@ function FooterCreditBlock({
   email,
   emailHref,
   whatsappHref,
-  whatsappDisplay,
+  whatsappLabel,
   linkedInHref,
-  linkedInLabel,
 }: FooterCreditBlockProps) {
   return (
     <div className="text-center sm:text-right">
       <p className="font-medium text-white/90">{title}</p>
       <p className="mt-1 text-white/80">{name}</p>
-      <p className="mt-1">
-        <a href={emailHref} className="transition-colors hover:text-gold">
-          {email}
+      <div className="mt-3 flex items-center justify-center gap-2 sm:justify-end">
+        <a href={emailHref} className={footerIconLinkClassName} aria-label={`Email ${email}`}>
+          <EmailIcon className="h-4 w-4" />
         </a>
-      </p>
-      <p className="mt-1">
         <a
           href={whatsappHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="transition-colors hover:text-gold"
+          className={footerIconLinkClassName}
+          aria-label={`WhatsApp ${whatsappLabel}`}
         >
-          {whatsappDisplay}
+          <WhatsAppIcon className="h-4 w-4" />
         </a>
-      </p>
-      <p className="mt-1">
         <a
           href={linkedInHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="transition-colors hover:text-gold"
+          className={footerIconLinkClassName}
+          aria-label="LinkedIn profile"
         >
-          {linkedInLabel}
+          <LinkedInIcon className="h-4 w-4" />
         </a>
-      </p>
+      </div>
     </div>
   );
 }
@@ -122,15 +128,27 @@ export async function Footer() {
               </li>
               {settings.contactEmail && (
                 <li>
-                  <a href={`mailto:${settings.contactEmail}`} className="hover:text-gold">
-                    {settings.contactEmail}
+                  <a
+                    href={`mailto:${settings.contactEmail}`}
+                    className="inline-flex items-center gap-2 hover:text-gold"
+                    aria-label={`Email ${settings.contactEmail}`}
+                  >
+                    <EmailIcon className="h-4 w-4" />
+                    <span>{settings.contactEmail}</span>
                   </a>
                 </li>
               )}
               {settings.whatsappNumber && (
                 <li>
-                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
-                    {whatsappDisplay}
+                  <a
+                    href={whatsappHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 hover:text-gold"
+                    aria-label={`WhatsApp ${whatsappDisplay}`}
+                  >
+                    <WhatsAppIcon className="h-4 w-4" />
+                    <span>{whatsappDisplay}</span>
                   </a>
                 </li>
               )}
@@ -169,9 +187,8 @@ export async function Footer() {
               email="kaisarnajar11114@gmail.com"
               emailHref="mailto:kaisarnajar11114@gmail.com"
               whatsappHref={developerWhatsAppHref}
-              whatsappDisplay={developerWhatsAppDisplay}
+              whatsappLabel={developerWhatsAppDisplay}
               linkedInHref="https://www.linkedin.com/in/kaisarnajar/"
-              linkedInLabel="linkedin.com/in/kaisarnajar"
             />
             <FooterCreditBlock
               title="Supported by"
@@ -179,9 +196,8 @@ export async function Footer() {
               email="barkatbashir4@gmail.com"
               emailHref="mailto:barkatbashir4@gmail.com"
               whatsappHref={supporterWhatsAppHref}
-              whatsappDisplay={supporterWhatsAppDisplay}
+              whatsappLabel={supporterWhatsAppDisplay}
               linkedInHref="https://www.linkedin.com/in/barkat-bashir-070a68178/"
-              linkedInLabel="linkedin.com/in/barkat-bashir-070a68178"
             />
           </div>
         </div>
