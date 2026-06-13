@@ -6,23 +6,35 @@ import { labelClassName } from "@/lib/form";
 
 type StarRatingInputProps = {
   name?: string;
+  /** Uncontrolled initial value when `value` is omitted. */
   initialRating?: number;
+  /** Controlled rating from parent form state. */
+  value?: number;
   required?: boolean;
+  hasError?: boolean;
   onChange?: (rating: number) => void;
+  onBlur?: () => void;
 };
 
 export function StarRatingInput({
   name = "rating",
   initialRating = 0,
+  value,
   required = true,
+  hasError = false,
   onChange,
+  onBlur,
 }: StarRatingInputProps) {
-  const [rating, setRating] = useState(initialRating > 0 ? initialRating : 0);
+  const controlled = value !== undefined;
+  const [internalRating, setInternalRating] = useState(initialRating > 0 ? initialRating : 0);
+  const rating = controlled ? value : internalRating;
   const [hoverRating, setHoverRating] = useState(0);
   const displayRating = hoverRating || rating;
 
   function selectRating(starValue: number) {
-    setRating(starValue);
+    if (!controlled) {
+      setInternalRating(starValue);
+    }
     onChange?.(starValue);
   }
 
@@ -31,12 +43,16 @@ export function StarRatingInput({
       <span className={labelClassName}>
         Your rating <span className="text-red-600">*</span>
       </span>
-      <input type="hidden" name={name} value={rating || ""} required={required} />
+      <input type="hidden" name={name} value={rating > 0 ? rating : ""} required={required} />
       <div
-        className="mt-1 flex items-center gap-1"
+        className={`mt-1 flex items-center gap-1 rounded-md ${
+          hasError ? "ring-1 ring-red-500 ring-offset-1" : ""
+        }`}
         role="radiogroup"
         aria-label="Rate from 1 to 5 stars"
+        aria-invalid={hasError || undefined}
         onMouseLeave={() => setHoverRating(0)}
+        onBlur={onBlur}
       >
         {Array.from({ length: REVIEW_RATING_MAX }).map((_, index) => {
           const starValue = index + 1;

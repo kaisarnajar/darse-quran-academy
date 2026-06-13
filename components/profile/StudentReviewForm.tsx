@@ -1,23 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import { createStudentReview, updateStudentReview } from "@/app/profile/reviews/actions";
 import type { StudentReview } from "@prisma/client";
 import { StarRatingInput } from "@/components/reviews/StarRatingInput";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import {
+  type StudentReviewFormValues,
+  validateStudentReviewForm,
+} from "@/lib/profile-form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type StudentReviewFormProps = {
   review?: Pick<StudentReview, "id" | "quote" | "course" | "location" | "rating">;
   defaultLocation?: string | null;
 };
 
+const STUDENT_REVIEW_FIELDS: (keyof StudentReviewFormValues)[] = [
+  "rating",
+  "quote",
+  "course",
+  "location",
+];
+
 export function StudentReviewForm({ review, defaultLocation }: StudentReviewFormProps) {
   const action = review ? updateStudentReview.bind(null, review.id) : createStudentReview;
-  const [rating, setRating] = useState(review?.rating ?? 0);
+
+  const validate = useCallback(
+    (values: StudentReviewFormValues) => validateStudentReviewForm(values),
+    [],
+  );
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      quote: review?.quote ?? "",
+      course: review?.course ?? "",
+      location: review?.location ?? defaultLocation ?? "",
+      rating: review?.rating ?? 0,
+    },
+    fields: STUDENT_REVIEW_FIELDS,
+    validate,
+  });
 
   return (
     <form action={action} className="space-y-4 rounded-lg border border-border bg-surface p-5">
-      <StarRatingInput initialRating={review?.rating ?? 0} onChange={setRating} />
+      <div>
+        <StarRatingInput
+          value={values.rating}
+          onChange={(rating) => {
+            updateField("rating", rating);
+            markTouched("rating");
+          }}
+          onBlur={() => markTouched("rating")}
+          hasError={showError("rating")}
+        />
+        {showError("rating") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.rating}
+          </p>
+        )}
+      </div>
 
       <div>
         <label htmlFor="quote" className={labelClassName}>
@@ -29,10 +72,18 @@ export function StudentReviewForm({ review, defaultLocation }: StudentReviewForm
           required
           rows={5}
           maxLength={1000}
-          defaultValue={review?.quote ?? ""}
+          value={values.quote}
+          onChange={(e) => updateField("quote", e.target.value)}
+          onBlur={() => markTouched("quote")}
+          aria-invalid={showError("quote") || undefined}
           placeholder="Share your experience learning with Darse Quran Academy…"
-          className={inputClassName}
+          className={formFieldInputClass(showError("quote"))}
         />
+        {showError("quote") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.quote}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -44,10 +95,18 @@ export function StudentReviewForm({ review, defaultLocation }: StudentReviewForm
             id="course"
             name="course"
             maxLength={120}
-            defaultValue={review?.course ?? ""}
+            value={values.course}
+            onChange={(e) => updateField("course", e.target.value)}
+            onBlur={() => markTouched("course")}
+            aria-invalid={showError("course") || undefined}
             placeholder="e.g. Tajweed, Hifz"
-            className={inputClassName}
+            className={formFieldInputClass(showError("course"))}
           />
+          {showError("course") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.course}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="location" className={labelClassName}>
@@ -57,10 +116,18 @@ export function StudentReviewForm({ review, defaultLocation }: StudentReviewForm
             id="location"
             name="location"
             maxLength={120}
-            defaultValue={review?.location ?? defaultLocation ?? ""}
+            value={values.location}
+            onChange={(e) => updateField("location", e.target.value)}
+            onBlur={() => markTouched("location")}
+            aria-invalid={showError("location") || undefined}
             placeholder="e.g. Srinagar, J&K"
-            className={inputClassName}
+            className={formFieldInputClass(showError("location"))}
           />
+          {showError("location") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.location}
+            </p>
+          )}
         </div>
       </div>
 
@@ -71,7 +138,7 @@ export function StudentReviewForm({ review, defaultLocation }: StudentReviewForm
 
       <button
         type="submit"
-        disabled={rating < 1}
+        disabled={!isValid}
         className="min-h-11 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
         {review ? "Resubmit for approval" : "Submit review"}
