@@ -148,9 +148,3 @@ export async function getStudentReviewForAdmin(id: string) {
   });
 }
 
-export async function userHasPendingReview(userId: string): Promise<boolean> {
-  const count = await prisma.studentReview.count({
-    where: { userId, status: "PENDING" },
-  });
-  return count > 0;
-}

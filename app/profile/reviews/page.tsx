@@ -10,7 +10,6 @@ import {
   getStudentReviewsForUser,
   reviewStatusClass,
   reviewStatusLabel,
-  userHasPendingReview,
 } from "@/lib/student-reviews";
 
 export default async function ProfileReviewsPage({
@@ -26,20 +25,17 @@ export default async function ProfileReviewsPage({
 }) {
   const params = await searchParams;
   const session = await requireUser();
-  const [reviews, user, hasPending] = await Promise.all([
+  const [reviews, user] = await Promise.all([
     getStudentReviewsForUser(session.user.id),
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: { address: true },
     }),
-    userHasPendingReview(session.user.id),
   ]);
 
   const editingReview = params.edit
     ? reviews.find((r) => r.id === params.edit && canStudentEditReview(r, session.user.id))
     : undefined;
-
-  const showNewForm = !hasPending && !editingReview;
 
   return (
     <div>
@@ -62,11 +58,6 @@ export default async function ProfileReviewsPage({
       {params.deleted === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Review deleted.</p>
       )}
-      {params.error === "pending" && (
-        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          You already have a review awaiting approval. Please wait for the admin to respond.
-        </p>
-      )}
       {params.error === "locked" && (
         <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
           This review can no longer be edited.
@@ -75,7 +66,7 @@ export default async function ProfileReviewsPage({
       {params.error === "notfound" && (
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">Review not found.</p>
       )}
-      {params.error && !["pending", "locked", "notfound"].includes(params.error) && (
+      {params.error && !["locked", "notfound"].includes(params.error) && (
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
           {decodeURIComponent(params.error)}
         </p>
@@ -91,16 +82,12 @@ export default async function ProfileReviewsPage({
           </div>
           <StudentReviewForm review={editingReview} defaultLocation={user?.address} />
         </div>
-      ) : showNewForm ? (
+      ) : (
         <div className="mt-6">
           <h3 className="mb-3 text-sm font-semibold text-foreground">Write a review</h3>
           <StudentReviewForm defaultLocation={user?.address} />
         </div>
-      ) : hasPending ? (
-        <p className="mt-6 rounded-md border border-border bg-background/50 px-4 py-3 text-sm text-muted">
-          You have a review pending approval. You can submit another after the admin responds.
-        </p>
-      ) : null}
+      )}
 
       {reviews.length > 0 && (
         <div className="mt-10">

@@ -8,7 +8,6 @@ import {
   canStudentDeleteReview,
   canStudentEditReview,
   getStudentReviewForUser,
-  userHasPendingReview,
 } from "@/lib/student-reviews";
 import { studentReviewSchema } from "@/lib/validations";
 
@@ -39,10 +38,6 @@ export async function createStudentReview(formData: FormData) {
     redirect(
       reviewsPath(`?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid input")}`),
     );
-  }
-
-  if (await userHasPendingReview(session.user.id)) {
-    redirect(reviewsPath("?error=pending"));
   }
 
   await prisma.studentReview.create({
@@ -77,10 +72,6 @@ export async function updateStudentReview(id: string, formData: FormData) {
 
   if (!canStudentEditReview(existing, session.user.id)) {
     redirect(reviewsPath("?error=locked"));
-  }
-
-  if (existing.status === "REJECTED" && (await userHasPendingReview(session.user.id))) {
-    redirect(reviewsPath("?error=pending"));
   }
 
   await prisma.studentReview.update({
