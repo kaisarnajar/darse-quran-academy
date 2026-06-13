@@ -139,6 +139,15 @@ export async function getStudentReviewForUser(id: string, userId: string) {
   });
 }
 
+export async function getStudentReviewForAdmin(id: string) {
+  return prisma.studentReview.findUnique({
+    where: { id },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+  });
+}
+
 export async function userHasPendingReview(userId: string): Promise<boolean> {
   const count = await prisma.studentReview.count({
     where: { userId, status: "PENDING" },

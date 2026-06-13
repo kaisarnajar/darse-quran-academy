@@ -6,10 +6,14 @@ import { requireAdmin } from "@/lib/auth-actions";
 import { prisma } from "@/lib/prisma";
 import { HOMEPAGE_FEATURED_REVIEWS_MAX, getFeaturedHomepageReviewCount } from "@/lib/student-reviews";
 
-function revalidateReviewPaths() {
+function revalidateReviewPaths(reviewId?: string) {
   revalidatePath("/");
   revalidatePath("/profile/reviews");
   revalidatePath("/admin/review-approvals");
+  if (reviewId) {
+    revalidatePath(`/admin/review-approvals/${reviewId}`);
+    revalidatePath(`/admin/review-approvals/${reviewId}/edit`);
+  }
 }
 
 function returnUrl(
@@ -69,7 +73,7 @@ export async function approveStudentReview(
     },
   });
 
-  revalidateReviewPaths();
+  revalidateReviewPaths(reviewId);
   redirect(returnUrl(returnTo, "approved"));
 }
 
@@ -94,7 +98,7 @@ export async function rejectStudentReview(
     },
   });
 
-  revalidateReviewPaths();
+  revalidateReviewPaths(reviewId);
   redirect(returnUrl(returnTo, "rejected"));
 }
 
@@ -115,7 +119,7 @@ export async function unfeatureStudentReview(
     },
   });
 
-  revalidateReviewPaths();
+  revalidateReviewPaths(reviewId);
   redirect(returnUrl(returnTo, "unfeatured"));
 }
 
@@ -146,6 +150,51 @@ export async function featureStudentReview(
     },
   });
 
-  revalidateReviewPaths();
+  revalidateReviewPaths(reviewId);
   redirect(returnUrl(returnTo, "featured"));
+}
+
+export async function saveApprovedReviewHomepageSetting(
+  reviewId: string,
+  formData: FormData,
+  returnTo?: string,
+): Promise<{ error?: string }> {
+  await requireAdmin();
+
+  const review = await prisma.studentReview.findUnique({ where: { id: reviewId } });
+  if (!review) return { error: "Review not found." };
+  if (review.status !== "APPROVED") {
+    return { error: "Only approved reviews can update homepage settings." };
+  }
+
+  const featureOnHomepage = formData.get("featuredOnHomepage") === "on";
+
+  if (featureOnHomepage && !review.featuredOnHomepage) {
+    const featuredCount = await getFeaturedHomepageReviewCount();
+    if (featuredCount >= HOMEPAGE_FEATURED_REVIEWS_MAX) {
+      return {
+        error: `The homepage already has ${HOMEPAGE_FEATURED_REVIEWS_MAX} reviews. Remove one first.`,
+      };
+    }
+
+    await prisma.studentReview.update({
+      where: { id: reviewId },
+      data: { featuredOnHomepage: true, featuredAt: new Date() },
+    });
+
+    revalidateReviewPaths(reviewId);
+    redirect(returnUrl(returnTo, "featured"));
+  }
+
+  if (!featureOnHomepage && review.featuredOnHomepage) {
+    await prisma.studentReview.update({
+      where: { id: reviewId },
+      data: { featuredOnHomepage: false, featuredAt: null },
+    });
+
+    revalidateReviewPaths(reviewId);
+    redirect(returnUrl(returnTo, "unfeatured"));
+  }
+
+  redirect(`/admin/review-approvals/${reviewId}/edit?saved=1`);
 }
