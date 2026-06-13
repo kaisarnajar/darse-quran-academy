@@ -1,4 +1,4 @@
-import type { ReactNode, SVGProps } from "react";
+import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
@@ -13,13 +13,6 @@ const sizeClasses = {
   md: "h-14 w-14",
   lg: "h-20 w-20",
 } as const;
-
-const stroke = {
-  stroke: "currentColor",
-  strokeWidth: 1.25,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
 
 function getCategoryIconKey(category: string): string {
   const normalized = category.toLowerCase();
@@ -38,36 +31,27 @@ function getCategoryIconKey(category: string): string {
   return "other";
 }
 
-function IslamicStar() {
+/** Open mushaf on a rehal — common Flaticon Quran motif. */
+function QuranOnRehal() {
   return (
-    <path
-      {...stroke}
-      d="M12 4.5l1.4 2.8 3.1.4-2.2 2.2.5 3.1L12 11.8 9.2 13l.5-3.1-2.2-2.2 3.1-.4L12 4.5z"
-    />
-  );
-}
-
-function OpenMushaf({ children }: { children?: ReactNode }) {
-  return (
-    <>
-      <path
-        {...stroke}
-        d="M5.5 6.5c3-1.2 6-1.2 6.5 0 0.5-1.2 3.5-1.2 6.5 0v11c-3 1.2-6 1.2-6.5 0-0.5 1.2-3.5 1.2-6.5 0V6.5z"
-      />
-      <path {...stroke} d="M12 6.5v11" />
-      {children}
-    </>
+    <g fill="currentColor">
+      <path d="M5.2 17.2 12 20.5l6.8-3.3V8.6L12 5.3 5.2 8.6v8.6z" opacity="0.92" />
+      <path d="M12 5.3v15.2" opacity="0.35" />
+      <path d="M7.4 9.8c1.4-.7 2.8-.7 4.6 0 1.8-.7 3.2-.7 4.6 0v6.8c-1.4.7-2.8.7-4.6 0-1.8.7-3.2.7-4.6 0V9.8z" />
+      <path d="M4.4 18.8 12 22l7.6-3.2-1.1-2.5L12 19.3l-6.5-3-1.1 2.5z" />
+    </g>
   );
 }
 
 function QuranIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <OpenMushaf>
-        <path {...stroke} d="M7.5 10.5c1.2-.8 2.3-.8 3.5 0M14 10.5c1.2-.8 2.3-.8 3.5 0" />
-        <path {...stroke} d="M8 14h3M13 14h3" />
-      </OpenMushaf>
-      <IslamicStar />
+      <QuranOnRehal />
+      <path
+        fill="currentColor"
+        d="M11.1 3.2a1.1 1.1 0 012 0l.5 1.5h1.6l-1.3 1 .5 1.6-1.3-1-1.3 1 .5-1.6-1.3-1H10.6l.5-1.5z"
+        opacity="0.9"
+      />
     </svg>
   );
 }
@@ -75,11 +59,23 @@ function QuranIcon(props: IconProps) {
 function TajweedIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <OpenMushaf>
-        <path {...stroke} d="M8 11.5h2.5M13.5 11.5H16M8 15h2M13.5 15H16" />
-      </OpenMushaf>
-      <path {...stroke} d="M4.5 8.5c1.2-1.5 2.5-2 4-2M19.5 8.5c-1.2-1.5-2.5-2-4-2" />
-      <path {...stroke} d="M6 5.5c2 .8 4 .8 6 0s4-.8 6 0" />
+      <QuranOnRehal />
+      <path
+        fill="currentColor"
+        d="M3.2 8.3c1.4-1.6 3-2.4 4.8-2.4s3.4.8 4.8 2.4c-1.4 1.6-3 2.4-4.8 2.4S4.6 9.9 3.2 8.3z"
+        opacity="0.85"
+      />
+      <path
+        fill="currentColor"
+        d="M11.4 6.2c.8-.4 1.6-.4 2.4 0 .8.4.8 1 0 1.4-.8.4-1.6.4-2.4 0-.8-.4-.8-1 0-1.4z"
+      />
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        d="M16.8 4.2c2.2 0 4 1.8 4 4v1.2h-1.4V8.2c0-1.4-1.1-2.6-2.6-2.6s-2.6 1.1-2.6 2.6v1.2h-1.4V8.2c0-2.2 1.8-4 4-4z"
+        clipRule="evenodd"
+        opacity="0.9"
+      />
     </svg>
   );
 }
@@ -87,14 +83,22 @@ function TajweedIcon(props: IconProps) {
 function HifzIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path {...stroke} d="M7 6.5h10a1.5 1.5 0 011.5 1.5v10.5H7V6.5z" />
-      <path {...stroke} d="M7 6.5c1.5-.8 3-.8 5 0s3.5.8 5 0" />
-      <path {...stroke} d="M12 6.5v12" />
-      <path {...stroke} d="M9.5 11h5M9.5 14h5M9.5 17h3" />
-      <path {...stroke} d="M12 3.5v1.5" />
-      <path {...stroke} d="M10 4.5h4" />
-      <circle {...stroke} cx="17.5" cy="16.5" r="2.25" />
-      <circle {...stroke} cx="17.5" cy="16.5" r="0.75" fill="currentColor" />
+      <path
+        fill="currentColor"
+        d="M7.2 6.8h9.6a1.2 1.2 0 011.2 1.2v9.2a1.2 1.2 0 01-1.2 1.2H7.2a1.2 1.2 0 01-1.2-1.2V8a1.2 1.2 0 011.2-1.2z"
+      />
+      <path fill="currentColor" d="M7.2 6.8c1.6-.8 3.2-.8 4.8 0 1.6-.8 3.2-.8 4.8 0v10.4c-1.6.8-3.2.8-4.8 0-1.6.8-3.2.8-4.8 0V6.8z" opacity="0.35" />
+      <path fill="currentColor" d="M12 6.8v10.4" opacity="0.35" />
+      <path
+        fill="currentColor"
+        d="M16.8 14.2a3.4 3.4 0 110 6.8 3.4 3.4 0 010-6.8zm0 1.2a2.2 2.2 0 100 4.4 2.2 2.2 0 000-4.4z"
+      />
+      <circle cx="16.8" cy="17.6" r="0.9" fill="currentColor" />
+      <circle cx="15.3" cy="16.4" r="0.55" fill="currentColor" opacity="0.75" />
+      <circle cx="18.3" cy="16.4" r="0.55" fill="currentColor" opacity="0.75" />
+      <circle cx="16.8" cy="15.2" r="0.55" fill="currentColor" opacity="0.75" />
+      <circle cx="15.3" cy="18.8" r="0.55" fill="currentColor" opacity="0.75" />
+      <circle cx="18.3" cy="18.8" r="0.55" fill="currentColor" opacity="0.75" />
     </svg>
   );
 }
@@ -102,19 +106,21 @@ function HifzIcon(props: IconProps) {
 function SeerahIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path {...stroke} d="M6 18.5h12" />
-      <path {...stroke} d="M8.5 18.5V10l2.5-2 2.5 2v8.5" />
-      <path {...stroke} d="M8.5 10h7" />
-      <path {...stroke} d="M12 8V5.5" />
+      <path fill="currentColor" d="M10.8 18.8h2.4v-7.2h-2.4v7.2z" />
+      <path fill="currentColor" d="M7.2 18.8h9.6v1.4H7.2v-1.4z" />
       <path
-        {...stroke}
         fill="currentColor"
-        fillOpacity={0.2}
-        d="M10.2 5.2a2.8 2.8 0 015.6 0c0 1.2-.8 2-1.4 2.4-.4.3-.9.5-1.4.5s-1-.2-1.4-.5c-.6-.4-1.4-1.2-1.4-2.4z"
+        d="M8.4 11.6h7.2c0-2.8-1.6-4.8-3.6-4.8S8.4 8.8 8.4 11.6z"
       />
-      <path {...stroke} d="M5.5 10.5V18M18.5 10.5V18" />
-      <circle {...stroke} cx="5.5" cy="9.5" r="1" />
-      <circle {...stroke} cx="18.5" cy="9.5" r="1" />
+      <path
+        fill="currentColor"
+        d="M10.4 4.8a1.6 1.6 0 013.2 0c0 .7-.5 1.2-.9 1.5-.3.2-.7.4-1.1.4s-.8-.2-1.1-.4c-.4-.3-.9-.8-.9-1.5z"
+      />
+      <path fill="currentColor" d="M4.8 11.6h1.8v7.2H4.8V11.6z" />
+      <path fill="currentColor" d="M17.4 11.6h1.8v7.2h-1.8V11.6z" />
+      <circle cx="5.7" cy="10.4" r="1.1" fill="currentColor" />
+      <circle cx="18.3" cy="10.4" r="1.1" fill="currentColor" />
+      <path fill="currentColor" d="M5.4 9.3h.6v1.8h-.6V9.3zm12.6 0h.6v1.8h-.6V9.3z" />
     </svg>
   );
 }
@@ -123,14 +129,14 @@ function ArabicIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
       <path
-        {...stroke}
-        d="M6.5 17.5c2.5-1 4-3.5 4.5-7 .3-2.2 1.2-3.8 2.5-4.8"
+        fill="currentColor"
+        d="M6.2 18.4c2.4-1 3.8-3.4 4.2-6.6.3-2 .9-3.4 1.9-4.3 1.1-.9 2.4-1.2 3.7-.8 1.2.4 2.2 1.4 2.8 2.8.6 1.4.5 2.9-.2 4.1-.7 1.2-2 2-3.5 2.2-1.5.2-3-.2-4.1-1.2-1-1-1.5-2.4-1.5-3.9 0-1.2.3-2.3.9-3.2"
+        opacity="0.95"
       />
-      <path {...stroke} d="M11 9.5c2 .5 3.5 2 4.5 4.5 1 2.2 2.2 3.5 4 4" />
-      <circle cx="8.5" cy="8" r="0.9" fill="currentColor" />
-      <circle cx="15.5" cy="7" r="0.9" fill="currentColor" />
-      <circle cx="18" cy="16.5" r="0.9" fill="currentColor" />
-      <path {...stroke} d="M5 19.5h14" />
+      <circle cx="8.1" cy="7.4" r="1" fill="currentColor" />
+      <circle cx="15.2" cy="6.5" r="1" fill="currentColor" />
+      <circle cx="17.8" cy="16.8" r="1" fill="currentColor" />
+      <path fill="currentColor" d="M5 19.8h14v1.2H5v-1.2z" opacity="0.5" />
     </svg>
   );
 }
@@ -138,17 +144,22 @@ function ArabicIcon(props: IconProps) {
 function FiqhIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path {...stroke} d="M12 4.5v3" />
-      <path {...stroke} d="M8.5 7.5h7" />
-      <path {...stroke} d="M12 7.5v2.5" />
-      <path {...stroke} d="M6.5 10.5h11" />
-      <path {...stroke} d="M8 10.5v2.5c0 1.8 1.8 3.2 4 3.2s4-1.4 4-3.2v-2.5" />
-      <path {...stroke} d="M9.5 18.5 12 20.5l2.5-2" />
+      <path fill="currentColor" d="M11.4 4.2h1.2v3.4h-1.2V4.2z" />
+      <path fill="currentColor" d="M8.2 7.2h7.6v1.4H8.2V7.2z" />
+      <path fill="currentColor" d="M11.4 7.2h1.2v2.2h-1.2V7.2z" />
+      <path fill="currentColor" d="M5.8 9.2h12.4v1.6H5.8V9.2z" />
       <path
-        {...stroke}
         fill="currentColor"
-        fillOpacity={0.15}
-        d="M10.3 4.1a1.7 1.7 0 013.4 0c0 .7-.5 1.2-.9 1.4-.2.2-.5.3-.8.3s-.6-.1-.8-.3c-.4-.2-.9-.7-.9-1.4z"
+        d="M7.4 10.8v2.4c0 2.2 2 4 4.6 4s4.6-1.8 4.6-4v-2.4H7.4z"
+      />
+      <path
+        fill="currentColor"
+        d="M9.8 18.4 12 20.8l2.2-2.4H9.8z"
+      />
+      <path
+        fill="currentColor"
+        d="M10.2 4a1.2 1.2 0 012.4 0c0 .5-.4.9-.7 1.1-.2.2-.5.3-.8.3s-.6-.1-.8-.3c-.3-.2-.7-.6-.7-1.1z"
+        opacity="0.85"
       />
     </svg>
   );
@@ -157,12 +168,20 @@ function FiqhIcon(props: IconProps) {
 function IslamicStudiesIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <circle {...stroke} cx="12" cy="12" r="8.25" />
       <path
-        {...stroke}
-        d="M12 5.5 13.8 9l4 .6-2.9 2.8.7 4L12 14.8 8.4 16.4l.7-4-2.9-2.8 4-.6L12 5.5z"
+        fill="currentColor"
+        d="M8.8 8.2h6.4l1.2 8.8H7.6l1.2-8.8z"
       />
-      <path {...stroke} d="M12 8.2v7.6M9.1 12h5.8M10 10.2h4M10 13.8h4" />
+      <path fill="currentColor" d="M7.2 17h9.6v1.6H7.2V17z" opacity="0.85" />
+      <path
+        fill="currentColor"
+        d="M9.6 8.2 12 4.8l2.4 3.4H9.6z"
+      />
+      <path
+        fill="currentColor"
+        d="M11.1 3.4a.9.9 0 011.8 0l.4 1.1h1.2l-1 0.8.4 1.1-1-.8-1 .8.4-1.1-1-.8h1.2l.4-1.1z"
+        opacity="0.9"
+      />
     </svg>
   );
 }
@@ -170,11 +189,10 @@ function IslamicStudiesIcon(props: IconProps) {
 function TafsirIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <OpenMushaf>
-        <path {...stroke} d="M8 11h2.5M13.5 11H16M8 14.5h2M13.5 14.5H16" />
-      </OpenMushaf>
-      <circle {...stroke} cx="17.5" cy="9" r="3.25" />
-      <path {...stroke} d="M15.2 11.2 13 13.5" />
+      <QuranOnRehal />
+      <circle cx="17.4" cy="8.6" r="3.5" fill="currentColor" opacity="0.18" />
+      <circle cx="17.4" cy="8.6" r="3.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+      <path fill="currentColor" d="M15.2 10.8 12.8 13.2l-1-1 2.4-2.4 1 1z" />
     </svg>
   );
 }
@@ -183,18 +201,17 @@ function AqeedahIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
       <path
-        {...stroke}
         fill="currentColor"
-        fillOpacity={0.18}
-        d="M14.8 7.8a4.8 4.8 0 11-5.6 0 4.8 4.8 0 015.6 0z"
+        fillRule="evenodd"
+        d="M15.2 8.2a4.8 4.8 0 11-6.4 0 4.8 4.8 0 016.4 0z"
+        clipRule="evenodd"
       />
       <path
-        {...stroke}
-        d="M14.8 7.8a4.8 4.8 0 11-5.6 0 4.8 4.8 0 015.6 0z"
+        fill="currentColor"
+        d="M11.1 4.8a1 1 0 011.8 0l.4 1.3h1.4l-1.1 0.9.4 1.3-1.1-.9-1.1.9.4-1.3-1.1-.9h1.4l.4-1.3z"
       />
-      <IslamicStar />
-      <path {...stroke} d="M8.5 18.5h7" />
-      <path {...stroke} d="M10 20.5h4" />
+      <path fill="currentColor" d="M8.2 18.4h7.6v1.4H8.2v-1.4z" />
+      <path fill="currentColor" d="M9.8 20h4.4v1.2H9.8V20z" opacity="0.75" />
     </svg>
   );
 }
@@ -202,10 +219,13 @@ function AqeedahIcon(props: IconProps) {
 function HadithIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <path {...stroke} d="M7.5 6.5h9a2 2 0 012 2v8.5a2 2 0 01-2 2H10l-3.5 2v-12.5a2 2 0 012-2z" />
-      <path {...stroke} d="M9.5 10.5h5M9.5 13.5h4.5M9.5 16.5h3.5" />
-      <circle {...stroke} cx="16.5" cy="8.5" r="2" />
-      <path {...stroke} d="M15.5 8.5h2M16.5 7.5v2" />
+      <path
+        fill="currentColor"
+        d="M7.2 6.4h9.2a1.8 1.8 0 011.8 1.8v7.8a1.8 1.8 0 01-1.8 1.8H9.8L6 19.8V8.2a1.8 1.8 0 011.2-1.8z"
+      />
+      <path fill="currentColor" d="M9.2 10.2h5.6v1.2H9.2v-1.2zm0 2.8h4.8v1.2H9.2V13zm0 2.8h3.6v1.2H9.2v-1.2z" opacity="0.35" />
+      <circle cx="16.8" cy="8.2" r="2.2" fill="currentColor" />
+      <path fill="currentColor" d="M15.8 8.2h2v1.4h-2V8.2zm1-1v3.4h-.8V7.2h.8z" opacity="0.35" />
     </svg>
   );
 }
@@ -214,17 +234,19 @@ function DuasIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
       <path
-        {...stroke}
         fill="currentColor"
-        fillOpacity={0.15}
-        d="M10.2 5.2a2.8 2.8 0 015.6 0c0 1.2-.8 2-1.4 2.4-.4.3-.9.5-1.4.5s-1-.2-1.4-.5c-.6-.4-1.4-1.2-1.4-2.4z"
+        d="M10.2 5.2a2.4 2.4 0 014.8 0c0 1-.7 1.7-1.2 2-.3.2-.7.4-1.1.4s-.8-.2-1.1-.4c-.5-.3-1.2-1-1.2-2z"
       />
       <path
-        {...stroke}
-        d="M8.5 11.5c0-1.8 1.5-3.2 3.5-3.2s3.5 1.4 3.5 3.2v1.2c1.2.8 1.8 2 1.8 3.3 0 2.3-2.4 4-5.3 4s-5.3-1.7-5.3-4c0-1.3.6-2.5 1.8-3.3v-1.2z"
+        fill="currentColor"
+        d="M8.4 11.4c0-1.8 1.6-3.2 3.6-3.2s3.6 1.4 3.6 3.2v1.2c1.2.8 1.9 2 1.9 3.3 0 2.3-2.4 4.1-5.5 4.1S6.5 18.2 6.5 15.9c0-1.3.7-2.5 1.9-3.3v-1.2z"
       />
-      <path {...stroke} d="M7.5 13.5c-1 .7-1.5 1.7-1.5 2.8M16.5 13.5c1 .7 1.5 1.7 1.5 2.8" />
-      <path {...stroke} d="M10.5 18.8v1.2M13.5 18.8v1.2" />
+      <path
+        fill="currentColor"
+        d="M7.2 13.4c-1.1.8-1.7 1.9-1.7 3.1M16.8 13.4c1.1.8 1.7 1.9 1.7 3.1"
+        opacity="0.55"
+      />
+      <path fill="currentColor" d="M10.4 19.2v1.4h3.2v-1.4H10.4z" opacity="0.75" />
     </svg>
   );
 }
@@ -233,11 +255,11 @@ function OtherIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
       <path
-        {...stroke}
-        d="M12 3.5 14.2 8l4.8.7-3.5 3.4.8 4.8L12 14.3 7.7 16.9l.8-4.8-3.5-3.4 4.8-.7L12 3.5z"
+        fill="currentColor"
+        d="M12 3.2 14.4 8.2l5.4.8-3.9 3.8.9 5.4L12 15.2 7.2 18.2l.9-5.4-3.9-3.8 5.4-.8L12 3.2z"
       />
-      <circle {...stroke} cx="12" cy="12" r="3.25" />
-      <path {...stroke} d="M12 9.2v5.6M9.2 12h5.6" />
+      <circle cx="12" cy="12" r="3.2" fill="currentColor" opacity="0.22" />
+      <path fill="currentColor" d="M12 9.4v5.2M9.4 12h5.2" opacity="0.55" />
     </svg>
   );
 }
@@ -269,9 +291,9 @@ export function CourseCategoryIcon({
     <span
       role="img"
       aria-label={`${category} course`}
-      className={`inline-flex items-center justify-center text-white/95 drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.28)] ${sizeClasses[size]} ${className}`}
     >
-      <Icon className="h-full w-full" aria-hidden />
+      <Icon className="h-[82%] w-[82%]" aria-hidden />
     </span>
   );
 }
