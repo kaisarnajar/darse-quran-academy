@@ -98,53 +98,6 @@ export type FatwaAnswerEmailParams = {
   fatwaUrl: string;
 };
 
-export type PaymentReceiptEmailParams = {
-  to: string;
-  studentName: string;
-  courseTitle: string;
-  description: string;
-  receiptUrl: string;
-};
-
-export async function sendPaymentReceiptEmail(params: PaymentReceiptEmailParams): Promise<EmailSendResult> {
-  const { to, studentName, courseTitle, description, receiptUrl } = params;
-  const displayName = studentName || "Student";
-
-  const subject = `Payment receipt — ${courseTitle}`;
-  const text = [
-    `Assalamu Alaikum ${displayName},`,
-    "",
-    `Your payment for "${description}" (${courseTitle}) has been approved.`,
-    "",
-    "Download your receipt using the link below:",
-    receiptUrl,
-    "",
-    "Darse Quran Academy",
-  ].join("\n");
-
-  const html = [
-    '<div style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1c1917; max-width: 560px;">',
-    `<p>Assalamu Alaikum <strong>${escapeHtml(displayName)}</strong>,</p>`,
-    `<p>Your payment for <strong>${escapeHtml(description)}</strong> (${escapeHtml(courseTitle)}) has been approved.</p>`,
-    "<p>Download your receipt:</p>",
-    '<p style="margin: 28px 0;">',
-    `<a href="${receiptUrl}" style="background: #3730a3; color: #fff; padding: 12px 24px; border-radius: 9999px; text-decoration: none; font-weight: 600;">`,
-    "Download receipt",
-    "</a></p>",
-    `<p style="font-size: 14px; color: #57534e;">Or copy this link: <a href="${receiptUrl}">${escapeHtml(receiptUrl)}</a></p>`,
-    '<p style="margin-top: 24px; font-size: 14px; color: #57534e;">— Darse Quran Academy</p>',
-    "</div>",
-  ].join("");
-
-  return deliverMail({
-    to,
-    subject,
-    text,
-    html,
-    preview: receiptUrl,
-  });
-}
-
 export type PaymentDeclinedEmailParams = {
   to: string;
   studentName: string;

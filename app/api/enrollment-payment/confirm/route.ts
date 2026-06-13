@@ -5,11 +5,11 @@ import { getCourseById } from "@/lib/courses";
 import { AWAITING_ENROLLMENT_FEE } from "@/lib/enrollment-status";
 import {
   buildEnrollmentFeeLabel,
-  PAYMENT_TYPE_ENROLLMENT,
 } from "@/lib/monthly-payments";
 import {
   MONTHLY_PAYMENT_APPROVED,
   MONTHLY_PAYMENT_PENDING,
+  PAYMENT_TYPE_ENROLLMENT,
 } from "@/lib/monthly-payment-status";
 import { savePaymentScreenshot, validatePaymentScreenshot } from "@/lib/payment-upload";
 import { prisma } from "@/lib/prisma";

@@ -104,17 +104,6 @@ export async function getPendingStudentReviewsForAdmin() {
   });
 }
 
-export async function getFeaturedStudentReviewsForAdmin() {
-  return prisma.studentReview.findMany({
-    where: { status: "APPROVED", featuredOnHomepage: true },
-    orderBy: [{ featuredAt: "desc" }, { updatedAt: "desc" }],
-    take: HOMEPAGE_FEATURED_REVIEWS_MAX,
-    include: {
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
-}
-
 /** All approved reviews (homepage and not), for admin management. */
 export async function getApprovedStudentReviewsForAdmin() {
   return prisma.studentReview.findMany({

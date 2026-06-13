@@ -4,10 +4,10 @@ import { getMonthlyFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
 import {
   buildMonthlyFeeLabel,
-  PAYMENT_TYPE_MONTHLY,
 } from "@/lib/monthly-payments";
 import {
   MONTHLY_PAYMENT_PENDING,
+  PAYMENT_TYPE_MONTHLY,
 } from "@/lib/monthly-payment-status";
 import { savePaymentScreenshot, validatePaymentScreenshot } from "@/lib/payment-upload";
 import { prisma } from "@/lib/prisma";

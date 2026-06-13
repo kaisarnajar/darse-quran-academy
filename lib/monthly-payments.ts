@@ -1,7 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
 import {
-  MONTHLY_PAYMENT_APPROVED,
-  MONTHLY_PAYMENT_DECLINED,
   MONTHLY_PAYMENT_PENDING,
   PAYMENT_TYPE_ENROLLMENT,
   PAYMENT_TYPE_MONTHLY,
@@ -29,45 +27,6 @@ export type CoursePaymentSubmissionWithUser = {
   };
 };
 
-export type ApprovedPaymentWithRecord = CoursePaymentSubmissionWithUser & {
-  paymentRecordId: string;
-  receiptEmailSentAt: Date | null;
-};
-
-export async function getApprovedMonthlyPaymentsForReceipt(): Promise<ApprovedPaymentWithRecord[]> {
-  noStore();
-  const rows = await prisma.coursePaymentSubmission.findMany({
-    where: { status: MONTHLY_PAYMENT_APPROVED, paymentRecordId: { not: null } },
-    orderBy: { updatedAt: "desc" },
-    take: 50,
-    include: {
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
-
-  const recordIds = rows
-    .map((row) => row.paymentRecordId)
-    .filter((id): id is string => Boolean(id));
-
-  const records =
-    recordIds.length > 0
-      ? await prisma.paymentRecord.findMany({
-          where: { id: { in: recordIds } },
-          select: { id: true, receiptEmailSentAt: true },
-        })
-      : [];
-
-  const receiptByRecordId = new Map(records.map((r) => [r.id, r.receiptEmailSentAt]));
-
-  return rows
-    .filter((row): row is typeof row & { paymentRecordId: string } => Boolean(row.paymentRecordId))
-    .map((row) => ({
-      ...row,
-      paymentRecordId: row.paymentRecordId,
-      receiptEmailSentAt: receiptByRecordId.get(row.paymentRecordId) ?? null,
-    }));
-}
-
 export async function getPendingMonthlyPayments(): Promise<CoursePaymentSubmissionWithUser[]> {
   noStore();
   return prisma.coursePaymentSubmission.findMany({
@@ -87,20 +46,6 @@ export async function getPendingEnrollmentFeePayments(): Promise<CoursePaymentSu
     include: {
       user: { select: { id: true, name: true, email: true } },
     },
-  });
-}
-
-export async function getPendingMonthlyPaymentCount(): Promise<number> {
-  noStore();
-  return prisma.coursePaymentSubmission.count({
-    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY },
-  });
-}
-
-export async function getPendingEnrollmentFeePaymentCount(): Promise<number> {
-  noStore();
-  return prisma.coursePaymentSubmission.count({
-    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT },
   });
 }
 
@@ -192,11 +137,3 @@ export async function getPendingEnrollmentFeeSubmissionMap(userId: string) {
   });
   return new Set(rows.map((row) => row.courseId));
 }
-
-export {
-  MONTHLY_PAYMENT_APPROVED,
-  MONTHLY_PAYMENT_DECLINED,
-  MONTHLY_PAYMENT_PENDING,
-  PAYMENT_TYPE_ENROLLMENT,
-  PAYMENT_TYPE_MONTHLY,
-};

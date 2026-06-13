@@ -14,8 +14,6 @@ import {
 } from "@/lib/monthly-payment-status";
 import { prisma } from "@/lib/prisma";
 import { getCourseById } from "@/lib/courses";
-import { deleteUploadedReceipt, saveUploadedReceipt, validateReceiptPdf } from "@/lib/receipt-upload";
-import { sendReceiptEmailForPayment } from "@/lib/payment-receipt-notify";
 
 function revalidatePaymentPaths(userId: string, courseId?: string | null) {
   const paths = [
@@ -170,57 +168,4 @@ export async function declineMonthlyPayment(
 
   revalidatePaymentPaths(submission.userId, submission.courseId);
   redirect(paymentReturnUrl(returnTo, "declined"));
-}
-
-export async function sendGeneratedReceipt(paymentRecordId: string) {
-  await requireAdmin();
-
-  const record = await prisma.paymentRecord.findUnique({ where: { id: paymentRecordId } });
-  if (!record) {
-    return { error: "Payment record not found." };
-  }
-
-  const result = await sendReceiptEmailForPayment(paymentRecordId, {
-    useGeneratedReceipt: true,
-  });
-  if (result.error) {
-    return { error: result.error };
-  }
-
-  revalidatePaymentPaths(record.userId, record.courseId);
-  return { success: true };
-}
-
-export async function uploadAndSendReceipt(paymentRecordId: string, formData: FormData) {
-  await requireAdmin();
-
-  const record = await prisma.paymentRecord.findUnique({ where: { id: paymentRecordId } });
-  if (!record) {
-    return { error: "Payment record not found." };
-  }
-
-  const file = formData.get("receipt");
-  const validation = validateReceiptPdf(file instanceof File ? file : null);
-  if (validation.error) {
-    return { error: validation.error };
-  }
-
-  if (record.uploadedReceiptPath) {
-    await deleteUploadedReceipt(record.uploadedReceiptPath);
-  }
-
-  const uploadedPath = await saveUploadedReceipt(paymentRecordId, file as File);
-
-  await prisma.paymentRecord.update({
-    where: { id: paymentRecordId },
-    data: { uploadedReceiptPath: uploadedPath },
-  });
-
-  const result = await sendReceiptEmailForPayment(paymentRecordId);
-  if (result.error) {
-    return { error: result.error };
-  }
-
-  revalidatePaymentPaths(record.userId, record.courseId);
-  return { success: true };
 }

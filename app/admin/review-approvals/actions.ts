@@ -102,58 +102,6 @@ export async function rejectStudentReview(
   redirect(returnUrl(returnTo, "rejected"));
 }
 
-export async function unfeatureStudentReview(
-  reviewId: string,
-  returnTo?: string,
-): Promise<{ error?: string }> {
-  await requireAdmin();
-
-  const review = await prisma.studentReview.findUnique({ where: { id: reviewId } });
-  if (!review) return { error: "Review not found." };
-
-  await prisma.studentReview.update({
-    where: { id: reviewId },
-    data: {
-      featuredOnHomepage: false,
-      featuredAt: null,
-    },
-  });
-
-  revalidateReviewPaths(reviewId);
-  redirect(returnUrl(returnTo, "unfeatured"));
-}
-
-export async function featureStudentReview(
-  reviewId: string,
-  returnTo?: string,
-): Promise<{ error?: string }> {
-  await requireAdmin();
-
-  const review = await prisma.studentReview.findUnique({ where: { id: reviewId } });
-  if (!review) return { error: "Review not found." };
-  if (review.status !== "APPROVED") {
-    return { error: "Only approved reviews can be shown on the homepage." };
-  }
-
-  const featuredCount = await getFeaturedHomepageReviewCount();
-  if (!review.featuredOnHomepage && featuredCount >= HOMEPAGE_FEATURED_REVIEWS_MAX) {
-    return {
-      error: `The homepage already has ${HOMEPAGE_FEATURED_REVIEWS_MAX} reviews. Remove one first.`,
-    };
-  }
-
-  await prisma.studentReview.update({
-    where: { id: reviewId },
-    data: {
-      featuredOnHomepage: true,
-      featuredAt: new Date(),
-    },
-  });
-
-  revalidateReviewPaths(reviewId);
-  redirect(returnUrl(returnTo, "featured"));
-}
-
 export async function saveApprovedReviewHomepageSetting(
   reviewId: string,
   formData: FormData,

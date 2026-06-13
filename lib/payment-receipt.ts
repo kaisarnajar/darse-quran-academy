@@ -78,11 +78,6 @@ function formatInvoiceDate(date: Date): string {
   return `${d}/${m}/${y}`;
 }
 
-export function getReceiptDownloadUrl(paymentRecordId: string): string {
-  const base = process.env.AUTH_URL || "http://localhost:3000";
-  return `${base.replace(/\/$/, "")}/api/receipt/${paymentRecordId}`;
-}
-
 function wrapTextByWidth(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const words = sanitizePdfText(text).split(/\s+/);
   const lines: string[] = [];

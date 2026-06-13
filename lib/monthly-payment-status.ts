@@ -5,11 +5,6 @@ export const MONTHLY_PAYMENT_PENDING = "pending_verification" as const;
 export const MONTHLY_PAYMENT_APPROVED = "approved" as const;
 export const MONTHLY_PAYMENT_DECLINED = "declined" as const;
 
-export function paymentTypeLabel(paymentType: string): string {
-  if (paymentType === PAYMENT_TYPE_ENROLLMENT) return "Enrollment fee";
-  return "Monthly fee";
-}
-
 export function monthlyPaymentStatusLabel(status: string): string {
   if (status === MONTHLY_PAYMENT_PENDING) return "Awaiting verification";
   if (status === MONTHLY_PAYMENT_APPROVED) return "Approved";

@@ -13,19 +13,6 @@ export const FORM_DATE_MONTHS = [
   { value: "12", label: "December" },
 ] as const;
 
-export const FORM_DATE_DAYS = Array.from({ length: 31 }, (_, index) => {
-  const value = String(index + 1).padStart(2, "0");
-  return { value, label: String(index + 1) };
-});
-
-export function getFormDateYearOptions(referenceYear = new Date().getFullYear()) {
-  const years: { value: string; label: string }[] = [];
-  for (let year = referenceYear - 1; year <= referenceYear + 5; year += 1) {
-    years.push({ value: String(year), label: String(year) });
-  }
-  return years;
-}
-
 export type FormDateParts = {
   day: string;
   month: string;
@@ -159,13 +146,4 @@ export function formatInputDateValue(input: string): string | null {
   }
 
   return formatFormDate(match[3], match[2], match[1]);
-}
-
-export function isValidInputDateValue(input: string): boolean {
-  const value = input.trim();
-  if (!value) {
-    return false;
-  }
-
-  return formatInputDateValue(value) !== null;
 }

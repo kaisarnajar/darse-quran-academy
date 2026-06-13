@@ -39,7 +39,7 @@ Students browse courses, enroll, pay enrollment and monthly fees via UPI, downlo
 - **Digital Library** — PDF resources
 - **Fatwa** — answer and feature questions on the homepage
 - **Contact inquiries** — read and reply
-- **Blog approvals**, **Review approvals**, **Payment approvals** — approve UPI submissions, send or upload receipts
+- **Blog approvals**, **Review approvals**, **Payment approvals** — approve UPI payment submissions
 
 Auth: email/password (register, forgot/reset password), optional Google OAuth.
 

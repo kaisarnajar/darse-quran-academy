@@ -161,4 +161,3 @@ export async function getAwaitingEnrollmentFeeCount(): Promise<number> {
   });
 }
 
-export { AWAITING_ENROLLMENT_FEE, PENDING_ENROLLMENT_APPROVAL };
