@@ -56,8 +56,8 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
       <div>
         <h2 className="font-serif text-lg font-semibold text-primary">Enroll a student manually</h2>
         <p className="mt-1 text-sm text-muted">
-          The student must already have registered. Verify their email and choose a course to enroll
-          them directly with full access.
+          The student must already have registered. Enter their email and choose a course to enroll them
+          directly with full access.
         </p>
       </div>
 
@@ -74,27 +74,17 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
         <label htmlFor="email" className={labelClassName}>
           Registered account email
         </label>
-        <div className="mt-1 flex flex-col gap-2 sm:flex-row">
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onBlur={() => runLookup(email)}
-            placeholder="student@example.com"
-            className={`${inputClassName} flex-1`}
-          />
-          <button
-            type="button"
-            onClick={() => runLookup(email)}
-            disabled={lookupLoading}
-            className="min-h-11 shrink-0 rounded-md border border-border bg-surface px-4 text-sm font-medium text-foreground hover:bg-background disabled:opacity-60"
-          >
-            {lookupLoading ? "Checking…" : "Verify account"}
-          </button>
-        </div>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => runLookup(email)}
+          placeholder="student@example.com"
+          className={`${inputClassName} mt-1`}
+        />
         {lookupError && (
           <p className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900" role="alert">
             {lookupError}
@@ -109,7 +99,9 @@ export function AdminEnrollUserForm({ courses }: AdminEnrollUserFormProps) {
             linkedName ? "font-medium text-foreground" : "text-muted"
           }`}
         >
-          {linkedName || "Verify the email above to load the account name."}
+          {lookupLoading
+            ? "Checking account…"
+            : linkedName || "Enter an email above to load the account name."}
         </p>
       </div>
 
