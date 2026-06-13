@@ -4,10 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { sendPaymentDeclinedEmail } from "@/lib/email";
+import { AWAITING_ENROLLMENT_FEE } from "@/lib/enrollment-status";
 import {
   MONTHLY_PAYMENT_APPROVED,
   MONTHLY_PAYMENT_DECLINED,
   MONTHLY_PAYMENT_PENDING,
+  PAYMENT_TYPE_ENROLLMENT,
 } from "@/lib/monthly-payment-status";
 import { prisma } from "@/lib/prisma";
 import { getCourseById } from "@/lib/courses";
@@ -17,11 +19,13 @@ import { sendReceiptEmailForPayment } from "@/lib/payment-receipt-notify";
 function revalidatePaymentPaths(userId: string, courseId?: string | null) {
   const paths = [
     "/admin",
+    "/admin/enrollments",
     "/admin/payment-approvals",
     "/admin/students",
     `/admin/students/${userId}`,
     "/profile/payments",
     "/profile/courses",
+    "/courses",
   ];
   if (courseId) {
     paths.push(`/admin/courses/${courseId}/students`);
@@ -66,6 +70,18 @@ export async function confirmMonthlyPayment(
     return { error: "This payment cannot be confirmed." };
   }
 
+  if (submission.paymentType === PAYMENT_TYPE_ENROLLMENT) {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: { userId: submission.userId, courseId: submission.courseId },
+      },
+    });
+
+    if (!enrollment || enrollment.status !== AWAITING_ENROLLMENT_FEE) {
+      return { error: "Enrollment is not awaiting an enrollment fee payment." };
+    }
+  }
+
   const course = await getCourseById(submission.courseId);
 
   const record = await prisma.paymentRecord.create({
@@ -85,6 +101,17 @@ export async function confirmMonthlyPayment(
       paymentRecordId: record.id,
     },
   });
+
+  if (submission.paymentType === PAYMENT_TYPE_ENROLLMENT) {
+    await prisma.enrollment.updateMany({
+      where: {
+        userId: submission.userId,
+        courseId: submission.courseId,
+        status: AWAITING_ENROLLMENT_FEE,
+      },
+      data: { status: "active" },
+    });
+  }
 
   revalidatePaymentPaths(submission.userId, submission.courseId);
   redirect(paymentReturnUrl(returnTo, "confirmed"));
@@ -125,7 +152,10 @@ export async function declineMonthlyPayment(
   });
 
   const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
-  const paymentUrl = `${base.replace(/\/$/, "")}/profile/courses/${submission.courseId}/pay`;
+  const paymentUrl =
+    submission.paymentType === PAYMENT_TYPE_ENROLLMENT
+      ? `${base.replace(/\/$/, "")}/profile/courses/${submission.courseId}/enrollment-pay`
+      : `${base.replace(/\/$/, "")}/profile/courses/${submission.courseId}/pay`;
 
   await sendPaymentDeclinedEmail({
     to: submission.user.email,

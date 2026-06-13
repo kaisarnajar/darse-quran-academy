@@ -3,18 +3,12 @@ import { DownloadCertificateButton } from "@/components/certificate/DownloadCert
 import { requireUser } from "@/lib/auth-actions";
 import { isEnrollmentCertificateReady } from "@/lib/completion";
 import { getCourseById } from "@/lib/courses";
-import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
-import { getUserEnrollments } from "@/lib/enrollments";
-
-function statusLabel(status: string) {
-  if (status === "completed") return "Completed";
-  if (status === PENDING_ENROLLMENT_APPROVAL) return "Awaiting approval";
-  if (status === "pending_verification") return "Awaiting verification";
-  if (status === "payment_declined") return "Declined";
-  if (status === "pending") return "Awaiting approval";
-  if (status === "active") return "Active";
-  return status;
-}
+import {
+  AWAITING_ENROLLMENT_FEE,
+  PENDING_ENROLLMENT_APPROVAL,
+} from "@/lib/enrollment-status";
+import { enrollmentStatusLabel, getUserEnrollments } from "@/lib/enrollments";
+import { getPendingEnrollmentFeeSubmissionMap } from "@/lib/monthly-payments";
 
 export default async function ProfileCoursesPage({
   searchParams,
@@ -23,7 +17,10 @@ export default async function ProfileCoursesPage({
 }) {
   const session = await requireUser();
   const params = await searchParams;
-  const enrollments = await getUserEnrollments(session.user.id);
+  const [enrollments, pendingEnrollmentPayments] = await Promise.all([
+    getUserEnrollments(session.user.id),
+    getPendingEnrollmentFeeSubmissionMap(session.user.id),
+  ]);
 
   const enrollmentRows = await Promise.all(
     enrollments.map(async (enrollment) => {
@@ -42,7 +39,7 @@ export default async function ProfileCoursesPage({
 
       {params.declined === "1" && (
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-900">
-          Your previous payment was declined. Use &quot;Pay monthly fee&quot; to submit again.
+          Your previous payment was declined. Use the payment link below to submit again.
         </p>
       )}
 
@@ -62,15 +59,36 @@ export default async function ProfileCoursesPage({
             if (!course) return null;
             const certificateReady = isEnrollmentCertificateReady(enrollment);
             const isActive = enrollment.status === "active" || enrollment.status === "completed";
+            const awaitingEnrollmentFee = enrollment.status === AWAITING_ENROLLMENT_FEE;
+            const hasPendingEnrollmentPayment = pendingEnrollmentPayments.has(course.id);
 
             return (
               <li key={enrollment.id} className="card-elevated flex flex-col p-5">
                 <span className="w-fit rounded-full bg-accent-muted px-2.5 py-0.5 text-xs font-medium text-primary">
-                  {statusLabel(enrollment.status)}
+                  {awaitingEnrollmentFee && hasPendingEnrollmentPayment
+                    ? "Awaiting payment verification"
+                    : enrollmentStatusLabel(enrollment.status)}
                 </span>
                 <h3 className="mt-2 font-serif text-lg font-semibold text-foreground">{course.title}</h3>
                 <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
                 <p className="mt-3 text-sm text-primary">Starts: {course.startDate}</p>
+
+                {awaitingEnrollmentFee && (
+                  <Link
+                    href={
+                      hasPendingEnrollmentPayment
+                        ? "/profile/payments"
+                        : `/profile/courses/${course.id}/enrollment-pay`
+                    }
+                    className="mt-4 flex min-h-11 items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 hover:bg-amber-100"
+                  >
+                    {hasPendingEnrollmentPayment ? "Awaiting payment verification" : "Pay enrollment fee"}
+                  </Link>
+                )}
+
+                {enrollment.status === PENDING_ENROLLMENT_APPROVAL && (
+                  <p className="mt-4 text-sm text-amber-900">Awaiting enrollment approval by the academy.</p>
+                )}
 
                 {isActive && (
                   <Link
@@ -98,7 +116,7 @@ export default async function ProfileCoursesPage({
                   </p>
                 )}
 
-                {!certificateReady && !isActive && (
+                {!certificateReady && !isActive && !awaitingEnrollmentFee && (
                   <p className="mt-4 text-xs text-muted">
                     Requested {enrollment.createdAt.toLocaleDateString("en-IN")}
                   </p>

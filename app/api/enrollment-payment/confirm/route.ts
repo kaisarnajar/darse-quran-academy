@@ -1,18 +1,20 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getMonthlyFeePaise } from "@/lib/course-pricing";
+import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
+import { AWAITING_ENROLLMENT_FEE } from "@/lib/enrollment-status";
 import {
-  buildMonthlyFeeLabel,
-  PAYMENT_TYPE_MONTHLY,
+  buildEnrollmentFeeLabel,
+  PAYMENT_TYPE_ENROLLMENT,
 } from "@/lib/monthly-payments";
 import {
+  MONTHLY_PAYMENT_APPROVED,
   MONTHLY_PAYMENT_PENDING,
 } from "@/lib/monthly-payment-status";
 import { savePaymentScreenshot, validatePaymentScreenshot } from "@/lib/payment-upload";
 import { prisma } from "@/lib/prisma";
 import { isUpiConfigured } from "@/lib/upi";
-import { monthlyPaymentSubmitSchema } from "@/lib/validations";
+import { enrollmentPaymentSubmitSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -30,10 +32,8 @@ export async function POST(request: Request) {
 
   try {
     const formData = await request.formData();
-    const parsed = monthlyPaymentSubmitSchema.safeParse({
+    const parsed = enrollmentPaymentSubmitSchema.safeParse({
       courseId: formData.get("courseId"),
-      paymentMonth: formData.get("paymentMonth"),
-      paymentYear: formData.get("paymentYear"),
       paymentMethod: formData.get("paymentMethod"),
       upiTransactionId: formData.get("upiTransactionId"),
     });
@@ -57,27 +57,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Course not found." }, { status: 404 });
     }
 
+    const enrollmentFeePaise = getRegistrationFeePaise(course);
+    if (enrollmentFeePaise <= 0) {
+      return NextResponse.json({ error: "This course has no enrollment fee." }, { status: 400 });
+    }
+
     const enrollment = await prisma.enrollment.findUnique({
       where: {
         userId_courseId: { userId: session.user.id, courseId: course.id },
       },
     });
 
-    if (!enrollment || (enrollment.status !== "active" && enrollment.status !== "completed")) {
+    if (!enrollment || enrollment.status !== AWAITING_ENROLLMENT_FEE) {
       return NextResponse.json(
-        { error: "You must be enrolled and approved in this course before paying monthly fees." },
+        { error: "You must request enrollment in this course before paying the enrollment fee." },
         { status: 400 },
       );
     }
 
-    const label = buildMonthlyFeeLabel(parsed.data.paymentMonth, parsed.data.paymentYear);
+    const label = buildEnrollmentFeeLabel(course.title);
 
     const duplicatePending = await prisma.coursePaymentSubmission.findFirst({
       where: {
         userId: session.user.id,
         courseId: course.id,
-        label,
-        status: { in: [MONTHLY_PAYMENT_PENDING, "approved"] },
+        paymentType: PAYMENT_TYPE_ENROLLMENT,
+        status: { in: [MONTHLY_PAYMENT_PENDING, MONTHLY_PAYMENT_APPROVED] },
       },
     });
 
@@ -85,9 +90,9 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            duplicatePending.status === "approved"
-              ? `Payment for ${label} is already recorded.`
-              : `A payment for ${label} is already awaiting verification.`,
+            duplicatePending.status === MONTHLY_PAYMENT_APPROVED
+              ? "Your enrollment fee is already recorded."
+              : "Your enrollment fee payment is already awaiting verification.",
         },
         { status: 400 },
       );
@@ -108,9 +113,9 @@ export async function POST(request: Request) {
       data: {
         userId: session.user.id,
         courseId: course.id,
-        paymentType: PAYMENT_TYPE_MONTHLY,
+        paymentType: PAYMENT_TYPE_ENROLLMENT,
         label,
-        amountInrPaise: getMonthlyFeePaise(course),
+        amountInrPaise: enrollmentFeePaise,
         status: MONTHLY_PAYMENT_PENDING,
         paymentMethod: parsed.data.paymentMethod,
         upiTransactionId: parsed.data.upiTransactionId,
@@ -132,7 +137,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       redirectUrl: "/profile/payments?submitted=1",
-      message: "Thank you! We will verify your monthly fee payment shortly.",
     });
   } catch {
     return NextResponse.json({ error: "Could not submit payment. Please try again." }, { status: 500 });

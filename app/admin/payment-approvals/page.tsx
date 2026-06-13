@@ -8,7 +8,7 @@ import {
   getApprovedMonthlyPaymentsForReceipt,
   getPendingMonthlyPayments,
 } from "@/lib/monthly-payments";
-import { monthlyPaymentStatusLabel } from "@/lib/monthly-payment-status";
+import { monthlyPaymentStatusLabel, paymentTypeLabel } from "@/lib/monthly-payment-status";
 
 export default async function AdminPaymentApprovalsPage({
   searchParams,
@@ -28,7 +28,8 @@ export default async function AdminPaymentApprovalsPage({
     <div>
       <h1 className="font-serif text-2xl font-bold text-primary">Payment approvals</h1>
       <p className="mt-1 text-sm text-muted">
-        Verify monthly fee payments submitted by students. Course enrollment requests are managed under{" "}
+        Verify enrollment and monthly fee payments submitted by students. Free enrollment requests
+        are managed under{" "}
         <Link href="/admin/enrollments" className="font-medium text-primary hover:underline">
           Enrollments
         </Link>
@@ -49,7 +50,7 @@ export default async function AdminPaymentApprovalsPage({
 
       <section className="mt-8">
         <h2 className="font-serif text-lg font-semibold text-foreground">
-          Pending monthly payments
+          Pending payments
           {pendingPayments.length > 0 && (
             <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
               {pendingPayments.length}
@@ -65,8 +66,9 @@ export default async function AdminPaymentApprovalsPage({
               <thead className="border-b border-border bg-background/50 text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Student</th>
+                  <th className="px-4 py-3 font-medium">Type</th>
                   <th className="px-4 py-3 font-medium">Course</th>
-                  <th className="px-4 py-3 font-medium">Fee period</th>
+                  <th className="px-4 py-3 font-medium">Description</th>
                   <th className="px-4 py-3 font-medium">Method</th>
                   <th className="px-4 py-3 font-medium">Reference</th>
                   <th className="px-4 py-3 font-medium">Screenshot</th>
@@ -81,6 +83,9 @@ export default async function AdminPaymentApprovalsPage({
                     <td className="px-4 py-3">
                       <p className="font-medium text-foreground">{submission.user.name ?? "—"}</p>
                       <p className="text-xs text-muted">{submission.user.email}</p>
+                    </td>
+                    <td className="px-4 py-3 text-foreground">
+                      {paymentTypeLabel(submission.paymentType)}
                     </td>
                     <td className="px-4 py-3 text-foreground">
                       {titleById.get(submission.courseId) ?? submission.courseId}

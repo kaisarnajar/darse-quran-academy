@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { getCourseEnrollmentClosedMessage } from "@/lib/course-status";
-import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
+import {
+  AWAITING_ENROLLMENT_FEE,
+  PENDING_ENROLLMENT_APPROVAL,
+} from "@/lib/enrollment-status";
 import { PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 
 type CourseEnrollButtonProps = {
@@ -16,6 +19,7 @@ type CourseEnrollButtonProps = {
   enrollmentStatus?: string | null;
   enrollmentId?: string | null;
   profileComplete?: boolean;
+  hasPendingEnrollmentPayment?: boolean;
 };
 
 export function CourseEnrollButton({
@@ -25,12 +29,14 @@ export function CourseEnrollButton({
   enrollmentStatus = null,
   enrollmentId = null,
   profileComplete = true,
+  hasPendingEnrollmentPayment = false,
 }: CourseEnrollButtonProps) {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const enrollmentClosedMessage = getCourseEnrollmentClosedMessage(courseStatus);
+  const enrollmentPayHref = `/profile/courses/${courseId}/enrollment-pay`;
 
   if (enrollmentStatus === "completed" && enrollmentId) {
     return (
@@ -66,6 +72,19 @@ export function CourseEnrollButton({
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
         >
           Awaiting enrollment approval
+        </Link>
+      </div>
+    );
+  }
+
+  if (enrollmentStatus === AWAITING_ENROLLMENT_FEE) {
+    return (
+      <div className="mt-4">
+        <Link
+          href={hasPendingEnrollmentPayment ? "/profile/payments" : enrollmentPayHref}
+          className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
+        >
+          {hasPendingEnrollmentPayment ? "Awaiting payment verification" : "Pay enrollment fee"}
         </Link>
       </div>
     );

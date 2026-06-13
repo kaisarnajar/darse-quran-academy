@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTeacher } from "@/lib/auth-actions";
-import { formatPrice } from "@/lib/courses";
 import { enrollmentStatusClass, enrollmentStatusLabel } from "@/lib/enrollments";
 import { getTeacherCourseStudents } from "@/lib/teacher-portal";
 import { prisma } from "@/lib/prisma";
@@ -82,9 +81,6 @@ export default async function TeacherCourseStudentsPage({
                       >
                         {enrollmentStatusLabel(enrollment.status)}
                       </span>
-                      {enrollment.amountPaid != null && (
-                        <p className="mt-1 text-xs text-muted">Paid {formatPrice(enrollment.amountPaid)}</p>
-                      )}
                     </td>
                     <td className="px-4 py-3 text-muted">
                       {enrollment.createdAt.toLocaleDateString("en-IN", {

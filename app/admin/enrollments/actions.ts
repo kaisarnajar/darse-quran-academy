@@ -13,15 +13,14 @@ import {
   markEnrollmentComplete,
   sendCertificateEmailForEnrollment,
 } from "@/lib/completion";
+import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
 import {
-  AWAITING_PAYMENT_VERIFICATION,
+  AWAITING_ENROLLMENT_FEE,
   canApproveEnrollment,
   canRejectEnrollment,
-  PAYMENT_DECLINED,
   PENDING_ENROLLMENT_APPROVAL,
 } from "@/lib/enrollment-status";
-import { sendPaymentDeclinedEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 import {
   lookupStudentAccountForEnrollment,
@@ -62,7 +61,7 @@ function enrollmentReturnUrl(
   return qs ? `${pathname}?${qs}` : `${pathname}?${param}=1`;
 }
 
-/** Approve a student's enrollment request. */
+/** Approve a free-course enrollment request. */
 export async function approveEnrollmentRequest(
   enrollmentId: string,
   courseId: string,
@@ -97,14 +96,7 @@ export async function approveEnrollmentRequest(
 
   await prisma.enrollment.update({
     where: { id: enrollmentId },
-    data: {
-      status: "active",
-      amountPaid: null,
-      currency: null,
-      paymentMethod: null,
-      upiTransactionId: null,
-      paymentScreenshotPath: null,
-    },
+    data: { status: "active" },
   });
 
   revalidateEnrollmentPaths(courseId);
@@ -141,63 +133,6 @@ export async function rejectEnrollmentRequest(
   redirect(enrollmentReturnUrl(returnTo, "rejected"));
 }
 
-/** @deprecated Legacy registration payment decline */
-export async function declineEnrollmentPayment(
-  enrollmentId: string,
-  courseId: string,
-  returnTo?: string,
-): Promise<{ error?: string }> {
-  await requireAdmin();
-
-  const enrollment = await prisma.enrollment.findUnique({
-    where: { id: enrollmentId },
-    include: { user: { select: { email: true, name: true } } },
-  });
-
-  if (!enrollment || enrollment.courseId !== courseId) {
-    return { error: "Enrollment not found." };
-  }
-
-  if (enrollment.status !== AWAITING_PAYMENT_VERIFICATION) {
-    return { error: "Only legacy payment submissions can be declined here." };
-  }
-
-  const course = await getCourseById(courseId);
-  if (!course) return { error: "Course not found." };
-
-  await prisma.enrollment.update({
-    where: { id: enrollmentId },
-    data: {
-      status: PAYMENT_DECLINED,
-      upiTransactionId: null,
-      paymentScreenshotPath: null,
-      paymentMethod: null,
-      amountPaid: null,
-      currency: null,
-    },
-  });
-
-  const base = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
-  await sendPaymentDeclinedEmail({
-    to: enrollment.user.email,
-    studentName: enrollment.user.name ?? "",
-    courseTitle: course.title,
-    paymentUrl: `${base.replace(/\/$/, "")}/profile/courses`,
-  });
-
-  revalidateEnrollmentPaths(courseId);
-  redirect(enrollmentReturnUrl(returnTo, "declined"));
-}
-
-/** @deprecated Use approveEnrollmentRequest */
-export async function confirmEnrollmentPayment(
-  enrollmentId: string,
-  courseId: string,
-  returnTo?: string,
-) {
-  return approveEnrollmentRequest(enrollmentId, courseId, returnTo);
-}
-
 export type AdminEnrollUserState = {
   error?: string;
   success?: string;
@@ -229,7 +164,14 @@ export async function adminEnrollUser(
     return { error: "Course not found." };
   }
 
-  const status = parsed.data.approveImmediately ? "active" : PENDING_ENROLLMENT_APPROVAL;
+  let status: string;
+  if (parsed.data.approveImmediately) {
+    status = "active";
+  } else if (getRegistrationFeePaise(course) > 0) {
+    status = AWAITING_ENROLLMENT_FEE;
+  } else {
+    status = PENDING_ENROLLMENT_APPROVAL;
+  }
 
   await prisma.enrollment.upsert({
     where: {
@@ -240,24 +182,21 @@ export async function adminEnrollUser(
       courseId: course.id,
       status,
     },
-    update: {
-      status,
-      amountPaid: null,
-      currency: null,
-      paymentMethod: null,
-      upiTransactionId: null,
-      paymentScreenshotPath: null,
-      paymentReference: null,
-    },
+    update: { status },
   });
 
   revalidateEnrollmentPaths(course.id);
 
+  if (status === "active") {
+    return { success: `${account.name} is now enrolled in ${course.title}.` };
+  }
+  if (status === AWAITING_ENROLLMENT_FEE) {
+    return {
+      success: `${account.name} was added to ${course.title}. They must pay the enrollment fee before access is granted.`,
+    };
+  }
   return {
-    success:
-      status === "active"
-        ? `${account.name} is now enrolled in ${course.title}.`
-        : `${account.name} was added to ${course.title}. Approve the request to grant course access.`,
+    success: `${account.name} was added to ${course.title}. Approve the request to grant course access.`,
   };
 }
 

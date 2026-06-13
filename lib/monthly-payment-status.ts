@@ -1,9 +1,19 @@
+export const PAYMENT_TYPE_MONTHLY = "monthly" as const;
+export const PAYMENT_TYPE_ENROLLMENT = "enrollment" as const;
+
+export type CoursePaymentType = typeof PAYMENT_TYPE_MONTHLY | typeof PAYMENT_TYPE_ENROLLMENT;
+
 export const MONTHLY_PAYMENT_PENDING = "pending_verification" as const;
 export const MONTHLY_PAYMENT_APPROVED = "approved" as const;
 export const MONTHLY_PAYMENT_DECLINED = "declined" as const;
 
 export function isMonthlyPaymentPending(status: string): boolean {
   return status === MONTHLY_PAYMENT_PENDING;
+}
+
+export function paymentTypeLabel(paymentType: string): string {
+  if (paymentType === PAYMENT_TYPE_ENROLLMENT) return "Enrollment fee";
+  return "Monthly fee";
 }
 
 export function monthlyPaymentStatusLabel(status: string): string {

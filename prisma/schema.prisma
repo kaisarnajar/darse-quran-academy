@@ -302,13 +302,7 @@ model Enrollment {
   id               String   @id @default(cuid())
   userId           String
   courseId         String
-  status           String   @default("pending")
-  paymentReference String?  @unique
-  upiTransactionId       String?
-  paymentMethod          String?  @default("upi")
-  paymentScreenshotPath  String?
-  amountPaid              Int?
-  currency                String?   @default("inr")
+  status           String   @default("pending_approval")
   completedAt               DateTime?
   uploadedCertificatePath   String?
   certificateEmailSentAt    DateTime?
@@ -406,11 +400,12 @@ model PaymentSettings {
   updatedAt         DateTime @updatedAt
 }
 
-/** Student-submitted monthly (or other) course fees awaiting admin approval. */
+/** Student-submitted monthly or enrollment course fees awaiting admin approval. */
 model CoursePaymentSubmission {
   id                    String    @id @default(cuid())
   userId                String
   courseId              String
+  paymentType           String    @default("monthly")
   label                 String
   amountInrPaise        Int
   status                String    @default("pending_verification")
@@ -427,4 +422,5 @@ model CoursePaymentSubmission {
   @@index([userId])
   @@index([courseId])
   @@index([status])
+  @@index([paymentType])
 }

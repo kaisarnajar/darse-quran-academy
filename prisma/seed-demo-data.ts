@@ -81,6 +81,7 @@ async function seedDemoPayment(
         id: submissionId,
         userId,
         courseId,
+        paymentType: "monthly",
         label,
         amountInrPaise: monthlyFeeInrPaise,
         status: MONTHLY_PAYMENT_APPROVED,
@@ -90,6 +91,7 @@ async function seedDemoPayment(
         paymentRecordId: recordId,
       },
       update: {
+        paymentType: "monthly",
         label,
         amountInrPaise: monthlyFeeInrPaise,
         status: MONTHLY_PAYMENT_APPROVED,
@@ -110,6 +112,7 @@ async function seedDemoPayment(
       id: submissionId,
       userId,
       courseId,
+      paymentType: "monthly",
       label,
       amountInrPaise: monthlyFeeInrPaise,
       status,
@@ -119,6 +122,7 @@ async function seedDemoPayment(
       paymentScreenshotPath: null,
     },
     update: {
+      paymentType: "monthly",
       label,
       amountInrPaise: monthlyFeeInrPaise,
       status,

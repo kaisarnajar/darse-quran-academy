@@ -1,39 +1,21 @@
-/** Student requested enrollment; awaiting admin approval. */
+/** Student requested enrollment; awaiting admin approval (free courses). */
 export const PENDING_ENROLLMENT_APPROVAL = "pending_approval" as const;
 
-/** @deprecated Legacy registration payment flow */
-export const AWAITING_PAYMENT_VERIFICATION = "pending_verification" as const;
-
-/** @deprecated Legacy registration payment flow */
-export const NEEDS_PAYMENT_SUBMISSION = "pending" as const;
-
-/** @deprecated Legacy registration payment flow */
-export const PAYMENT_DECLINED = "payment_declined" as const;
+/** Paid course: enrollment created; student must pay enrollment fee. */
+export const AWAITING_ENROLLMENT_FEE = "awaiting_enrollment_fee" as const;
 
 export function isPendingEnrollmentApproval(status: string): boolean {
   return status === PENDING_ENROLLMENT_APPROVAL;
 }
 
-export function isAwaitingPaymentVerification(status: string): boolean {
-  return status === AWAITING_PAYMENT_VERIFICATION;
-}
-
-export function needsPaymentSubmission(status: string): boolean {
-  return status === NEEDS_PAYMENT_SUBMISSION || status === PAYMENT_DECLINED;
-}
-
-export function canSubmitPaymentForVerification(status: string): boolean {
-  return needsPaymentSubmission(status);
+export function isAwaitingEnrollmentFee(status: string): boolean {
+  return status === AWAITING_ENROLLMENT_FEE;
 }
 
 export function canApproveEnrollment(status: string): boolean {
-  return (
-    status === PENDING_ENROLLMENT_APPROVAL ||
-    status === AWAITING_PAYMENT_VERIFICATION ||
-    status === NEEDS_PAYMENT_SUBMISSION
-  );
+  return status === PENDING_ENROLLMENT_APPROVAL;
 }
 
 export function canRejectEnrollment(status: string): boolean {
-  return status === PENDING_ENROLLMENT_APPROVAL;
+  return status === PENDING_ENROLLMENT_APPROVAL || status === AWAITING_ENROLLMENT_FEE;
 }

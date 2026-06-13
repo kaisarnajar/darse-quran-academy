@@ -152,7 +152,6 @@ export default async function AdminStudentDetailPage({
                 <tr>
                   <th className="px-4 py-3 font-medium">Course</th>
                   <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Amount</th>
                   <th className="px-4 py-3 font-medium">Enrolled</th>
                   <th className="px-4 py-3 font-medium" />
                 </tr>
@@ -169,9 +168,6 @@ export default async function AdminStudentDetailPage({
                       >
                         {enrollmentStatusLabel(enrollment.status)}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-muted">
-                      {enrollment.amountPaid != null ? formatPrice(enrollment.amountPaid) : "—"}
                     </td>
                     <td className="px-4 py-3 text-muted">
                       {enrollment.createdAt.toLocaleDateString("en-IN", {

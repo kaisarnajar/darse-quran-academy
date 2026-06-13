@@ -99,7 +99,8 @@ Configure in `/admin`:
 - [ ] Top bar social icons and floating WhatsApp button use admin URLs
 - [ ] Admin register/login with an `ADMIN_EMAIL` address → `/admin` opens
 - [ ] Student register / login; forgot-password email (or link in function logs if SMTP off)
-- [ ] Student completes profile → **Request enrollment** on a course → Admin → **Enrollments** approves
+- [ ] Student completes profile → **Request enrollment** on a **free** course (enrollment fee ₹0) → Admin → **Enrollments** approves
+- [ ] Student **Request enrollment** on a **paid** course → pays enrollment fee (UTR) → Admin → **Payment approvals** confirms → student becomes active
 - [ ] Student pays **monthly fee** from **My Courses** → submits UTR → Admin → **Payment approvals**
 - [ ] Mark complete → certificate on **My Courses**
 - [ ] Admin **course announcements**; teacher **private message** to one student
@@ -142,6 +143,7 @@ Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local Po
 | Issue | Fix |
 |-------|-----|
 | Build fails on `migrate deploy` | Set `DATABASE_URL` on Vercel; use Neon direct URL if pooler errors |
+| New migration `20260714120000_enrollment_fee_payment` | Run `npx prisma migrate deploy` on production after deploy (enrollment fee + `paymentType` column) |
 | “UPI not configured” | Admin → **Payment details** — save a UPI ID |
 | Wrong contact email / social links | Admin → **Social links** — save and refresh homepage |
 | Cannot access `/admin` | Signed-in email must be listed in `ADMIN_EMAIL` (comma-separated); redeploy after changing env |

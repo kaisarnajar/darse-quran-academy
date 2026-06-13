@@ -4,7 +4,8 @@ import { ApproveEnrollmentButton } from "@/components/admin/ApproveEnrollmentBut
 import { RejectEnrollmentButton } from "@/components/admin/RejectEnrollmentButton";
 import { isCourseEnrollmentOpen } from "@/lib/course-status";
 import { getAllCourses } from "@/lib/courses";
-import { getPendingEnrollmentApprovals } from "@/lib/enrollments";
+import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
+import { enrollmentStatusLabel, getPendingEnrollmentApprovals } from "@/lib/enrollments";
 
 export default async function AdminEnrollmentsPage({
   searchParams,
@@ -24,8 +25,8 @@ export default async function AdminEnrollmentsPage({
     <div>
       <h1 className="font-serif text-2xl font-bold text-primary">Course enrollments</h1>
       <p className="mt-1 text-sm text-muted">
-        Approve student enrollment requests and manually add registered students to courses. Monthly fee
-        payments are approved under{" "}
+        Approve free enrollment requests and manage paid enrollments awaiting student payment.
+        Enrollment and monthly fee payments are approved under{" "}
         <Link href="/admin/payment-approvals" className="font-medium text-primary hover:underline">
           Payment approvals
         </Link>
@@ -53,7 +54,8 @@ export default async function AdminEnrollmentsPage({
           )}
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Students who requested enrollment and are waiting for your approval.
+          Free courses await your approval. Paid courses appear here until the student pays the
+          enrollment fee; payment verification activates enrollment automatically.
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
@@ -65,6 +67,7 @@ export default async function AdminEnrollmentsPage({
                 <tr>
                   <th className="px-4 py-3 font-medium">Student</th>
                   <th className="px-4 py-3 font-medium">Course</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
                   <th className="px-4 py-3 font-medium">Requested</th>
                   <th className="px-4 py-3 font-medium" />
                 </tr>
@@ -80,6 +83,9 @@ export default async function AdminEnrollmentsPage({
                       {titleById.get(enrollment.courseId) ?? enrollment.courseId}
                     </td>
                     <td className="px-4 py-3 text-muted">
+                      {enrollmentStatusLabel(enrollment.status)}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
                       {enrollment.createdAt.toLocaleDateString("en-IN", {
                         day: "numeric",
                         month: "short",
@@ -88,10 +94,12 @@ export default async function AdminEnrollmentsPage({
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex flex-wrap justify-end gap-2">
-                        <ApproveEnrollmentButton
-                          enrollmentId={enrollment.id}
-                          courseId={enrollment.courseId}
-                        />
+                        {enrollment.status === PENDING_ENROLLMENT_APPROVAL && (
+                          <ApproveEnrollmentButton
+                            enrollmentId={enrollment.id}
+                            courseId={enrollment.courseId}
+                          />
+                        )}
                         <RejectEnrollmentButton
                           enrollmentId={enrollment.id}
                           courseId={enrollment.courseId}

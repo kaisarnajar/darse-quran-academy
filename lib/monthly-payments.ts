@@ -3,6 +3,8 @@ import {
   MONTHLY_PAYMENT_APPROVED,
   MONTHLY_PAYMENT_DECLINED,
   MONTHLY_PAYMENT_PENDING,
+  PAYMENT_TYPE_ENROLLMENT,
+  PAYMENT_TYPE_MONTHLY,
 } from "@/lib/monthly-payment-status";
 import { prisma } from "@/lib/prisma";
 
@@ -10,6 +12,7 @@ export type CoursePaymentSubmissionWithUser = {
   id: string;
   userId: string;
   courseId: string;
+  paymentType: string;
   label: string;
   amountInrPaise: number;
   status: string;
@@ -146,4 +149,42 @@ export function buildMonthlyFeeLabel(month: string, year: string): string {
   return `Monthly fee — ${monthName} ${year}`;
 }
 
-export { MONTHLY_PAYMENT_APPROVED, MONTHLY_PAYMENT_DECLINED, MONTHLY_PAYMENT_PENDING };
+export function buildEnrollmentFeeLabel(courseTitle: string): string {
+  return `Enrollment fee — ${courseTitle}`;
+}
+
+export async function hasPendingEnrollmentFeeSubmission(
+  userId: string,
+  courseId: string,
+): Promise<boolean> {
+  const submission = await prisma.coursePaymentSubmission.findFirst({
+    where: {
+      userId,
+      courseId,
+      paymentType: PAYMENT_TYPE_ENROLLMENT,
+      status: MONTHLY_PAYMENT_PENDING,
+    },
+    select: { id: true },
+  });
+  return Boolean(submission);
+}
+
+export async function getPendingEnrollmentFeeSubmissionMap(userId: string) {
+  const rows = await prisma.coursePaymentSubmission.findMany({
+    where: {
+      userId,
+      paymentType: PAYMENT_TYPE_ENROLLMENT,
+      status: MONTHLY_PAYMENT_PENDING,
+    },
+    select: { courseId: true },
+  });
+  return new Set(rows.map((row) => row.courseId));
+}
+
+export {
+  MONTHLY_PAYMENT_APPROVED,
+  MONTHLY_PAYMENT_DECLINED,
+  MONTHLY_PAYMENT_PENDING,
+  PAYMENT_TYPE_ENROLLMENT,
+  PAYMENT_TYPE_MONTHLY,
+};

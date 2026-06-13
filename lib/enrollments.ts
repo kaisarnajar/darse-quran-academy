@@ -1,8 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import {
-  AWAITING_PAYMENT_VERIFICATION,
-  NEEDS_PAYMENT_SUBMISSION,
-  PAYMENT_DECLINED,
+  AWAITING_ENROLLMENT_FEE,
   PENDING_ENROLLMENT_APPROVAL,
 } from "@/lib/enrollment-status";
 import { prisma } from "@/lib/prisma";
@@ -10,12 +8,6 @@ import { prisma } from "@/lib/prisma";
 export type CourseEnrollmentWithUser = {
   id: string;
   status: string;
-  amountPaid: number | null;
-  currency: string | null;
-  upiTransactionId: string | null;
-  paymentMethod: string | null;
-  paymentScreenshotPath: string | null;
-  paymentReference: string | null;
   completedAt: Date | null;
   certificateEmailSentAt: Date | null;
   createdAt: Date;
@@ -58,11 +50,9 @@ export async function isUserEnrolled(userId: string, courseId: string): Promise<
 
 export function enrollmentStatusLabel(status: string) {
   if (status === PENDING_ENROLLMENT_APPROVAL) return "Awaiting approval";
-  if (status === "pending_verification") return "Awaiting verification";
-  if (status === "payment_declined") return "Payment declined";
+  if (status === AWAITING_ENROLLMENT_FEE) return "Awaiting enrollment fee";
   if (status === "completed") return "Completed";
   if (status === "active") return "Active";
-  if (status === "pending") return "Awaiting approval";
   return status.replace(/_/g, " ");
 }
 
@@ -70,9 +60,7 @@ export function enrollmentStatusClass(status: string) {
   if (status === "completed") return "bg-emerald-100 text-emerald-900";
   if (status === "active") return "bg-violet-100 text-violet-800";
   if (status === PENDING_ENROLLMENT_APPROVAL) return "bg-amber-100 text-amber-900";
-  if (status === "pending_verification") return "bg-amber-100 text-amber-900";
-  if (status === "payment_declined") return "bg-red-100 text-red-900";
-  if (status === "pending") return "bg-amber-100 text-amber-900";
+  if (status === AWAITING_ENROLLMENT_FEE) return "bg-amber-100 text-amber-900";
   return "bg-stone-200 text-stone-700";
 }
 
@@ -108,7 +96,7 @@ export type PendingEnrollmentWithUser = CourseEnrollmentWithUser & {
 export async function getPendingEnrollmentApprovals(): Promise<PendingEnrollmentWithUser[]> {
   noStore();
   return prisma.enrollment.findMany({
-    where: { status: PENDING_ENROLLMENT_APPROVAL },
+    where: { status: { in: [PENDING_ENROLLMENT_APPROVAL, AWAITING_ENROLLMENT_FEE] } },
     orderBy: { createdAt: "desc" },
     include: {
       user: {
@@ -121,35 +109,8 @@ export async function getPendingEnrollmentApprovals(): Promise<PendingEnrollment
 export async function getPendingEnrollmentApprovalCount(): Promise<number> {
   noStore();
   return prisma.enrollment.count({
-    where: { status: PENDING_ENROLLMENT_APPROVAL },
+    where: { status: { in: [PENDING_ENROLLMENT_APPROVAL, AWAITING_ENROLLMENT_FEE] } },
   });
 }
 
-/** @deprecated Use getPendingMonthlyPayments for fee approvals */
-export async function getPendingPaymentEnrollments(): Promise<PendingEnrollmentWithUser[]> {
-  noStore();
-  return prisma.enrollment.findMany({
-    where: { status: AWAITING_PAYMENT_VERIFICATION },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      user: {
-        select: { id: true, name: true, email: true },
-      },
-    },
-  });
-}
-
-/** @deprecated */
-export async function getPendingPaymentCount(): Promise<number> {
-  noStore();
-  return prisma.enrollment.count({
-    where: { status: AWAITING_PAYMENT_VERIFICATION },
-  });
-}
-
-export {
-  AWAITING_PAYMENT_VERIFICATION,
-  NEEDS_PAYMENT_SUBMISSION,
-  PAYMENT_DECLINED,
-  PENDING_ENROLLMENT_APPROVAL,
-};
+export { AWAITING_ENROLLMENT_FEE, PENDING_ENROLLMENT_APPROVAL };

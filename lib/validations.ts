@@ -144,6 +144,17 @@ export const monthlyPaymentSubmitSchema = z.object({
     .regex(/^[a-zA-Z0-9]+$/, "Reference should contain only letters and numbers."),
 });
 
+export const enrollmentPaymentSubmitSchema = z.object({
+  courseId: z.string().min(1),
+  paymentMethod: z.enum(["upi", "bank"]),
+  upiTransactionId: z
+    .string()
+    .trim()
+    .min(8, "Enter a valid transaction / UTR reference (at least 8 characters).")
+    .max(50)
+    .regex(/^[a-zA-Z0-9]+$/, "Reference should contain only letters and numbers."),
+});
+
 export const occupationEnum = z.enum(OCCUPATION_VALUES);
 
 export const profileCountryEnum = z.enum(PROFILE_COUNTRY_CODES);

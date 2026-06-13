@@ -11,6 +11,7 @@ import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
 import { getPublicCourseById } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
+import { hasPendingEnrollmentFeeSubmission } from "@/lib/monthly-payments";
 import { isUserProfileComplete } from "@/lib/profile";
 
 type CoursePageProps = {
@@ -40,6 +41,10 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
   const profileComplete = session?.user?.id
     ? await isUserProfileComplete(session.user.id)
     : true;
+  const hasPendingEnrollmentPayment =
+    session?.user?.id && enrollment
+      ? await hasPendingEnrollmentFeeSubmission(session.user.id, course.id)
+      : false;
   const levelClass = getCourseLevelClass(course.level);
 
   return (
@@ -76,8 +81,8 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
           <p className="text-xs font-semibold uppercase tracking-wide text-gold">Fees</p>
           <CoursePricingDisplay course={course} className="mt-2" />
           <p className="mt-3 text-xs text-muted">
-            Fees are set by the academy for each course. Monthly fees are paid from your profile after
-            enrollment is approved.
+            Fees are set by the academy for each course. Paid courses require an enrollment fee before
+            access is granted; monthly fees are paid from your profile after enrollment is active.
           </p>
         </div>
 
@@ -90,6 +95,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
             enrollmentStatus={enrollment?.status ?? null}
             enrollmentId={enrollment?.id ?? null}
             profileComplete={profileComplete}
+            hasPendingEnrollmentPayment={hasPendingEnrollmentPayment}
           />
         </div>
       </article>

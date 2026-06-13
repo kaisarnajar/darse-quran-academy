@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { isCourseEnrollmentOpen } from "@/lib/course-status";
+import { getRegistrationFeePaise } from "@/lib/course-pricing";
 import { getCourseById } from "@/lib/courses";
-import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
+import {
+  AWAITING_ENROLLMENT_FEE,
+  PENDING_ENROLLMENT_APPROVAL,
+} from "@/lib/enrollment-status";
 import { isUserProfileComplete, PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
+import { isUpiConfigured } from "@/lib/upi";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -25,6 +30,19 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "This course is not open for enrollment." },
         { status: 404 },
+      );
+    }
+
+    const enrollmentFeePaise = getRegistrationFeePaise(course);
+    const requiresEnrollmentFee = enrollmentFeePaise > 0;
+
+    if (requiresEnrollmentFee && !(await isUpiConfigured())) {
+      return NextResponse.json(
+        {
+          error:
+            "This course requires an enrollment fee, but online payments are not configured yet. Please contact the academy.",
+        },
+        { status: 503 },
       );
     }
 
@@ -51,6 +69,13 @@ export async function POST(request: Request) {
       });
     }
 
+    if (existing?.status === AWAITING_ENROLLMENT_FEE) {
+      return NextResponse.json({
+        redirectUrl: `/profile/courses/${courseId}/enrollment-pay`,
+        alreadyEnrolled: true,
+      });
+    }
+
     if (existing) {
       return NextResponse.json({
         redirectUrl: "/profile/courses",
@@ -70,16 +95,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const status = requiresEnrollmentFee ? AWAITING_ENROLLMENT_FEE : PENDING_ENROLLMENT_APPROVAL;
+
     await prisma.enrollment.create({
       data: {
         userId: session.user.id,
         courseId: course.id,
-        status: PENDING_ENROLLMENT_APPROVAL,
+        status,
       },
     });
 
     return NextResponse.json({
-      redirectUrl: "/profile/courses",
+      redirectUrl: requiresEnrollmentFee
+        ? `/profile/courses/${courseId}/enrollment-pay`
+        : "/profile/courses",
     });
   } catch {
     return NextResponse.json({ error: "Could not submit enrollment request. Please try again." }, { status: 500 });

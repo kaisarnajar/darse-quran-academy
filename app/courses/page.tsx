@@ -5,6 +5,7 @@ import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
 import { getPublishedCourses } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
+import { getPendingEnrollmentFeeSubmissionMap } from "@/lib/monthly-payments";
 import { isUserProfileComplete } from "@/lib/profile";
 
 export const metadata: Metadata = {
@@ -18,6 +19,9 @@ export default async function CoursesPage() {
   const enrollmentMap = session?.user?.id
     ? await getUserCourseEnrollmentMap(session.user.id)
     : new Map();
+  const pendingEnrollmentPaymentCourses = session?.user?.id
+    ? await getPendingEnrollmentFeeSubmissionMap(session.user.id)
+    : new Set<string>();
   const profileComplete = session?.user?.id
     ? await isUserProfileComplete(session.user.id)
     : true;
@@ -43,6 +47,7 @@ export default async function CoursesPage() {
                 enrollmentStatus={enrollment?.status ?? null}
                 enrollmentId={enrollment?.id ?? null}
                 profileComplete={profileComplete}
+                hasPendingEnrollmentPayment={pendingEnrollmentPaymentCourses.has(course.id)}
               />
             );
           })

@@ -81,7 +81,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | Section | URL | Expected behavior | Mobile | Pad | PC |
 |---------|-----|-------------------|:------:|:---:|:----:|
 | **Profile** | `/profile` | Edit name, father’s name, date of birth, occupation, address, WhatsApp; email shown; warning if profile incomplete; all fields required before **requesting enrollment** | ☐ | ☐ | ☐ |
-| **My Courses** | `/profile/courses` | Lists enrollments with status (active, awaiting approval, completed, declined, etc.); links to pay monthly fee, course announcements, download certificate when complete | ☐ | ☐ | ☐ |
+| **My Courses** | `/profile/courses` | Lists enrollments with status (active, awaiting approval, awaiting enrollment fee, completed); pay enrollment or monthly fee; course announcements; certificate when complete | ☐ | ☐ | ☐ |
 | **Payments** | `/profile/payments` | History of approved payments; pending submissions; **Download receipt** when admin sent/generated receipt | ☐ | ☐ | ☐ |
 | **Payment info** | `/profile/payment-info` | Shows academy UPI QR and bank details (from admin **Payment details**) | ☐ | ☐ | ☐ |
 | **My reviews** | `/profile/reviews` | Submit testimonial (name, location, text); pending/approved/rejected status; edit/resubmit if rejected; delete own review | ☐ | ☐ | ☐ |
@@ -90,10 +90,11 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 
 | Flow | Steps | Expected result | Mobile | Pad | PC |
 |------|-------|-----------------|:------:|:---:|:----:|
-| Request enrollment | Complete profile → `/courses` → open course → **Request enrollment** | Enrollment request created (`pending_approval`); admin approves under **Enrollments** | ☐ | ☐ | ☐ |
-| Pay monthly fee | **My Courses** → **Pay monthly fee** → UPI/bank → submit UTR + optional screenshot | Submission pending; appears under Payments | ☐ | ☐ | ☐ |
+| Request enrollment (free course) | Complete profile → `/courses` → course with **₹0** enrollment fee → **Request enrollment** | `pending_approval`; admin approves under **Enrollments** | ☐ | ☐ | ☐ |
+| Request enrollment (paid course) | Course with enrollment fee > ₹0 → **Request enrollment** → **Pay enrollment fee** (UTR) | `awaiting_enrollment_fee` then payment pending; admin confirms under **Payment approvals** → student **active** | ☐ | ☐ | ☐ |
+| Pay monthly fee | **My Courses** → **Pay monthly fee** (active enrollment) → UPI/bank → submit UTR + optional screenshot | Submission pending; appears under Payments | ☐ | ☐ | ☐ |
 | After payment approved | Admin approves → admin sends receipt | Student can download invoice-style PDF from Payments | ☐ | ☐ | ☐ |
-| Declined payment | Admin declines | Student sees message; can resubmit from course pay page | ☐ | ☐ | ☐ |
+| Declined payment | Admin declines monthly or enrollment fee payment | Student sees message; can resubmit from the pay page | ☐ | ☐ | ☐ |
 | Certificate | Admin marks complete + sends certificate | **Download certificate** on My Courses works | ☐ | ☐ | ☐ |
 | Course announcements | `/profile/courses/[courseId]/announcements` | **For you** (private teacher messages) and **Course-wide** sections; admin and teacher posts visible as appropriate | ☐ | ☐ | ☐ |
 
@@ -138,7 +139,7 @@ Use browser DevTools (responsive mode) or real devices. Test **portrait and land
 | **Fatwa** | `/admin/fatwa` | Answer questions; toggle **show on homepage** (max 4 featured); email asker when answered | ☐ | ☐ | ☐ |
 | **Blog approvals** | `/admin/blog-approvals` | Approve/reject teacher blog posts | ☐ | ☐ | ☐ |
 | **Review approvals** | `/admin/review-approvals` | Approve/reject testimonials; **Remove from homepage** keeps review in **All reviews**; re-feature from All reviews | ☐ | ☐ | ☐ |
-| **Payment approvals** | `/admin/payment-approvals` | Approve monthly payments; **generate/upload receipt** and email student | ☐ | ☐ | ☐ |
+| **Payment approvals** | `/admin/payment-approvals` | Approve enrollment and monthly fee payments; **generate/upload receipt** and email student | ☐ | ☐ | ☐ |
 | Sign out | Sidebar | Confirmation dialog before sign out | ☐ | ☐ | ☐ |
 
 ---
@@ -208,7 +209,7 @@ After changing **Social links** or **Payment details**, refresh the public site 
 - **Teachers** cannot edit or delete admin course announcements (by design).
 - **Payment / social settings** are stored in the database (admin UI), not in `.env`.
 - **Uploaded files** on serverless hosting may not persist forever unless external storage is added.
-- **Profile copy:** Some profile messages still mention “registration fee”; enrollment is request-based with monthly fees paid after approval.
+- **Enrollment fees:** Courses with enrollment fee > ₹0 require payment before access; free courses (₹0) use admin approval under **Enrollments**.
 
 ---
 
