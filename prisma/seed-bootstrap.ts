@@ -6,6 +6,7 @@ import { courses } from "../content/courses";
 import { libraryItems } from "../content/library";
 import { studentTestimonials } from "../content/testimonials";
 import { teachers } from "../content/teachers";
+import { seedCourseStartDate, seedCourseStatus } from "./seed-helpers";
 
 /** Minimal bootstrap data: courses, teachers, library, homepage testimonials. */
 export async function seedBootstrap(prisma: PrismaClient) {
@@ -35,33 +36,36 @@ export async function seedBootstrap(prisma: PrismaClient) {
     const fees = getDefaultFeesForLevel(course.level);
     const featuredAt = new Date("2026-01-01T00:00:00.000Z");
     featuredAt.setMinutes(index);
+    const startDate = seedCourseStartDate(course.startDate);
+    const status = seedCourseStatus(course.id);
     await prisma.course.upsert({
       where: { id: course.id },
       create: {
         id: course.id,
         title: course.title,
         description: course.description,
-        startDate: course.startDate,
+        startDate,
         duration: course.duration,
         level: course.level,
         category: course.category,
         priceInrPaise: course.priceInrPaise,
         monthlyFeeInrPaise: fees.monthlyFeePaise,
         teacherId: course.teacherId,
-        status: "PUBLISHED",
+        status,
         featuredOnHomepage: true,
         featuredAt,
       },
       update: {
         title: course.title,
         description: course.description,
-        startDate: course.startDate,
+        startDate,
         duration: course.duration,
         level: course.level,
         category: course.category,
         priceInrPaise: course.priceInrPaise,
         monthlyFeeInrPaise: fees.monthlyFeePaise,
         teacherId: course.teacherId,
+        status,
         featuredOnHomepage: true,
       },
     });

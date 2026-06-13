@@ -1,6 +1,7 @@
 import { hash } from "bcryptjs";
 import type { PrismaClient } from "@prisma/client";
 import { getAdminEmails } from "../lib/admin";
+import { syncEnrollmentsWithCourseStatus } from "../lib/completion";
 import { courses } from "../content/courses";
 import {
   DEMO_ADMIN_PASSWORD,
@@ -22,6 +23,13 @@ import {
   PAYMENT_TYPE_ENROLLMENT,
   PAYMENT_TYPE_MONTHLY,
 } from "../lib/monthly-payment-status";
+import {
+  demoAdminUserId,
+  demoEnrollmentId,
+  demoStudentEmail,
+  demoStudentUserId,
+  demoTeacherUserId,
+} from "./seed-helpers";
 
 type CourseSeedMeta = {
   monthlyFeeInrPaise: number;
@@ -30,15 +38,15 @@ type CourseSeedMeta = {
 };
 
 function demoUserId(studentId: string) {
-  return `seed-demo-user-${studentId}`;
+  return demoStudentUserId(studentId);
 }
 
 function demoUserEmail(studentId: string) {
-  return `demo-student-${studentId}@seed.local`;
+  return demoStudentEmail(studentId);
 }
 
-function demoEnrollmentId(studentId: string, courseId: string) {
-  return `seed-demo-enrollment-${studentId}-${courseId}`;
+function demoEnrollmentIdFor(studentId: string, courseId: string) {
+  return demoEnrollmentId(studentId, courseId);
 }
 
 function demoPaymentId(
@@ -185,7 +193,7 @@ async function seedDemoEnrollment(
   const courseMeta = courseMetaById.get(enrollment.courseId);
   if (!courseMeta) return;
 
-  const enrollmentId = demoEnrollmentId(studentId, enrollment.courseId);
+  const enrollmentId = demoEnrollmentIdFor(studentId, enrollment.courseId);
   const completedAt =
     enrollment.status === "completed" && enrollment.completedAt
       ? new Date(enrollment.completedAt)
@@ -194,7 +202,9 @@ async function seedDemoEnrollment(
         : null;
 
   await prisma.enrollment.upsert({
-    where: { id: enrollmentId },
+    where: {
+      userId_courseId: { userId, courseId: enrollment.courseId },
+    },
     create: {
       id: enrollmentId,
       userId,
@@ -213,14 +223,44 @@ async function seedDemoEnrollment(
   }
 }
 
-function demoTeacherUserId(teacherId: string) {
-  return `seed-demo-teacher-user-${teacherId}`;
+/** Completed course with roster for admin certificate / students QA. */
+async function seedCompletedCourseScenario(prisma: PrismaClient) {
+  const courseId = "qiraat-advanced";
+  const studentId = "19";
+  const userId = demoUserId(studentId);
+
+  await prisma.enrollment.upsert({
+    where: {
+      userId_courseId: { userId, courseId },
+    },
+    create: {
+      id: demoEnrollmentIdFor(studentId, courseId),
+      userId,
+      courseId,
+      status: "completed",
+      completedAt: new Date("2026-05-01T12:00:00.000Z"),
+    },
+    update: {
+      status: "completed",
+      completedAt: new Date("2026-05-01T12:00:00.000Z"),
+    },
+  });
+
+  await syncEnrollmentsWithCourseStatus(courseId, "COMPLETED");
 }
 
-function demoAdminUserId(index: number) {
-  return `seed-demo-admin-user-${index + 1}`;
+async function syncCompletedCourseEnrollments(prisma: PrismaClient) {
+  const completedCourses = await prisma.course.findMany({
+    where: { status: "COMPLETED" },
+    select: { id: true, status: true },
+  });
+
+  for (const course of completedCourses) {
+    await syncEnrollmentsWithCourseStatus(course.id, course.status);
+  }
 }
 
+/** Admin login accounts for every address in `ADMIN_EMAIL` (local / QA). */
 function demoAdminDisplayName(email: string) {
   const local = email.split("@")[0] ?? "admin";
   return local
@@ -230,7 +270,6 @@ function demoAdminDisplayName(email: string) {
     .join(" ");
 }
 
-/** Admin login accounts for every address in `ADMIN_EMAIL` (local / QA). */
 export async function seedDemoAdmins(prisma: PrismaClient) {
   const emails = getAdminEmails();
   if (emails.length === 0) return;
@@ -335,6 +374,8 @@ export async function seedDemoData(prisma: PrismaClient) {
   }
 
   await seedDemoStudentReviews(prisma);
+  await seedCompletedCourseScenario(prisma);
+  await syncCompletedCourseEnrollments(prisma);
 }
 
 const demoStudentReviews = [
@@ -407,6 +448,7 @@ export function demoAdminLoginHint(): string {
 export function demoDataSummaryHint(): string {
   return [
     `Demo dataset: ${courses.length} courses, ${teachers.length} teachers, ${DEMO_STUDENT_COUNT} students`,
+    "  Courses — PUBLISHED, ONGOING, COMPLETED, ON_HOLD, and DRAFT examples",
     "  Enrollments — pending approval (free), awaiting fee, active, completed",
     "  Payments — enrollment fee + monthly fee (approved, pending, declined; student 06 receipt sent)",
     "  Reviews — 10 featured + 1 pending + 1 rejected for /admin/review-approvals",

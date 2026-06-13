@@ -16,6 +16,9 @@
     "db:seed:demo": "tsx prisma/seed-demo.ts",
     "optimize-logo": "node scripts/optimize-logo.mjs"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed-demo.ts"
+  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^6.19.3",

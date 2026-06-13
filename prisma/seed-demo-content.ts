@@ -1,5 +1,10 @@
 import type { PrismaClient } from "@prisma/client";
 import {
+  demoAdminUserId,
+  demoStudentUserId,
+  demoTeacherUserId,
+} from "./seed-helpers";
+import {
   demoBlogPosts,
   demoContactInquiries,
   demoCourseAnnouncements,
@@ -7,18 +12,6 @@ import {
   demoFatwaQuestions,
   demoSiteAnnouncements,
 } from "../content/demo-content";
-
-function demoTeacherUserId(teacherId: string) {
-  return `seed-demo-teacher-user-${teacherId}`;
-}
-
-function demoStudentUserId(studentId: string) {
-  return `seed-demo-user-${studentId}`;
-}
-
-function demoAdminUserId(index: number) {
-  return `seed-demo-admin-user-${index}`;
-}
 
 const demoContentBaseTime = new Date("2026-02-01T10:00:00.000Z");
 
