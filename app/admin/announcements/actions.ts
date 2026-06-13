@@ -10,6 +10,11 @@ import {
   validateSiteAnnouncementImage,
 } from "@/lib/site-announcement-upload";
 import { enforceHomepageAnnouncementLimit } from "@/lib/site-announcements";
+import {
+  getFormDateFromForm,
+  getFormDatePartsFromForm,
+  hasPartialFormDate,
+} from "@/lib/form-date";
 import { siteAnnouncementSchema } from "@/lib/validations";
 
 function adminListPath(query = "") {
@@ -27,10 +32,19 @@ function parseSiteAnnouncementForm(formData: FormData) {
     };
   }
 
+  const eventDateParts = getFormDatePartsFromForm(formData, "event");
+  const eventDate = getFormDateFromForm(formData, "event") ?? "";
+  if (hasPartialFormDate(eventDateParts) && !eventDate) {
+    return {
+      ok: false as const,
+      message: "Select a complete event date or leave all date fields blank.",
+    };
+  }
+
   const parsed = siteAnnouncementSchema.safeParse({
     title: formData.get("title"),
     body: formData.get("body"),
-    eventDate: formData.get("eventDate") ?? "",
+    eventDate,
     location: formData.get("location") ?? "",
     showOnHomepage,
     published,

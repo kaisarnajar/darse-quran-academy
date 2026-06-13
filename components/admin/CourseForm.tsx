@@ -1,8 +1,7 @@
 import type { Course, Teacher } from "@prisma/client";
+import { DateDropdownFields } from "@/components/form/DateDropdownFields";
 import { getCourseCategoryOptions } from "@/lib/course-categories";
 import {
-  COURSE_START_DATE_DAYS,
-  COURSE_START_DATE_MONTHS,
   getCourseStartDateParts,
   getCourseStartDateYearOptions,
 } from "@/lib/course-start-date";
@@ -63,62 +62,14 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <span className={labelClassName}>Start date</span>
-          <div className="mt-1 grid grid-cols-3 gap-2">
-            <select
-              id="startDay"
-              name="startDay"
-              required
-              defaultValue={startDateParts.day}
-              className={inputClassName}
-              aria-label="Start day"
-            >
-              <option value="" disabled>
-                Day
-              </option>
-              {COURSE_START_DATE_DAYS.map((day) => (
-                <option key={day.value} value={day.value}>
-                  {day.label}
-                </option>
-              ))}
-            </select>
-            <select
-              id="startMonth"
-              name="startMonth"
-              required
-              defaultValue={startDateParts.month}
-              className={inputClassName}
-              aria-label="Start month"
-            >
-              <option value="" disabled>
-                Month
-              </option>
-              {COURSE_START_DATE_MONTHS.map((month) => (
-                <option key={month.value} value={month.value}>
-                  {month.label}
-                </option>
-              ))}
-            </select>
-            <select
-              id="startYear"
-              name="startYear"
-              required
-              defaultValue={startDateParts.year}
-              className={inputClassName}
-              aria-label="Start year"
-            >
-              <option value="" disabled>
-                Year
-              </option>
-              {startDateYears.map((year) => (
-                <option key={year.value} value={year.value}>
-                  {year.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+      <DateDropdownFields
+        namePrefix="start"
+        label="Start date"
+        parts={startDateParts}
+        yearOptions={startDateYears}
+        required
+        className="sm:col-span-2"
+      />
         <div>
           <label htmlFor="category" className={labelClassName}>
             Category

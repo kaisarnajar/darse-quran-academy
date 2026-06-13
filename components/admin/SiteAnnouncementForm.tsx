@@ -1,7 +1,9 @@
 import type { SiteAnnouncement } from "@prisma/client";
+import Image from "next/image";
+import { DateDropdownFields } from "@/components/form/DateDropdownFields";
+import { getFormDateParts, getFormDateYearOptions } from "@/lib/form-date";
 import { inputClassName, labelClassName } from "@/lib/form";
 import { HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT } from "@/lib/site-announcements";
-import Image from "next/image";
 
 type SiteAnnouncementFormProps = {
   action: (formData: FormData) => Promise<void>;
@@ -17,6 +19,10 @@ export function SiteAnnouncementForm({
   error,
 }: SiteAnnouncementFormProps) {
   const hasImage = Boolean(announcement?.imagePath);
+  const eventDateParts = getFormDateParts(announcement?.eventDate);
+  const eventDateYears = getFormDateYearOptions(
+    eventDateParts.year ? Number(eventDateParts.year) : undefined,
+  );
 
   return (
     <form action={action} encType="multipart/form-data" className="mx-auto max-w-2xl space-y-5">
@@ -41,19 +47,12 @@ export function SiteAnnouncementForm({
         />
       </div>
 
-      <div>
-        <label htmlFor="eventDate" className={labelClassName}>
-          Event date (optional)
-        </label>
-        <input
-          id="eventDate"
-          name="eventDate"
-          maxLength={120}
-          defaultValue={announcement?.eventDate ?? ""}
-          placeholder="e.g. Saturday, 15 June 2026"
-          className={inputClassName}
-        />
-      </div>
+      <DateDropdownFields
+        namePrefix="event"
+        label="Event date (optional)"
+        parts={eventDateParts}
+        yearOptions={eventDateYears}
+      />
 
       <div>
         <label htmlFor="location" className={labelClassName}>
