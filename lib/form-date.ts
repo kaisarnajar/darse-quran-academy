@@ -128,19 +128,44 @@ export function formatFormDate(day: string, month: string, year: string): string
   });
 }
 
-export function getFormDatePartsFromForm(formData: FormData, namePrefix: string): FormDateParts {
-  return {
-    day: String(formData.get(`${namePrefix}Day`) ?? "").trim(),
-    month: String(formData.get(`${namePrefix}Month`) ?? "").trim(),
-    year: String(formData.get(`${namePrefix}Year`) ?? "").trim(),
-  };
+/** YYYY-MM-DD for `<input type="date">` from stored or partial date parts. */
+export function formatFormDateInputValue(day: string, month: string, year: string): string {
+  if (!day || !month || !year) {
+    return "";
+  }
+
+  const formatted = formatFormDate(day, month, year);
+  if (!formatted) {
+    return "";
+  }
+
+  return `${year}-${month}-${day}`;
 }
 
-export function getFormDateFromForm(formData: FormData, namePrefix: string): string | null {
-  const parts = getFormDatePartsFromForm(formData, namePrefix);
-  return formatFormDate(parts.day, parts.month, parts.year);
+export function getFormDateInputValue(
+  stored?: string | null,
+  options?: { ongoingValue?: string },
+): string {
+  const parts = getFormDateParts(stored, options);
+  return formatFormDateInputValue(parts.day, parts.month, parts.year);
 }
 
-export function hasPartialFormDate(parts: FormDateParts): boolean {
-  return Boolean(parts.day || parts.month || parts.year);
+/** Convert `<input type="date">` value (YYYY-MM-DD) to stored display format. */
+export function formatInputDateValue(input: string): string | null {
+  const value = input.trim();
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    return null;
+  }
+
+  return formatFormDate(match[3], match[2], match[1]);
+}
+
+export function isValidInputDateValue(input: string): boolean {
+  const value = input.trim();
+  if (!value) {
+    return false;
+  }
+
+  return formatInputDateValue(value) !== null;
 }

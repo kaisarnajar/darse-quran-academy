@@ -1,8 +1,4 @@
-import {
-  formatFormDate,
-  hasPartialFormDate,
-  type FormDateParts,
-} from "@/lib/form-date";
+import { formatInputDateValue } from "@/lib/form-date";
 import { zodResultToFormValidation, type FormValidationResult } from "@/lib/form-validation";
 import {
   blogPostSchema,
@@ -20,28 +16,23 @@ export type SiteAnnouncementFormValues = {
   title: string;
   body: string;
   location: string;
-  eventDay: string;
-  eventMonth: string;
-  eventYear: string;
+  eventDate: string;
   showOnHomepage: boolean;
   published: boolean;
 };
 
 export function validateSiteAnnouncementForm(values: SiteAnnouncementFormValues): FormValidationResult {
-  const eventDateParts: FormDateParts = {
-    day: values.eventDay,
-    month: values.eventMonth,
-    year: values.eventYear,
-  };
-  const eventDate = formatFormDate(values.eventDay, values.eventMonth, values.eventYear) ?? "";
+  const eventDate = values.eventDate.trim()
+    ? formatInputDateValue(values.eventDate.trim()) ?? ""
+    : "";
 
-  if (hasPartialFormDate(eventDateParts) && !eventDate) {
+  if (values.eventDate.trim() && !eventDate) {
     return {
       success: false,
       issues: [
         {
           path: ["eventDate"],
-          message: "Select a complete event date or leave all date fields blank.",
+          message: "Enter a valid event date or leave the field blank.",
         },
       ],
     };
@@ -74,9 +65,7 @@ export function validateSiteAnnouncementForm(values: SiteAnnouncementFormValues)
 export type CourseFormValues = {
   title: string;
   description: string;
-  startDay: string;
-  startMonth: string;
-  startYear: string;
+  startDate: string;
   duration: string;
   category: string;
   teacherId: string;
@@ -87,14 +76,9 @@ export type CourseFormValues = {
 };
 
 export function validateCourseForm(values: CourseFormValues): FormValidationResult {
-  const startDateParts: FormDateParts = {
-    day: values.startDay,
-    month: values.startMonth,
-    year: values.startYear,
-  };
-  const startDate = formatFormDate(values.startDay, values.startMonth, values.startYear) ?? "";
+  const startDate = formatInputDateValue(values.startDate.trim()) ?? "";
 
-  if (hasPartialFormDate(startDateParts) && !startDate) {
+  if (!values.startDate.trim() || !startDate) {
     return {
       success: false,
       issues: [{ path: ["startDate"], message: "Start date is required." }],

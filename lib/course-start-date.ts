@@ -1,18 +1,14 @@
-import {
-  getFormDateFromForm,
-  getFormDateParts,
-  getFormDateYearOptions,
-  type FormDateParts,
-} from "@/lib/form-date";
+import { formatInputDateValue, getFormDateInputValue } from "@/lib/form-date";
 
-export function getCourseStartDateYearOptions(referenceYear = new Date().getFullYear()) {
-  return getFormDateYearOptions(referenceYear);
-}
-
-export function getCourseStartDateParts(stored?: string | null): FormDateParts {
-  return getFormDateParts(stored, { ongoingValue: "ongoing" });
+export function getCourseStartDateInputValue(stored?: string | null): string {
+  return getFormDateInputValue(stored, { ongoingValue: "ongoing" });
 }
 
 export function getCourseStartDateFromForm(formData: FormData): string | null {
-  return getFormDateFromForm(formData, "start");
+  const input = String(formData.get("startDate") ?? "").trim();
+  if (!input) {
+    return null;
+  }
+
+  return formatInputDateValue(input);
 }

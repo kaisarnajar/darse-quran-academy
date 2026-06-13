@@ -3,11 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
-import {
-  getFormDateFromForm,
-  getFormDatePartsFromForm,
-  hasPartialFormDate,
-} from "@/lib/form-date";
+import { formatInputDateValue } from "@/lib/form-date";
 import { prisma } from "@/lib/prisma";
 import { enforceHomepageAnnouncementLimit, resolveAnnouncementFeaturedUpdate } from "@/lib/site-announcements";
 import { siteAnnouncementSchema } from "@/lib/validations";
@@ -27,12 +23,12 @@ function parseSiteAnnouncementForm(formData: FormData) {
     };
   }
 
-  const eventDateParts = getFormDatePartsFromForm(formData, "event");
-  const eventDate = getFormDateFromForm(formData, "event") ?? "";
-  if (hasPartialFormDate(eventDateParts) && !eventDate) {
+  const eventDateInput = String(formData.get("eventDate") ?? "").trim();
+  const eventDate = eventDateInput ? formatInputDateValue(eventDateInput) ?? "" : "";
+  if (eventDateInput && !eventDate) {
     return {
       ok: false as const,
-      message: "Select a complete event date or leave all date fields blank.",
+      message: "Enter a valid event date or leave the field blank.",
     };
   }
 

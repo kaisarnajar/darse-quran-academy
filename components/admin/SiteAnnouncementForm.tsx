@@ -2,12 +2,12 @@
 
 import type { SiteAnnouncement } from "@prisma/client";
 import { useCallback } from "react";
-import { DateDropdownFields } from "@/components/form/DateDropdownFields";
+import { DateInputField } from "@/components/form/DateInputField";
 import {
   type SiteAnnouncementFormValues,
   validateSiteAnnouncementForm,
 } from "@/lib/admin-form-validation";
-import { getFormDateParts, getFormDateYearOptions } from "@/lib/form-date";
+import { getFormDateInputValue } from "@/lib/form-date";
 import { labelClassName } from "@/lib/form";
 import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
 import { HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX } from "@/lib/site-announcements";
@@ -25,18 +25,9 @@ const ANNOUNCEMENT_FIELDS: (keyof SiteAnnouncementFormValues)[] = [
   "title",
   "body",
   "location",
-  "eventDay",
-  "eventMonth",
-  "eventYear",
+  "eventDate",
   "showOnHomepage",
 ];
-
-function dateFieldIssuePath(field: keyof SiteAnnouncementFormValues) {
-  if (field === "eventDay" || field === "eventMonth" || field === "eventYear") {
-    return "eventDate";
-  }
-  return field;
-}
 
 export function SiteAnnouncementForm({
   action,
@@ -45,10 +36,7 @@ export function SiteAnnouncementForm({
   featuredCount,
   error,
 }: SiteAnnouncementFormProps) {
-  const eventDateParts = getFormDateParts(announcement?.eventDate);
-  const eventDateYears = getFormDateYearOptions(
-    eventDateParts.year ? Number(eventDateParts.year) : undefined,
-  );
+  const eventDateInputValue = getFormDateInputValue(announcement?.eventDate);
   const isCurrentlyFeatured = announcement?.showOnHomepage ?? false;
   const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX;
   const canFeatureThisAnnouncement = isCurrentlyFeatured || !featuredSlotsFull;
@@ -64,18 +52,15 @@ export function SiteAnnouncementForm({
       title: announcement?.title ?? "",
       body: announcement?.body ?? "",
       location: announcement?.location ?? "",
-      eventDay: eventDateParts.day,
-      eventMonth: eventDateParts.month,
-      eventYear: eventDateParts.year,
+      eventDate: eventDateInputValue,
       showOnHomepage: announcement?.showOnHomepage ?? false,
       published: announcement?.published ?? true,
     },
     fields: ANNOUNCEMENT_FIELDS,
     validate,
-    issuePathForField: dateFieldIssuePath,
   });
 
-  const eventDateError = showError("eventDay") ? errors.eventDay : undefined;
+  const eventDateError = showError("eventDate") ? errors.eventDate : undefined;
 
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
@@ -108,25 +93,13 @@ export function SiteAnnouncementForm({
         )}
       </div>
 
-      <DateDropdownFields
-        namePrefix="event"
+      <DateInputField
+        id="eventDate"
+        name="eventDate"
         label="Event date (optional)"
-        parts={{
-          day: values.eventDay,
-          month: values.eventMonth,
-          year: values.eventYear,
-        }}
-        yearOptions={eventDateYears}
-        onPartsChange={(parts) => {
-          updateField("eventDay", parts.day);
-          updateField("eventMonth", parts.month);
-          updateField("eventYear", parts.year);
-        }}
-        onBlur={() => {
-          markTouched("eventDay");
-          markTouched("eventMonth");
-          markTouched("eventYear");
-        }}
+        value={values.eventDate}
+        onChange={(value) => updateField("eventDate", value)}
+        onBlur={() => markTouched("eventDate")}
         hasError={Boolean(eventDateError)}
         errorMessage={eventDateError}
         errorId="event-date-error"

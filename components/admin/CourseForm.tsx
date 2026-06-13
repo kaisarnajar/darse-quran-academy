@@ -2,16 +2,13 @@
 
 import type { Course, CourseStatus, Teacher } from "@prisma/client";
 import { useCallback } from "react";
-import { DateDropdownFields } from "@/components/form/DateDropdownFields";
+import { DateInputField } from "@/components/form/DateInputField";
 import {
   type CourseFormValues,
   validateCourseForm,
 } from "@/lib/admin-form-validation";
 import { getCourseCategoryOptions } from "@/lib/course-categories";
-import {
-  getCourseStartDateParts,
-  getCourseStartDateYearOptions,
-} from "@/lib/course-start-date";
+import { getCourseStartDateInputValue } from "@/lib/course-start-date";
 import { HOMEPAGE_FEATURED_COURSES_MAX } from "@/lib/courses";
 import { getCoursePricingFromCourse, getDefaultFeesForLevel } from "@/lib/course-pricing";
 import { COURSE_STATUS_OPTIONS } from "@/lib/course-status";
@@ -30,9 +27,7 @@ type CourseFormProps = {
 const COURSE_FIELDS: (keyof CourseFormValues)[] = [
   "title",
   "description",
-  "startDay",
-  "startMonth",
-  "startYear",
+  "startDate",
   "duration",
   "category",
   "teacherId",
@@ -42,21 +37,11 @@ const COURSE_FIELDS: (keyof CourseFormValues)[] = [
   "status",
 ];
 
-function courseFieldIssuePath(field: keyof CourseFormValues) {
-  if (field === "startDay" || field === "startMonth" || field === "startYear") {
-    return "startDate";
-  }
-  return field;
-}
-
 export function CourseForm({ course, teachers, featuredCount, action, submitLabel }: CourseFormProps) {
   const feeDefaults = course
     ? getCoursePricingFromCourse(course)
     : getDefaultFeesForLevel("Beginner");
-  const startDateParts = getCourseStartDateParts(course?.startDate);
-  const startDateYears = getCourseStartDateYearOptions(
-    startDateParts.year ? Number(startDateParts.year) : undefined,
-  );
+  const startDateInputValue = getCourseStartDateInputValue(course?.startDate);
   const categoryOptions = getCourseCategoryOptions(course?.category);
   const isCurrentlyFeatured = course?.featuredOnHomepage ?? false;
   const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_COURSES_MAX;
@@ -69,9 +54,7 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
     initialValues: {
       title: course?.title ?? "",
       description: course?.description ?? "",
-      startDay: startDateParts.day,
-      startMonth: startDateParts.month,
-      startYear: startDateParts.year,
+      startDate: startDateInputValue,
       duration: course?.duration ?? "",
       category: course?.category ?? "",
       teacherId: course?.teacherId ?? "",
@@ -82,10 +65,9 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
     },
     fields: COURSE_FIELDS,
     validate,
-    issuePathForField: courseFieldIssuePath,
   });
 
-  const startDateError = showError("startDay") ? errors.startDay : undefined;
+  const startDateError = showError("startDate") ? errors.startDate : undefined;
 
   function updateStatus(status: string) {
     updateField("status", status as CourseStatus);
@@ -137,26 +119,14 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <DateDropdownFields
-          namePrefix="start"
+        <DateInputField
+          id="startDate"
+          name="startDate"
           label="Start date"
-          parts={{
-            day: values.startDay,
-            month: values.startMonth,
-            year: values.startYear,
-          }}
-          yearOptions={startDateYears}
+          value={values.startDate}
+          onChange={(value) => updateField("startDate", value)}
+          onBlur={() => markTouched("startDate")}
           required
-          onPartsChange={(parts) => {
-            updateField("startDay", parts.day);
-            updateField("startMonth", parts.month);
-            updateField("startYear", parts.year);
-          }}
-          onBlur={() => {
-            markTouched("startDay");
-            markTouched("startMonth");
-            markTouched("startYear");
-          }}
           hasError={Boolean(startDateError)}
           errorMessage={startDateError}
           errorId="start-date-error"
