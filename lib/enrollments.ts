@@ -56,30 +56,6 @@ export async function isUserEnrolled(userId: string, courseId: string): Promise<
   return enrollment?.status === "active" || enrollment?.status === "completed";
 }
 
-export function getCourseEnrollmentReminder(status: string | null | undefined): string | null {
-  if (!status) return null;
-  switch (status) {
-    case "active":
-      return "You are already enrolled in this course.";
-    case "completed":
-      return "You have already completed this course.";
-    case PENDING_ENROLLMENT_APPROVAL:
-      return "Your enrollment request is awaiting approval by the academy.";
-    case "pending_verification":
-      return "Your enrollment is awaiting verification by the academy.";
-    case "payment_declined":
-      return "Your previous payment was not verified. Please contact the academy.";
-    case "pending":
-      return "Your enrollment is awaiting approval.";
-    default:
-      return "You already have an enrollment request for this course.";
-  }
-}
-
-export function hasCourseEnrollment(status: string | null | undefined): boolean {
-  return Boolean(status);
-}
-
 export function enrollmentStatusLabel(status: string) {
   if (status === PENDING_ENROLLMENT_APPROVAL) return "Awaiting approval";
   if (status === "pending_verification") return "Awaiting verification";

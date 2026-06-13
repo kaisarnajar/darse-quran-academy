@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { getCourseEnrollmentClosedMessage } from "@/lib/course-status";
-import { getCourseEnrollmentReminder, hasCourseEnrollment } from "@/lib/enrollments";
 import { PENDING_ENROLLMENT_APPROVAL } from "@/lib/enrollment-status";
 import { PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 
@@ -18,17 +17,6 @@ type CourseEnrollButtonProps = {
   enrollmentId?: string | null;
   profileComplete?: boolean;
 };
-
-function EnrollmentReminder({ message }: { message: string }) {
-  return (
-    <p
-      className="mb-3 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-center text-sm text-violet-900"
-      role="status"
-    >
-      {message}
-    </p>
-  );
-}
 
 export function CourseEnrollButton({
   courseId,
@@ -43,14 +31,11 @@ export function CourseEnrollButton({
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
 
-  const reminder = getCourseEnrollmentReminder(enrollmentStatus);
-  const showReminder = hasCourseEnrollment(enrollmentStatus) && Boolean(reminder);
   const enrollmentClosedMessage = getCourseEnrollmentClosedMessage(courseStatus);
 
   if (enrollmentStatus === "completed" && enrollmentId) {
     return (
       <div className="mt-4">
-        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
           href="/profile/courses"
           className="flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-4 py-3 text-sm font-medium text-white hover:opacity-90"
@@ -64,7 +49,6 @@ export function CourseEnrollButton({
   if (isEnrolled) {
     return (
       <div className="mt-4">
-        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
           href="/profile/courses"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-primary bg-primary/5 px-4 py-3 text-sm font-medium text-primary"
@@ -78,7 +62,6 @@ export function CourseEnrollButton({
   if (enrollmentStatus === PENDING_ENROLLMENT_APPROVAL) {
     return (
       <div className="mt-4">
-        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
           href="/profile/courses?requested=1"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
@@ -92,7 +75,6 @@ export function CourseEnrollButton({
   if (enrollmentStatus) {
     return (
       <div className="mt-4">
-        {showReminder && reminder && <EnrollmentReminder message={reminder} />}
         <Link
           href="/profile/courses"
           className="flex min-h-11 w-full items-center justify-center rounded-full border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground"
