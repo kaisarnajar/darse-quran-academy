@@ -7,7 +7,6 @@ const links = [
   { href: "/profile", label: "Profile", exact: true },
   { href: "/profile/courses", label: "My Courses" },
   { href: "/profile/payments", label: "Payments" },
-  { href: "/profile/payment-info", label: "Payment info" },
   { href: "/profile/reviews", label: "My reviews" },
 ];
 

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { DownloadReceiptButton } from "@/components/payment/DownloadReceiptButton";
 import { formatPrice, getAllCourses } from "@/lib/courses";
 import { requireUser } from "@/lib/auth-actions";
@@ -27,11 +26,7 @@ export default async function ProfilePaymentsPage({
     <div>
       <h2 className="font-serif text-lg font-semibold text-foreground">Payments</h2>
       <p className="mt-1 text-sm text-muted">
-        Approved monthly fees and your submitted payments awaiting verification.{" "}
-        <Link href="/profile/payment-info" className="font-medium text-primary hover:underline">
-          View UPI & bank details
-        </Link>
-        .
+        Approved monthly fees and your submitted payments awaiting verification.
       </p>
 
       {params.submitted === "1" && (

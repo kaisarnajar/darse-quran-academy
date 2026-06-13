@@ -10,7 +10,6 @@ import { paymentSettingsSchema } from "@/lib/validations";
 function revalidatePaymentSettingsPaths() {
   const paths = [
     "/admin/payment-settings",
-    "/profile/payment-info",
     "/profile/payments",
     "/profile/courses",
   ];
