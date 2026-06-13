@@ -1,12 +1,12 @@
-import { FATWA_CATEGORIES, isFatwaCategory, type FatwaCategory } from "@/lib/fatwa";
+import { FATWA_CATEGORIES } from "@/lib/fatwa";
 
 export const LIBRARY_LANGUAGES = ["English", "Urdu", "Arabic", "Other"] as const;
 
-/** Browse and admin topic categories for digital library resources (aligned with Fatwa categories). */
-export const LIBRARY_TOPICS = FATWA_CATEGORIES;
+/** Browse and admin topic categories for digital library resources. */
+export const LIBRARY_TOPICS = [...FATWA_CATEGORIES, "Qiraat"] as const;
 
 export type LibraryLanguage = (typeof LIBRARY_LANGUAGES)[number];
-export type LibraryTopic = FatwaCategory;
+export type LibraryTopic = (typeof LIBRARY_TOPICS)[number];
 
 export const LIBRARY_LANGUAGE_OPTIONS = LIBRARY_LANGUAGES.map((language) => ({
   value: language,
@@ -23,7 +23,7 @@ export function isLibraryLanguage(value: string): value is LibraryLanguage {
 }
 
 export function isLibraryTopic(value: string): value is LibraryTopic {
-  return isFatwaCategory(value);
+  return (LIBRARY_TOPICS as readonly string[]).includes(value);
 }
 
 export function getLibraryLanguageOptions(current?: string | null) {
