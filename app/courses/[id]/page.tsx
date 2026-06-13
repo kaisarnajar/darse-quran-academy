@@ -7,6 +7,7 @@ import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
 import { CourseStatusPill } from "@/components/courses/CourseStatusPill";
+import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
 import { getPublicCourseById } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
@@ -51,9 +52,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
         <div
           className={`flex h-40 items-center justify-center rounded-lg bg-gradient-to-br ${getCourseBannerClass(course.category)} text-white sm:h-48`}
         >
-          <span className="text-5xl font-bold opacity-30" aria-hidden>
-            {course.category.charAt(0)}
-          </span>
+          <CourseCategoryIcon category={course.category} size="lg" />
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-2">

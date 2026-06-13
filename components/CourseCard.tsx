@@ -3,6 +3,7 @@ import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
 import { CourseStatusPill } from "@/components/courses/CourseStatusPill";
+import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
 import type { CourseWithTeacher } from "@/lib/courses";
 
@@ -30,9 +31,7 @@ export function CourseCard({
         href={detailHref}
         className={`flex h-32 items-center justify-center bg-gradient-to-br ${getCourseBannerClass(course.category)} text-white`}
       >
-        <span className="text-3xl font-bold opacity-30" aria-hidden>
-          {course.category.charAt(0)}
-        </span>
+        <CourseCategoryIcon category={course.category} size="md" />
       </Link>
       <div className="flex flex-col p-5">
         <div className="mb-2 flex flex-wrap items-center gap-2">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
+import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass } from "@/lib/course-display";
 import type { CourseWithTeacher } from "@/lib/courses";
 
@@ -25,9 +26,7 @@ export function FeaturedCourses({ courses }: FeaturedCoursesProps) {
                   href={detailHref}
                   className={`flex h-40 items-center justify-center bg-gradient-to-br ${getCourseBannerClass(course.category)} text-white`}
                 >
-                  <span className="text-4xl font-bold opacity-30" aria-hidden>
-                    {course.category.charAt(0)}
-                  </span>
+                  <CourseCategoryIcon category={course.category} size="lg" />
                 </Link>
                 <div className="p-5">
                   <span className="text-xs font-semibold uppercase tracking-wide text-gold">

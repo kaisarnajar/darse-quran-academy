@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
 import { requireTeacher } from "@/lib/auth-actions";
+import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass } from "@/lib/course-display";
 import { getCoursesForTeacher, teacherDashboardStats } from "@/lib/teacher-portal";
 
@@ -48,9 +49,7 @@ export default async function TeacherDashboardPage() {
                 <div
                   className={`flex h-24 items-center justify-center bg-gradient-to-br ${getCourseBannerClass(course.category)} px-4 text-white`}
                 >
-                  <span className="text-2xl font-bold opacity-40" aria-hidden>
-                    {course.category.charAt(0)}
-                  </span>
+                  <CourseCategoryIcon category={course.category} size="sm" />
                 </div>
                 <div className="p-5">
                   <div className="flex flex-wrap items-center gap-2">

@@ -1,7 +1,14 @@
 export const courseCategoryGradients: Record<string, string> = {
-  Quran: "from-teal-800 to-teal-600",
   Tajweed: "from-amber-800 to-amber-600",
+  Seerah: "from-violet-800 to-violet-600",
   Arabic: "from-slate-700 to-slate-500",
+  Hifz: "from-teal-900 to-cyan-700",
+  Quran: "from-teal-800 to-teal-600",
+  Fiqh: "from-indigo-800 to-indigo-600",
+  Tafsir: "from-blue-800 to-blue-600",
+  Aqeedah: "from-rose-800 to-rose-600",
+  Hadith: "from-orange-800 to-orange-600",
+  Duas: "from-emerald-800 to-emerald-600",
   Islamic: "from-emerald-800 to-emerald-600",
   default: "from-stone-700 to-stone-500",
 };
