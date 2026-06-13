@@ -277,6 +277,11 @@ export function formatProfileDialCode(dialCode: string): string {
   return `+${dialCode}`;
 }
 
+/** PNG flag URL via flagcdn.com — works on Windows where emoji flags render as letters (IN, PK). */
+export function getCountryFlagUrl(code: string, width = 20): string {
+  return `https://flagcdn.com/w${width}/${code.toLowerCase()}.png`;
+}
+
 export function isValidProfileLocalNumber(country: ProfileCountry, localNumber: string): boolean {
   const digits = localNumber.replace(/\D/g, "");
   if (!/^\d+$/.test(digits)) {

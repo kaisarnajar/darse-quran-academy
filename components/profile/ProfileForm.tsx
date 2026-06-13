@@ -3,16 +3,17 @@
 import type { Occupation } from "@prisma/client";
 import { useActionState, useMemo, useState } from "react";
 import { updateProfile, type ProfileUpdateState } from "@/app/profile/actions";
+import { CountryFlag } from "@/components/profile/CountryFlag";
+import { ProfileCountrySelect } from "@/components/profile/ProfileCountrySelect";
 import {
   DEFAULT_PROFILE_COUNTRY_CODE,
-  PROFILE_COUNTRIES,
   formatProfileDialCode,
   getProfileCountryOrDefault,
   parseStoredProfileWhatsApp,
   type ProfileCountryCode,
 } from "@/lib/countries";
-import { OCCUPATION_OPTIONS } from "@/lib/profile";
 import { inputClassName, labelClassName } from "@/lib/form";
+import { OCCUPATION_OPTIONS } from "@/lib/profile";
 import { profileUpdateSchema } from "@/lib/validations";
 
 type ProfileFormProps = {
@@ -274,26 +275,19 @@ export function ProfileForm({
         <label htmlFor="country" className={labelClassName}>
           Country
         </label>
-        <select
+        <ProfileCountrySelect
           id="country"
           name="country"
           required
           value={values.country}
-          onChange={(e) => {
-            updateCountry(e.target.value as ProfileCountryCode);
+          onChange={(code) => {
+            updateCountry(code);
             markTouched("country");
           }}
           onBlur={() => markTouched("country")}
-          aria-invalid={showError("country") || undefined}
-          aria-describedby={showError("country") ? "country-error" : undefined}
-          className={fieldInputClass(showError("country"))}
-        >
-          {PROFILE_COUNTRIES.map((country) => (
-            <option key={country.code} value={country.code}>
-              {country.flag} {country.name}
-            </option>
-          ))}
-        </select>
+          hasError={showError("country")}
+          errorId="country-error"
+        />
         {showError("country") && (
           <p id="country-error" className={errorTextClassName} role="alert">
             {errors.country}
@@ -312,7 +306,7 @@ export function ProfileForm({
             } bg-background`}
             aria-hidden="true"
           >
-            <span className="text-base leading-none">{selectedCountry.flag}</span>
+            <CountryFlag code={selectedCountry.code} size={20} />
             <span className="font-medium text-foreground">
               {formatProfileDialCode(selectedCountry.dialCode)}
             </span>
