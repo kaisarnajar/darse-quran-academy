@@ -1,0 +1,23 @@
+export type AdminNavLink = {
+  href: string;
+  label: string;
+};
+
+/** Admin sidebar links (excluding Dashboard). */
+export const ADMIN_NAV_LINKS: AdminNavLink[] = [
+  { href: "/admin/announcements", label: "Announcements" },
+  { href: "/admin/blogs", label: "Blogs" },
+  { href: "/admin/daily-inspiration", label: "Verse & Hadith" },
+  { href: "/admin/courses", label: "Courses" },
+  { href: "/admin/enrollments", label: "Enrollments" },
+  { href: "/admin/payment-settings", label: "Payment details" },
+  { href: "/admin/social-links", label: "Social links" },
+  { href: "/admin/students", label: "Students" },
+  { href: "/admin/teachers", label: "Teachers" },
+  { href: "/admin/library", label: "Digital Library" },
+  { href: "/admin/fatwa", label: "Fatwa" },
+  { href: "/admin/contact-inquiries", label: "Contact inquiries" },
+  { href: "/admin/blog-approvals", label: "Blog approvals" },
+  { href: "/admin/review-approvals", label: "Review approvals" },
+  { href: "/admin/payment-approvals", label: "Payment approvals" },
+];

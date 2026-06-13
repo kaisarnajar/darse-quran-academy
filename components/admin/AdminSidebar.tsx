@@ -3,25 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/auth/SignOutButton";
+import { ADMIN_NAV_LINKS } from "@/lib/admin-nav";
 
-const links = [
-  { href: "/admin", label: "Dashboard", exact: true },
-  { href: "/admin/announcements", label: "Announcements" },
-  { href: "/admin/blogs", label: "Blogs" },
-  { href: "/admin/daily-inspiration", label: "Verse & Hadith" },
-  { href: "/admin/courses", label: "Courses" },
-  { href: "/admin/enrollments", label: "Enrollments" },
-  { href: "/admin/payment-settings", label: "Payment details" },
-  { href: "/admin/social-links", label: "Social links" },
-  { href: "/admin/students", label: "Students" },
-  { href: "/admin/teachers", label: "Teachers" },
-  { href: "/admin/library", label: "Digital Library" },
-  { href: "/admin/fatwa", label: "Fatwa" },
-  { href: "/admin/contact-inquiries", label: "Contact inquiries" },
-  { href: "/admin/blog-approvals", label: "Blog approvals" },
-  { href: "/admin/review-approvals", label: "Review approvals" },
-  { href: "/admin/payment-approvals", label: "Payment approvals" },
-];
+const links = [{ href: "/admin", label: "Dashboard", exact: true as const }, ...ADMIN_NAV_LINKS];
 
 export function AdminSidebar() {
   const pathname = usePathname();
