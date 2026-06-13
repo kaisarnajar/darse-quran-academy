@@ -59,7 +59,7 @@ export function AdminCourseAnnouncementCard({
           Posted by {authorName} · {formatAnnouncementDate(createdAt)}
         </p>
       </div>
-      <div className="flex items-center gap-4 border-t border-border bg-background/40 px-5 py-3 sm:px-6">
+      <div className="flex items-center justify-end gap-4 border-t border-border bg-background/40 px-5 py-3 sm:px-6">
         <Link
           href={`/admin/courses/${courseId}/announcements/${announcementId}/edit`}
           className="text-sm font-medium text-primary hover:underline"
