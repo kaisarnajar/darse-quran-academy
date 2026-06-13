@@ -42,7 +42,6 @@ export async function createLibraryItem(formData: FormData) {
 
   const data = {
     ...parsed.data,
-    pdfUrl: parsed.data.pdfUrl || null,
     ...featured,
   };
 
@@ -84,7 +83,6 @@ export async function updateLibraryItem(id: string, formData: FormData) {
     where: { id },
     data: {
       ...parsed.data,
-      pdfUrl: parsed.data.pdfUrl || null,
       ...featured,
     },
   });

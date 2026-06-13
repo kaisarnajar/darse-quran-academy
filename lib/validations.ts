@@ -59,7 +59,11 @@ export const libraryItemSchema = z.object({
   topic: libraryTopicEnum,
   level: levelEnum,
   language: libraryLanguageEnum,
-  pdfUrl: z.string().url().optional().or(z.literal("")),
+  pdfUrl: z
+    .string()
+    .trim()
+    .min(1, "PDF URL is required.")
+    .url("Enter a valid PDF URL."),
   published: z.coerce.boolean(),
 });
 

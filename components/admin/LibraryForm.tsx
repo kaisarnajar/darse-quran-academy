@@ -182,12 +182,13 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
       </div>
       <div>
         <label htmlFor="pdfUrl" className={labelClassName}>
-          PDF URL (optional)
+          PDF URL <span className="text-red-600">*</span>
         </label>
         <input
           id="pdfUrl"
           name="pdfUrl"
           type="url"
+          required
           value={values.pdfUrl}
           onChange={(e) => updateField("pdfUrl", e.target.value)}
           onBlur={() => markTouched("pdfUrl")}
