@@ -1,4 +1,5 @@
 import type { LibraryItem as PrismaLibraryItem } from "@prisma/client";
+import { isLibraryTopic } from "@/lib/library-options";
 import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
 import { prisma } from "@/lib/prisma";
 
@@ -6,9 +7,12 @@ export const HOMEPAGE_FEATURED_RESOURCES_MAX = 4;
 
 export type LibraryItem = PrismaLibraryItem;
 
-export async function getPublishedLibraryItems(): Promise<LibraryItem[]> {
+export async function getPublishedLibraryItems(topic?: string): Promise<LibraryItem[]> {
   return prisma.libraryItem.findMany({
-    where: { published: true },
+    where: {
+      published: true,
+      ...(topic && isLibraryTopic(topic) ? { topic } : {}),
+    },
     orderBy: { createdAt: "desc" },
   });
 }
