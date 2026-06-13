@@ -26,14 +26,13 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
         </Link>
       )}
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-xs text-muted">
-          {formatBlogDate(post.createdAt)} · By {authorName}
-        </p>
+        <p className="text-xs text-muted">{formatBlogDate(post.createdAt)}</p>
         <h2 className="mt-2 font-serif text-lg font-semibold text-foreground">
           <Link href={`/blog/${post.id}`} className="hover:text-gold">
             {post.title}
           </Link>
         </h2>
+        <p className="mt-1 text-xs text-muted">By {authorName}</p>
         <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{summary}</p>
         <Link
           href={`/blog/${post.id}`}
