@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  deleteAdminCourseAnnouncement,
-} from "@/app/admin/courses/[id]/announcements/actions";
-import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
-import { DeleteAnnouncementButton } from "@/components/teacher/DeleteAnnouncementButton";
+import { deleteAdminCourseAnnouncement } from "@/app/admin/courses/[id]/announcements/actions";
+import { AdminCourseAnnouncementCard } from "@/components/admin/AdminCourseAnnouncementCard";
 import { requireAdmin } from "@/lib/auth-actions";
 import { getAnnouncementAuthorName, getCourseWideAnnouncementsForCourse } from "@/lib/announcements";
 import { getCourseById } from "@/lib/courses";
@@ -33,29 +30,25 @@ export default async function AdminCourseAnnouncementsPage({
         </p>
         <Link
           href={`/admin/courses/${course.id}/announcements/new`}
-          className="inline-flex shrink-0 items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-light"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-light"
         >
           New announcement
         </Link>
       </div>
 
       {query.posted === "1" && (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Announcement posted successfully.
         </p>
       )}
       {query.saved === "1" && (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-          Announcement updated.
-        </p>
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Announcement updated.</p>
       )}
       {query.deleted === "1" && (
-        <p className="mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-800">
-          Announcement deleted.
-        </p>
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Announcement deleted.</p>
       )}
       {query.error === "notfound" && (
-        <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
           That announcement could not be found.
         </p>
       )}
@@ -65,34 +58,22 @@ export default async function AdminCourseAnnouncementsPage({
           No announcements for this course yet.
         </p>
       ) : (
-        <ul className="mt-8 space-y-4">
+        <ul className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
           {announcements.map((announcement) => (
-            <li key={announcement.id}>
-              <div className="relative">
-                <AnnouncementCard
-                  category={announcement.category}
-                  title={announcement.title}
-                  body={announcement.body}
-                  authorName={getAnnouncementAuthorName(announcement)}
-                  createdAt={announcement.createdAt}
-                  updatedAt={announcement.updatedAt}
-                  attachmentPath={announcement.attachmentPath}
-                  attachmentName={announcement.attachmentName}
-                />
-                <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border pt-3">
-                  <Link
-                    href={`/admin/courses/${course.id}/announcements/${announcement.id}/edit`}
-                    className="text-sm font-medium text-primary hover:underline"
-                  >
-                    Edit
-                  </Link>
-                  <DeleteAnnouncementButton
-                    courseId={course.id}
-                    announcementId={announcement.id}
-                    deleteAction={deleteAdminCourseAnnouncement}
-                  />
-                </div>
-              </div>
+            <li key={announcement.id} className="h-full">
+              <AdminCourseAnnouncementCard
+                courseId={course.id}
+                announcementId={announcement.id}
+                category={announcement.category}
+                title={announcement.title}
+                body={announcement.body}
+                authorName={getAnnouncementAuthorName(announcement)}
+                createdAt={announcement.createdAt}
+                updatedAt={announcement.updatedAt}
+                attachmentPath={announcement.attachmentPath}
+                attachmentName={announcement.attachmentName}
+                deleteAction={deleteAdminCourseAnnouncement}
+              />
             </li>
           ))}
         </ul>
