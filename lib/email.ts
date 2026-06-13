@@ -1,5 +1,11 @@
 import nodemailer from "nodemailer";
 
+export type EmailSendResult = {
+  sent: boolean;
+  skipped?: boolean;
+  error?: string;
+};
+
 export function isEmailConfigured(): boolean {
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
@@ -36,6 +42,47 @@ function createTransport() {
   });
 }
 
+type DeliverMailParams = {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+  preview?: string;
+};
+
+async function deliverMail({
+  to,
+  subject,
+  text,
+  html,
+  preview,
+}: DeliverMailParams): Promise<EmailSendResult> {
+  if (!isEmailConfigured()) {
+    console.info("[email] SMTP not configured. Email would be sent to:", to);
+    console.info("[email] Subject:", subject);
+    if (preview) {
+      console.info("[email] Preview:", preview);
+    }
+    return { sent: false, skipped: true };
+  }
+
+  try {
+    const transport = createTransport();
+    await transport.sendMail({
+      from: getFromAddress(),
+      to,
+      subject,
+      text,
+      html,
+    });
+    return { sent: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to send email.";
+    console.error("[email] Failed to send email to:", to, message);
+    return { sent: false, error: message };
+  }
+}
+
 export type CertificateEmailParams = {
   to: string;
   studentName: string;
@@ -51,7 +98,7 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export async function sendCertificateEmail(params: CertificateEmailParams): Promise<void> {
+export async function sendCertificateEmail(params: CertificateEmailParams): Promise<EmailSendResult> {
   const { to, studentName, courseTitle, certificateUrl } = params;
   const displayName = studentName || "Student";
 
@@ -84,19 +131,12 @@ export async function sendCertificateEmail(params: CertificateEmailParams): Prom
     "</div>",
   ].join("");
 
-  if (!isEmailConfigured()) {
-    console.info("[email] SMTP not configured. Certificate email would be sent to:", to);
-    console.info("[email] Download link:", certificateUrl);
-    return;
-  }
-
-  const transport = createTransport();
-  await transport.sendMail({
-    from: getFromAddress(),
+  return deliverMail({
     to,
     subject,
     text,
     html,
+    preview: certificateUrl,
   });
 }
 
@@ -115,7 +155,7 @@ export type PaymentReceiptEmailParams = {
   receiptUrl: string;
 };
 
-export async function sendPaymentReceiptEmail(params: PaymentReceiptEmailParams): Promise<void> {
+export async function sendPaymentReceiptEmail(params: PaymentReceiptEmailParams): Promise<EmailSendResult> {
   const { to, studentName, courseTitle, description, receiptUrl } = params;
   const displayName = studentName || "Student";
 
@@ -145,19 +185,12 @@ export async function sendPaymentReceiptEmail(params: PaymentReceiptEmailParams)
     "</div>",
   ].join("");
 
-  if (!isEmailConfigured()) {
-    console.info("[email] SMTP not configured. Payment receipt email would be sent to:", to);
-    console.info("[email] Receipt link:", receiptUrl);
-    return;
-  }
-
-  const transport = createTransport();
-  await transport.sendMail({
-    from: getFromAddress(),
+  return deliverMail({
     to,
     subject,
     text,
     html,
+    preview: receiptUrl,
   });
 }
 
@@ -168,7 +201,7 @@ export type PaymentDeclinedEmailParams = {
   paymentUrl: string;
 };
 
-export async function sendPaymentDeclinedEmail(params: PaymentDeclinedEmailParams): Promise<void> {
+export async function sendPaymentDeclinedEmail(params: PaymentDeclinedEmailParams): Promise<EmailSendResult> {
   const { to, studentName, courseTitle, paymentUrl } = params;
   const displayName = studentName || "Student";
 
@@ -203,19 +236,12 @@ export async function sendPaymentDeclinedEmail(params: PaymentDeclinedEmailParam
     "</div>",
   ].join("");
 
-  if (!isEmailConfigured()) {
-    console.info("[email] SMTP not configured. Payment declined email would be sent to:", to);
-    console.info("[email] Resubmit link:", paymentUrl);
-    return;
-  }
-
-  const transport = createTransport();
-  await transport.sendMail({
-    from: getFromAddress(),
+  return deliverMail({
     to,
     subject,
     text,
     html,
+    preview: paymentUrl,
   });
 }
 
@@ -224,7 +250,7 @@ export type PasswordResetEmailParams = {
   resetUrl: string;
 };
 
-export async function sendPasswordResetEmail(params: PasswordResetEmailParams): Promise<void> {
+export async function sendPasswordResetEmail(params: PasswordResetEmailParams): Promise<EmailSendResult> {
   const { to, resetUrl } = params;
 
   const subject = "Reset your password — Darse Quran Academy";
@@ -256,23 +282,16 @@ export async function sendPasswordResetEmail(params: PasswordResetEmailParams): 
     "</div>",
   ].join("");
 
-  if (!isEmailConfigured()) {
-    console.info("[email] SMTP not configured. Password reset email would be sent to:", to);
-    console.info("[email] Reset link:", resetUrl);
-    return;
-  }
-
-  const transport = createTransport();
-  await transport.sendMail({
-    from: getFromAddress(),
+  return deliverMail({
     to,
     subject,
     text,
     html,
+    preview: resetUrl,
   });
 }
 
-export async function sendFatwaAnswerEmail(params: FatwaAnswerEmailParams): Promise<void> {
+export async function sendFatwaAnswerEmail(params: FatwaAnswerEmailParams): Promise<EmailSendResult> {
   const { to, askerName, questionTitle, fatwaUrl } = params;
   const displayName = askerName || "Reader";
 
@@ -301,19 +320,12 @@ export async function sendFatwaAnswerEmail(params: FatwaAnswerEmailParams): Prom
     "</div>",
   ].join("");
 
-  if (!isEmailConfigured()) {
-    console.info("[email] SMTP not configured. Fatwa answer email would be sent to:", to);
-    console.info("[email] Fatwa URL:", fatwaUrl);
-    return;
-  }
-
-  const transport = createTransport();
-  await transport.sendMail({
-    from: getFromAddress(),
+  return deliverMail({
     to,
     subject,
     text,
     html,
+    preview: fatwaUrl,
   });
 }
 
@@ -326,7 +338,7 @@ export type ContactInquiryReplyEmailParams = {
 
 export async function sendContactInquiryReplyEmail(
   params: ContactInquiryReplyEmailParams,
-): Promise<void> {
+): Promise<EmailSendResult> {
   const { to, name, originalMessage, reply } = params;
   const displayName = name || "Reader";
 
@@ -355,18 +367,11 @@ export async function sendContactInquiryReplyEmail(
     "</div>",
   ].join("");
 
-  if (!isEmailConfigured()) {
-    console.info("[email] SMTP not configured. Contact reply email would be sent to:", to);
-    console.info("[email] Reply preview:", reply);
-    return;
-  }
-
-  const transport = createTransport();
-  await transport.sendMail({
-    from: getFromAddress(),
+  return deliverMail({
     to,
     subject,
     text,
     html,
+    preview: reply,
   });
 }

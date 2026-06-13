@@ -56,14 +56,19 @@ export async function answerFatwaQuestion(id: string, formData: FormData) {
   revalidatePath(`/admin/fatwa/${id}`);
 
   const fatwaUrl = getFatwaPublicUrl(id);
-  await sendFatwaAnswerEmail({
+  const emailResult = await sendFatwaAnswerEmail({
     to: existing.askerEmail,
     askerName: existing.askerName,
     questionTitle: existing.title,
     fatwaUrl,
   });
 
-  redirect(`/admin/fatwa/${id}?saved=1`);
+  const savedParams = new URLSearchParams({ saved: "1" });
+  if (!emailResult.sent) {
+    savedParams.set("email", emailResult.skipped ? "skipped" : "failed");
+  }
+
+  redirect(`/admin/fatwa/${id}?${savedParams.toString()}`);
 }
 
 export async function deleteFatwaQuestion(id: string): Promise<{ error?: string }> {

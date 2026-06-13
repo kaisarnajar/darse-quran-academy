@@ -10,7 +10,7 @@ export default async function AdminContactInquiryDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; email?: string }>;
 }) {
   const { id } = await params;
   const query = await searchParams;
@@ -35,7 +35,12 @@ export default async function AdminContactInquiryDetailPage({
 
       {query.saved === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Reply sent. The visitor has been notified by email.
+          Reply saved.
+          {query.email === "failed"
+            ? " The notification email could not be sent — check SMTP settings in your environment."
+            : query.email === "skipped"
+              ? " SMTP is not configured, so no email was sent."
+              : " The visitor has been notified by email."}
         </p>
       )}
 

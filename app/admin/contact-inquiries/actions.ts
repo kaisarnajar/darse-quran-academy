@@ -36,7 +36,7 @@ export async function replyToContactInquiry(id: string, formData: FormData) {
     },
   });
 
-  await sendContactInquiryReplyEmail({
+  const emailResult = await sendContactInquiryReplyEmail({
     to: inquiry.email,
     name: inquiry.name,
     originalMessage: inquiry.message,
@@ -47,7 +47,12 @@ export async function replyToContactInquiry(id: string, formData: FormData) {
   revalidatePath(`/admin/contact-inquiries/${id}`);
   revalidatePath("/admin");
 
-  redirect(`/admin/contact-inquiries/${id}?saved=1`);
+  const savedParams = new URLSearchParams({ saved: "1" });
+  if (!emailResult.sent) {
+    savedParams.set("email", emailResult.skipped ? "skipped" : "failed");
+  }
+
+  redirect(`/admin/contact-inquiries/${id}?${savedParams.toString()}`);
 }
 
 export async function deleteContactInquiryForm(id: string) {
