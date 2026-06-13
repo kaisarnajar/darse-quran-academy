@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ConfirmMonthlyPaymentButton } from "@/components/admin/ConfirmMonthlyPaymentButton";
 import { DeclineMonthlyPaymentButton } from "@/components/admin/DeclineMonthlyPaymentButton";
 import { formatPrice } from "@/lib/courses";
@@ -23,10 +22,11 @@ export function PendingPaymentApprovalsTable({
   }
 
   return (
-    <table className="w-full min-w-[1020px] text-left text-sm">
+    <table className="w-full min-w-[1100px] text-left text-sm">
       <thead className="border-b border-border bg-background/50 text-muted">
         <tr>
-          <th className="px-4 py-3 font-medium">Student</th>
+          <th className="px-4 py-3 font-medium">Name</th>
+          <th className="px-4 py-3 font-medium">Email</th>
           <th className="px-4 py-3 font-medium">Course</th>
           <th className="px-4 py-3 font-medium">Description</th>
           <th className="px-4 py-3 font-medium">Method</th>
@@ -40,10 +40,8 @@ export function PendingPaymentApprovalsTable({
       <tbody className="divide-y divide-border">
         {submissions.map((submission) => (
           <tr key={submission.id}>
-            <td className="px-4 py-3">
-              <p className="font-medium text-foreground">{submission.user.name ?? "—"}</p>
-              <p className="text-xs text-muted">{submission.user.email}</p>
-            </td>
+            <td className="px-4 py-3 font-medium text-foreground">{submission.user.name ?? "—"}</td>
+            <td className="px-4 py-3 text-muted">{submission.user.email}</td>
             <td className="px-4 py-3 text-foreground">
               {courseTitleById.get(submission.courseId) ?? submission.courseId}
             </td>
@@ -86,12 +84,6 @@ export function PendingPaymentApprovalsTable({
               <div className="flex flex-wrap justify-end gap-2">
                 <ConfirmMonthlyPaymentButton submissionId={submission.id} />
                 <DeclineMonthlyPaymentButton submissionId={submission.id} />
-                <Link
-                  href={`/admin/students/${submission.user.id}`}
-                  className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent-muted/50"
-                >
-                  Student profile
-                </Link>
               </div>
             </td>
           </tr>

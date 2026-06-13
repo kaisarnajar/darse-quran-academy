@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { PendingPaymentApprovalsTable } from "@/components/admin/PendingPaymentApprovalsTable";
 import { getAllCourses } from "@/lib/courses";
 import {
@@ -25,13 +24,8 @@ export default async function AdminPaymentApprovalsPage({
       <h1 className="font-serif text-2xl font-bold text-primary">Payment approvals</h1>
       <p className="mt-1 text-sm text-muted">
         Verify enrollment and monthly fee payments submitted by students. Free enrollment requests
-        are managed under{" "}
-        <Link href="/admin/enrollments" className="font-medium text-primary hover:underline">
-          Enrollments
-        </Link>
-        .
+        are managed under Enrollments.
       </p>
-
       {params.confirmed === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
           Payment approved and recorded.
@@ -83,36 +77,6 @@ export default async function AdminPaymentApprovalsPage({
             submissions={pendingMonthlyFees}
             courseTitleById={titleById}
             emptyMessage="No monthly fee payments awaiting verification."
-          />
-        </div>
-      </section>
-
-      <section id="enrollment-fee-receipts" className="mt-10 scroll-mt-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Enrollment fee receipts</h2>
-        <p className="mt-1 text-sm text-muted">
-          Approved enrollment fee payments — generate or upload a PDF receipt and email the student.
-        </p>
-
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
-          <SendReceiptApprovalsTable
-            submissions={approvedEnrollmentFees}
-            courseTitleById={titleById}
-            emptyMessage="No approved enrollment fee payments yet."
-          />
-        </div>
-      </section>
-
-      <section id="monthly-fee-receipts" className="mt-10 scroll-mt-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Monthly fee receipts</h2>
-        <p className="mt-1 text-sm text-muted">
-          Approved monthly fee payments — generate or upload a PDF receipt and email the student.
-        </p>
-
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
-          <SendReceiptApprovalsTable
-            submissions={approvedMonthlyFees}
-            courseTitleById={titleById}
-            emptyMessage="No approved monthly fee payments yet."
           />
         </div>
       </section>
