@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { unfeatureStudentReview } from "@/app/admin/review-approvals/actions";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 

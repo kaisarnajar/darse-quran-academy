@@ -3,7 +3,7 @@
 import { deleteSiteAnnouncement } from "@/app/admin/announcements/actions";
 import { useState } from "react";
 
-export function DeleteSiteAnnouncementButton({ id, title }: { id: string; title: string }) {
+export function DeleteSiteAnnouncementButton({ id }: { id: string; title: string }) {
   const [confirming, setConfirming] = useState(false);
 
   if (!confirming) {

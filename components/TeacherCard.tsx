@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Teacher } from "@/lib/teachers";
 
 type TeacherCardProps = {
@@ -14,9 +15,12 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
       className="card-elevated flex flex-col items-center p-6 text-center transition-transform hover:-translate-y-0.5"
     >
       {teacher.imageUrl ? (
-        <img
+        <Image
           src={teacher.imageUrl}
           alt=""
+          width={80}
+          height={80}
+          unoptimized
           className="h-20 w-20 rounded-xl object-cover ring-2 ring-accent-muted"
         />
       ) : (

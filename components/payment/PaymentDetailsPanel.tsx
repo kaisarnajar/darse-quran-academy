@@ -37,7 +37,7 @@ export async function PaymentDetailsPanel({
             amountPaise: amountPaise!,
             payeeName: settings.upiPayeeName,
             note: paymentNote.slice(0, 80),
-            transactionRef: paymentRef ?? `FEE-${Date.now()}`,
+            transactionRef: paymentRef ?? `FEE-${amountPaise}`,
           })
         : buildUpiVpaUrlFromSettings(settings),
     ));

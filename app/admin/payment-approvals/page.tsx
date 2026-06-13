@@ -8,7 +8,7 @@ import {
   getApprovedMonthlyPaymentsForReceipt,
   getPendingMonthlyPayments,
 } from "@/lib/monthly-payments";
-import { monthlyPaymentStatusLabel, paymentTypeLabel } from "@/lib/monthly-payment-status";
+import { paymentTypeLabel } from "@/lib/monthly-payment-status";
 
 export default async function AdminPaymentApprovalsPage({
   searchParams,

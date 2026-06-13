@@ -4,7 +4,7 @@ import {
   type FormDateParts,
 } from "@/lib/form-date";
 import { formFieldInputClass, formErrorTextClassName } from "@/lib/form-validation";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
 
 type DateDropdownFieldsProps = {
   namePrefix: string;

@@ -18,14 +18,9 @@ const navLinks = [
   { href: "/contact", label: "Contact Us" },
 ];
 
-export function Header() {
-  const pathname = usePathname();
+function HeaderContent({ pathname }: { pathname: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hash, setHash] = useState("");
-
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     const syncHash = () => setHash(window.location.hash);
@@ -134,4 +129,9 @@ export function Header() {
       )}
     </header>
   );
+}
+
+export function Header() {
+  const pathname = usePathname();
+  return <HeaderContent key={pathname} pathname={pathname} />;
 }

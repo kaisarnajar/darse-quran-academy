@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
@@ -32,9 +33,12 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
       <div className="mx-auto mt-6 max-w-2xl">
         <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
           {teacher.imageUrl ? (
-            <img
+            <Image
               src={teacher.imageUrl}
               alt=""
+              width={96}
+              height={96}
+              unoptimized
               className="h-24 w-24 shrink-0 rounded-xl object-cover ring-2 ring-gold/30"
             />
           ) : (

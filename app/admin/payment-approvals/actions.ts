@@ -82,8 +82,6 @@ export async function confirmMonthlyPayment(
     }
   }
 
-  const course = await getCourseById(submission.courseId);
-
   const record = await prisma.paymentRecord.create({
     data: {
       userId: submission.userId,
