@@ -30,10 +30,11 @@ export default async function AdminStudentsPage({
         {students.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No student accounts yet.</p>
         ) : (
-          <table className="w-full min-w-[520px] text-left text-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Student</th>
+                <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Registered</th>
                 <th className="px-4 py-3 font-medium" />
               </tr>
@@ -41,10 +42,8 @@ export default async function AdminStudentsPage({
             <tbody className="divide-y divide-border">
               {students.map((student) => (
                 <tr key={student.id}>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-foreground">{student.name ?? "—"}</p>
-                    <p className="text-xs text-muted">{student.email}</p>
-                  </td>
+                  <td className="px-4 py-3 font-medium text-foreground">{student.name ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted">{student.email}</td>
                   <td className="px-4 py-3 text-muted">
                     {student.createdAt.toLocaleDateString("en-IN", {
                       day: "numeric",
