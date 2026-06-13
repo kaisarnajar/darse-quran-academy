@@ -80,8 +80,8 @@ export function PendingPaymentApprovalsTable({
                 year: "numeric",
               })}
             </td>
-            <td className="px-4 py-3 text-right">
-              <div className="flex flex-wrap justify-end gap-2">
+            <td className="whitespace-nowrap px-4 py-3">
+              <div className="flex items-center justify-end gap-2">
                 <ConfirmMonthlyPaymentButton submissionId={submission.id} />
                 <DeclineMonthlyPaymentButton submissionId={submission.id} />
               </div>
