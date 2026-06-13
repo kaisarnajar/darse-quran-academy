@@ -91,6 +91,17 @@ export async function getCourseById(id: string): Promise<CourseWithTeacher | nul
   });
 }
 
+export async function getPublicCoursesByTeacherId(
+  teacherId: string,
+): Promise<CourseWithTeacher[]> {
+  const courses = await prisma.course.findMany({
+    where: { teacherId },
+    include: courseWithTeacherInclude,
+    orderBy: { createdAt: "desc" },
+  });
+  return courses.filter((c) => isCoursePubliclyVisible(c.status));
+}
+
 export async function getPublicCourseById(id: string): Promise<CourseWithTeacher | null> {
   const course = await getCourseById(id);
   if (!course || !isCoursePubliclyVisible(course.status)) return null;

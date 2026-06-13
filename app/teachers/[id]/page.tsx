@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
+import { getPublicCoursesByTeacherId } from "@/lib/courses";
 import { getPublishedTeacherById } from "@/lib/teachers";
 
 type TeacherPageProps = {
@@ -22,7 +23,10 @@ export async function generateMetadata({ params }: TeacherPageProps): Promise<Me
 
 export default async function TeacherPage({ params }: TeacherPageProps) {
   const { id } = await params;
-  const teacher = await getPublishedTeacherById(id);
+  const [teacher, courses] = await Promise.all([
+    getPublishedTeacherById(id),
+    getPublicCoursesByTeacherId(id),
+  ]);
   if (!teacher) notFound();
 
   return (
@@ -54,14 +58,31 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
           </div>
         </div>
         <p className="mt-8 text-base leading-relaxed text-muted">{teacher.bio}</p>
-        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link href="/courses" className="btn-gold-solid inline-flex justify-center px-8 py-3 text-sm">
-            View courses
-          </Link>
-          <Link href="/teachers" className="btn-gold-outline inline-flex justify-center px-8 py-3 text-sm">
-            All instructors
-          </Link>
-        </div>
+
+        {courses.length > 0 && (
+          <section className="mt-10">
+            <h2 className="font-serif text-lg font-semibold text-foreground">Courses</h2>
+            <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-surface">
+              {courses.map((course) => (
+                <li
+                  key={course.id}
+                  className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="font-medium text-foreground">{course.title}</p>
+                    <p className="mt-0.5 text-sm text-muted">{course.category}</p>
+                  </div>
+                  <Link
+                    href={`/courses/${course.id}`}
+                    className="btn-gold-solid inline-flex shrink-0 justify-center px-6 py-2.5 text-sm"
+                  >
+                    View course
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     </Section>
   );
