@@ -50,7 +50,19 @@ export async function getTeacherEnrollmentInCourse(
   const enrollment = await prisma.enrollment.findFirst({
     where: { id: enrollmentId, courseId },
     include: {
-      user: { select: { id: true, name: true, email: true } },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          fatherName: true,
+          dateOfBirth: true,
+          occupation: true,
+          address: true,
+          whatsapp: true,
+          createdAt: true,
+        },
+      },
     },
   });
   if (!enrollment) return null;
