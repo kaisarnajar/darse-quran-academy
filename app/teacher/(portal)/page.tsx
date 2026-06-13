@@ -43,33 +43,33 @@ export default async function TeacherDashboardPage() {
           No courses are assigned to you yet. Contact the academy admin.
         </p>
       ) : (
-        <ul className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {courses.map((course) => (
             <li key={course.id}>
               <article className="card-elevated overflow-hidden">
                 <div
-                  className={`flex h-24 items-center justify-center bg-gradient-to-br ${getCourseBannerClass(course.category)} px-4 text-white`}
+                  className={`flex h-20 items-center justify-center bg-gradient-to-br ${getCourseBannerClass(course.category)} px-4 text-white`}
                 >
                   <CourseCategoryIcon category={course.category} size="sm" />
                 </div>
-                <div className="p-5">
+                <div className="p-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <CourseStatusBadge status={course.status} />
                     <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-700">
                       {course.level}
                     </span>
                   </div>
-                  <h3 className="mt-3 text-lg font-bold text-foreground">{course.title}</h3>
+                  <h3 className="mt-2 text-base font-bold text-foreground">{course.title}</h3>
                   <p className="mt-1 text-sm text-muted">
                     {course.category} · Starts {course.startDate}
                   </p>
                   <CourseDurationDisplay duration={course.duration} className="mt-1" />
                   <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted">{course.description}</p>
-                  <p className="mt-4 text-sm text-muted">
+                  <p className="mt-3 text-sm text-muted">
                     <span className="font-semibold text-foreground">{course.studentCount}</span>{" "}
                     student{course.studentCount === 1 ? "" : "s"} enrolled
                   </p>
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <div className="mt-3 flex flex-col gap-2">
                     <Link
                       href={`/teacher/courses/${course.id}`}
                       className="btn-gold-solid inline-flex flex-1 items-center justify-center py-2.5 text-xs"
