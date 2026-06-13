@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth-actions";
 import { buildStoredProfileWhatsApp } from "@/lib/countries";
 import { prisma } from "@/lib/prisma";
@@ -47,5 +48,5 @@ export async function updateProfile(
   revalidatePath("/profile/courses");
   revalidatePath("/courses");
 
-  return { success: "Profile updated." };
+  redirect("/courses");
 }
