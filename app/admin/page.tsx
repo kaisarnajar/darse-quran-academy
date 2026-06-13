@@ -34,7 +34,6 @@ export default async function AdminDashboardPage() {
     pendingBlogCount,
     pendingReviewCount,
     pendingPaymentCount,
-    recentEnrollments,
   ] = await Promise.all([
     prisma.siteAnnouncement.count(),
     prisma.blogPost.count(),
@@ -50,12 +49,6 @@ export default async function AdminDashboardPage() {
     getPendingBlogApprovalCount(),
     getPendingStudentReviewCount(),
     getPendingPaymentCount(),
-    prisma.enrollment.findMany({
-      where: { status: "active" },
-      take: 5,
-      orderBy: { createdAt: "desc" },
-      include: { user: { select: { name: true, email: true } } },
-    }),
   ]);
 
   const countByHref = new Map<string, { count: number | null; highlight?: boolean }>([
@@ -107,16 +100,10 @@ export default async function AdminDashboardPage() {
     };
   });
 
-  const courseTitles = await prisma.course.findMany({
-    where: { id: { in: recentEnrollments.map((e) => e.courseId) } },
-    select: { id: true, title: true },
-  });
-  const titleById = new Map(courseTitles.map((c) => [c.id, c.title]));
-
   return (
     <div>
       <h1 className="font-serif text-2xl font-bold text-primary sm:text-3xl">Dashboard</h1>
-      <p className="mt-2 text-sm text-muted">Manage academy content and view enrollment activity.</p>
+      <p className="mt-2 text-sm text-muted">Manage academy content and pending approvals.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
@@ -138,34 +125,6 @@ export default async function AdminDashboardPage() {
           </Link>
         ))}
       </div>
-
-      <section className="mt-10">
-        <h2 className="font-serif text-lg font-semibold text-foreground">Recent enrollments</h2>
-        {recentEnrollments.length === 0 ? (
-          <p className="mt-4 text-sm text-muted">No enrollments yet.</p>
-        ) : (
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-surface">
-            {recentEnrollments.map((enrollment) => (
-              <li
-                key={enrollment.id}
-                className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {titleById.get(enrollment.courseId) ?? enrollment.courseId}
-                  </p>
-                  <p className="text-xs text-muted">
-                    {enrollment.user.name ?? enrollment.user.email}
-                  </p>
-                </div>
-                <p className="text-xs text-muted">
-                  {enrollment.createdAt.toLocaleDateString("en-IN")}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   );
 }
