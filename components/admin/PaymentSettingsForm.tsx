@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback } from "react";
-import { useFormStatus } from "react-dom";
 import {
   type PaymentSettingsFormValues,
   validatePaymentSettingsForm,
@@ -26,20 +25,6 @@ const PAYMENT_FIELDS: (keyof PaymentSettingsFormValues)[] = [
   "bankBranch",
 ];
 
-function SavePaymentSettingsButton({ disabled }: { disabled: boolean }) {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      type="submit"
-      disabled={disabled || pending}
-      className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      {pending ? "Saving…" : "Save payment details"}
-    </button>
-  );
-}
-
 export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormProps) {
   const validate = useCallback(
     (values: PaymentSettingsFormValues) => validatePaymentSettingsForm(values),
@@ -60,24 +45,8 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
     validate,
   });
 
-  function markAllTouched() {
-    for (const field of PAYMENT_FIELDS) {
-      markTouched(field);
-    }
-  }
-
   return (
-    <form
-      action={action}
-      className="mx-auto max-w-2xl space-y-8"
-      onSubmit={(event) => {
-        if (!isValid) {
-          event.preventDefault();
-          markAllTouched();
-        }
-      }}
-      noValidate
-    >
+    <form action={action} className="mx-auto max-w-2xl space-y-8">
       <section className="space-y-4 rounded-lg border border-border bg-background/40 p-5">
         <h2 className="font-serif text-lg font-semibold text-foreground">UPI</h2>
         <p className="text-sm text-muted">
@@ -96,7 +65,6 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             onChange={(e) => updateField("upiId", e.target.value)}
             onBlur={() => markTouched("upiId")}
             placeholder="yourname@bank"
-            aria-invalid={showError("upiId") || undefined}
             className={formFieldInputClass(showError("upiId"))}
           />
           {showError("upiId") && (
@@ -113,6 +81,7 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="upiPayeeName"
             name="upiPayeeName"
             type="text"
+            required
             value={values.upiPayeeName}
             onChange={(e) => updateField("upiPayeeName", e.target.value)}
             onBlur={() => markTouched("upiPayeeName")}
@@ -138,6 +107,7 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="bankAccountName"
             name="bankAccountName"
             type="text"
+            required
             value={values.bankAccountName}
             onChange={(e) => updateField("bankAccountName", e.target.value)}
             onBlur={() => markTouched("bankAccountName")}
@@ -158,6 +128,7 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="bankName"
             name="bankName"
             type="text"
+            required
             value={values.bankName}
             onChange={(e) => updateField("bankName", e.target.value)}
             onBlur={() => markTouched("bankName")}
@@ -178,8 +149,7 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="bankAccountNumber"
             name="bankAccountNumber"
             type="text"
-            inputMode="numeric"
-            autoComplete="off"
+            required
             value={values.bankAccountNumber}
             onChange={(e) => updateField("bankAccountNumber", e.target.value)}
             onBlur={() => markTouched("bankAccountNumber")}
@@ -201,13 +171,12 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
               id="bankIfsc"
               name="bankIfsc"
               type="text"
+              required
               value={values.bankIfsc}
-              onChange={(e) => updateField("bankIfsc", e.target.value.toUpperCase())}
+              onChange={(e) => updateField("bankIfsc", e.target.value)}
               onBlur={() => markTouched("bankIfsc")}
               aria-invalid={showError("bankIfsc") || undefined}
               className={formFieldInputClass(showError("bankIfsc"))}
-              maxLength={11}
-              spellCheck={false}
             />
             {showError("bankIfsc") && (
               <p className={formErrorTextClassName} role="alert">
@@ -226,7 +195,6 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
               value={values.bankBranch}
               onChange={(e) => updateField("bankBranch", e.target.value)}
               onBlur={() => markTouched("bankBranch")}
-              aria-invalid={showError("bankBranch") || undefined}
               className={formFieldInputClass(showError("bankBranch"))}
             />
             {showError("bankBranch") && (
@@ -238,7 +206,13 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
         </div>
       </section>
 
-      <SavePaymentSettingsButton disabled={!isValid} />
+      <button
+        type="submit"
+        disabled={!isValid}
+        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Save payment details
+      </button>
     </form>
   );
 }

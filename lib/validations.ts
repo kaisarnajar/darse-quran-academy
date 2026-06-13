@@ -122,35 +122,15 @@ export const socialLinksSettingsSchema = z.object({
   youtubeUrl: optionalHttpUrl,
 });
 
-export const paymentSettingsSchema = z
-  .object({
-    upiId: z.string().trim().max(120),
-    upiPayeeName: z.string().trim().min(1, "Payee name is required.").max(100),
-    bankAccountName: z.string().trim().min(1, "Account name is required.").max(120),
-    bankName: z.string().trim().min(1, "Bank name is required.").max(120),
-    bankAccountNumber: z
-      .string()
-      .trim()
-      .min(1, "Account number is required.")
-      .max(18, "Account number is too long.")
-      .regex(/^\d+$/, "Account number should contain only digits."),
-    bankIfsc: z
-      .string()
-      .trim()
-      .min(1, "IFSC is required.")
-      .max(11, "IFSC must be 11 characters.")
-      .regex(/^[A-Za-z]{4}0[A-Za-z0-9]{6}$/, "Enter a valid 11-character IFSC code."),
-    bankBranch: z.string().trim().max(200).optional().or(z.literal("")),
-  })
-  .superRefine((data, ctx) => {
-    if (data.upiId && !/^[\w.-]+@[\w.-]+$/.test(data.upiId)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Enter a valid UPI ID (e.g. name@bank).",
-        path: ["upiId"],
-      });
-    }
-  });
+export const paymentSettingsSchema = z.object({
+  upiId: z.string().trim().max(120),
+  upiPayeeName: z.string().trim().min(1, "Payee name is required.").max(100),
+  bankAccountName: z.string().trim().min(1, "Account name is required.").max(120),
+  bankName: z.string().trim().min(1, "Bank name is required.").max(120),
+  bankAccountNumber: z.string().trim().min(1, "Account number is required.").max(40),
+  bankIfsc: z.string().trim().min(1, "IFSC is required.").max(20),
+  bankBranch: z.string().trim().max(200).optional().or(z.literal("")),
+});
 
 export const monthlyPaymentSubmitSchema = z.object({
   courseId: z.string().min(1),

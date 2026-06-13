@@ -29,7 +29,7 @@ export async function updatePaymentSettings(formData: FormData) {
     bankAccountName: formData.get("bankAccountName"),
     bankName: formData.get("bankName"),
     bankAccountNumber: formData.get("bankAccountNumber"),
-    bankIfsc: String(formData.get("bankIfsc") ?? "").trim().toUpperCase(),
+    bankIfsc: formData.get("bankIfsc"),
     bankBranch: (formData.get("bankBranch") as string | null) ?? "",
   });
 
