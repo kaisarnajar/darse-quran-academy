@@ -68,12 +68,13 @@ export default async function AdminFatwaPage({
         {questions.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No questions yet.</p>
         ) : (
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[840px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Subject</th>
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Asker</th>
+                <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Homepage</th>
                 <th className="px-4 py-3 font-medium">Submitted</th>
@@ -85,10 +86,8 @@ export default async function AdminFatwaPage({
                 <tr key={q.id}>
                   <td className="px-4 py-3 font-medium text-foreground">{q.title}</td>
                   <td className="px-4 py-3 text-muted">{q.category}</td>
-                  <td className="px-4 py-3">
-                    <p className="text-foreground">{q.askerName}</p>
-                    <p className="text-xs text-muted">{q.askerEmail}</p>
-                  </td>
+                  <td className="px-4 py-3 font-medium text-foreground">{q.askerName}</td>
+                  <td className="px-4 py-3 text-muted">{q.askerEmail}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusClass(q.answer)}`}
@@ -97,7 +96,7 @@ export default async function AdminFatwaPage({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted">
-                    {q.featuredOnHomepage && q.answer ? "Featured" : "—"}
+                    {q.featuredOnHomepage && q.answer ? "Featured" : "Not featured"}
                   </td>
                   <td className="px-4 py-3 text-muted">
                     {q.createdAt.toLocaleDateString("en-IN", {
