@@ -1,10 +1,16 @@
 "use client";
 
 import type { Teacher } from "@prisma/client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { previewTeacherAccount } from "@/app/admin/teachers/actions";
+import {
+  type TeacherFormValues,
+  validateTeacherForm,
+} from "@/lib/admin-form-validation";
 import { deriveTeacherInitials } from "@/lib/teacher-admin";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type TeacherFormProps = {
   teacher?: Teacher;
@@ -13,12 +19,36 @@ type TeacherFormProps = {
   error?: string;
 };
 
+const TEACHER_FIELDS: (keyof TeacherFormValues)[] = [
+  "email",
+  "specialization",
+  "bio",
+  "initials",
+  "imageUrl",
+];
+
 export function TeacherForm({ teacher, action, submitLabel, error }: TeacherFormProps) {
-  const [email, setEmail] = useState(teacher?.email ?? "");
   const [linkedName, setLinkedName] = useState(teacher?.name ?? "");
   const [lookupError, setLookupError] = useState("");
   const [lookupLoading, setLookupLoading] = useState(false);
-  const [initials, setInitials] = useState(teacher?.initials ?? "");
+
+  const validate = useCallback((values: TeacherFormValues) => validateTeacherForm(values), []);
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      email: teacher?.email ?? "",
+      specialization: teacher?.specialization ?? "",
+      bio: teacher?.bio ?? "",
+      initials: teacher?.initials ?? "",
+      imageUrl: teacher?.imageUrl ?? "",
+      published: teacher?.published ?? true,
+    },
+    fields: TEACHER_FIELDS,
+    validate,
+  });
+
+  const accountVerified = Boolean(values.email.trim() && linkedName && !lookupError);
+  const canSubmit = isValid && accountVerified;
 
   async function runLookup(targetEmail: string) {
     const trimmed = targetEmail.trim();
@@ -35,8 +65,8 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
       if (result.ok) {
         setLinkedName(result.name);
         setLookupError("");
-        if (!initials || !teacher) {
-          setInitials(deriveTeacherInitials(result.name));
+        if (!values.initials || !teacher) {
+          updateField("initials", deriveTeacherInitials(result.name));
         }
       } else {
         setLinkedName("");
@@ -68,15 +98,19 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
             name="email"
             type="email"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onBlur={() => runLookup(email)}
+            value={values.email}
+            onChange={(e) => updateField("email", e.target.value)}
+            onBlur={() => {
+              markTouched("email");
+              runLookup(values.email);
+            }}
+            aria-invalid={showError("email") || undefined}
             placeholder="teacher@example.com"
-            className={`${inputClassName} flex-1`}
+            className={`${formFieldInputClass(showError("email"))} flex-1`}
           />
           <button
             type="button"
-            onClick={() => runLookup(email)}
+            onClick={() => runLookup(values.email)}
             disabled={lookupLoading}
             className="min-h-11 shrink-0 rounded-md border border-border bg-surface px-4 text-sm font-medium text-foreground hover:bg-background disabled:opacity-60"
           >
@@ -87,6 +121,11 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
           The teacher must already have signed up on the site. We use their account name automatically; you
           set specialization and profile details below.
         </p>
+        {showError("email") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.email}
+          </p>
+        )}
         {lookupError && (
           <p className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900" role="alert">
             {lookupError}
@@ -114,10 +153,18 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
           id="specialization"
           name="specialization"
           required
-          defaultValue={teacher?.specialization}
+          value={values.specialization}
+          onChange={(e) => updateField("specialization", e.target.value)}
+          onBlur={() => markTouched("specialization")}
+          aria-invalid={showError("specialization") || undefined}
           placeholder="e.g. Quran & Tajweed"
-          className={inputClassName}
+          className={formFieldInputClass(showError("specialization"))}
         />
+        {showError("specialization") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.specialization}
+          </p>
+        )}
       </div>
 
       <div>
@@ -129,9 +176,17 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
           name="bio"
           required
           rows={4}
-          defaultValue={teacher?.bio}
-          className={inputClassName}
+          value={values.bio}
+          onChange={(e) => updateField("bio", e.target.value)}
+          onBlur={() => markTouched("bio")}
+          aria-invalid={showError("bio") || undefined}
+          className={formFieldInputClass(showError("bio"))}
         />
+        {showError("bio") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.bio}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -143,11 +198,18 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
             id="initials"
             name="initials"
             maxLength={4}
-            value={initials}
-            onChange={(e) => setInitials(e.target.value.toUpperCase())}
+            value={values.initials}
+            onChange={(e) => updateField("initials", e.target.value.toUpperCase())}
+            onBlur={() => markTouched("initials")}
+            aria-invalid={showError("initials") || undefined}
             placeholder="Auto from name"
-            className={inputClassName}
+            className={formFieldInputClass(showError("initials"))}
           />
+          {showError("initials") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.initials}
+            </p>
+          )}
           <p className="mt-1 text-xs text-muted">Leave blank to auto-generate from the account name.</p>
         </div>
         <div>
@@ -158,10 +220,18 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
             id="imageUrl"
             name="imageUrl"
             type="url"
-            defaultValue={teacher?.imageUrl ?? ""}
+            value={values.imageUrl}
+            onChange={(e) => updateField("imageUrl", e.target.value)}
+            onBlur={() => markTouched("imageUrl")}
+            aria-invalid={showError("imageUrl") || undefined}
             placeholder="https://..."
-            className={inputClassName}
+            className={formFieldInputClass(showError("imageUrl"))}
           />
+          {showError("imageUrl") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.imageUrl}
+            </p>
+          )}
         </div>
       </div>
 
@@ -169,7 +239,8 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
         <input
           type="checkbox"
           name="published"
-          defaultChecked={teacher?.published ?? true}
+          checked={values.published}
+          onChange={(e) => updateField("published", e.target.checked)}
           className="h-4 w-4 rounded border-border"
         />
         Published on public Teachers page
@@ -183,7 +254,7 @@ export function TeacherForm({ teacher, action, submitLabel, error }: TeacherForm
 
       <button
         type="submit"
-        disabled={Boolean(lookupError) || (email.trim().length > 0 && !linkedName)}
+        disabled={!canSubmit}
         className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitLabel}

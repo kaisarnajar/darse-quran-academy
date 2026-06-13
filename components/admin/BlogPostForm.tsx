@@ -1,8 +1,17 @@
+"use client";
+
 import type { BlogImage } from "@prisma/client";
 import Image from "next/image";
+import { useCallback } from "react";
+import {
+  type BlogPostFormValues,
+  validateBlogPostForm,
+} from "@/lib/admin-form-validation";
 import { HOMEPAGE_FEATURED_BLOGS_MAX } from "@/lib/blogs";
-import { MAX_BLOG_IMAGES } from "@/lib/blog-upload";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { MAX_BLOG_IMAGES } from "@/lib/blog-limits";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type BlogPostFormPost = {
   title: string;
@@ -19,9 +28,10 @@ type BlogPostFormProps = {
   post?: BlogPostFormPost;
   featuredCount?: number;
   error?: string;
-  /** Teachers submit for admin approval; publish checkbox is hidden. */
   mode?: "admin" | "teacher";
 };
+
+const BLOG_FIELDS: (keyof BlogPostFormValues)[] = ["title", "excerpt", "body"];
 
 export function BlogPostForm({
   action,
@@ -38,6 +48,22 @@ export function BlogPostForm({
   const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_BLOGS_MAX;
   const canFeatureThisPost = isCurrentlyFeatured || !featuredSlotsFull;
   const displayedFeaturedCount = Math.min(featuredCount, HOMEPAGE_FEATURED_BLOGS_MAX);
+
+  const validate = useCallback(
+    (values: BlogPostFormValues) => validateBlogPostForm(values, mode),
+    [mode],
+  );
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      title: post?.title ?? "",
+      excerpt: post?.excerpt ?? "",
+      body: post?.body ?? "",
+      published: post?.published ?? false,
+    },
+    fields: BLOG_FIELDS,
+    validate,
+  });
 
   return (
     <form action={action} encType="multipart/form-data" className="mx-auto max-w-2xl space-y-5">
@@ -56,10 +82,18 @@ export function BlogPostForm({
           name="title"
           required
           maxLength={200}
-          defaultValue={post?.title ?? ""}
+          value={values.title}
+          onChange={(e) => updateField("title", e.target.value)}
+          onBlur={() => markTouched("title")}
+          aria-invalid={showError("title") || undefined}
           placeholder="e.g. Tips for memorizing Quran with tajweed"
-          className={inputClassName}
+          className={formFieldInputClass(showError("title"))}
         />
+        {showError("title") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.title}
+          </p>
+        )}
       </div>
 
       <div>
@@ -71,10 +105,18 @@ export function BlogPostForm({
           name="excerpt"
           rows={2}
           maxLength={400}
-          defaultValue={post?.excerpt ?? ""}
+          value={values.excerpt}
+          onChange={(e) => updateField("excerpt", e.target.value)}
+          onBlur={() => markTouched("excerpt")}
+          aria-invalid={showError("excerpt") || undefined}
           placeholder="A brief line shown on the blog listing page…"
-          className={inputClassName}
+          className={formFieldInputClass(showError("excerpt"))}
         />
+        {showError("excerpt") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.excerpt}
+          </p>
+        )}
       </div>
 
       <div>
@@ -86,10 +128,18 @@ export function BlogPostForm({
           name="body"
           required
           rows={14}
-          defaultValue={post?.body ?? ""}
+          value={values.body}
+          onChange={(e) => updateField("body", e.target.value)}
+          onBlur={() => markTouched("body")}
+          aria-invalid={showError("body") || undefined}
           placeholder="Write your article here. You can add screenshots below."
-          className={inputClassName}
+          className={formFieldInputClass(showError("body"))}
         />
+        {showError("body") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.body}
+          </p>
+        )}
       </div>
 
       {post && post.images.length > 0 && (
@@ -156,7 +206,8 @@ export function BlogPostForm({
             <input
               type="checkbox"
               name="published"
-              defaultChecked={post?.published ?? false}
+              checked={values.published}
+              onChange={(e) => updateField("published", e.target.checked)}
               className="mt-1 rounded border-border"
             />
             <span>
@@ -197,7 +248,8 @@ export function BlogPostForm({
 
       <button
         type="submit"
-        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light"
+        disabled={!isValid}
+        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitLabel}
       </button>

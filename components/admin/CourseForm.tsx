@@ -1,5 +1,12 @@
-import type { Course, Teacher } from "@prisma/client";
+"use client";
+
+import type { Course, CourseStatus, Teacher } from "@prisma/client";
+import { useCallback } from "react";
 import { DateDropdownFields } from "@/components/form/DateDropdownFields";
+import {
+  type CourseFormValues,
+  validateCourseForm,
+} from "@/lib/admin-form-validation";
 import { getCourseCategoryOptions } from "@/lib/course-categories";
 import {
   getCourseStartDateParts,
@@ -8,7 +15,9 @@ import {
 import { HOMEPAGE_FEATURED_COURSES_MAX } from "@/lib/courses";
 import { getCoursePricingFromCourse, getDefaultFeesForLevel } from "@/lib/course-pricing";
 import { COURSE_STATUS_OPTIONS } from "@/lib/course-status";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type CourseFormProps = {
   course?: Course;
@@ -17,6 +26,27 @@ type CourseFormProps = {
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
 };
+
+const COURSE_FIELDS: (keyof CourseFormValues)[] = [
+  "title",
+  "description",
+  "startDay",
+  "startMonth",
+  "startYear",
+  "category",
+  "teacherId",
+  "level",
+  "enrollmentFeeInr",
+  "monthlyFeeInr",
+  "status",
+];
+
+function courseFieldIssuePath(field: keyof CourseFormValues) {
+  if (field === "startDay" || field === "startMonth" || field === "startYear") {
+    return "startDate";
+  }
+  return field;
+}
 
 export function CourseForm({ course, teachers, featuredCount, action, submitLabel }: CourseFormProps) {
   const feeDefaults = course
@@ -32,6 +62,33 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
   const canFeatureThisCourse = isCurrentlyFeatured || !featuredSlotsFull;
   const displayedFeaturedCount = Math.min(featuredCount, HOMEPAGE_FEATURED_COURSES_MAX);
 
+  const validate = useCallback((values: CourseFormValues) => validateCourseForm(values), []);
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      title: course?.title ?? "",
+      description: course?.description ?? "",
+      startDay: startDateParts.day,
+      startMonth: startDateParts.month,
+      startYear: startDateParts.year,
+      category: course?.category ?? "",
+      teacherId: course?.teacherId ?? "",
+      level: (course?.level ?? "Beginner") as CourseFormValues["level"],
+      enrollmentFeeInr: String(feeDefaults.registrationFeeInr),
+      monthlyFeeInr: String(feeDefaults.monthlyFeeInr),
+      status: course?.status ?? "PUBLISHED",
+    },
+    fields: COURSE_FIELDS,
+    validate,
+    issuePathForField: courseFieldIssuePath,
+  });
+
+  const startDateError = showError("startDay") ? errors.startDay : undefined;
+
+  function updateStatus(status: string) {
+    updateField("status", status as CourseStatus);
+  }
+
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
       <div>
@@ -42,9 +99,17 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
           id="title"
           name="title"
           required
-          defaultValue={course?.title}
-          className={inputClassName}
+          value={values.title}
+          onChange={(e) => updateField("title", e.target.value)}
+          onBlur={() => markTouched("title")}
+          aria-invalid={showError("title") || undefined}
+          className={formFieldInputClass(showError("title"))}
         />
+        {showError("title") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.title}
+          </p>
+        )}
       </div>
 
       <div>
@@ -56,20 +121,45 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
           name="description"
           required
           rows={4}
-          defaultValue={course?.description}
-          className={inputClassName}
+          value={values.description}
+          onChange={(e) => updateField("description", e.target.value)}
+          onBlur={() => markTouched("description")}
+          aria-invalid={showError("description") || undefined}
+          className={formFieldInputClass(showError("description"))}
         />
+        {showError("description") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.description}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-      <DateDropdownFields
-        namePrefix="start"
-        label="Start date"
-        parts={startDateParts}
-        yearOptions={startDateYears}
-        required
-        className="sm:col-span-2"
-      />
+        <DateDropdownFields
+          namePrefix="start"
+          label="Start date"
+          parts={{
+            day: values.startDay,
+            month: values.startMonth,
+            year: values.startYear,
+          }}
+          yearOptions={startDateYears}
+          required
+          onPartsChange={(parts) => {
+            updateField("startDay", parts.day);
+            updateField("startMonth", parts.month);
+            updateField("startYear", parts.year);
+          }}
+          onBlur={() => {
+            markTouched("startDay");
+            markTouched("startMonth");
+            markTouched("startYear");
+          }}
+          hasError={Boolean(startDateError)}
+          errorMessage={startDateError}
+          errorId="start-date-error"
+          className="sm:col-span-2"
+        />
         <div>
           <label htmlFor="category" className={labelClassName}>
             Category
@@ -78,8 +168,14 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
             id="category"
             name="category"
             required
-            defaultValue={course?.category ?? ""}
-            className={inputClassName}
+            value={values.category}
+            onChange={(e) => {
+              updateField("category", e.target.value);
+              markTouched("category");
+            }}
+            onBlur={() => markTouched("category")}
+            aria-invalid={showError("category") || undefined}
+            className={formFieldInputClass(showError("category"))}
           >
             <option value="" disabled>
               Select a category
@@ -90,6 +186,11 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
               </option>
             ))}
           </select>
+          {showError("category") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.category}
+            </p>
+          )}
         </div>
       </div>
 
@@ -101,8 +202,14 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
           id="teacherId"
           name="teacherId"
           required
-          defaultValue={course?.teacherId ?? ""}
-          className={inputClassName}
+          value={values.teacherId}
+          onChange={(e) => {
+            updateField("teacherId", e.target.value);
+            markTouched("teacherId");
+          }}
+          onBlur={() => markTouched("teacherId")}
+          aria-invalid={showError("teacherId") || undefined}
+          className={formFieldInputClass(showError("teacherId"))}
         >
           <option value="" disabled>
             Select a teacher
@@ -113,6 +220,11 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
             </option>
           ))}
         </select>
+        {showError("teacherId") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.teacherId}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -120,7 +232,15 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
           <label htmlFor="level" className={labelClassName}>
             Level
           </label>
-          <select id="level" name="level" defaultValue={course?.level ?? "Beginner"} className={inputClassName}>
+          <select
+            id="level"
+            name="level"
+            value={values.level}
+            onChange={(e) =>
+              updateField("level", e.target.value as CourseFormValues["level"])
+            }
+            className={formFieldInputClass(false)}
+          >
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
             <option value="Advanced">Advanced</option>
@@ -129,7 +249,7 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
         </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 rounded-lg border border-border bg-background/50 p-4">
+      <div className="grid gap-5 rounded-lg border border-border bg-background/50 p-4 sm:grid-cols-2">
         <div>
           <label htmlFor="enrollmentFeeInr" className={labelClassName}>
             Enrollment fee (₹)
@@ -141,9 +261,17 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
             min={0}
             step={1}
             required
-            defaultValue={feeDefaults.registrationFeeInr}
-            className={inputClassName}
+            value={values.enrollmentFeeInr}
+            onChange={(e) => updateField("enrollmentFeeInr", e.target.value)}
+            onBlur={() => markTouched("enrollmentFeeInr")}
+            aria-invalid={showError("enrollmentFeeInr") || undefined}
+            className={formFieldInputClass(showError("enrollmentFeeInr"))}
           />
+          {showError("enrollmentFeeInr") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.enrollmentFeeInr}
+            </p>
+          )}
           <p className="mt-1 text-xs text-muted">Use 0 for free enrollment (student requests access).</p>
         </div>
         <div>
@@ -157,9 +285,17 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
             min={0}
             step={1}
             required
-            defaultValue={feeDefaults.monthlyFeeInr}
-            className={inputClassName}
+            value={values.monthlyFeeInr}
+            onChange={(e) => updateField("monthlyFeeInr", e.target.value)}
+            onBlur={() => markTouched("monthlyFeeInr")}
+            aria-invalid={showError("monthlyFeeInr") || undefined}
+            className={formFieldInputClass(showError("monthlyFeeInr"))}
           />
+          {showError("monthlyFeeInr") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.monthlyFeeInr}
+            </p>
+          )}
           <p className="mt-1 text-xs text-muted">Paid monthly from the student profile after enrollment.</p>
         </div>
       </div>
@@ -172,8 +308,13 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
           id="status"
           name="status"
           required
-          defaultValue={course?.status ?? "PUBLISHED"}
-          className={inputClassName}
+          value={values.status}
+          onChange={(e) => {
+            updateStatus(e.target.value);
+            markTouched("status");
+          }}
+          onBlur={() => markTouched("status")}
+          className={formFieldInputClass(showError("status"))}
         >
           {COURSE_STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value} title={option.description}>
@@ -222,7 +363,8 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
 
       <button
         type="submit"
-        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light"
+        disabled={!isValid}
+        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitLabel}
       </button>

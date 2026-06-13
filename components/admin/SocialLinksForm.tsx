@@ -1,14 +1,50 @@
+"use client";
+
+import { useCallback } from "react";
+import {
+  type SocialLinksFormValues,
+  validateSocialLinksForm,
+} from "@/lib/admin-form-validation";
 import type { SocialLinksSettingsData } from "@/lib/social-links";
 import { formatWhatsAppForDisplay } from "@/lib/social-links";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type SocialLinksFormProps = {
   settings: SocialLinksSettingsData;
   action: (formData: FormData) => Promise<void>;
 };
 
+const SOCIAL_FIELDS: (keyof SocialLinksFormValues)[] = [
+  "contactEmail",
+  "whatsappNumber",
+  "whatsappDefaultMessage",
+  "facebookUrl",
+  "instagramUrl",
+  "youtubeUrl",
+];
+
 export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
   const whatsappPreview = formatWhatsAppForDisplay(settings.whatsappNumber);
+
+  const validate = useCallback(
+    (values: SocialLinksFormValues) => validateSocialLinksForm(values),
+    [],
+  );
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      contactEmail: settings.contactEmail,
+      whatsappNumber: whatsappPreview || settings.whatsappNumber,
+      whatsappDefaultMessage: settings.whatsappDefaultMessage,
+      facebookUrl: settings.facebookUrl,
+      instagramUrl: settings.instagramUrl,
+      youtubeUrl: settings.youtubeUrl,
+    },
+    fields: SOCIAL_FIELDS,
+    validate,
+  });
 
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-8">
@@ -26,10 +62,18 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
             name="contactEmail"
             type="email"
             required
+            value={values.contactEmail}
+            onChange={(e) => updateField("contactEmail", e.target.value)}
+            onBlur={() => markTouched("contactEmail")}
+            aria-invalid={showError("contactEmail") || undefined}
             placeholder="info@darsequranacademy.org"
-            defaultValue={settings.contactEmail}
-            className={inputClassName}
+            className={formFieldInputClass(showError("contactEmail"))}
           />
+          {showError("contactEmail") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.contactEmail}
+            </p>
+          )}
         </div>
       </section>
 
@@ -48,10 +92,18 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
             name="whatsappNumber"
             type="tel"
             required
+            value={values.whatsappNumber}
+            onChange={(e) => updateField("whatsappNumber", e.target.value)}
+            onBlur={() => markTouched("whatsappNumber")}
+            aria-invalid={showError("whatsappNumber") || undefined}
             placeholder="+91 70060 25120"
-            defaultValue={whatsappPreview || settings.whatsappNumber}
-            className={inputClassName}
+            className={formFieldInputClass(showError("whatsappNumber"))}
           />
+          {showError("whatsappNumber") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.whatsappNumber}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="whatsappDefaultMessage" className={labelClassName}>
@@ -61,9 +113,17 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
             id="whatsappDefaultMessage"
             name="whatsappDefaultMessage"
             rows={3}
-            defaultValue={settings.whatsappDefaultMessage}
-            className={inputClassName}
+            value={values.whatsappDefaultMessage}
+            onChange={(e) => updateField("whatsappDefaultMessage", e.target.value)}
+            onBlur={() => markTouched("whatsappDefaultMessage")}
+            aria-invalid={showError("whatsappDefaultMessage") || undefined}
+            className={formFieldInputClass(showError("whatsappDefaultMessage"))}
           />
+          {showError("whatsappDefaultMessage") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.whatsappDefaultMessage}
+            </p>
+          )}
           <p className="mt-1.5 text-xs text-muted">Pre-filled when someone opens WhatsApp from the site.</p>
         </div>
       </section>
@@ -81,10 +141,18 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
             id="facebookUrl"
             name="facebookUrl"
             type="url"
+            value={values.facebookUrl}
+            onChange={(e) => updateField("facebookUrl", e.target.value)}
+            onBlur={() => markTouched("facebookUrl")}
+            aria-invalid={showError("facebookUrl") || undefined}
             placeholder="https://facebook.com/yourpage"
-            defaultValue={settings.facebookUrl}
-            className={inputClassName}
+            className={formFieldInputClass(showError("facebookUrl"))}
           />
+          {showError("facebookUrl") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.facebookUrl}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="instagramUrl" className={labelClassName}>
@@ -94,10 +162,18 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
             id="instagramUrl"
             name="instagramUrl"
             type="url"
+            value={values.instagramUrl}
+            onChange={(e) => updateField("instagramUrl", e.target.value)}
+            onBlur={() => markTouched("instagramUrl")}
+            aria-invalid={showError("instagramUrl") || undefined}
             placeholder="https://instagram.com/yourpage"
-            defaultValue={settings.instagramUrl}
-            className={inputClassName}
+            className={formFieldInputClass(showError("instagramUrl"))}
           />
+          {showError("instagramUrl") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.instagramUrl}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="youtubeUrl" className={labelClassName}>
@@ -107,16 +183,25 @@ export function SocialLinksForm({ settings, action }: SocialLinksFormProps) {
             id="youtubeUrl"
             name="youtubeUrl"
             type="url"
+            value={values.youtubeUrl}
+            onChange={(e) => updateField("youtubeUrl", e.target.value)}
+            onBlur={() => markTouched("youtubeUrl")}
+            aria-invalid={showError("youtubeUrl") || undefined}
             placeholder="https://youtube.com/@yourchannel"
-            defaultValue={settings.youtubeUrl}
-            className={inputClassName}
+            className={formFieldInputClass(showError("youtubeUrl"))}
           />
+          {showError("youtubeUrl") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.youtubeUrl}
+            </p>
+          )}
         </div>
       </section>
 
       <button
         type="submit"
-        className="min-h-11 rounded-md bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light"
+        disabled={!isValid}
+        className="min-h-11 rounded-md bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
         Save social links
       </button>

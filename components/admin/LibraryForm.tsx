@@ -1,7 +1,16 @@
+"use client";
+
 import type { LibraryItem } from "@prisma/client";
+import { useCallback } from "react";
+import {
+  type LibraryFormValues,
+  validateLibraryForm,
+} from "@/lib/admin-form-validation";
 import { HOMEPAGE_FEATURED_RESOURCES_MAX } from "@/lib/library";
 import { getLibraryLanguageOptions, getLibraryTopicOptions } from "@/lib/library-options";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type LibraryFormProps = {
   item?: LibraryItem;
@@ -9,6 +18,15 @@ type LibraryFormProps = {
   action: (formData: FormData) => Promise<void>;
   submitLabel: string;
 };
+
+const LIBRARY_FIELDS: (keyof LibraryFormValues)[] = [
+  "title",
+  "author",
+  "topic",
+  "level",
+  "language",
+  "pdfUrl",
+];
 
 export function LibraryForm({ item, featuredCount, action, submitLabel }: LibraryFormProps) {
   const isCurrentlyFeatured = item?.featuredOnHomepage ?? false;
@@ -18,20 +36,64 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
   const topicOptions = getLibraryTopicOptions(item?.topic);
   const languageOptions = getLibraryLanguageOptions(item?.language);
 
+  const validate = useCallback((values: LibraryFormValues) => validateLibraryForm(values), []);
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      title: item?.title ?? "",
+      author: item?.author ?? "",
+      topic: item?.topic ?? "",
+      level: (item?.level ?? "Beginner") as LibraryFormValues["level"],
+      language: item?.language ?? "",
+      pdfUrl: item?.pdfUrl ?? "",
+      published: item?.published ?? true,
+    },
+    fields: LIBRARY_FIELDS,
+    validate,
+  });
+
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
       <div>
         <label htmlFor="title" className={labelClassName}>
           Title
         </label>
-        <input id="title" name="title" required defaultValue={item?.title} className={inputClassName} />
+        <input
+          id="title"
+          name="title"
+          required
+          value={values.title}
+          onChange={(e) => updateField("title", e.target.value)}
+          onBlur={() => markTouched("title")}
+          aria-invalid={showError("title") || undefined}
+          className={formFieldInputClass(showError("title"))}
+        />
+        {showError("title") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.title}
+          </p>
+        )}
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="author" className={labelClassName}>
             Author
           </label>
-          <input id="author" name="author" required defaultValue={item?.author} className={inputClassName} />
+          <input
+            id="author"
+            name="author"
+            required
+            value={values.author}
+            onChange={(e) => updateField("author", e.target.value)}
+            onBlur={() => markTouched("author")}
+            aria-invalid={showError("author") || undefined}
+            className={formFieldInputClass(showError("author"))}
+          />
+          {showError("author") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.author}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="topic" className={labelClassName}>
@@ -41,8 +103,14 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
             id="topic"
             name="topic"
             required
-            defaultValue={item?.topic ?? ""}
-            className={inputClassName}
+            value={values.topic}
+            onChange={(e) => {
+              updateField("topic", e.target.value);
+              markTouched("topic");
+            }}
+            onBlur={() => markTouched("topic")}
+            aria-invalid={showError("topic") || undefined}
+            className={formFieldInputClass(showError("topic"))}
           >
             <option value="" disabled>
               Select…
@@ -53,6 +121,11 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
               </option>
             ))}
           </select>
+          {showError("topic") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.topic}
+            </p>
+          )}
         </div>
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
@@ -60,7 +133,15 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
           <label htmlFor="level" className={labelClassName}>
             Level
           </label>
-          <select id="level" name="level" defaultValue={item?.level ?? "Beginner"} className={inputClassName}>
+          <select
+            id="level"
+            name="level"
+            value={values.level}
+            onChange={(e) =>
+              updateField("level", e.target.value as LibraryFormValues["level"])
+            }
+            className={formFieldInputClass(false)}
+          >
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
             <option value="Advanced">Advanced</option>
@@ -74,8 +155,14 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
             id="language"
             name="language"
             required
-            defaultValue={item?.language ?? ""}
-            className={inputClassName}
+            value={values.language}
+            onChange={(e) => {
+              updateField("language", e.target.value);
+              markTouched("language");
+            }}
+            onBlur={() => markTouched("language")}
+            aria-invalid={showError("language") || undefined}
+            className={formFieldInputClass(showError("language"))}
           >
             <option value="" disabled>
               Select…
@@ -86,6 +173,11 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
               </option>
             ))}
           </select>
+          {showError("language") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.language}
+            </p>
+          )}
         </div>
       </div>
       <div>
@@ -96,17 +188,26 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
           id="pdfUrl"
           name="pdfUrl"
           type="url"
-          defaultValue={item?.pdfUrl ?? ""}
+          value={values.pdfUrl}
+          onChange={(e) => updateField("pdfUrl", e.target.value)}
+          onBlur={() => markTouched("pdfUrl")}
+          aria-invalid={showError("pdfUrl") || undefined}
           placeholder="https://..."
-          className={inputClassName}
+          className={formFieldInputClass(showError("pdfUrl"))}
         />
+        {showError("pdfUrl") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.pdfUrl}
+          </p>
+        )}
       </div>
       <div className="space-y-3 rounded-lg border border-border bg-background/40 px-4 py-4">
         <label className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
           <input
             type="checkbox"
             name="published"
-            defaultChecked={item?.published ?? true}
+            checked={values.published}
+            onChange={(e) => updateField("published", e.target.checked)}
             className="mt-1 rounded border-border"
           />
           <span>
@@ -150,7 +251,8 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
       )}
       <button
         type="submit"
-        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light"
+        disabled={!isValid}
+        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitLabel}
       </button>

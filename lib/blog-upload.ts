@@ -1,8 +1,8 @@
 import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
+import { MAX_BLOG_IMAGE_BYTES } from "@/lib/blog-limits";
 
-export const MAX_BLOG_IMAGES = 10;
-export const MAX_BLOG_IMAGE_BYTES = 5 * 1024 * 1024;
+export { MAX_BLOG_IMAGES, MAX_BLOG_IMAGE_BYTES } from "@/lib/blog-limits";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 

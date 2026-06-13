@@ -1,12 +1,50 @@
+"use client";
+
+import { useCallback } from "react";
+import {
+  type PaymentSettingsFormValues,
+  validatePaymentSettingsForm,
+} from "@/lib/admin-form-validation";
 import type { PaymentSettingsData } from "@/lib/payment-settings";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type PaymentSettingsFormProps = {
   settings: PaymentSettingsData;
   action: (formData: FormData) => Promise<void>;
 };
 
+const PAYMENT_FIELDS: (keyof PaymentSettingsFormValues)[] = [
+  "upiId",
+  "upiPayeeName",
+  "bankAccountName",
+  "bankName",
+  "bankAccountNumber",
+  "bankIfsc",
+  "bankBranch",
+];
+
 export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormProps) {
+  const validate = useCallback(
+    (values: PaymentSettingsFormValues) => validatePaymentSettingsForm(values),
+    [],
+  );
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      upiId: settings.upiId,
+      upiPayeeName: settings.upiPayeeName,
+      bankAccountName: settings.bankAccountName,
+      bankName: settings.bankName,
+      bankAccountNumber: settings.bankAccountNumber,
+      bankIfsc: settings.bankIfsc,
+      bankBranch: settings.bankBranch,
+    },
+    fields: PAYMENT_FIELDS,
+    validate,
+  });
+
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-8">
       <section className="space-y-4 rounded-lg border border-border bg-background/40 p-5">
@@ -23,10 +61,17 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             id="upiId"
             name="upiId"
             type="text"
+            value={values.upiId}
+            onChange={(e) => updateField("upiId", e.target.value)}
+            onBlur={() => markTouched("upiId")}
             placeholder="yourname@bank"
-            defaultValue={settings.upiId}
-            className={inputClassName}
+            className={formFieldInputClass(showError("upiId"))}
           />
+          {showError("upiId") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.upiId}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="upiPayeeName" className={labelClassName}>
@@ -37,9 +82,17 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             name="upiPayeeName"
             type="text"
             required
-            defaultValue={settings.upiPayeeName}
-            className={inputClassName}
+            value={values.upiPayeeName}
+            onChange={(e) => updateField("upiPayeeName", e.target.value)}
+            onBlur={() => markTouched("upiPayeeName")}
+            aria-invalid={showError("upiPayeeName") || undefined}
+            className={formFieldInputClass(showError("upiPayeeName"))}
           />
+          {showError("upiPayeeName") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.upiPayeeName}
+            </p>
+          )}
         </div>
       </section>
 
@@ -55,9 +108,17 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             name="bankAccountName"
             type="text"
             required
-            defaultValue={settings.bankAccountName}
-            className={inputClassName}
+            value={values.bankAccountName}
+            onChange={(e) => updateField("bankAccountName", e.target.value)}
+            onBlur={() => markTouched("bankAccountName")}
+            aria-invalid={showError("bankAccountName") || undefined}
+            className={formFieldInputClass(showError("bankAccountName"))}
           />
+          {showError("bankAccountName") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.bankAccountName}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="bankName" className={labelClassName}>
@@ -68,9 +129,17 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             name="bankName"
             type="text"
             required
-            defaultValue={settings.bankName}
-            className={inputClassName}
+            value={values.bankName}
+            onChange={(e) => updateField("bankName", e.target.value)}
+            onBlur={() => markTouched("bankName")}
+            aria-invalid={showError("bankName") || undefined}
+            className={formFieldInputClass(showError("bankName"))}
           />
+          {showError("bankName") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.bankName}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="bankAccountNumber" className={labelClassName}>
@@ -81,9 +150,17 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
             name="bankAccountNumber"
             type="text"
             required
-            defaultValue={settings.bankAccountNumber}
-            className={inputClassName}
+            value={values.bankAccountNumber}
+            onChange={(e) => updateField("bankAccountNumber", e.target.value)}
+            onBlur={() => markTouched("bankAccountNumber")}
+            aria-invalid={showError("bankAccountNumber") || undefined}
+            className={formFieldInputClass(showError("bankAccountNumber"))}
           />
+          {showError("bankAccountNumber") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.bankAccountNumber}
+            </p>
+          )}
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
@@ -95,9 +172,17 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
               name="bankIfsc"
               type="text"
               required
-              defaultValue={settings.bankIfsc}
-              className={inputClassName}
+              value={values.bankIfsc}
+              onChange={(e) => updateField("bankIfsc", e.target.value)}
+              onBlur={() => markTouched("bankIfsc")}
+              aria-invalid={showError("bankIfsc") || undefined}
+              className={formFieldInputClass(showError("bankIfsc"))}
             />
+            {showError("bankIfsc") && (
+              <p className={formErrorTextClassName} role="alert">
+                {errors.bankIfsc}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="bankBranch" className={labelClassName}>
@@ -107,16 +192,24 @@ export function PaymentSettingsForm({ settings, action }: PaymentSettingsFormPro
               id="bankBranch"
               name="bankBranch"
               type="text"
-              defaultValue={settings.bankBranch}
-              className={inputClassName}
+              value={values.bankBranch}
+              onChange={(e) => updateField("bankBranch", e.target.value)}
+              onBlur={() => markTouched("bankBranch")}
+              className={formFieldInputClass(showError("bankBranch"))}
             />
+            {showError("bankBranch") && (
+              <p className={formErrorTextClassName} role="alert">
+                {errors.bankBranch}
+              </p>
+            )}
           </div>
         </div>
       </section>
 
       <button
         type="submit"
-        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light"
+        disabled={!isValid}
+        className="min-h-11 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60"
       >
         Save payment details
       </button>

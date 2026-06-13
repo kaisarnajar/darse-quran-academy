@@ -3,6 +3,7 @@ import {
   FORM_DATE_MONTHS,
   type FormDateParts,
 } from "@/lib/form-date";
+import { formFieldInputClass, formErrorTextClassName } from "@/lib/form-validation";
 import { inputClassName, labelClassName } from "@/lib/form";
 
 type DateDropdownFieldsProps = {
@@ -12,6 +13,11 @@ type DateDropdownFieldsProps = {
   yearOptions: { value: string; label: string }[];
   required?: boolean;
   className?: string;
+  onPartsChange?: (parts: FormDateParts) => void;
+  onBlur?: () => void;
+  hasError?: boolean;
+  errorMessage?: string;
+  errorId?: string;
 };
 
 export function DateDropdownFields({
@@ -21,10 +27,20 @@ export function DateDropdownFields({
   yearOptions,
   required = false,
   className = "",
+  onPartsChange,
+  onBlur,
+  hasError = false,
+  errorMessage,
+  errorId,
 }: DateDropdownFieldsProps) {
   const dayName = `${namePrefix}Day`;
   const monthName = `${namePrefix}Month`;
   const yearName = `${namePrefix}Year`;
+  const selectClass = formFieldInputClass(hasError);
+
+  function updatePart(key: keyof FormDateParts, value: string) {
+    onPartsChange?.({ ...parts, [key]: value });
+  }
 
   return (
     <div className={className}>
@@ -34,9 +50,13 @@ export function DateDropdownFields({
           id={dayName}
           name={dayName}
           required={required}
-          defaultValue={parts.day}
-          className={inputClassName}
+          value={parts.day}
+          onChange={(e) => updatePart("day", e.target.value)}
+          onBlur={onBlur}
+          className={selectClass}
           aria-label={`${label} day`}
+          aria-invalid={hasError || undefined}
+          aria-describedby={hasError && errorId ? errorId : undefined}
         >
           <option value="">Day</option>
           {FORM_DATE_DAYS.map((day) => (
@@ -49,9 +69,12 @@ export function DateDropdownFields({
           id={monthName}
           name={monthName}
           required={required}
-          defaultValue={parts.month}
-          className={inputClassName}
+          value={parts.month}
+          onChange={(e) => updatePart("month", e.target.value)}
+          onBlur={onBlur}
+          className={selectClass}
           aria-label={`${label} month`}
+          aria-invalid={hasError || undefined}
         >
           <option value="">Month</option>
           {FORM_DATE_MONTHS.map((month) => (
@@ -64,9 +87,12 @@ export function DateDropdownFields({
           id={yearName}
           name={yearName}
           required={required}
-          defaultValue={parts.year}
-          className={inputClassName}
+          value={parts.year}
+          onChange={(e) => updatePart("year", e.target.value)}
+          onBlur={onBlur}
+          className={selectClass}
           aria-label={`${label} year`}
+          aria-invalid={hasError || undefined}
         >
           <option value="">Year</option>
           {yearOptions.map((year) => (
@@ -76,6 +102,11 @@ export function DateDropdownFields({
           ))}
         </select>
       </div>
+      {hasError && errorMessage && (
+        <p id={errorId} className={formErrorTextClassName} role="alert">
+          {errorMessage}
+        </p>
+      )}
     </div>
   );
 }
