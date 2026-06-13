@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateBlogPost } from "@/app/admin/blogs/actions";
 import { BlogPostForm } from "@/components/admin/BlogPostForm";
-import { DeleteBlogPostButton } from "@/components/admin/DeleteBlogPostButton";
 import { getBlogPostForAdmin, getFeaturedHomepageBlogCount } from "@/lib/blogs";
 
 export default async function EditBlogPostPage({
@@ -25,10 +24,7 @@ export default async function EditBlogPostPage({
       <Link href="/admin/blogs" className="text-sm text-primary hover:underline">
         ← Back to blogs
       </Link>
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <h1 className="font-serif text-2xl font-bold text-primary">Edit blog post</h1>
-        <DeleteBlogPostButton id={post.id} title={post.title} />
-      </div>
+      <h1 className="mt-4 font-serif text-2xl font-bold text-primary">Edit blog post</h1>
 
       {query.saved === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
