@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SignOutButton } from "@/components/auth/SignOutButton";
 import { ADMIN_NAV_LINKS } from "@/lib/admin-nav";
 
 const links = [{ href: "/admin", label: "Dashboard", exact: true as const }, ...ADMIN_NAV_LINKS];
@@ -37,9 +36,6 @@ export function AdminSidebar() {
         >
           ← Back to site
         </Link>
-        <SignOutButton className="mt-1 w-full rounded-md px-3 py-2 text-left text-sm font-medium text-muted hover:bg-accent-muted/50">
-          Sign out
-        </SignOutButton>
       </nav>
     </aside>
   );
