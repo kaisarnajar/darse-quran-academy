@@ -1,7 +1,16 @@
+"use client";
+
 import type { AnnouncementCategory, CourseAnnouncement } from "@prisma/client";
 import Link from "next/link";
+import { useCallback } from "react";
+import {
+  type CourseAnnouncementFormValues,
+  validateCourseAnnouncementForm,
+} from "@/lib/admin-form-validation";
 import { ANNOUNCEMENT_CATEGORIES, announcementCategoryLabels } from "@/lib/announcements";
-import { inputClassName, labelClassName } from "@/lib/form";
+import { labelClassName } from "@/lib/form";
+import { formErrorTextClassName, formFieldInputClass } from "@/lib/form-validation";
+import { useZodForm } from "@/lib/use-zod-form";
 
 type AnnouncementFormProps = {
   action: (formData: FormData) => Promise<void>;
@@ -15,6 +24,8 @@ type AnnouncementFormProps = {
   error?: string;
 };
 
+const ANNOUNCEMENT_FIELDS: (keyof CourseAnnouncementFormValues)[] = ["category", "title", "body"];
+
 export function AnnouncementForm({
   action,
   submitLabel,
@@ -24,6 +35,21 @@ export function AnnouncementForm({
   error,
 }: AnnouncementFormProps) {
   const hasAttachment = Boolean(announcement?.attachmentPath && announcement?.attachmentName);
+
+  const validate = useCallback(
+    (values: CourseAnnouncementFormValues) => validateCourseAnnouncementForm(values),
+    [],
+  );
+
+  const { values, updateField, markTouched, showError, errors, isValid } = useZodForm({
+    initialValues: {
+      category: (announcement?.category ?? defaultCategory) as AnnouncementCategory,
+      title: announcement?.title ?? "",
+      body: announcement?.body ?? "",
+    },
+    fields: ANNOUNCEMENT_FIELDS,
+    validate,
+  });
 
   return (
     <form action={action} encType="multipart/form-data" className="mx-auto max-w-2xl space-y-5">
@@ -41,15 +67,23 @@ export function AnnouncementForm({
           id="category"
           name="category"
           required
-          defaultValue={announcement?.category ?? defaultCategory}
-          className={inputClassName}
+          value={values.category}
+          onChange={(e) => updateField("category", e.target.value as AnnouncementCategory)}
+          onBlur={() => markTouched("category")}
+          aria-invalid={showError("category") || undefined}
+          className={formFieldInputClass(showError("category"))}
         >
           {ANNOUNCEMENT_CATEGORIES.map((value) => (
             <option key={value} value={value}>
-              {announcementCategoryLabels[value as AnnouncementCategory]}
+              {announcementCategoryLabels[value]}
             </option>
           ))}
         </select>
+        {showError("category") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.category}
+          </p>
+        )}
       </div>
 
       <div>
@@ -61,10 +95,18 @@ export function AnnouncementForm({
           name="title"
           required
           maxLength={200}
-          defaultValue={announcement?.title ?? ""}
+          value={values.title}
+          onChange={(e) => updateField("title", e.target.value)}
+          onBlur={() => markTouched("title")}
+          aria-invalid={showError("title") || undefined}
           placeholder="e.g. Mid-term exam schedule"
-          className={inputClassName}
+          className={formFieldInputClass(showError("title"))}
         />
+        {showError("title") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.title}
+          </p>
+        )}
       </div>
 
       <div>
@@ -76,10 +118,18 @@ export function AnnouncementForm({
           name="body"
           required
           rows={8}
-          defaultValue={announcement?.body ?? ""}
+          value={values.body}
+          onChange={(e) => updateField("body", e.target.value)}
+          onBlur={() => markTouched("body")}
+          aria-invalid={showError("body") || undefined}
           placeholder="Write the full announcement for your students…"
-          className={inputClassName}
+          className={formFieldInputClass(showError("body"))}
         />
+        {showError("body") && (
+          <p className={formErrorTextClassName} role="alert">
+            {errors.body}
+          </p>
+        )}
         <p className="mt-1.5 text-xs text-muted">
           {audienceHint ?? "Students enrolled in this course will see this announcement."}
         </p>
@@ -120,7 +170,8 @@ export function AnnouncementForm({
 
       <button
         type="submit"
-        className="min-h-11 w-full rounded-full bg-teal px-4 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 sm:w-auto sm:px-8"
+        disabled={!isValid}
+        className="min-h-11 w-full rounded-full bg-teal px-4 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8"
       >
         {submitLabel}
       </button>

@@ -2,6 +2,7 @@ import { formatInputDateValue } from "@/lib/form-date";
 import { zodResultToFormValidation, type FormValidationResult } from "@/lib/form-validation";
 import {
   blogPostSchema,
+  courseAnnouncementSchema,
   courseSchema,
   dailyInspirationSchema,
   libraryItemSchema,
@@ -11,6 +12,7 @@ import {
   teacherAdminSchema,
   teacherBlogPostSchema,
 } from "@/lib/validations";
+import type { AnnouncementCategory } from "@prisma/client";
 
 export type SiteAnnouncementFormValues = {
   title: string;
@@ -97,6 +99,24 @@ export function validateCourseForm(values: CourseFormValues): FormValidationResu
       monthlyFeeInr: values.monthlyFeeInr,
       teacherId: values.teacherId,
       status: values.status,
+    }),
+  );
+}
+
+export type CourseAnnouncementFormValues = {
+  category: AnnouncementCategory;
+  title: string;
+  body: string;
+};
+
+export function validateCourseAnnouncementForm(
+  values: CourseAnnouncementFormValues,
+): FormValidationResult {
+  return zodResultToFormValidation(
+    courseAnnouncementSchema.safeParse({
+      category: values.category,
+      title: values.title,
+      body: values.body,
     }),
   );
 }
