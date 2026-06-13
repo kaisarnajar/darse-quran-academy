@@ -7,7 +7,7 @@ import { CourseDurationDisplay } from "@/components/courses/CourseDurationDispla
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
-import { CourseStatusPill } from "@/components/courses/CourseStatusPill";
+import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
 import { getPublicCourseById } from "@/lib/courses";
@@ -68,7 +68,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${levelClass}`}>
             {course.level}
           </span>
-          <CourseStatusPill status={course.status} />
+          <CourseStatusBadge status={course.status} />
         </div>
 
         <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">{course.title}</h1>
@@ -91,7 +91,6 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
         <div className="mt-8">
           <CourseEnrollButton
             courseId={course.id}
-            level={course.level}
             courseStatus={course.status}
             isEnrolled={enrollment?.status === "active" || enrollment?.status === "completed"}
             enrollmentStatus={enrollment?.status ?? null}

@@ -13,7 +13,6 @@ import { PROFILE_COMPLETE_REDIRECT } from "@/lib/profile";
 
 type CourseEnrollButtonProps = {
   courseId: string;
-  level: string;
   courseStatus: CourseStatus;
   isEnrolled?: boolean;
   enrollmentStatus?: string | null;

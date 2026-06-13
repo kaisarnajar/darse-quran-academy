@@ -4,9 +4,6 @@ import { prisma } from "@/lib/prisma";
 /** Maximum announcements featured on the homepage. */
 export const HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX = 4;
 
-/** @deprecated Use {@link HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX}. */
-export const HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT = HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX;
-
 export type SiteAnnouncementPublic = SiteAnnouncement & {
   createdBy: { name: string | null } | null;
 };

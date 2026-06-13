@@ -3,7 +3,7 @@ import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
 import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
-import { CourseStatusPill } from "@/components/courses/CourseStatusPill";
+import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass, getCourseLevelClass } from "@/lib/course-display";
 import type { CourseWithTeacher } from "@/lib/courses";
@@ -44,7 +44,7 @@ export function CourseCard({
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${levelClass}`}>
             {course.level}
           </span>
-          <CourseStatusPill status={course.status} />
+          <CourseStatusBadge status={course.status} />
         </div>
         <h3 className="text-lg font-bold text-foreground">
           <Link href={detailHref} className="hover:text-gold">
@@ -64,7 +64,6 @@ export function CourseCard({
         </Link>
         <CourseEnrollButton
           courseId={course.id}
-          level={course.level}
           courseStatus={course.status}
           isEnrolled={isEnrolled}
           enrollmentStatus={enrollmentStatus}

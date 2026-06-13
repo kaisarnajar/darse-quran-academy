@@ -3,7 +3,7 @@ import { CourseCard } from "@/components/CourseCard";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
-import { getPublishedCourses } from "@/lib/courses";
+import { getPublicCourses } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
 import { getPendingEnrollmentFeeSubmissionMap } from "@/lib/monthly-payments";
 import { isUserProfileComplete } from "@/lib/profile";
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function CoursesPage() {
   const session = await auth();
-  const courses = await getPublishedCourses();
+  const courses = await getPublicCourses();
   const enrollmentMap = session?.user?.id
     ? await getUserCourseEnrollmentMap(session.user.id)
     : new Map();

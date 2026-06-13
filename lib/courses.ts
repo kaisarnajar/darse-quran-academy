@@ -96,17 +96,3 @@ export async function getPublicCourseById(id: string): Promise<CourseWithTeacher
   if (!course || !isCoursePubliclyVisible(course.status)) return null;
   return course;
 }
-
-export async function getCoursesByStatus(status: CourseStatus): Promise<CourseWithTeacher[]> {
-  return prisma.course.findMany({
-    where: { status },
-    include: courseWithTeacherInclude,
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-/** @deprecated Use getPublicCourses */
-export const getPublishedCourses = getPublicCourses;
-
-/** @deprecated Use getPublicCourseById */
-export const getPublishedCourseById = getPublicCourseById;

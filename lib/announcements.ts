@@ -103,11 +103,6 @@ export async function getAnnouncementsVisibleToStudent(userId: string, courseId:
   return { courseWide, personal };
 }
 
-/** @deprecated Use getCourseWideAnnouncementsForCourse for teacher/admin course lists. */
-export async function getAnnouncementsForCourse(courseId: string) {
-  return getCourseWideAnnouncementsForCourse(courseId);
-}
-
 export async function getAnnouncementForCourse(
   courseId: string,
   announcementId: string,

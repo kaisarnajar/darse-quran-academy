@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
+import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { requireTeacher } from "@/lib/auth-actions";
 import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";

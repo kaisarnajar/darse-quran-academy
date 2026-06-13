@@ -1,6 +1,6 @@
 import { sendPaymentReceiptEmail } from "@/lib/email";
 import { deleteUploadedReceipt } from "@/lib/receipt-upload";
-import { formatReceiptId, getReceiptDownloadUrl } from "@/lib/payment-receipt";
+import { getReceiptDownloadUrl } from "@/lib/payment-receipt";
 import { getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 
@@ -54,5 +54,3 @@ export async function sendReceiptEmailForPayment(
 export function isPaymentReceiptAvailable(record: { id: string }): boolean {
   return Boolean(record.id);
 }
-
-export { formatReceiptId };

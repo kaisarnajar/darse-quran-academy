@@ -45,11 +45,6 @@ export function getCoursePricingFromCourse(course: CourseFeeSource): CoursePrici
   };
 }
 
-/** @deprecated Use getCoursePricingFromCourse */
-export function getCoursePricing(level: string): CoursePricing {
-  return getDefaultFeesForLevel(level);
-}
-
 export function getRegistrationFeePaise(course: CourseFeeSource): number {
   return course.priceInrPaise;
 }

@@ -9,7 +9,6 @@ import { profileUpdateSchema } from "@/lib/validations";
 
 export type ProfileUpdateState = {
   error?: string;
-  success?: string;
 };
 
 export async function updateProfile(

@@ -3,11 +3,11 @@ import { SiteAnnouncementCard } from "@/components/announcements/SiteAnnouncemen
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
 import {
   getHomepageSiteAnnouncements,
-  HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
+  HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX,
 } from "@/lib/site-announcements";
 
 export async function HomeAnnouncements() {
-  const announcements = await getHomepageSiteAnnouncements(HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT);
+  const announcements = await getHomepageSiteAnnouncements(HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX);
 
   if (announcements.length === 0) {
     return null;

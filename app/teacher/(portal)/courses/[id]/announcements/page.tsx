@@ -6,7 +6,7 @@ import { requireTeacher } from "@/lib/auth-actions";
 import {
   canTeacherManageCourseAnnouncement,
   getAnnouncementAuthorName,
-  getAnnouncementsForCourse,
+  getCourseWideAnnouncementsForCourse,
 } from "@/lib/announcements";
 import { getTeacherCourseForPortal } from "@/lib/teacher-portal";
 
@@ -24,7 +24,7 @@ export default async function TeacherCourseAnnouncementsPage({
 
   if (!course) notFound();
 
-  const announcements = await getAnnouncementsForCourse(course.id);
+  const announcements = await getCourseWideAnnouncementsForCourse(course.id);
 
   return (
     <div>

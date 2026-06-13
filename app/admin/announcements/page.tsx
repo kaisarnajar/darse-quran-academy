@@ -3,7 +3,7 @@ import { DeleteSiteAnnouncementButton } from "@/components/admin/DeleteSiteAnnou
 import { ToggleHomepageAnnouncementButton } from "@/components/admin/ToggleHomepageAnnouncementButton";
 import {
   getAllSiteAnnouncementsForAdmin,
-  HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT,
+  HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX,
 } from "@/lib/site-announcements";
 
 function statusBadge(published: boolean, showOnHomepage: boolean) {
@@ -27,7 +27,7 @@ export default async function AdminAnnouncementsPage({
           <h1 className="font-serif text-2xl font-bold text-primary">Announcements</h1>
           <p className="mt-1 text-sm text-muted">
             Academy-wide news — events, scholar visits, masjid programs, and more. Up to{" "}
-            {HOMEPAGE_SITE_ANNOUNCEMENT_LIMIT} published items can be featured on the homepage; all
+            {HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX} published items can be featured on the homepage; all
             published items appear on the public Announcements page.
           </p>
         </div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
+import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { TeacherCourseNav } from "@/components/teacher/TeacherCourseNav";
 import { requireTeacher } from "@/lib/auth-actions";

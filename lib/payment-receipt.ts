@@ -50,11 +50,6 @@ export function formatInvoiceNumber(paymentRecordId: string): string {
   return `INV${String(num).padStart(5, "0")}`;
 }
 
-/** @deprecated Alias for invoice number on receipts. */
-export function formatReceiptId(paymentRecordId: string): string {
-  return formatInvoiceNumber(paymentRecordId);
-}
-
 function formatPriceForPdf(paise: number): string {
   const inr = paise / 100;
   return `Rs. ${inr.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

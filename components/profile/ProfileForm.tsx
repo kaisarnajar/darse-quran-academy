@@ -137,9 +137,6 @@ export function ProfileForm({
           {state.error}
         </p>
       )}
-      {state.success && (
-        <p className="rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">{state.success}</p>
-      )}
 
       <div>
         <label htmlFor="name" className={labelClassName}>

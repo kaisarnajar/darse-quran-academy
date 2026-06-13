@@ -74,13 +74,6 @@ export async function sendCertificateEmailForEnrollment(
   return {};
 }
 
-/** @deprecated Use markEnrollmentComplete — completion no longer sends email automatically. */
-export async function markEnrollmentCompleteAndNotify(enrollmentId: string): Promise<{ error?: string }> {
-  const result = await markEnrollmentComplete(enrollmentId);
-  if (result.error) return result;
-  return sendCertificateEmailForEnrollment(enrollmentId, { useGeneratedCertificate: true });
-}
-
 export async function markAllActiveStudentsComplete(courseId: string): Promise<{
   completed: number;
   errors: string[];

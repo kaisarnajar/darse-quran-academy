@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminCourseNav } from "@/components/admin/AdminCourseNav";
-import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
+import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { requireAdmin } from "@/lib/auth-actions";
 import { getCourseById } from "@/lib/courses";
 

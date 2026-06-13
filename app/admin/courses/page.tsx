@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
+import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { getCoursePricingFromCourse } from "@/lib/course-pricing";
 import { getAllCourses } from "@/lib/courses";
 import { getEnrollmentCountsByCourse } from "@/lib/enrollments";

@@ -6,7 +6,7 @@ import {
 import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
 import { DeleteAnnouncementButton } from "@/components/teacher/DeleteAnnouncementButton";
 import { requireAdmin } from "@/lib/auth-actions";
-import { getAnnouncementAuthorName, getAnnouncementsForCourse } from "@/lib/announcements";
+import { getAnnouncementAuthorName, getCourseWideAnnouncementsForCourse } from "@/lib/announcements";
 import { getCourseById } from "@/lib/courses";
 
 export default async function AdminCourseAnnouncementsPage({
@@ -23,7 +23,7 @@ export default async function AdminCourseAnnouncementsPage({
 
   if (!course) notFound();
 
-  const announcements = await getAnnouncementsForCourse(course.id);
+  const announcements = await getCourseWideAnnouncementsForCourse(course.id);
 
   return (
     <div>
