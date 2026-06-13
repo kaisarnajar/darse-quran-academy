@@ -10,6 +10,11 @@ type LibraryFormProps = {
 };
 
 export function LibraryForm({ item, featuredCount, action, submitLabel }: LibraryFormProps) {
+  const isCurrentlyFeatured = item?.featuredOnHomepage ?? false;
+  const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_RESOURCES_MAX;
+  const canFeatureThisItem = isCurrentlyFeatured || !featuredSlotsFull;
+  const displayedFeaturedCount = Math.min(featuredCount, HOMEPAGE_FEATURED_RESOURCES_MAX);
+
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
       <div>
@@ -76,20 +81,32 @@ export function LibraryForm({ item, featuredCount, action, submitLabel }: Librar
             <span className="mt-0.5 block text-muted">Uncheck to hide from the public library.</span>
           </span>
         </label>
-        <label className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
+        <label
+          className={`flex items-start gap-3 text-sm text-foreground ${
+            canFeatureThisItem ? "cursor-pointer" : ""
+          }`}
+        >
           <input
             type="checkbox"
             name="featuredOnHomepage"
-            defaultChecked={item?.featuredOnHomepage ?? false}
-            className="mt-1 rounded border-border"
+            defaultChecked={isCurrentlyFeatured}
+            disabled={!canFeatureThisItem}
+            className="mt-1 rounded border-border disabled:cursor-not-allowed"
           />
           <span>
             <span className="font-medium">Show on homepage</span>
-            <span className="mt-0.5 block text-muted">
-              Featured in the Featured Resources section when published (up to {HOMEPAGE_FEATURED_RESOURCES_MAX};{" "}
-              {featuredCount}/{HOMEPAGE_FEATURED_RESOURCES_MAX} slots used). All published items still appear in
-              the library.
-            </span>
+            {canFeatureThisItem ? (
+              <span className="mt-0.5 block text-muted">
+                Featured in the Featured Resources section when published (up to{" "}
+                {HOMEPAGE_FEATURED_RESOURCES_MAX}; {displayedFeaturedCount}/{HOMEPAGE_FEATURED_RESOURCES_MAX}{" "}
+                slots used). All published items still appear in the library.
+              </span>
+            ) : (
+              <span className="mt-0.5 block text-muted">
+                There are already {HOMEPAGE_FEATURED_RESOURCES_MAX} featured resources. Remove one resource
+                from the homepage to add this item as a featured resource.
+              </span>
+            )}
           </span>
         </label>
       </div>
