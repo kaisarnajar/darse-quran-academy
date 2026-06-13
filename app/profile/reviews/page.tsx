@@ -92,12 +92,13 @@ export default async function ProfileReviewsPage({
       {reviews.length > 0 && (
         <div className="mt-10">
           <h3 className="text-sm font-semibold text-foreground">Your submissions</h3>
-          <ul className="mt-4 space-y-4">
+          <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {reviews.map((review) => {
               const editable = canStudentEditReview(review, session.user.id);
               const deletable = canStudentDeleteReview(review, session.user.id);
               return (
-                <li key={review.id} className="rounded-lg border border-border bg-surface p-4">
+                <li key={review.id} className="h-full">
+                  <article className="card-elevated flex h-full flex-col p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <span
                       className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${reviewStatusClass(review.status)}`}
@@ -125,16 +126,19 @@ export default async function ProfileReviewsPage({
                       </div>
                     )}
                   </div>
-                  <StarRating rating={review.rating} className="mt-3" />
-                  <p className="mt-2 text-sm leading-relaxed text-foreground">&ldquo;{review.quote}&rdquo;</p>
+                  <StarRating rating={review.rating} className="mt-2" />
+                  <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-foreground">
+                    &ldquo;{review.quote}&rdquo;
+                  </p>
                   {(review.course || review.location) && (
-                    <p className="mt-2 text-xs text-muted">
+                    <p className="mt-2 line-clamp-1 text-xs text-muted">
                       {[review.course, review.location].filter(Boolean).join(" · ")}
                     </p>
                   )}
                   <p className="mt-2 text-xs text-muted">
                     Submitted {review.createdAt.toLocaleDateString("en-IN")}
                   </p>
+                  </article>
                 </li>
               );
             })}
