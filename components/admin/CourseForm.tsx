@@ -28,6 +28,10 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
     startDateParts.year ? Number(startDateParts.year) : undefined,
   );
   const categoryOptions = getCourseCategoryOptions(course?.category);
+  const isCurrentlyFeatured = course?.featuredOnHomepage ?? false;
+  const featuredSlotsFull = featuredCount >= HOMEPAGE_FEATURED_COURSES_MAX;
+  const canFeatureThisCourse = isCurrentlyFeatured || !featuredSlotsFull;
+  const displayedFeaturedCount = Math.min(featuredCount, HOMEPAGE_FEATURED_COURSES_MAX);
 
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
@@ -229,20 +233,32 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
       </div>
 
       <div className="space-y-3 rounded-lg border border-border bg-background/40 px-4 py-4">
-        <label className="flex cursor-pointer items-start gap-3 text-sm text-foreground">
+        <label
+          className={`flex items-start gap-3 text-sm text-foreground ${
+            canFeatureThisCourse ? "cursor-pointer" : ""
+          }`}
+        >
           <input
             type="checkbox"
             name="featuredOnHomepage"
-            defaultChecked={course?.featuredOnHomepage ?? false}
-            className="mt-1 rounded border-border"
+            defaultChecked={isCurrentlyFeatured}
+            disabled={!canFeatureThisCourse}
+            className="mt-1 rounded border-border disabled:cursor-not-allowed"
           />
           <span>
             <span className="font-medium">Show on homepage</span>
-            <span className="mt-0.5 block text-muted">
-              Featured in the Featured Courses section when not in draft (up to{" "}
-              {HOMEPAGE_FEATURED_COURSES_MAX}; {featuredCount}/{HOMEPAGE_FEATURED_COURSES_MAX} slots
-              used). All public courses still appear on the Courses page.
-            </span>
+            {canFeatureThisCourse ? (
+              <span className="mt-0.5 block text-muted">
+                Featured in the Featured Courses section when not in draft (up to{" "}
+                {HOMEPAGE_FEATURED_COURSES_MAX}; {displayedFeaturedCount}/{HOMEPAGE_FEATURED_COURSES_MAX}{" "}
+                slots used). All public courses still appear on the Courses page.
+              </span>
+            ) : (
+              <span className="mt-0.5 block text-muted">
+                There are already {HOMEPAGE_FEATURED_COURSES_MAX} featured courses. Remove one course to
+                add this course as a featured course.
+              </span>
+            )}
           </span>
         </label>
       </div>
