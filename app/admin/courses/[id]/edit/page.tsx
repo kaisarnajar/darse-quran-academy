@@ -49,16 +49,6 @@ export default async function EditCoursePage({
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">{query.saveError}</p>
       )}
 
-      {enrollmentCount > 0 && (
-        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {enrollmentCount} student(s) enrolled.{" "}
-          <Link href={`/admin/courses/${id}/students`} className="font-medium text-primary hover:underline">
-            View students
-          </Link>
-          . Deleting is blocked; set status to Draft to hide from the public site.
-        </p>
-      )}
-
       <div className="mt-8">
         <CourseForm
           course={course}
