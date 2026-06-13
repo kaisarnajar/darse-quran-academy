@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteContactInquiryButton } from "@/components/admin/DeleteContactInquiryButton";
 import { getAllContactInquiries } from "@/lib/contact-inquiries";
 
 function statusLabel(reply: string | null) {
@@ -71,10 +72,11 @@ export default async function AdminContactInquiriesPage({
         {inquiries.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No contact messages yet.</p>
         ) : (
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[880px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">
               <tr>
-                <th className="px-4 py-3 font-medium">Visitor</th>
+                <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Phone</th>
                 <th className="px-4 py-3 font-medium">Message</th>
                 <th className="px-4 py-3 font-medium">Status</th>
@@ -85,10 +87,8 @@ export default async function AdminContactInquiriesPage({
             <tbody className="divide-y divide-border">
               {inquiries.map((inquiry) => (
                 <tr key={inquiry.id}>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-foreground">{inquiry.name}</p>
-                    <p className="text-xs text-muted">{inquiry.email}</p>
-                  </td>
+                  <td className="px-4 py-3 font-medium text-foreground">{inquiry.name}</td>
+                  <td className="px-4 py-3 text-muted">{inquiry.email}</td>
                   <td className="px-4 py-3 text-muted">{inquiry.phone}</td>
                   <td className="max-w-xs px-4 py-3 text-muted">
                     <p className="line-clamp-2">{inquiry.message}</p>
@@ -108,12 +108,24 @@ export default async function AdminContactInquiriesPage({
                     })}
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/contact-inquiries/${inquiry.id}`}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      {inquiry.reply ? "View" : "Reply"}
-                    </Link>
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/contact-inquiries/${inquiry.id}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/admin/contact-inquiries/${inquiry.id}/reply`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {inquiry.reply ? "Edit reply" : "Reply"}
+                      </Link>
+                      <DeleteContactInquiryButton
+                        id={inquiry.id}
+                        label={`${inquiry.name} (${inquiry.email})`}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

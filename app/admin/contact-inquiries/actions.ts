@@ -16,7 +16,7 @@ export async function replyToContactInquiry(id: string, formData: FormData) {
 
   if (!parsed.success) {
     redirect(
-      `/admin/contact-inquiries/${id}?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid reply")}`,
+      `/admin/contact-inquiries/${id}/reply?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid reply")}`,
     );
   }
 
@@ -45,6 +45,7 @@ export async function replyToContactInquiry(id: string, formData: FormData) {
 
   revalidatePath("/admin/contact-inquiries");
   revalidatePath(`/admin/contact-inquiries/${id}`);
+  revalidatePath(`/admin/contact-inquiries/${id}/reply`);
   revalidatePath("/admin");
 
   const savedParams = new URLSearchParams({ saved: "1" });
@@ -52,21 +53,31 @@ export async function replyToContactInquiry(id: string, formData: FormData) {
     savedParams.set("email", emailResult.skipped ? "skipped" : "failed");
   }
 
-  redirect(`/admin/contact-inquiries/${id}?${savedParams.toString()}`);
+  redirect(`/admin/contact-inquiries/${id}/reply?${savedParams.toString()}`);
 }
 
-export async function deleteContactInquiryForm(id: string) {
+export async function deleteContactInquiryById(id: string): Promise<{ error?: string }> {
   await requireAdmin();
 
   const inquiry = await prisma.contactInquiry.findUnique({ where: { id } });
   if (!inquiry) {
-    redirect("/admin/contact-inquiries?error=notfound");
+    return { error: "Inquiry not found." };
   }
 
   await prisma.contactInquiry.delete({ where: { id } });
 
   revalidatePath("/admin/contact-inquiries");
+  revalidatePath(`/admin/contact-inquiries/${id}`);
+  revalidatePath(`/admin/contact-inquiries/${id}/reply`);
   revalidatePath("/admin");
 
+  return {};
+}
+
+export async function deleteContactInquiryForm(id: string) {
+  const result = await deleteContactInquiryById(id);
+  if (result.error) {
+    redirect(`/admin/contact-inquiries/${id}?error=${encodeURIComponent(result.error)}`);
+  }
   redirect("/admin/contact-inquiries?deleted=1");
 }
