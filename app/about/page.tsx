@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Section } from "@/components/site/Section";
+import { ACADEMY_LOCATION, getAcademyLocationEmbedUrl } from "@/lib/academy-location";
 import { formatWhatsAppForDisplay, getSocialLinksSettings } from "@/lib/social-links";
 
 export const metadata: Metadata = {
@@ -86,7 +87,7 @@ export default async function AboutPage() {
       </Section>
 
       <Section id="contact">
-        <div className="card-elevated mx-auto max-w-xl p-6 text-center sm:p-8">
+        <div className="card-elevated mx-auto max-w-3xl p-6 text-center sm:p-8">
           <h2 className="text-lg font-bold uppercase tracking-wide text-gold sm:text-xl">Contact Us</h2>
           <ul className="mt-5 space-y-4 text-left text-sm text-muted sm:mt-6 sm:text-base">
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
@@ -105,11 +106,28 @@ export default async function AboutPage() {
             </li>
             <li className="flex flex-col gap-1 sm:flex-row sm:gap-2">
               <span className="shrink-0 font-medium text-foreground">Location:</span>
-              <span>
-                Based in Jammu and Kashmir, South Asia — online classes for students worldwide
-              </span>
+              <a
+                href={ACADEMY_LOCATION.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gold"
+              >
+                {ACADEMY_LOCATION.label}
+              </a>
             </li>
           </ul>
+
+          <div className="mt-6 overflow-hidden rounded-lg border border-border">
+            <iframe
+              title={`${ACADEMY_LOCATION.name} on Google Maps`}
+              src={getAcademyLocationEmbedUrl()}
+              className="h-64 w-full border-0 sm:h-80"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
+
           <p className="mt-5 text-left text-sm leading-relaxed text-muted sm:mt-6 sm:text-center">
             For course enrollment inquiries, please mention the course name in your message. We aim to
             respond within 2–3 business days.
