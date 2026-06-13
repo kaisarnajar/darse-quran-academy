@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateDailyInspiration } from "@/app/admin/daily-inspiration/actions";
 import { DailyInspirationForm } from "@/components/admin/DailyInspirationForm";
-import { DeleteDailyInspirationButton } from "@/components/admin/DeleteDailyInspirationButton";
 import { getDailyInspirationForAdmin } from "@/lib/daily-inspiration";
 
 export default async function EditDailyInspirationPage({
@@ -25,10 +24,7 @@ export default async function EditDailyInspirationPage({
       <Link href="/admin/daily-inspiration" className="text-sm text-primary hover:underline">
         ← Back to verse &amp; hadith
       </Link>
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <h1 className="font-serif text-2xl font-bold text-primary">Edit verse or hadith</h1>
-        <DeleteDailyInspirationButton id={item.id} kind={item.kind} />
-      </div>
+      <h1 className="mt-4 font-serif text-2xl font-bold text-primary">Edit verse or hadith</h1>
 
       {query.saved === "1" && (
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
