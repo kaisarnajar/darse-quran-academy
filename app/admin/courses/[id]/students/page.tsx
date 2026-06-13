@@ -31,15 +31,6 @@ export default async function CourseStudentsPage({
       <Link href="/admin/courses" className="text-sm text-primary hover:underline">
         ← Back to courses
       </Link>
-      <Link href={`/admin/courses/${id}/edit`} className="ml-4 text-sm text-muted hover:text-primary">
-        Edit course
-      </Link>
-      <Link href="/admin/enrollments" className="ml-4 text-sm text-primary hover:underline">
-        Enrollment requests
-      </Link>
-      <Link href="/admin/payment-approvals" className="ml-4 text-sm text-primary hover:underline">
-        Payment approvals
-      </Link>
 
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
