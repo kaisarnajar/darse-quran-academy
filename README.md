@@ -77,7 +77,6 @@ content/      Seed data and static copy
 lib/          Auth, Prisma, email, payments, certificates
 prisma/       Schema, migrations, seed
 public/       Static assets and uploads/
-docs/         Deployment and QA guides
 ```
 
 ## Deployment
@@ -87,9 +86,6 @@ docs/         Deployment and QA guides
 1. Set env vars on Vercel (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, etc.).
 2. Deploy — `vercel-build` runs `prisma migrate deploy` automatically.
 3. Sign in as admin and add courses, teachers, library items, **Payment details**, and **Social links** in `/admin`.
-
-Full setup, OAuth, SMTP, and troubleshooting: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**  
-QA checklist: **[docs/QA-TESTING-GUIDE.md](docs/QA-TESTING-GUIDE.md)**
 
 ## License
 
