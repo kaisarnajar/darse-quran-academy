@@ -93,11 +93,36 @@ export async function updateLibraryItem(id: string, formData: FormData) {
   redirect(`/admin/library/${id}/edit?saved=1`);
 }
 
-export async function deleteLibraryItem(id: string) {
+export async function deleteLibraryItemById(id: string): Promise<{ error?: string }> {
   await requireAdmin();
+
+  const existing = await prisma.libraryItem.findUnique({ where: { id } });
+  if (!existing) {
+    return { error: "Library item not found." };
+  }
+
   await prisma.libraryItem.delete({ where: { id } });
+
   revalidatePath("/");
   revalidatePath("/library");
   revalidatePath("/admin/library");
+  revalidatePath(`/admin/library/${id}`);
+
+  return {};
+}
+
+export async function deleteLibraryItem(id: string) {
+  const result = await deleteLibraryItemById(id);
+  if (result.error) {
+    redirect(`/admin/library/${id}/edit?saveError=${encodeURIComponent(result.error)}`);
+  }
+  redirect("/admin/library?deleted=1");
+}
+
+export async function deleteLibraryItemFromProfile(id: string) {
+  const result = await deleteLibraryItemById(id);
+  if (result.error) {
+    redirect(`/admin/library/${id}?error=${encodeURIComponent(result.error)}`);
+  }
   redirect("/admin/library?deleted=1");
 }

@@ -26,8 +26,8 @@ export default async function EditLibraryPage({
 
   return (
     <div>
-      <Link href="/admin/library" className="text-sm text-primary hover:underline">
-        ← Back to library
+      <Link href={`/admin/library/${id}`} className="text-sm text-primary hover:underline">
+        ← Back to item
       </Link>
       <h1 className="mt-4 font-serif text-2xl font-bold text-primary">Edit library item</h1>
 

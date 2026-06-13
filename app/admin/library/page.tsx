@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteLibraryButton } from "@/components/admin/DeleteLibraryButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { getAllLibraryItems } from "@/lib/library";
 
@@ -60,10 +61,22 @@ export default async function AdminLibraryPage({
                   <td className="px-4 py-3 text-muted">
                     {item.featuredOnHomepage && item.published ? "Featured" : "Not featured"}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/library/${item.id}/edit`} className="font-medium text-primary hover:underline">
-                      Edit
-                    </Link>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/library/${item.id}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/admin/library/${item.id}/edit`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Edit
+                      </Link>
+                      <DeleteLibraryButton id={item.id} label={item.title} />
+                    </div>
                   </td>
                 </tr>
               ))}
