@@ -60,25 +60,12 @@ CREATE TABLE "PasswordResetToken" (
 );
 
 -- CreateTable
-CREATE TABLE "Teacher" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "name" TEXT NOT NULL,
-    "email" TEXT,
-    "specialization" TEXT NOT NULL,
-    "bio" TEXT NOT NULL,
-    "initials" TEXT NOT NULL,
-    "imageUrl" TEXT,
-    "published" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
-);
-
--- CreateTable
 CREATE TABLE "Course" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "startDate" TEXT NOT NULL,
+    "duration" TEXT NOT NULL,
     "level" TEXT NOT NULL,
     "category" TEXT NOT NULL,
     "priceInrPaise" INTEGER NOT NULL,
@@ -93,13 +80,46 @@ CREATE TABLE "Course" (
 );
 
 -- CreateTable
+CREATE TABLE "Teacher" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "specialization" TEXT NOT NULL,
+    "bio" TEXT NOT NULL,
+    "initials" TEXT NOT NULL,
+    "imageUrl" TEXT,
+    "published" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "CourseAnnouncement" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "courseId" TEXT NOT NULL,
+    "enrollmentId" TEXT,
+    "teacherId" TEXT,
+    "authorName" TEXT NOT NULL,
+    "postedByAdmin" BOOLEAN NOT NULL DEFAULT false,
+    "category" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "attachmentPath" TEXT,
+    "attachmentName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "CourseAnnouncement_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "CourseAnnouncement_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "Enrollment" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "CourseAnnouncement_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "SiteAnnouncement" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "eventDate" TEXT,
     "location" TEXT,
-    "imagePath" TEXT,
     "showOnHomepage" BOOLEAN NOT NULL DEFAULT false,
     "published" BOOLEAN NOT NULL DEFAULT true,
     "createdById" TEXT,
@@ -156,6 +176,7 @@ CREATE TABLE "StudentReview" (
     "quote" TEXT NOT NULL,
     "course" TEXT,
     "location" TEXT,
+    "rating" INTEGER NOT NULL DEFAULT 5,
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
     "featuredAt" DATETIME,
@@ -185,13 +206,7 @@ CREATE TABLE "Enrollment" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "courseId" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'pending',
-    "paymentReference" TEXT,
-    "upiTransactionId" TEXT,
-    "paymentMethod" TEXT DEFAULT 'upi',
-    "paymentScreenshotPath" TEXT,
-    "amountPaid" INTEGER,
-    "currency" TEXT DEFAULT 'inr',
+    "status" TEXT NOT NULL DEFAULT 'pending_approval',
     "completedAt" DATETIME,
     "uploadedCertificatePath" TEXT,
     "certificateEmailSentAt" DATETIME,
@@ -218,6 +233,23 @@ CREATE TABLE "FatwaQuestion" (
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "FatwaQuestion_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "FatwaQuestion_answeredById_fkey" FOREIGN KEY ("answeredById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "ContactInquiry" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "reply" TEXT,
+    "repliedAt" DATETIME,
+    "repliedById" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "ContactInquiry_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "ContactInquiry_repliedById_fkey" FOREIGN KEY ("repliedById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -266,6 +298,7 @@ CREATE TABLE "CoursePaymentSubmission" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "courseId" TEXT NOT NULL,
+    "paymentType" TEXT NOT NULL DEFAULT 'monthly',
     "label" TEXT NOT NULL,
     "amountInrPaise" INTEGER NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'pending_verification',
@@ -278,26 +311,6 @@ CREATE TABLE "CoursePaymentSubmission" (
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "CoursePaymentSubmission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "CoursePaymentSubmission_paymentRecordId_fkey" FOREIGN KEY ("paymentRecordId") REFERENCES "PaymentRecord" ("id") ON DELETE SET NULL ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "CourseAnnouncement" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "courseId" TEXT NOT NULL,
-    "enrollmentId" TEXT,
-    "teacherId" TEXT,
-    "authorName" TEXT NOT NULL,
-    "postedByAdmin" BOOLEAN NOT NULL DEFAULT false,
-    "category" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "body" TEXT NOT NULL,
-    "attachmentPath" TEXT,
-    "attachmentName" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "CourseAnnouncement_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "CourseAnnouncement_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "Enrollment" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "CourseAnnouncement_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -316,10 +329,10 @@ CREATE UNIQUE INDEX "PasswordResetToken_tokenHash_key" ON "PasswordResetToken"("
 CREATE INDEX "PasswordResetToken_email_idx" ON "PasswordResetToken"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Teacher_email_key" ON "Teacher"("email");
+CREATE INDEX "Course_featuredOnHomepage_featuredAt_idx" ON "Course"("featuredOnHomepage", "featuredAt");
 
 -- CreateIndex
-CREATE INDEX "Course_featuredOnHomepage_featuredAt_idx" ON "Course"("featuredOnHomepage", "featuredAt");
+CREATE UNIQUE INDEX "Teacher_email_key" ON "Teacher"("email");
 
 -- CreateIndex
 CREATE INDEX "CourseAnnouncement_courseId_idx" ON "CourseAnnouncement"("courseId");
@@ -340,19 +353,13 @@ CREATE INDEX "SiteAnnouncement_published_showOnHomepage_idx" ON "SiteAnnouncemen
 CREATE INDEX "SiteAnnouncement_published_createdAt_idx" ON "SiteAnnouncement"("published", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "BlogPost_featuredOnHomepage_featuredAt_idx" ON "BlogPost"("featuredOnHomepage", "featuredAt");
-
--- CreateIndex
-CREATE INDEX "LibraryItem_featuredOnHomepage_featuredAt_idx" ON "LibraryItem"("featuredOnHomepage", "featuredAt");
-
--- CreateIndex
-CREATE INDEX "FatwaQuestion_featuredOnHomepage_featuredAt_idx" ON "FatwaQuestion"("featuredOnHomepage", "featuredAt");
-
--- CreateIndex
 CREATE INDEX "BlogPost_published_approvalStatus_createdAt_idx" ON "BlogPost"("published", "approvalStatus", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "BlogPost_approvalStatus_createdAt_idx" ON "BlogPost"("approvalStatus", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "BlogPost_featuredOnHomepage_featuredAt_idx" ON "BlogPost"("featuredOnHomepage", "featuredAt");
 
 -- CreateIndex
 CREATE INDEX "BlogImage_blogPostId_sortOrder_idx" ON "BlogImage"("blogPostId", "sortOrder");
@@ -370,7 +377,7 @@ CREATE INDEX "StudentReview_featuredOnHomepage_featuredAt_idx" ON "StudentReview
 CREATE INDEX "StudentReview_userId_status_idx" ON "StudentReview"("userId", "status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Enrollment_paymentReference_key" ON "Enrollment"("paymentReference");
+CREATE INDEX "LibraryItem_featuredOnHomepage_featuredAt_idx" ON "LibraryItem"("featuredOnHomepage", "featuredAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Enrollment_userId_courseId_key" ON "Enrollment"("userId", "courseId");
@@ -380,6 +387,15 @@ CREATE INDEX "FatwaQuestion_category_idx" ON "FatwaQuestion"("category");
 
 -- CreateIndex
 CREATE INDEX "FatwaQuestion_answeredAt_idx" ON "FatwaQuestion"("answeredAt");
+
+-- CreateIndex
+CREATE INDEX "FatwaQuestion_featuredOnHomepage_featuredAt_idx" ON "FatwaQuestion"("featuredOnHomepage", "featuredAt");
+
+-- CreateIndex
+CREATE INDEX "ContactInquiry_repliedAt_idx" ON "ContactInquiry"("repliedAt");
+
+-- CreateIndex
+CREATE INDEX "ContactInquiry_createdAt_idx" ON "ContactInquiry"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "PaymentRecord_userId_idx" ON "PaymentRecord"("userId");
@@ -401,3 +417,6 @@ CREATE INDEX "CoursePaymentSubmission_courseId_idx" ON "CoursePaymentSubmission"
 
 -- CreateIndex
 CREATE INDEX "CoursePaymentSubmission_status_idx" ON "CoursePaymentSubmission"("status");
+
+-- CreateIndex
+CREATE INDEX "CoursePaymentSubmission_paymentType_idx" ON "CoursePaymentSubmission"("paymentType");
