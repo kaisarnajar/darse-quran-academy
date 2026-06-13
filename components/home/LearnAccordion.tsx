@@ -26,7 +26,7 @@ export function LearnAccordion() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="bg-white py-16 sm:py-20">
+    <section className="bg-surface py-16 sm:py-20">
       <div className="mx-auto max-w-2xl px-4 sm:px-6">
         <div className="text-center">
           <SplitSectionTitle muted="What You'll" accent="Learn" />
