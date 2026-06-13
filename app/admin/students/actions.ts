@@ -14,7 +14,6 @@ function revalidateStudentPaths(courseIds: string[] = []) {
   revalidatePath("/profile");
   revalidatePath("/profile/courses");
   revalidatePath("/profile/payments");
-  revalidatePath("/my-courses");
   for (const courseId of courseIds) {
     revalidatePath(`/admin/courses/${courseId}/students`);
   }

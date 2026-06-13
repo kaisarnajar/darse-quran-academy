@@ -94,7 +94,7 @@ export const authConfig = {
         return auth?.user?.role === "TEACHER";
       }
 
-      if (pathname.startsWith("/profile") || pathname.startsWith("/my-courses")) {
+      if (pathname.startsWith("/profile")) {
         if (auth?.user?.role === "TEACHER") return false;
         return !!auth?.user;
       }

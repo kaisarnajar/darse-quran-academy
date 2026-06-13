@@ -36,7 +36,6 @@ function revalidateEnrollmentPaths(courseId: string) {
     "/admin/courses",
     `/admin/courses/${courseId}/students`,
     "/profile/courses",
-    "/my-courses",
     "/courses",
   ];
 
