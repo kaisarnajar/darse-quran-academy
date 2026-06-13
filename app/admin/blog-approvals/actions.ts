@@ -5,12 +5,15 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { prisma } from "@/lib/prisma";
 
-function revalidateBlogPaths() {
+function revalidateBlogPaths(postId?: string) {
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/admin");
   revalidatePath("/admin/blogs");
   revalidatePath("/admin/blog-approvals");
+  if (postId) {
+    revalidatePath(`/admin/blog-approvals/${postId}`);
+  }
   revalidatePath("/teacher/blogs");
 }
 
@@ -42,7 +45,7 @@ export async function approveBlogPost(
     data: { approvalStatus: "APPROVED", published: true },
   });
 
-  revalidateBlogPaths();
+  revalidateBlogPaths(postId);
   revalidatePath(`/blog/${postId}`);
   redirect(returnUrl(returnTo, "approved"));
 }
@@ -64,6 +67,6 @@ export async function rejectBlogPost(
     data: { approvalStatus: "REJECTED", published: false, featuredOnHomepage: false, featuredAt: null },
   });
 
-  revalidateBlogPaths();
+  revalidateBlogPaths(postId);
   redirect(returnUrl(returnTo, "rejected"));
 }
