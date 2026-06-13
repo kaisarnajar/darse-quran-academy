@@ -64,11 +64,11 @@ export const FLATICON_COURSE_ICONS: Record<CourseCategoryIconKey, FlaticonCourse
   arabic: {
     key: "arabic",
     label: "Arabic",
-    src: "/icons/flaticon/course-categories/koran.png",
-    iconId: 1183438,
-    slug: "koran",
-    author: "Freepik",
-    authorUrl: `${FLATICON_AUTHOR_BASE}/freepik`,
+    src: "/icons/flaticon/course-categories/arabic-language.png",
+    iconId: 9103491,
+    slug: "arabic-language",
+    author: "HussainDev-Icon",
+    authorUrl: `${FLATICON_AUTHOR_BASE}/hussaindev-icon`,
   },
   fiqh: {
     key: "fiqh",
