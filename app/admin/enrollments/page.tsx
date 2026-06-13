@@ -79,12 +79,7 @@ function EnrollmentRequestsTable({
   );
 }
 
-export default async function AdminEnrollmentsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ approved?: string; rejected?: string }>;
-}) {
-  const params = await searchParams;
+export default async function AdminEnrollmentsPage() {
   const [freeEnrollmentRequests, awaitingEnrollmentFee, courses] = await Promise.all([
     getPendingFreeEnrollmentApprovals(),
     getAwaitingEnrollmentFeeEnrollments(),
@@ -105,17 +100,6 @@ export default async function AdminEnrollmentsPage({
         </Link>
         .
       </p>
-
-      {params.approved === "1" && (
-        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">
-          Enrollment approved. The student now has access to the course.
-        </p>
-      )}
-      {params.rejected === "1" && (
-        <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Enrollment rejected. The student can request enrollment again from the course page.
-        </p>
-      )}
 
       <section className="mt-8">
         <h2 className="font-serif text-lg font-semibold text-foreground">

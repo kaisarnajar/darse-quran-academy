@@ -41,19 +41,9 @@ function revalidateEnrollmentPaths(courseId: string) {
   }
 }
 
-function enrollmentReturnUrl(
-  returnTo: string | undefined,
-  event: "approved" | "declined" | "rejected",
-): string {
-  const param =
-    event === "approved" ? "approved" : event === "rejected" ? "rejected" : "declined";
-  const fallback = `/admin/enrollments?${param}=1`;
-  if (!returnTo?.startsWith("/admin")) return fallback;
-  const [pathname, query = ""] = returnTo.split("?");
-  const params = new URLSearchParams(query);
-  params.set(param, "1");
-  const qs = params.toString();
-  return qs ? `${pathname}?${qs}` : `${pathname}?${param}=1`;
+function enrollmentReturnUrl(returnTo: string | undefined): string {
+  if (!returnTo?.startsWith("/admin")) return "/admin/enrollments";
+  return returnTo.split("?")[0] ?? "/admin/enrollments";
 }
 
 /** Approve a free-course enrollment request. */
@@ -73,7 +63,7 @@ export async function approveEnrollmentRequest(
   }
 
   if (enrollment.status === "active") {
-    redirect(enrollmentReturnUrl(returnTo, "approved"));
+    redirect(enrollmentReturnUrl(returnTo));
   }
 
   if (enrollment.status === "completed") {
@@ -97,7 +87,7 @@ export async function approveEnrollmentRequest(
   revalidateEnrollmentPaths(courseId);
   revalidatePath(`/admin/students/${enrollment.userId}`, "page");
 
-  redirect(enrollmentReturnUrl(returnTo, "approved"));
+  redirect(enrollmentReturnUrl(returnTo));
 }
 
 /** Reject a student's pending enrollment request. */
@@ -125,7 +115,7 @@ export async function rejectEnrollmentRequest(
   revalidateEnrollmentPaths(courseId);
   revalidatePath(`/admin/students/${enrollment.userId}`, "page");
 
-  redirect(enrollmentReturnUrl(returnTo, "rejected"));
+  redirect(enrollmentReturnUrl(returnTo));
 }
 
 export type AdminEnrollUserState = {
