@@ -36,14 +36,15 @@ export default async function AdminCoursesPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[840px] text-left text-sm">
           <thead className="border-b border-border bg-background/50 text-muted">
             <tr>
               <th className="px-4 py-3 font-medium">Title</th>
               <th className="px-4 py-3 font-medium">Category</th>
               <th className="px-4 py-3 font-medium">Instructor</th>
               <th className="px-4 py-3 font-medium">Duration</th>
-              <th className="px-4 py-3 font-medium">Fees</th>
+              <th className="px-4 py-3 font-medium">Registration fee</th>
+              <th className="px-4 py-3 font-medium">Monthly fee</th>
               <th className="px-4 py-3 font-medium">Students</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Homepage</th>
@@ -62,9 +63,8 @@ export default async function AdminCoursesPage({
                     {course.teacher?.name ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-muted">{course.duration || "—"}</td>
-                  <td className="px-4 py-3 text-muted">
-                    ₹{fees.registrationFeeInr} reg. · ₹{fees.monthlyFeeInr}/mo
-                  </td>
+                  <td className="px-4 py-3 text-muted">₹{fees.registrationFeeInr}</td>
+                  <td className="px-4 py-3 text-muted">₹{fees.monthlyFeeInr}/mo</td>
                   <td className="px-4 py-3">
                     <Link
                       href={`/admin/courses/${course.id}/students`}
