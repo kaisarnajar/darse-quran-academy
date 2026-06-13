@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
+import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
 import { Section } from "@/components/site/Section";
 import { auth } from "@/lib/auth";
@@ -72,6 +73,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
 
         <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">{course.title}</h1>
         <p className="mt-2 text-sm text-muted">Starts: {course.startDate}</p>
+        <CourseDurationDisplay duration={course.duration} className="mt-1" />
 
         <p className="mt-6 text-base leading-relaxed text-muted">{course.description}</p>
 

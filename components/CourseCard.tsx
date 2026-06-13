@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CourseEnrollButton } from "@/components/auth/CourseEnrollButton";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
+import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
 import { CourseStatusPill } from "@/components/courses/CourseStatusPill";
 import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
@@ -53,6 +54,7 @@ export function CourseCard({
         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">{course.description}</p>
         <CourseTeacherInfo teacher={course.teacher} />
         <p className="mt-4 text-sm text-muted">Starts: {course.startDate}</p>
+        <CourseDurationDisplay duration={course.duration} className="mt-1" />
         <CoursePricingDisplay course={course} className="mt-2" />
         <Link
           href={detailHref}

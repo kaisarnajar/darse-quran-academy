@@ -77,6 +77,7 @@ export type CourseFormValues = {
   startDay: string;
   startMonth: string;
   startYear: string;
+  duration: string;
   category: string;
   teacherId: string;
   level: "Beginner" | "Intermediate" | "Advanced";
@@ -105,6 +106,7 @@ export function validateCourseForm(values: CourseFormValues): FormValidationResu
       title: values.title,
       description: values.description,
       startDate,
+      duration: values.duration,
       level: values.level,
       category: values.category,
       enrollmentFeeInr: values.enrollmentFeeInr,

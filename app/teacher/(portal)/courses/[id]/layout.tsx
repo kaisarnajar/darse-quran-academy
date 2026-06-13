@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
+import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { TeacherCourseNav } from "@/components/teacher/TeacherCourseNav";
 import { requireTeacher } from "@/lib/auth-actions";
 import { getTeacherCourseForPortal } from "@/lib/teacher-portal";
@@ -33,6 +34,7 @@ export default async function TeacherCourseLayout({
         <p className="mt-1 text-sm text-muted">
           {course.level} · Starts {course.startDate}
         </p>
+        <CourseDurationDisplay duration={course.duration} className="mt-1" />
       </div>
 
       <TeacherCourseNav courseId={course.id} />

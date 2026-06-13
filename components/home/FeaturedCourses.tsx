@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SplitSectionTitle } from "@/components/site/SplitSectionTitle";
 import { CoursePricingDisplay } from "@/components/courses/CoursePricingDisplay";
+import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { CourseTeacherInfo } from "@/components/courses/CourseTeacherInfo";
 import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { getCourseBannerClass } from "@/lib/course-display";
@@ -39,6 +40,7 @@ export function FeaturedCourses({ courses }: FeaturedCoursesProps) {
                   </h3>
                   <p className="mt-2 line-clamp-2 text-sm text-muted">{course.description}</p>
                   <CourseTeacherInfo teacher={course.teacher} compact />
+                  <CourseDurationDisplay duration={course.duration} className="mt-2" />
                   <CoursePricingDisplay course={course} className="mt-2" compact />
                   <Link
                     href={detailHref}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CourseStatusBadge } from "@/components/admin/CourseStatusBadge";
 import { requireTeacher } from "@/lib/auth-actions";
 import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
+import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { getCourseBannerClass } from "@/lib/course-display";
 import { getCoursesForTeacher, teacherDashboardStats } from "@/lib/teacher-portal";
 
@@ -62,6 +63,7 @@ export default async function TeacherDashboardPage() {
                   <p className="mt-1 text-sm text-muted">
                     {course.category} · Starts {course.startDate}
                   </p>
+                  <CourseDurationDisplay duration={course.duration} className="mt-1" />
                   <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted">{course.description}</p>
                   <p className="mt-4 text-sm text-muted">
                     <span className="font-semibold text-foreground">{course.studentCount}</span>{" "}

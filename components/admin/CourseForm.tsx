@@ -33,6 +33,7 @@ const COURSE_FIELDS: (keyof CourseFormValues)[] = [
   "startDay",
   "startMonth",
   "startYear",
+  "duration",
   "category",
   "teacherId",
   "level",
@@ -71,6 +72,7 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
       startDay: startDateParts.day,
       startMonth: startDateParts.month,
       startYear: startDateParts.year,
+      duration: course?.duration ?? "",
       category: course?.category ?? "",
       teacherId: course?.teacherId ?? "",
       level: (course?.level ?? "Beginner") as CourseFormValues["level"],
@@ -160,6 +162,28 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
           errorId="start-date-error"
           className="sm:col-span-2"
         />
+        <div>
+          <label htmlFor="duration" className={labelClassName}>
+            Duration
+          </label>
+          <input
+            id="duration"
+            name="duration"
+            required
+            placeholder="e.g. 6 months, 1 year"
+            value={values.duration}
+            onChange={(e) => updateField("duration", e.target.value)}
+            onBlur={() => markTouched("duration")}
+            aria-invalid={showError("duration") || undefined}
+            className={formFieldInputClass(showError("duration"))}
+          />
+          <p className="mt-1 text-xs text-muted">Shown on course listings and detail pages.</p>
+          {showError("duration") && (
+            <p className={formErrorTextClassName} role="alert">
+              {errors.duration}
+            </p>
+          )}
+        </div>
         <div>
           <label htmlFor="category" className={labelClassName}>
             Category

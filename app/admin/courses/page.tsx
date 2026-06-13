@@ -42,6 +42,7 @@ export default async function AdminCoursesPage({
               <th className="px-4 py-3 font-medium">Title</th>
               <th className="px-4 py-3 font-medium">Category</th>
               <th className="px-4 py-3 font-medium">Instructor</th>
+              <th className="px-4 py-3 font-medium">Duration</th>
               <th className="px-4 py-3 font-medium">Fees</th>
               <th className="px-4 py-3 font-medium">Students</th>
               <th className="px-4 py-3 font-medium">Status</th>
@@ -60,6 +61,7 @@ export default async function AdminCoursesPage({
                   <td className="px-4 py-3 text-muted">
                     {course.teacher?.name ?? "—"}
                   </td>
+                  <td className="px-4 py-3 text-muted">{course.duration || "—"}</td>
                   <td className="px-4 py-3 text-muted">
                     ₹{fees.registrationFeeInr} reg. · ₹{fees.monthlyFeeInr}/mo
                   </td>

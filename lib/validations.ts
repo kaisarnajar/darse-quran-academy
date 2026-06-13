@@ -26,6 +26,7 @@ export const courseSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().min(10, "Description is required"),
   startDate: z.string().min(1, "Start date is required."),
+  duration: z.string().trim().min(1, "Duration is required.").max(80, "Duration is too long."),
   level: levelEnum,
   category: courseCategoryEnum,
   enrollmentFeeInr: z.coerce.number().min(0, "Enrollment fee cannot be negative."),

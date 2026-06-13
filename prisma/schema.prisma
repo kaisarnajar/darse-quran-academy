@@ -142,6 +142,7 @@ model Course {
   title         String
   description   String
   startDate     String
+  duration      String
   level         String
   category      String
   priceInrPaise       Int

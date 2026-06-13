@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DownloadCertificateButton } from "@/components/certificate/DownloadCertificateButton";
+import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { requireUser } from "@/lib/auth-actions";
 import { isEnrollmentCertificateReady } from "@/lib/completion";
 import { getCourseById } from "@/lib/courses";
@@ -72,6 +73,7 @@ export default async function ProfileCoursesPage({
                 <h3 className="mt-2 font-serif text-lg font-semibold text-foreground">{course.title}</h3>
                 <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
                 <p className="mt-3 text-sm text-primary">Starts: {course.startDate}</p>
+                <CourseDurationDisplay duration={course.duration} className="mt-1 text-primary/80" />
 
                 {awaitingEnrollmentFee && (
                   <Link
