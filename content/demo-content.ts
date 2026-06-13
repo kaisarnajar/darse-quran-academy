@@ -45,6 +45,19 @@ export type DemoFatwa = {
   studentId?: string;
 };
 
+export type DemoContactInquiry = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  /** Demo student id — links inquiry to a seeded student account when signed in. */
+  studentId?: string;
+  reply?: string;
+  /** Admin user index (1-based) from seeded admins, or omit for unreplied. */
+  repliedByAdminIndex?: number;
+};
+
 export const demoSiteAnnouncements: DemoSiteAnnouncement[] = [
   {
     id: "seed-demo-announcement-1",
@@ -311,5 +324,133 @@ export const demoCourseAnnouncements: DemoCourseAnnouncement[] = [
     title: "Private message for Bilal Ahmad",
     body: "Your Tajweed assessment is scheduled for next Tuesday. Reply if you need a different slot.",
     enrollmentId: "seed-demo-enrollment-06-quran-nazira",
+  },
+  {
+    id: "seed-demo-course-announcement-5",
+    courseId: "quran-nazira-women",
+    teacherId: "5",
+    authorName: "Ustadha Fatima Siddiqui",
+    category: "STUDY_MATERIALS",
+    title: "Sisters batch — Noorani Qaida PDF",
+    body: "Download the attached Qaida pages before Monday's class. Focus on letters with heavy makhraj practice.",
+  },
+  {
+    id: "seed-demo-course-announcement-6",
+    courseId: "children-nazira",
+    teacherId: "8",
+    authorName: "Ustadha Khadija Rahman",
+    category: "CLASS_SCHEDULE",
+    title: "Children's class timing update",
+    body: "Saturday sessions move to 4:30 PM IST for the rest of Ramadan.",
+  },
+  {
+    id: "seed-demo-course-announcement-7",
+    courseId: "tafsir-juz-amma",
+    teacherId: "7",
+    authorName: "Moulana Saeedullah Mir",
+    category: "EXAMS_TESTS",
+    title: "Surah An-Naba reflection quiz",
+    body: "Complete the short quiz on themes from last week's Tafsir before the next live session.",
+  },
+  {
+    id: "seed-demo-course-announcement-8",
+    courseId: "sisters-tajweed",
+    teacherId: "10",
+    authorName: "Ustadha Amna Qureshi",
+    category: "ASSIGNMENTS_HOMEWORK",
+    title: "Record Surah Al-Ikhlas with tajweed rules",
+    body: "Submit a 60-second recording applying the ghunnah and qalqalah rules covered this week.",
+  },
+  {
+    id: "seed-demo-course-announcement-9",
+    courseId: "maktab-foundation",
+    postedByAdmin: true,
+    authorName: "Academy Admin",
+    category: "COURSE_ANNOUNCEMENT",
+    title: "Free Maktab batch — orientation call",
+    body: "New students please join the orientation call link sent by email before your first class.",
+  },
+  {
+    id: "seed-demo-course-announcement-10",
+    courseId: "qiraat-advanced",
+    teacherId: "9",
+    authorName: "Qari Tariq Ansari",
+    category: "GENERAL_NOTICE",
+    title: "Advanced recitation assessment slots",
+    body: "Book your one-to-one assessment slot for Warsh practice by replying to this announcement.",
+  },
+];
+
+export const demoContactInquiries: DemoContactInquiry[] = [
+  {
+    id: "seed-demo-contact-1",
+    name: "Amina Khan",
+    email: "demo-contact-pending-1@seed.local",
+    phone: "919911110001",
+    message:
+      "Assalamu Alaikum. I would like to know the schedule for the sisters Nazira batch and whether recordings are available.",
+  },
+  {
+    id: "seed-demo-contact-2",
+    name: "Demo Student 04",
+    email: "demo-student-04@seed.local",
+    phone: "919900000004",
+    studentId: "04",
+    message:
+      "I submitted my enrollment fee for Quran Nazira but have not heard back. Can you confirm it was received?",
+  },
+  {
+    id: "seed-demo-contact-3",
+    name: "Yusuf Ali",
+    email: "demo-contact-replied-1@seed.local",
+    phone: "919911110003",
+    message: "Do you offer a combined Hifz and Tajweed track for working professionals?",
+    reply:
+      "Wa alaikum assalam. We offer separate tracks that can be taken sequentially. Hifz Foundation runs in the evening; Tajweed Intensive is a shorter program you can join after Nazira.",
+    repliedByAdminIndex: 1,
+  },
+  {
+    id: "seed-demo-contact-4",
+    name: "Fatima Begum",
+    email: "demo-contact-replied-2@seed.local",
+    phone: "919911110004",
+    message: "What documents are needed for children's enrollment?",
+    reply:
+      "For children's Nazira we need the parent/guardian name, student date of birth, and a WhatsApp number for class reminders. No formal documents are required for online enrollment.",
+    repliedByAdminIndex: 1,
+  },
+  {
+    id: "seed-demo-contact-5",
+    name: "Demo Student 11",
+    email: "demo-student-11@seed.local",
+    phone: "919900000011",
+    studentId: "11",
+    message:
+      "Can I switch from the general Nazira batch to the sisters batch mid-term?",
+  },
+  {
+    id: "seed-demo-contact-6",
+    name: "Guest Visitor",
+    email: "guest-contact@example.com",
+    phone: "919911110006",
+    message: "Is the Maktab Foundation program really free? How do I register?",
+  },
+  {
+    id: "seed-demo-contact-7",
+    name: "Khurshid Ahmad",
+    email: "demo-contact-replied-3@seed.local",
+    phone: "919911110007",
+    message: "We are a small masjid committee interested in group enrollment for 15 students.",
+    reply:
+      "JazakAllah khair for reaching out. Please share your preferred courses and approximate ages — we can arrange a group orientation and discuss fee structure for bulk enrollment.",
+    repliedByAdminIndex: 1,
+  },
+  {
+    id: "seed-demo-contact-8",
+    name: "Demo Student 26",
+    email: "demo-student-26@seed.local",
+    phone: "91991000026",
+    studentId: "26",
+    message: "I completed Maktab Foundation — which paid course should I take next?",
   },
 ];

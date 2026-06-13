@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import {
   demoBlogPosts,
+  demoContactInquiries,
   demoCourseAnnouncements,
   demoDailyInspirations,
   demoFatwaQuestions,
@@ -15,13 +16,17 @@ function demoStudentUserId(studentId: string) {
   return `seed-demo-user-${studentId}`;
 }
 
+function demoAdminUserId(index: number) {
+  return `seed-demo-admin-user-${index}`;
+}
+
 const demoContentBaseTime = new Date("2026-02-01T10:00:00.000Z");
 
 function staggeredDate(index: number, minutes = 30) {
   return new Date(demoContentBaseTime.getTime() + index * minutes * 60_000);
 }
 
-/** Site announcements, blogs, verse/hadith, fatwa, and course announcements for local QA. */
+/** Site announcements, blogs, verse/hadith, fatwa, contact inquiries, and course announcements. */
 export async function seedDemoContent(prisma: PrismaClient) {
   const answererId = demoTeacherUserId("1");
 
@@ -161,8 +166,46 @@ export async function seedDemoContent(prisma: PrismaClient) {
     });
   }
 
+  for (const [index, item] of demoContactInquiries.entries()) {
+    const createdAt = staggeredDate(40 + index);
+    const replied = Boolean(item.reply);
+    const repliedAt = replied
+      ? new Date(createdAt.getTime() + 86_400_000)
+      : null;
+    const repliedById = item.repliedByAdminIndex
+      ? demoAdminUserId(item.repliedByAdminIndex)
+      : null;
+
+    await prisma.contactInquiry.upsert({
+      where: { id: item.id },
+      create: {
+        id: item.id,
+        userId: item.studentId ? demoStudentUserId(item.studentId) : null,
+        name: item.name,
+        email: item.email,
+        phone: item.phone,
+        message: item.message,
+        reply: item.reply ?? null,
+        repliedAt,
+        repliedById,
+        createdAt,
+        updatedAt: repliedAt ?? createdAt,
+      },
+      update: {
+        userId: item.studentId ? demoStudentUserId(item.studentId) : null,
+        name: item.name,
+        email: item.email,
+        phone: item.phone,
+        message: item.message,
+        reply: item.reply ?? null,
+        repliedAt,
+        repliedById,
+      },
+    });
+  }
+
   for (const [index, item] of demoCourseAnnouncements.entries()) {
-    const createdAt = staggeredDate(30 + index);
+    const createdAt = staggeredDate(50 + index);
 
     await prisma.courseAnnouncement.upsert({
       where: { id: item.id },
@@ -200,6 +243,7 @@ export function demoContentLoginHint(): string {
     "  Blogs — published, approved-unpublished, draft, pending, rejected",
     "  Verse/Hadith — 1 live on homepage (Qur'an 94:6), 1 published hadith, 2 drafts",
     "  Fatwa — 3 pending + 3 answered on /fatwa",
-    "  Course announcements — admin, teacher, and private student message",
+    "  Contact — 5 pending + 3 replied in /admin/contact-inquiries",
+    "  Course announcements — admin, teacher, and private student messages",
   ].join("\n");
 }

@@ -3,6 +3,7 @@ import { seedBootstrap } from "./seed-bootstrap";
 import { demoContentLoginHint, seedDemoContent } from "./seed-demo-content";
 import {
   demoAdminLoginHint,
+  demoDataSummaryHint,
   demoStudentLoginHint,
   demoTeacherLoginHint,
   seedDemoAdmins,
@@ -40,8 +41,9 @@ async function main() {
   await seedDemoContent(prisma);
 
   console.log(
-    "Seeded demo data: courses, teachers, library, testimonials, logins, students, announcements, blogs, verse/hadith, and fatwa.",
+    "Seeded demo data: courses, teachers, library, testimonials, logins, students, contact inquiries, announcements, blogs, verse/hadith, and fatwa.",
   );
+  console.log(demoDataSummaryHint());
   console.log(demoContentLoginHint());
   console.log(demoAdminLoginHint());
   console.log(demoTeacherLoginHint());

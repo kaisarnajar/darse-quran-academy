@@ -20,8 +20,8 @@
 | Role | Email | Password |
 |------|-------|----------|
 | **Admin** | Any address in `ADMIN_EMAIL` | `Admin@2026` |
-| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `hamza.malik@teachers.darsequranacademy.org` | `Teacher@2026` |
-| **Student** | `demo-student-01@seed.local` … `demo-student-25@seed.local` | `Demo@2026` |
+| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `bilal.wani@teachers.darsequranacademy.org` | `Teacher@2026` |
+| **Student** | `demo-student-01@seed.local` … `demo-student-50@seed.local` | `Demo@2026` |
 
 | Role | How to get access (manual / production) | Notes |
 |------|----------------------------------------|--------|

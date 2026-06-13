@@ -1,20 +1,33 @@
 import { hash } from "bcryptjs";
 import type { PrismaClient } from "@prisma/client";
 import { getAdminEmails } from "../lib/admin";
+import { courses } from "../content/courses";
 import {
   DEMO_ADMIN_PASSWORD,
+  DEMO_STUDENT_COUNT,
   DEMO_STUDENT_PASSWORD,
   demoStudents,
   type DemoEnrollment,
   type DemoPayment,
 } from "../content/demo-students";
 import { DEMO_TEACHER_PASSWORD, teachers } from "../content/teachers";
-import { buildMonthlyFeeLabel } from "../lib/monthly-payments";
+import {
+  buildEnrollmentFeeLabel,
+  buildMonthlyFeeLabel,
+} from "../lib/monthly-payments";
 import {
   MONTHLY_PAYMENT_APPROVED,
   MONTHLY_PAYMENT_DECLINED,
   MONTHLY_PAYMENT_PENDING,
+  PAYMENT_TYPE_ENROLLMENT,
+  PAYMENT_TYPE_MONTHLY,
 } from "../lib/monthly-payment-status";
+
+type CourseSeedMeta = {
+  monthlyFeeInrPaise: number;
+  enrollmentFeeInrPaise: number;
+  title: string;
+};
 
 function demoUserId(studentId: string) {
   return `seed-demo-user-${studentId}`;
@@ -28,17 +41,34 @@ function demoEnrollmentId(studentId: string, courseId: string) {
   return `seed-demo-enrollment-${studentId}-${courseId}`;
 }
 
-function demoPaymentId(studentId: string, courseId: string, month: string, year: string) {
-  return `seed-demo-payment-${studentId}-${courseId}-${month}-${year}`;
+function demoPaymentId(
+  studentId: string,
+  courseId: string,
+  payment: DemoPayment,
+) {
+  if (payment.paymentType === PAYMENT_TYPE_ENROLLMENT) {
+    return `seed-demo-payment-${studentId}-${courseId}-enrollment`;
+  }
+  return `seed-demo-payment-${studentId}-${courseId}-${payment.month}-${payment.year}`;
 }
 
-function demoPaymentRecordId(studentId: string, courseId: string, month: string, year: string) {
-  return `seed-demo-record-${studentId}-${courseId}-${month}-${year}`;
+function demoPaymentRecordId(
+  studentId: string,
+  courseId: string,
+  payment: DemoPayment,
+) {
+  if (payment.paymentType === PAYMENT_TYPE_ENROLLMENT) {
+    return `seed-demo-record-${studentId}-${courseId}-enrollment`;
+  }
+  return `seed-demo-record-${studentId}-${courseId}-${payment.month}-${payment.year}`;
 }
 
-function paymentPaidAt(month: string, year: string) {
-  const m = Number.parseInt(month, 10);
-  const y = Number.parseInt(year, 10);
+function paymentPaidAt(payment: DemoPayment) {
+  if (payment.paymentType === PAYMENT_TYPE_ENROLLMENT) {
+    return new Date("2026-01-10T10:00:00.000Z");
+  }
+  const m = Number.parseInt(payment.month ?? "1", 10);
+  const y = Number.parseInt(payment.year ?? "2026", 10);
   return new Date(Date.UTC(y, m - 1, 15, 10, 0, 0));
 }
 
@@ -47,16 +77,24 @@ async function seedDemoPayment(
   studentId: string,
   userId: string,
   courseId: string,
-  monthlyFeeInrPaise: number,
+  courseMeta: CourseSeedMeta,
   payment: DemoPayment,
 ) {
-  const submissionId = demoPaymentId(studentId, courseId, payment.month, payment.year);
-  const label = buildMonthlyFeeLabel(payment.month, payment.year);
-  const utr = `DEMO-UTR-${studentId}-${courseId}-${payment.month}${payment.year}`;
+  const paymentType = payment.paymentType ?? PAYMENT_TYPE_MONTHLY;
+  const submissionId = demoPaymentId(studentId, courseId, payment);
+  const amountInrPaise =
+    paymentType === PAYMENT_TYPE_ENROLLMENT
+      ? courseMeta.enrollmentFeeInrPaise
+      : courseMeta.monthlyFeeInrPaise;
+  const label =
+    paymentType === PAYMENT_TYPE_ENROLLMENT
+      ? buildEnrollmentFeeLabel(courseMeta.title)
+      : buildMonthlyFeeLabel(payment.month ?? "01", payment.year ?? "2026");
+  const utr = `DEMO-UTR-${studentId}-${courseId}-${paymentType}-${submissionId.slice(-8)}`;
 
   if (payment.status === "approved") {
-    const recordId = demoPaymentRecordId(studentId, courseId, payment.month, payment.year);
-    const paidAt = paymentPaidAt(payment.month, payment.year);
+    const recordId = demoPaymentRecordId(studentId, courseId, payment);
+    const paidAt = paymentPaidAt(payment);
 
     await prisma.paymentRecord.upsert({
       where: { id: recordId },
@@ -64,12 +102,12 @@ async function seedDemoPayment(
         id: recordId,
         userId,
         courseId,
-        amountInrPaise: monthlyFeeInrPaise,
+        amountInrPaise,
         paidAt,
         description: label,
       },
       update: {
-        amountInrPaise: monthlyFeeInrPaise,
+        amountInrPaise,
         paidAt,
         description: label,
       },
@@ -81,9 +119,9 @@ async function seedDemoPayment(
         id: submissionId,
         userId,
         courseId,
-        paymentType: "monthly",
+        paymentType,
         label,
-        amountInrPaise: monthlyFeeInrPaise,
+        amountInrPaise,
         status: MONTHLY_PAYMENT_APPROVED,
         paymentMethod: "upi",
         upiTransactionId: utr,
@@ -91,9 +129,9 @@ async function seedDemoPayment(
         paymentRecordId: recordId,
       },
       update: {
-        paymentType: "monthly",
+        paymentType,
         label,
-        amountInrPaise: monthlyFeeInrPaise,
+        amountInrPaise,
         status: MONTHLY_PAYMENT_APPROVED,
         paymentMethod: "upi",
         upiTransactionId: utr,
@@ -112,9 +150,9 @@ async function seedDemoPayment(
       id: submissionId,
       userId,
       courseId,
-      paymentType: "monthly",
+      paymentType,
       label,
-      amountInrPaise: monthlyFeeInrPaise,
+      amountInrPaise,
       status,
       paymentMethod: payment.status === "pending" ? "upi" : null,
       upiTransactionId: payment.status === "pending" ? utr : null,
@@ -122,9 +160,9 @@ async function seedDemoPayment(
       paymentScreenshotPath: null,
     },
     update: {
-      paymentType: "monthly",
+      paymentType,
       label,
-      amountInrPaise: monthlyFeeInrPaise,
+      amountInrPaise,
       status,
       paymentMethod: payment.status === "pending" ? "upi" : null,
       upiTransactionId: payment.status === "pending" ? utr : null,
@@ -138,10 +176,12 @@ async function seedDemoEnrollment(
   studentId: string,
   userId: string,
   enrollment: DemoEnrollment,
-  courseFees: Map<string, number>,
+  courseMetaById: Map<string, CourseSeedMeta>,
 ) {
+  const courseMeta = courseMetaById.get(enrollment.courseId);
+  if (!courseMeta) return;
+
   const enrollmentId = demoEnrollmentId(studentId, enrollment.courseId);
-  const monthlyFeeInrPaise = courseFees.get(enrollment.courseId) ?? 34900;
   const completedAt =
     enrollment.status === "completed" && enrollment.completedAt
       ? new Date(enrollment.completedAt)
@@ -165,14 +205,7 @@ async function seedDemoEnrollment(
   });
 
   for (const payment of enrollment.payments ?? []) {
-    await seedDemoPayment(
-      prisma,
-      studentId,
-      userId,
-      enrollment.courseId,
-      monthlyFeeInrPaise,
-      payment,
-    );
+    await seedDemoPayment(prisma, studentId, userId, enrollment.courseId, courseMeta, payment);
   }
 }
 
@@ -240,12 +273,26 @@ export async function seedDemoTeachers(prisma: PrismaClient) {
   }
 }
 
-/** Demo students with enrollments, monthly payments, and completed courses (local / QA). */
+/** Demo students with enrollments, enrollment fees, and monthly payments (local / QA). */
 export async function seedDemoData(prisma: PrismaClient) {
   const courses = await prisma.course.findMany({
-    select: { id: true, monthlyFeeInrPaise: true },
+    select: {
+      id: true,
+      title: true,
+      monthlyFeeInrPaise: true,
+      priceInrPaise: true,
+    },
   });
-  const courseFees = new Map(courses.map((c) => [c.id, c.monthlyFeeInrPaise]));
+  const courseMetaById = new Map<string, CourseSeedMeta>(
+    courses.map((course) => [
+      course.id,
+      {
+        monthlyFeeInrPaise: course.monthlyFeeInrPaise,
+        enrollmentFeeInrPaise: course.priceInrPaise,
+        title: course.title,
+      },
+    ]),
+  );
 
   const hashedPassword = await hash(DEMO_STUDENT_PASSWORD, 12);
 
@@ -279,13 +326,14 @@ export async function seedDemoData(prisma: PrismaClient) {
     });
 
     for (const enrollment of student.enrollments) {
-      await seedDemoEnrollment(prisma, student.id, userId, enrollment, courseFees);
+      await seedDemoEnrollment(prisma, student.id, userId, enrollment, courseMetaById);
     }
   }
 }
 
 export function demoStudentLoginHint(): string {
-  return `Demo students: demo-student-01@seed.local … demo-student-25@seed.local — password ${DEMO_STUDENT_PASSWORD}`;
+  const last = String(DEMO_STUDENT_COUNT).padStart(2, "0");
+  return `Demo students: demo-student-01@seed.local … demo-student-${last}@seed.local — password ${DEMO_STUDENT_PASSWORD}`;
 }
 
 export function demoTeacherLoginHint(): string {
@@ -300,4 +348,12 @@ export function demoAdminLoginHint(): string {
     return "Demo admins: none — set ADMIN_EMAIL in .env and re-run seed.";
   }
   return `Demo admins: ${emails.join(", ")} — password ${DEMO_ADMIN_PASSWORD}`;
+}
+
+export function demoDataSummaryHint(): string {
+  return [
+    `Demo dataset: ${courses.length} courses, ${teachers.length} teachers, ${DEMO_STUDENT_COUNT} students`,
+    "  Enrollments — pending approval (free), awaiting fee, active, completed",
+    "  Payments — enrollment fee + monthly fee (approved, pending, declined)",
+  ].join("\n");
 }

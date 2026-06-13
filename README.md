@@ -29,8 +29,8 @@ After `npm run db:seed:demo`, use these accounts for local QA (passwords are sha
 | Role | Email | Password |
 |------|-------|----------|
 | **Admin** | Any address listed in `ADMIN_EMAIL` in `.env` | `Admin@2026` |
-| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `hamza.malik@teachers.darsequranacademy.org` (all six seeded teachers) | `Teacher@2026` |
-| **Student** | `demo-student-01@seed.local` … `demo-student-25@seed.local` | `Demo@2026` |
+| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `bilal.wani@teachers.darsequranacademy.org` (all 12 seeded teachers) | `Teacher@2026` |
+| **Student** | `demo-student-01@seed.local` … `demo-student-50@seed.local` | `Demo@2026` |
 
 1. Add your email(s) to `ADMIN_EMAIL` in `.env` before seeding so admin accounts are created.
 2. Sign in at [http://localhost:3000/login](http://localhost:3000/login).

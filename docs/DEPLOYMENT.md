@@ -131,8 +131,8 @@ After seeding, sign in at `http://localhost:3000/login`:
 | Role | Email | Password |
 |------|-------|----------|
 | **Admin** | Any address in `ADMIN_EMAIL` in `.env` | `Admin@2026` |
-| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `hamza.malik@teachers.darsequranacademy.org` | `Teacher@2026` |
-| **Student** | `demo-student-01@seed.local` … `demo-student-25@seed.local` | `Demo@2026` |
+| **Teacher** | `ibrahim.khan@teachers.darsequranacademy.org` … `bilal.wani@teachers.darsequranacademy.org` | `Teacher@2026` |
+| **Student** | `demo-student-01@seed.local` … `demo-student-50@seed.local` | `Demo@2026` |
 
 Optional: use [docker-compose.yml](../docker-compose.yml) if you prefer local PostgreSQL for testing against production-like DB (set `ALLOW_DEMO_SEED=true` to run demo seed against it).
 

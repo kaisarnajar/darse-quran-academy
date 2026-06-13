@@ -1,4 +1,5 @@
 import type { OccupationValue } from "../lib/occupations";
+import { courses } from "./courses";
 
 /** Shared password for all demo student accounts (local / QA only). */
 export const DEMO_STUDENT_PASSWORD = "Demo@2026";
@@ -6,17 +7,29 @@ export const DEMO_STUDENT_PASSWORD = "Demo@2026";
 /** Shared password for admin accounts seeded from `ADMIN_EMAIL` (local / QA only). */
 export const DEMO_ADMIN_PASSWORD = "Admin@2026";
 
+/** Total demo student accounts created by the seed script. */
+export const DEMO_STUDENT_COUNT = 50;
+
 export type DemoPaymentStatus = "approved" | "pending" | "declined";
+
+export type DemoPaymentType = "monthly" | "enrollment";
 
 export type DemoPayment = {
   status: DemoPaymentStatus;
-  month: string;
-  year: string;
+  paymentType?: DemoPaymentType;
+  month?: string;
+  year?: string;
 };
+
+export type DemoEnrollmentStatus =
+  | "pending_approval"
+  | "awaiting_enrollment_fee"
+  | "active"
+  | "completed";
 
 export type DemoEnrollment = {
   courseId: string;
-  status: "pending_approval" | "active" | "completed";
+  status: DemoEnrollmentStatus;
   payments?: DemoPayment[];
   completedAt?: string;
 };
@@ -34,8 +47,200 @@ export type DemoStudent = {
 
 const jk = (district: string) => `${district}, J&K`;
 
-/** 25 demo students with varied enrollments and payment history for local QA. */
-export const demoStudents: DemoStudent[] = [
+const FREE_COURSE_IDS = new Set(
+  courses.filter((course) => course.priceInrPaise === 0).map((course) => course.id),
+);
+
+const PAID_COURSE_IDS = courses
+  .filter((course) => course.priceInrPaise > 0)
+  .map((course) => course.id);
+
+const DISTRICTS = [
+  "Srinagar",
+  "Baramulla",
+  "Anantnag",
+  "Pulwama",
+  "Shopian",
+  "Budgam",
+  "Sopore",
+  "Kupwara",
+  "Bandipora",
+  "Ganderbal",
+];
+
+const OCCUPATIONS: OccupationValue[] = [
+  "STUDENT",
+  "WORKING",
+  "GOVERNMENT_EMPLOYEE",
+  "SELF_EMPLOYED",
+  "TEACHER",
+  "HEALTHCARE_WORKER",
+  "ENGINEER",
+  "IT_PROFESSIONAL",
+  "HOMEMAKER",
+  "RETIRED",
+  "FARMER",
+  "SHOPKEEPER",
+];
+
+const GENERATED_NAMES: { name: string; fatherName: string }[] = [
+  { name: "Rafiq Ahmad", fatherName: "Ghulam Ahmad" },
+  { name: "Shazia Akhtar", fatherName: "Mohammad Akhtar" },
+  { name: "Naveed Hussain", fatherName: "Abdul Hussain" },
+  { name: "Rubina Begum", fatherName: "Ali Mohammad" },
+  { name: "Yasin Dar", fatherName: "Abdul Gani Dar" },
+  { name: "Parveena Jan", fatherName: "Ghulam Nabi" },
+  { name: "Sajad Lone", fatherName: "Mohammad Sultan Lone" },
+  { name: "Uzma Shah", fatherName: "Abdul Shah" },
+  { name: "Arshid Mir", fatherName: "Ghulam Qadir Mir" },
+  { name: "Nasreen Khatoon", fatherName: "Mohammad Ramzan" },
+  { name: "Waseem Rather", fatherName: "Abdul Rather" },
+  { name: "Nazia Bano", fatherName: "Ghulam Hassan" },
+  { name: "Tanveer Ahmad", fatherName: "Mohammad Yousuf" },
+  { name: "Riffat Jan", fatherName: "Abdul Rashid" },
+  { name: "Khurshid Bhat", fatherName: "Ghulam Rasool Bhat" },
+  { name: "Saima Gul", fatherName: "Mohammad Gul" },
+  { name: "Altaf Wani", fatherName: "Abdul Wani" },
+  { name: "Mubeena Akhter", fatherName: "Ghulam Mohammad" },
+  { name: "Javed Khan", fatherName: "Abdul Hamid Khan" },
+  { name: "Shabnam Farooq", fatherName: "Farooq Ahmad" },
+  { name: "Iqbal Najar", fatherName: "Ghulam Mohammad Najar" },
+  { name: "Rukhsar Bhat", fatherName: "Mohammad Ashraf Bhat" },
+  { name: "Showkat Ahmad", fatherName: "Abdul Ahad" },
+  { name: "Aabida Mir", fatherName: "Ghulam Nabi Mir" },
+  { name: "Fayaz Sheikh", fatherName: "Mohammad Ramzan Sheikh" },
+];
+
+function enrollmentPayment(
+  status: DemoPaymentStatus,
+  paymentType: DemoPaymentType = "monthly",
+  month = "03",
+  year = "2026",
+): DemoPayment {
+  if (paymentType === "enrollment") {
+    return { status, paymentType: "enrollment" };
+  }
+  return { status, paymentType: "monthly", month, year };
+}
+
+function buildGeneratedDemoStudents(): DemoStudent[] {
+  const freeCourses = [...FREE_COURSE_IDS];
+  const paidCourses = PAID_COURSE_IDS;
+
+  return GENERATED_NAMES.map((profile, index) => {
+    const id = String(26 + index).padStart(2, "0");
+    const district = DISTRICTS[index % DISTRICTS.length] ?? "Srinagar";
+    const occupation = OCCUPATIONS[index % OCCUPATIONS.length] ?? "STUDENT";
+    const yearOfBirth = 1978 + (index % 28);
+    const month = String((index % 12) + 1).padStart(2, "0");
+    const day = String((index % 27) + 1).padStart(2, "0");
+
+    let enrollments: DemoEnrollment[];
+
+    if (index < 3) {
+      enrollments = [
+        {
+          courseId: freeCourses[index % freeCourses.length] ?? "seerah-youth",
+          status: "pending_approval",
+        },
+      ];
+    } else if (index < 6) {
+      enrollments = [
+        {
+          courseId: paidCourses[index % paidCourses.length] ?? "quran-nazira",
+          status: "awaiting_enrollment_fee",
+        },
+      ];
+    } else if (index < 10) {
+      enrollments = [
+        {
+          courseId: paidCourses[(index + 2) % paidCourses.length] ?? "hifz-foundation",
+          status: "awaiting_enrollment_fee",
+          payments: [enrollmentPayment("pending", "enrollment")],
+        },
+      ];
+    } else if (index < 16) {
+      enrollments = [
+        {
+          courseId: paidCourses[index % paidCourses.length] ?? "quran-nazira",
+          status: "active",
+          payments: [
+            enrollmentPayment("approved", "enrollment"),
+            enrollmentPayment("approved", "monthly", "01", "2026"),
+            ...(index % 2 === 0 ? [enrollmentPayment("approved", "monthly", "02", "2026")] : []),
+          ],
+        },
+      ];
+    } else if (index < 19) {
+      enrollments = [
+        {
+          courseId: freeCourses[index % freeCourses.length] ?? "maktab-foundation",
+          status: "active",
+        },
+      ];
+    } else if (index < 22) {
+      enrollments = [
+        {
+          courseId: paidCourses[(index + 4) % paidCourses.length] ?? "tajweed-intensive",
+          status: "completed",
+          completedAt: "2026-03-15T12:00:00.000Z",
+          payments: [
+            enrollmentPayment("approved", "enrollment"),
+            enrollmentPayment("approved", "monthly", "01", "2026"),
+            enrollmentPayment("approved", "monthly", "02", "2026"),
+            enrollmentPayment("approved", "monthly", "03", "2026"),
+          ],
+        },
+      ];
+    } else if (index < 24) {
+      enrollments = [
+        {
+          courseId: paidCourses[index % paidCourses.length] ?? "arabic-grammar",
+          status: "active",
+          payments: [
+            enrollmentPayment("approved", "enrollment"),
+            enrollmentPayment("approved", "monthly", "02", "2026"),
+            enrollmentPayment("pending", "monthly", "03", "2026"),
+          ],
+        },
+        {
+          courseId: freeCourses[0] ?? "seerah-youth",
+          status: "active",
+        },
+      ];
+    } else {
+      enrollments = [
+        {
+          courseId: paidCourses[(index + 1) % paidCourses.length] ?? "sisters-tajweed",
+          status: "active",
+          payments: [
+            enrollmentPayment("approved", "enrollment"),
+            enrollmentPayment("declined", "monthly", "02", "2026"),
+          ],
+        },
+        {
+          courseId: paidCourses[(index + 5) % paidCourses.length] ?? "islamic-history",
+          status: "awaiting_enrollment_fee",
+          payments: [enrollmentPayment("pending", "enrollment")],
+        },
+      ];
+    }
+
+    return {
+      id,
+      name: profile.name,
+      fatherName: profile.fatherName,
+      occupation,
+      address: jk(district),
+      whatsapp: `9199100${id}`,
+      dateOfBirth: `${yearOfBirth}-${month}-${day}`,
+      enrollments,
+    };
+  });
+}
+
+/** First 25 hand-crafted demo students with varied enrollment and payment states. */
+const manualDemoStudents: DemoStudent[] = [
   {
     id: "01",
     name: "Ayesha Bhat",
@@ -44,7 +249,7 @@ export const demoStudents: DemoStudent[] = [
     address: jk("Srinagar"),
     whatsapp: "919900000001",
     dateOfBirth: "2004-03-12",
-    enrollments: [{ courseId: "quran-nazira", status: "pending_approval" }],
+    enrollments: [{ courseId: "maktab-foundation", status: "pending_approval" }],
   },
   {
     id: "02",
@@ -54,7 +259,7 @@ export const demoStudents: DemoStudent[] = [
     address: jk("Baramulla"),
     whatsapp: "919900000002",
     dateOfBirth: "1998-07-21",
-    enrollments: [{ courseId: "hifz-foundation", status: "pending_approval" }],
+    enrollments: [{ courseId: "seerah-youth", status: "pending_approval" }],
   },
   {
     id: "03",
@@ -64,7 +269,7 @@ export const demoStudents: DemoStudent[] = [
     address: jk("Anantnag"),
     whatsapp: "919900000003",
     dateOfBirth: "1992-11-05",
-    enrollments: [{ courseId: "tajweed-intensive", status: "pending_approval" }],
+    enrollments: [{ courseId: "dua-daily-adab", status: "pending_approval" }],
   },
   {
     id: "04",
@@ -74,7 +279,7 @@ export const demoStudents: DemoStudent[] = [
     address: jk("Pulwama"),
     whatsapp: "919900000004",
     dateOfBirth: "1996-01-18",
-    enrollments: [{ courseId: "arabic-grammar", status: "pending_approval" }],
+    enrollments: [{ courseId: "quran-nazira", status: "awaiting_enrollment_fee" }],
   },
   {
     id: "05",
@@ -84,7 +289,13 @@ export const demoStudents: DemoStudent[] = [
     address: jk("Shopian"),
     whatsapp: "919900000005",
     dateOfBirth: "1989-09-30",
-    enrollments: [{ courseId: "fiqh-basics", status: "pending_approval" }],
+    enrollments: [
+      {
+        courseId: "hifz-foundation",
+        status: "awaiting_enrollment_fee",
+        payments: [enrollmentPayment("pending", "enrollment")],
+      },
+    ],
   },
   {
     id: "06",
@@ -98,7 +309,10 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "quran-nazira",
         status: "active",
-        payments: [{ status: "approved", month: "01", year: "2026" }],
+        payments: [
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+        ],
       },
     ],
   },
@@ -115,8 +329,9 @@ export const demoStudents: DemoStudent[] = [
         courseId: "hifz-foundation",
         status: "active",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
         ],
       },
     ],
@@ -134,9 +349,10 @@ export const demoStudents: DemoStudent[] = [
         courseId: "tajweed-intensive",
         status: "active",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
-          { status: "approved", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("approved", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -153,7 +369,10 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "arabic-grammar",
         status: "active",
-        payments: [{ status: "approved", month: "02", year: "2026" }],
+        payments: [
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+        ],
       },
     ],
   },
@@ -169,10 +388,6 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "seerah-youth",
         status: "active",
-        payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
-        ],
       },
     ],
   },
@@ -186,11 +401,12 @@ export const demoStudents: DemoStudent[] = [
     dateOfBirth: "2005-05-09",
     enrollments: [
       {
-        courseId: "quran-nazira",
+        courseId: "quran-nazira-women",
         status: "active",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "pending", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("pending", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -208,9 +424,10 @@ export const demoStudents: DemoStudent[] = [
         courseId: "hifz-foundation",
         status: "active",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
-          { status: "pending", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("pending", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -227,7 +444,10 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "fiqh-basics",
         status: "active",
-        payments: [{ status: "pending", month: "03", year: "2026" }],
+        payments: [
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("pending", "monthly", "03", "2026"),
+        ],
       },
     ],
   },
@@ -244,8 +464,9 @@ export const demoStudents: DemoStudent[] = [
         courseId: "tajweed-intensive",
         status: "active",
         payments: [
-          { status: "approved", month: "02", year: "2026" },
-          { status: "pending", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("pending", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -260,9 +481,9 @@ export const demoStudents: DemoStudent[] = [
     dateOfBirth: "2006-01-22",
     enrollments: [
       {
-        courseId: "seerah-youth",
-        status: "active",
-        payments: [{ status: "pending", month: "03", year: "2026" }],
+        courseId: "children-nazira",
+        status: "awaiting_enrollment_fee",
+        payments: [enrollmentPayment("pending", "enrollment")],
       },
     ],
   },
@@ -279,8 +500,9 @@ export const demoStudents: DemoStudent[] = [
         courseId: "quran-nazira",
         status: "active",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "declined", month: "02", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("declined", "monthly", "02", "2026"),
         ],
       },
     ],
@@ -297,7 +519,10 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "hifz-foundation",
         status: "active",
-        payments: [{ status: "declined", month: "02", year: "2026" }],
+        payments: [
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("declined", "monthly", "02", "2026"),
+        ],
       },
     ],
   },
@@ -314,9 +539,10 @@ export const demoStudents: DemoStudent[] = [
         courseId: "arabic-grammar",
         status: "active",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
-          { status: "declined", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("declined", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -335,9 +561,10 @@ export const demoStudents: DemoStudent[] = [
         status: "completed",
         completedAt: "2026-03-01T12:00:00.000Z",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
-          { status: "approved", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("approved", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -356,10 +583,11 @@ export const demoStudents: DemoStudent[] = [
         status: "completed",
         completedAt: "2026-04-01T12:00:00.000Z",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
-          { status: "approved", month: "03", year: "2026" },
-          { status: "approved", month: "04", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("approved", "monthly", "03", "2026"),
+          enrollmentPayment("approved", "monthly", "04", "2026"),
         ],
       },
     ],
@@ -378,8 +606,9 @@ export const demoStudents: DemoStudent[] = [
         status: "completed",
         completedAt: "2026-02-15T12:00:00.000Z",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
         ],
       },
     ],
@@ -398,9 +627,10 @@ export const demoStudents: DemoStudent[] = [
         status: "completed",
         completedAt: "2026-03-20T12:00:00.000Z",
         payments: [
-          { status: "approved", month: "01", year: "2026" },
-          { status: "approved", month: "02", year: "2026" },
-          { status: "approved", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("approved", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -417,13 +647,15 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "quran-nazira",
         status: "active",
-        payments: [{ status: "approved", month: "02", year: "2026" }],
+        payments: [
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+        ],
       },
       {
         courseId: "seerah-youth",
         status: "completed",
         completedAt: "2026-01-30T12:00:00.000Z",
-        payments: [{ status: "approved", month: "01", year: "2026" }],
       },
     ],
   },
@@ -439,14 +671,18 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "hifz-foundation",
         status: "active",
-        payments: [{ status: "approved", month: "01", year: "2026" }],
+        payments: [
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+        ],
       },
       {
-        courseId: "arabic-grammar",
+        courseId: "tafsir-juz-amma",
         status: "active",
         payments: [
-          { status: "approved", month: "02", year: "2026" },
-          { status: "pending", month: "03", year: "2026" },
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "02", "2026"),
+          enrollmentPayment("pending", "monthly", "03", "2026"),
         ],
       },
     ],
@@ -464,8 +700,13 @@ export const demoStudents: DemoStudent[] = [
       {
         courseId: "fiqh-basics",
         status: "active",
-        payments: [{ status: "approved", month: "01", year: "2026" }],
+        payments: [
+          enrollmentPayment("approved", "enrollment"),
+          enrollmentPayment("approved", "monthly", "01", "2026"),
+        ],
       },
     ],
   },
 ];
+
+export const demoStudents: DemoStudent[] = [...manualDemoStudents, ...buildGeneratedDemoStudents()];

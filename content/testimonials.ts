@@ -69,4 +69,44 @@ export const studentTestimonials: Testimonial[] = [
       "I completed my course and received a certificate that reflects real effort. The admin team and teachers are responsive, and payment verification was handled fairly.",
     rating: 5,
   },
+  {
+    id: "7",
+    name: "Hafsa Nazir",
+    location: "Sopore, J&K",
+    course: "Sisters Nazira",
+    initials: "HN",
+    quote:
+      "The sisters batch gave me a comfortable space to learn without hesitation. Ustadha Fatima’s corrections are gentle but precise.",
+    rating: 5,
+  },
+  {
+    id: "8",
+    name: "Junaid Mir",
+    location: "Ganderbal, J&K",
+    course: "Tafsir",
+    initials: "JM",
+    quote:
+      "Juz Amma Tafsir connected the surahs I recite daily with their meanings. The teacher references classical tafsir without overwhelming beginners.",
+    rating: 5,
+  },
+  {
+    id: "9",
+    name: "Samreen Akhter",
+    location: "Srinagar, J&K",
+    course: "Children's Program",
+    initials: "SA",
+    quote:
+      "Both my children joined the Nazira class. Short sessions, clear homework, and weekly parent updates make it easy to support them at home.",
+    rating: 4,
+  },
+  {
+    id: "10",
+    name: "Irfan Nazir",
+    location: "Baramulla, J&K",
+    course: "Qiraat",
+    initials: "IN",
+    quote:
+      "The advanced Qiraat workshop pushed me beyond basic Tajweed. Live recitation feedback from Qari Tariq was invaluable.",
+    rating: 5,
+  },
 ];

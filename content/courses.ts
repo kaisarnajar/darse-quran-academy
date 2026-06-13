@@ -6,7 +6,7 @@ export type Course = {
   duration: string;
   level: "Beginner" | "Intermediate" | "Advanced";
   category: string;
-  /** Legacy DB field; UPI registration fee is derived from level in lib/course-pricing.ts */
+  /** One-time enrollment fee in paise; 0 = free enrollment (admin approval only). */
   priceInrPaise: number;
   teacherId: string;
 };
@@ -81,7 +81,103 @@ export const courses: Course[] = [
     duration: "Ongoing",
     level: "Beginner",
     category: "Seerah",
-    priceInrPaise: 9900,
+    priceInrPaise: 0,
     teacherId: "6",
+  },
+  {
+    id: "tafsir-juz-amma",
+    title: "Tafsir of Juz Amma",
+    description:
+      "Word-by-word and thematic study of the last Juz with practical lessons for daily worship.",
+    startDate: "July 2026",
+    duration: "4 months",
+    level: "Intermediate",
+    category: "Tafsir",
+    priceInrPaise: 19900,
+    teacherId: "7",
+  },
+  {
+    id: "quran-nazira-women",
+    title: "Quran Nazira — Sisters Batch",
+    description:
+      "Sisters-only Nazira classes with a comfortable learning environment and qualified female instructors.",
+    startDate: "June 2026",
+    duration: "6 months",
+    level: "Beginner",
+    category: "Quran",
+    priceInrPaise: 9900,
+    teacherId: "5",
+  },
+  {
+    id: "children-nazira",
+    title: "Children's Nazira (Ages 6–12)",
+    description:
+      "Playful yet disciplined Nazira program for children with short sessions and parent progress updates.",
+    startDate: "June 2026",
+    duration: "9 months",
+    level: "Beginner",
+    category: "Quran",
+    priceInrPaise: 9900,
+    teacherId: "8",
+  },
+  {
+    id: "qiraat-advanced",
+    title: "Advanced Qiraat Workshop",
+    description:
+      "For students who have completed Tajweed — explore Hafs and Warsh with live recitation coaching.",
+    startDate: "September 2026",
+    duration: "5 months",
+    level: "Advanced",
+    category: "Qiraat",
+    priceInrPaise: 24900,
+    teacherId: "9",
+  },
+  {
+    id: "islamic-history",
+    title: "Islamic History — Khulafa to Modern Era",
+    description:
+      "Survey of major periods in Islamic history with focus on lessons for contemporary Muslims.",
+    startDate: "August 2026",
+    duration: "6 months",
+    level: "Intermediate",
+    category: "Islamic Studies",
+    priceInrPaise: 14900,
+    teacherId: "11",
+  },
+  {
+    id: "maktab-foundation",
+    title: "Maktab Foundation (New Muslims & Adults)",
+    description:
+      "Free introductory program covering Arabic letters, basic salah, and essential Islamic manners.",
+    startDate: "Ongoing",
+    duration: "3 months",
+    level: "Beginner",
+    category: "Islamic Studies",
+    priceInrPaise: 0,
+    teacherId: "12",
+  },
+  {
+    id: "dua-daily-adab",
+    title: "Daily Duas & Islamic Adab",
+    description:
+      "Memorize essential duas and learn prophetic etiquette for home, masjid, and community life.",
+    startDate: "Ongoing",
+    duration: "8 weeks",
+    level: "Beginner",
+    category: "Islamic Studies",
+    priceInrPaise: 0,
+    teacherId: "4",
+  },
+  {
+    id: "sisters-tajweed",
+    title: "Sisters Tajweed Circle",
+    description:
+      "Evening Tajweed correction circle for sisters with weekly targets and recorded revision guides.",
+    startDate: "July 2026",
+    duration: "4 months",
+    level: "Intermediate",
+    category: "Tajweed",
+    priceInrPaise: 14900,
+    teacherId: "10",
   },
 ];
