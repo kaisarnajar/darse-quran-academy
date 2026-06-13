@@ -110,9 +110,17 @@ export default async function AboutPage() {
                 href={ACADEMY_LOCATION.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-gold"
+                className="inline-flex items-start gap-1.5 font-medium text-[#1a73e8] underline decoration-[#1a73e8]/50 underline-offset-2 transition-colors hover:text-[#1557b0] hover:decoration-[#1557b0] sm:items-center"
               >
-                {ACADEMY_LOCATION.label}
+                <svg
+                  className="mt-0.5 h-4 w-4 shrink-0 text-[#ea4335] sm:mt-0"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
+                </svg>
+                <span>{ACADEMY_LOCATION.label}</span>
               </a>
             </li>
           </ul>
