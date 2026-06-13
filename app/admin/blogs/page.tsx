@@ -57,7 +57,7 @@ export default async function AdminBlogsPage({
         {posts.length === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">No blog posts yet.</p>
         ) : (
-          <table className="w-full min-w-[800px] text-left text-sm">
+          <table className="w-full min-w-[920px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Title</th>
@@ -66,7 +66,7 @@ export default async function AdminBlogsPage({
                 <th className="px-4 py-3 font-medium">Author</th>
                 <th className="px-4 py-3 font-medium">Homepage</th>
                 <th className="px-4 py-3 font-medium">Created</th>
-                <th className="px-4 py-3 font-medium" />
+                <th className="w-[1%] whitespace-nowrap px-4 py-3 font-medium" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -94,8 +94,8 @@ export default async function AdminBlogsPage({
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap items-center justify-end gap-3">
+                    <td className="whitespace-nowrap px-4 py-3">
+                      <div className="flex items-center justify-end gap-3">
                         {post.published && post.approvalStatus === "APPROVED" && (
                           <Link
                             href={`/blog/${post.id}`}
