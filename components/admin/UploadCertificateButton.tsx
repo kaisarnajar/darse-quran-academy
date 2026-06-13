@@ -48,7 +48,7 @@ export function UploadCertificateButton({
 
   return (
     <label className={`${actionButtonClass} cursor-pointer ${loading ? "pointer-events-none opacity-60" : ""}`}>
-      {loading ? "Uploading…" : "Upload Certificate"}
+      {loading ? "Uploading…" : hasCertificate ? "Reupload certificate" : "Upload Certificate"}
       <input
         ref={fileInputRef}
         type="file"

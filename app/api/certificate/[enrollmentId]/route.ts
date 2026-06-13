@@ -8,10 +8,11 @@ import { getCourseById } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ enrollmentId: string }> },
 ) {
   const { enrollmentId } = await params;
+  const inline = new URL(request.url).searchParams.get("inline") === "1";
 
   const enrollment = await prisma.enrollment.findUnique({
     where: { id: enrollmentId },
@@ -54,7 +55,7 @@ export async function GET(
     return new NextResponse(Buffer.from(pdfBytes), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${filename}"`,
         "Cache-Control": "private, no-cache",
       },
     });

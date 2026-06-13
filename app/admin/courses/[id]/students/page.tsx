@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RemoveEnrollmentButton } from "@/components/admin/RemoveEnrollmentButton";
 import { UploadCertificateButton } from "@/components/admin/UploadCertificateButton";
+import { ViewCertificateButton } from "@/components/admin/ViewCertificateButton";
 import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
 import { getCourseById } from "@/lib/courses";
 import { getCourseRosterEnrollments } from "@/lib/enrollments";
@@ -64,11 +65,16 @@ export default async function CourseStudentsPage({
                   <td className="whitespace-nowrap px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       {isCompletedCourse && (
-                        <UploadCertificateButton
-                          enrollmentId={enrollment.id}
-                          courseId={id}
-                          hasCertificate={Boolean(enrollment.uploadedCertificatePath)}
-                        />
+                        <>
+                          {enrollment.uploadedCertificatePath && (
+                            <ViewCertificateButton enrollmentId={enrollment.id} />
+                          )}
+                          <UploadCertificateButton
+                            enrollmentId={enrollment.id}
+                            courseId={id}
+                            hasCertificate={Boolean(enrollment.uploadedCertificatePath)}
+                          />
+                        </>
                       )}
                       <RemoveEnrollmentButton
                         enrollmentId={enrollment.id}
