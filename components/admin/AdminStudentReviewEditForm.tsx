@@ -87,7 +87,7 @@ export function AdminStudentReviewEditForm({
         if (featureOnHomepage) {
           formData.set("featuredOnHomepage", "on");
         }
-        const result = await saveApprovedReviewHomepageSetting(review.id, formData, getReturnTo());
+        const result = await saveApprovedReviewHomepageSetting(review.id, formData);
         if (result?.error) {
           window.alert(result.error);
         }

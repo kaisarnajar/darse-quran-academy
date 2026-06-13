@@ -157,7 +157,6 @@ export async function featureStudentReview(
 export async function saveApprovedReviewHomepageSetting(
   reviewId: string,
   formData: FormData,
-  returnTo?: string,
 ): Promise<{ error?: string }> {
   await requireAdmin();
 
@@ -183,7 +182,7 @@ export async function saveApprovedReviewHomepageSetting(
     });
 
     revalidateReviewPaths(reviewId);
-    redirect(returnUrl(returnTo, "featured"));
+    redirect("/admin/review-approvals?featured=1");
   }
 
   if (!featureOnHomepage && review.featuredOnHomepage) {
@@ -193,8 +192,8 @@ export async function saveApprovedReviewHomepageSetting(
     });
 
     revalidateReviewPaths(reviewId);
-    redirect(returnUrl(returnTo, "unfeatured"));
+    redirect("/admin/review-approvals?unfeatured=1");
   }
 
-  redirect(`/admin/review-approvals/${reviewId}/edit?saved=1`);
+  redirect("/admin/review-approvals?saved=1");
 }

@@ -6,7 +6,7 @@ import { getPendingBlogPostsForAdmin } from "@/lib/blog-approval";
 export default async function AdminBlogApprovalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ approved?: string; rejected?: string }>;
+  searchParams: Promise<{ approved?: string; rejected?: string; saved?: string }>;
 }) {
   const params = await searchParams;
   const pendingPosts = await getPendingBlogPostsForAdmin();
@@ -28,6 +28,9 @@ export default async function AdminBlogApprovalsPage({
         <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Blog post rejected. The teacher can edit and resubmit.
         </p>
+      )}
+      {params.saved === "1" && (
+        <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">

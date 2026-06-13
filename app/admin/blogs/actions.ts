@@ -140,8 +140,11 @@ export async function updateBlogPost(id: string, formData: FormData) {
     },
   });
 
-  revalidateBlogPaths();
+  revalidateBlogPaths(id);
   revalidatePath(`/blog/${id}`);
+  if (contentLocked) {
+    redirect("/admin/blog-approvals?saved=1");
+  }
   redirect(adminListPath(`/${id}/edit?saved=1`));
 }
 
