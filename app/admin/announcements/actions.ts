@@ -9,7 +9,6 @@ import {
   hasPartialFormDate,
 } from "@/lib/form-date";
 import { prisma } from "@/lib/prisma";
-import { deleteSiteAnnouncementImage } from "@/lib/site-announcement-upload";
 import { enforceHomepageAnnouncementLimit } from "@/lib/site-announcements";
 import { siteAnnouncementSchema } from "@/lib/validations";
 
@@ -154,7 +153,6 @@ export async function deleteSiteAnnouncement(id: string) {
     redirect(`${adminListPath()}?error=notfound`);
   }
 
-  await deleteSiteAnnouncementImage(existing.imagePath);
   await prisma.siteAnnouncement.delete({ where: { id } });
 
   revalidateSiteAnnouncementPaths();

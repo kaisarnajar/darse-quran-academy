@@ -202,7 +202,6 @@ model SiteAnnouncement {
   body           String
   eventDate      String?
   location       String?
-  imagePath      String?
   showOnHomepage Boolean  @default(false)
   published      Boolean  @default(true)
   createdById    String?
