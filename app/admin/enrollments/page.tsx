@@ -15,11 +15,13 @@ function EnrollmentRequestsTable({
   courseTitleById,
   emptyMessage,
   showApprove,
+  showReject = true,
 }: {
   enrollments: PendingEnrollmentWithUser[];
   courseTitleById: Map<string, string>;
   emptyMessage: string;
   showApprove: boolean;
+  showReject?: boolean;
 }) {
   if (enrollments.length === 0) {
     return <p className="px-4 py-8 text-center text-sm text-muted">{emptyMessage}</p>;
@@ -60,10 +62,12 @@ function EnrollmentRequestsTable({
                     courseId={enrollment.courseId}
                   />
                 )}
-                <RejectEnrollmentButton
-                  enrollmentId={enrollment.id}
-                  courseId={enrollment.courseId}
-                />
+                {showReject && (
+                  <RejectEnrollmentButton
+                    enrollmentId={enrollment.id}
+                    courseId={enrollment.courseId}
+                  />
+                )}
                 <Link
                   href={`/admin/students/${enrollment.user.id}`}
                   className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent-muted/50"
@@ -94,11 +98,7 @@ export default async function AdminEnrollmentsPage() {
       <h1 className="font-serif text-2xl font-bold text-primary">Course enrollments</h1>
       <p className="mt-1 text-sm text-muted">
         Approve free enrollment requests here. Paid courses are activated after you verify the
-        enrollment fee under{" "}
-        <Link href="/admin/payment-approvals#enrollment-fees" className="font-medium text-primary hover:underline">
-          Payment approvals
-        </Link>
-        .
+        enrollment fee under Payment approvals.
       </p>
 
       <section className="mt-8">
@@ -154,6 +154,7 @@ export default async function AdminEnrollmentsPage() {
             courseTitleById={titleById}
             emptyMessage="No paid enrollments awaiting student payment."
             showApprove={false}
+            showReject={false}
           />
         </div>
       </section>
