@@ -1,4 +1,11 @@
 import type { Course, Teacher } from "@prisma/client";
+import { getCourseCategoryOptions } from "@/lib/course-categories";
+import {
+  COURSE_START_DATE_DAYS,
+  COURSE_START_DATE_MONTHS,
+  getCourseStartDateParts,
+  getCourseStartDateYearOptions,
+} from "@/lib/course-start-date";
 import { HOMEPAGE_FEATURED_COURSES_MAX } from "@/lib/courses";
 import { getCoursePricingFromCourse, getDefaultFeesForLevel } from "@/lib/course-pricing";
 import { COURSE_STATUS_OPTIONS } from "@/lib/course-status";
@@ -16,6 +23,11 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
   const feeDefaults = course
     ? getCoursePricingFromCourse(course)
     : getDefaultFeesForLevel("Beginner");
+  const startDateParts = getCourseStartDateParts(course?.startDate);
+  const startDateYears = getCourseStartDateYearOptions(
+    startDateParts.year ? Number(startDateParts.year) : undefined,
+  );
+  const categoryOptions = getCourseCategoryOptions(course?.category);
 
   return (
     <form action={action} className="mx-auto max-w-2xl space-y-5">
@@ -47,30 +59,82 @@ export function CourseForm({ course, teachers, featuredCount, action, submitLabe
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="startDate" className={labelClassName}>
-            Start date
-          </label>
-          <input
-            id="startDate"
-            name="startDate"
-            required
-            defaultValue={course?.startDate}
-            placeholder="e.g. June 2026"
-            className={inputClassName}
-          />
+        <div className="sm:col-span-2">
+          <span className={labelClassName}>Start date</span>
+          <div className="mt-1 grid grid-cols-3 gap-2">
+            <select
+              id="startDay"
+              name="startDay"
+              required
+              defaultValue={startDateParts.day}
+              className={inputClassName}
+              aria-label="Start day"
+            >
+              <option value="" disabled>
+                Day
+              </option>
+              {COURSE_START_DATE_DAYS.map((day) => (
+                <option key={day.value} value={day.value}>
+                  {day.label}
+                </option>
+              ))}
+            </select>
+            <select
+              id="startMonth"
+              name="startMonth"
+              required
+              defaultValue={startDateParts.month}
+              className={inputClassName}
+              aria-label="Start month"
+            >
+              <option value="" disabled>
+                Month
+              </option>
+              {COURSE_START_DATE_MONTHS.map((month) => (
+                <option key={month.value} value={month.value}>
+                  {month.label}
+                </option>
+              ))}
+            </select>
+            <select
+              id="startYear"
+              name="startYear"
+              required
+              defaultValue={startDateParts.year}
+              className={inputClassName}
+              aria-label="Start year"
+            >
+              <option value="" disabled>
+                Year
+              </option>
+              {startDateYears.map((year) => (
+                <option key={year.value} value={year.value}>
+                  {year.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div>
           <label htmlFor="category" className={labelClassName}>
             Category
           </label>
-          <input
+          <select
             id="category"
             name="category"
             required
-            defaultValue={course?.category}
+            defaultValue={course?.category ?? ""}
             className={inputClassName}
-          />
+          >
+            <option value="" disabled>
+              Select a category
+            </option>
+            {categoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

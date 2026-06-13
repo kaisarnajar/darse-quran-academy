@@ -4,6 +4,7 @@ import {
   getProfileCountryOrDefault,
   isValidProfileLocalNumber,
 } from "@/lib/countries";
+import { COURSE_CATEGORIES } from "@/lib/course-categories";
 import { FATWA_CATEGORIES } from "@/lib/fatwa";
 import { isPaymentYearAllowed } from "@/lib/monthly-payments";
 import { OCCUPATION_VALUES } from "@/lib/occupations";
@@ -18,12 +19,14 @@ export const courseStatusEnum = z.enum([
   "ON_HOLD",
 ]);
 
+export const courseCategoryEnum = z.enum(COURSE_CATEGORIES);
+
 export const courseSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().min(10, "Description is required"),
-  startDate: z.string().min(1, "Start date is required"),
+  startDate: z.string().min(1, "Start date is required."),
   level: levelEnum,
-  category: z.string().min(1, "Category is required"),
+  category: courseCategoryEnum,
   enrollmentFeeInr: z.coerce.number().min(0, "Enrollment fee cannot be negative."),
   monthlyFeeInr: z.coerce.number().min(0, "Monthly fee cannot be negative."),
   teacherId: z.string().min(1, "Teacher is required"),

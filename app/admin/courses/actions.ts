@@ -7,6 +7,7 @@ import { resolveCourseFeaturedUpdate } from "@/lib/courses";
 import { prisma } from "@/lib/prisma";
 import { getDefaultFeesForLevel } from "@/lib/course-pricing";
 import { uniqueSlug } from "@/lib/slug";
+import { getCourseStartDateFromForm } from "@/lib/course-start-date";
 import { courseSchema } from "@/lib/validations";
 
 function parseCourseForm(formData: FormData) {
@@ -15,10 +16,12 @@ function parseCourseForm(formData: FormData) {
   const defaults = getDefaultFeesForLevel(level);
   const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
 
+  const startDate = getCourseStartDateFromForm(formData);
+
   const parsed = courseSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
-    startDate: formData.get("startDate"),
+    startDate,
     level,
     category: formData.get("category"),
     enrollmentFeeInr: formData.get("enrollmentFeeInr") ?? defaults.registrationFeeInr,
