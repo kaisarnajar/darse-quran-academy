@@ -77,7 +77,7 @@ export default async function AdminBlogsPage({
                     <td className="px-4 py-3 font-medium text-foreground">{post.title}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${badge.className}`}
+                        className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${badge.className}`}
                       >
                         {badge.label}
                       </span>
