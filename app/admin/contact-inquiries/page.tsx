@@ -119,7 +119,7 @@ export default async function AdminContactInquiriesPage({
                         href={`/admin/contact-inquiries/${inquiry.id}/reply`}
                         className="font-medium text-primary hover:underline"
                       >
-                        {inquiry.reply ? "Edit reply" : "Reply"}
+                        {inquiry.reply ? "Edit" : "Reply"}
                       </Link>
                       <DeleteContactInquiryButton
                         id={inquiry.id}

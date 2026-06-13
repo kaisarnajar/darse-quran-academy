@@ -41,7 +41,7 @@ export default async function AdminContactInquiryDetailPage({
           href={`/admin/contact-inquiries/${id}/reply`}
           className="inline-flex min-h-11 items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground hover:bg-accent-muted/50"
         >
-          {inquiry.reply ? "Edit reply" : "Reply"}
+          {inquiry.reply ? "Edit" : "Reply"}
         </Link>
       </div>
 
