@@ -30,12 +30,6 @@ export function AdminSidebar() {
             </Link>
           );
         })}
-        <Link
-          href="/"
-          className="mt-2 rounded-md px-3 py-2 text-sm font-medium text-muted hover:bg-accent-muted/50"
-        >
-          ← Back to site
-        </Link>
       </nav>
     </aside>
   );
