@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPendingBlogApprovalCount } from "@/lib/blog-approval";
+import { getPendingContactInquiryCount } from "@/lib/contact-inquiries";
 import { getPendingEnrollmentApprovalCount } from "@/lib/enrollments";
 import { getPendingStudentReviewCount } from "@/lib/student-reviews";
 import { getPendingMonthlyPaymentCount } from "@/lib/monthly-payments";
@@ -18,6 +19,7 @@ export default async function AdminDashboardPage() {
     blogCount,
     pendingBlogCount,
     pendingReviewCount,
+    pendingContactCount,
     dailyInspirationCount,
     recentEnrollments,
   ] = await Promise.all([
@@ -31,6 +33,7 @@ export default async function AdminDashboardPage() {
     prisma.blogPost.count(),
     getPendingBlogApprovalCount(),
     getPendingStudentReviewCount(),
+    getPendingContactInquiryCount(),
     prisma.dailyInspiration.count(),
     prisma.enrollment.findMany({
       where: { status: "active" },
@@ -71,6 +74,12 @@ export default async function AdminDashboardPage() {
       count: pendingReviewCount,
       href: "/admin/review-approvals",
       highlight: pendingReviewCount > 0,
+    },
+    {
+      label: "Contact inquiries",
+      count: pendingContactCount,
+      href: "/admin/contact-inquiries",
+      highlight: pendingContactCount > 0,
     },
     {
       label: "Payment approvals",

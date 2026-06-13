@@ -15,7 +15,7 @@ const navLinks = [
   { href: "/teachers", label: "Teachers" },
   { href: "/fatwa", label: "Fatwa" },
   { href: "/library", label: "Resources" },
-  { href: "/#contact", label: "Contact Us" },
+  { href: "/contact", label: "Contact Us" },
 ];
 
 export function Header() {

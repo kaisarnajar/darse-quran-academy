@@ -17,6 +17,7 @@ const links = [
   { href: "/admin/teachers", label: "Teachers" },
   { href: "/admin/library", label: "Digital Library" },
   { href: "/admin/fatwa", label: "Fatwa" },
+  { href: "/admin/contact-inquiries", label: "Contact inquiries" },
   { href: "/admin/blog-approvals", label: "Blog approvals" },
   { href: "/admin/review-approvals", label: "Review approvals" },
   { href: "/admin/payment-approvals", label: "Payment approvals" },

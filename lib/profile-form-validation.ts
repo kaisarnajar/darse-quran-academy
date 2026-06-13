@@ -1,5 +1,5 @@
 import { zodResultToFormValidation, type FormValidationResult } from "@/lib/form-validation";
-import { studentReviewSchema } from "@/lib/validations";
+import { contactInquirySchema, studentReviewSchema } from "@/lib/validations";
 
 export type StudentReviewFormValues = {
   quote: string;
@@ -17,4 +17,15 @@ export function validateStudentReviewForm(values: StudentReviewFormValues): Form
       rating: values.rating > 0 ? values.rating : "",
     }),
   );
+}
+
+export type ContactInquiryFormValues = {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+};
+
+export function validateContactInquiryForm(values: ContactInquiryFormValues): FormValidationResult {
+  return zodResultToFormValidation(contactInquirySchema.safeParse(values));
 }

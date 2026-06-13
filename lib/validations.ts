@@ -272,3 +272,32 @@ export type CourseInput = z.infer<typeof courseSchema>;
 export type TeacherAdminInput = z.infer<typeof teacherAdminSchema>;
 export type LibraryItemInput = z.infer<typeof libraryItemSchema>;
 export type FatwaQuestionInput = z.infer<typeof fatwaQuestionSchema>;
+
+export const contactInquirySchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),
+  email: z.string().trim().email("Enter a valid email address."),
+  phone: z
+    .string()
+    .trim()
+    .min(7, "Enter a valid phone number.")
+    .max(20, "Phone number is too long.")
+    .refine((value) => {
+      const digits = value.replace(/\D/g, "");
+      return digits.length >= 7 && digits.length <= 15;
+    }, "Enter a valid phone number with 7 to 15 digits."),
+  message: z
+    .string()
+    .trim()
+    .min(20, "Your message must be at least 20 characters.")
+    .max(5000, "Message must be at most 5000 characters."),
+});
+
+export const contactInquiryReplySchema = z.object({
+  reply: z
+    .string()
+    .trim()
+    .min(10, "Reply must be at least 10 characters.")
+    .max(10000, "Reply must be at most 10000 characters."),
+});
+
+export type ContactInquiryInput = z.infer<typeof contactInquirySchema>;

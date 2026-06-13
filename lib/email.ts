@@ -316,3 +316,57 @@ export async function sendFatwaAnswerEmail(params: FatwaAnswerEmailParams): Prom
     html,
   });
 }
+
+export type ContactInquiryReplyEmailParams = {
+  to: string;
+  name: string;
+  originalMessage: string;
+  reply: string;
+};
+
+export async function sendContactInquiryReplyEmail(
+  params: ContactInquiryReplyEmailParams,
+): Promise<void> {
+  const { to, name, originalMessage, reply } = params;
+  const displayName = name || "Reader";
+
+  const subject = "Reply from Darse Quran Academy";
+  const text = [
+    `Assalamu Alaikum ${displayName},`,
+    "",
+    "Thank you for contacting Darse Quran Academy. Here is our reply to your message:",
+    "",
+    reply,
+    "",
+    "— Your original message —",
+    originalMessage,
+    "",
+    "Darse Quran Academy",
+  ].join("\n");
+
+  const html = [
+    '<div style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1c1917; max-width: 560px;">',
+    `<p>Assalamu Alaikum <strong>${escapeHtml(displayName)}</strong>,</p>`,
+    "<p>Thank you for contacting Darse Quran Academy. Here is our reply to your message:</p>",
+    `<div style="margin: 20px 0; padding: 16px; border-left: 4px solid #d4a017; background: #fef9e7; white-space: pre-wrap;">${escapeHtml(reply)}</div>`,
+    '<p style="font-size: 14px; color: #57534e; margin-top: 24px;">Your original message:</p>',
+    `<div style="font-size: 14px; color: #57534e; white-space: pre-wrap;">${escapeHtml(originalMessage)}</div>`,
+    '<p style="margin-top: 24px; font-size: 14px; color: #57534e;">— Darse Quran Academy</p>',
+    "</div>",
+  ].join("");
+
+  if (!isEmailConfigured()) {
+    console.info("[email] SMTP not configured. Contact reply email would be sent to:", to);
+    console.info("[email] Reply preview:", reply);
+    return;
+  }
+
+  const transport = createTransport();
+  await transport.sendMail({
+    from: getFromAddress(),
+    to,
+    subject,
+    text,
+    html,
+  });
+}

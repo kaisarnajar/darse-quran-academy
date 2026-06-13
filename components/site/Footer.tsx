@@ -115,6 +115,11 @@ export async function Footer() {
           <div id="contact">
             <p className="text-sm font-bold uppercase tracking-wide text-foreground">Contact</p>
             <ul className="mt-4 space-y-2 text-sm text-muted">
+              <li>
+                <Link href="/contact" className="font-medium text-foreground hover:text-gold">
+                  Send us a message
+                </Link>
+              </li>
               {settings.contactEmail && (
                 <li>
                   <a href={`mailto:${settings.contactEmail}`} className="hover:text-gold">

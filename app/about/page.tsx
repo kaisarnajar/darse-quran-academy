@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Section } from "@/components/site/Section";
 import { ACADEMY_LOCATION, getAcademyLocationEmbedUrl } from "@/lib/academy-location";
 import { formatWhatsAppForDisplay, getSocialLinksSettings } from "@/lib/social-links";
@@ -138,7 +139,11 @@ export default async function AboutPage() {
 
           <p className="mt-5 text-left text-sm leading-relaxed text-muted sm:mt-6 sm:text-center">
             For course enrollment inquiries, please mention the course name in your message. We aim to
-            respond within 2–3 business days.
+            respond within 2–3 business days.{" "}
+            <Link href="/contact" className="font-medium text-primary hover:underline">
+              Send us a message
+            </Link>
+            .
           </p>
         </div>
       </Section>
