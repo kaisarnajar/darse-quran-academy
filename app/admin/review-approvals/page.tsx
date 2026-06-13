@@ -175,24 +175,10 @@ export default async function AdminReviewApprovalsPage({
 
       <section className="mt-10">
         <h2 className="font-serif text-lg font-semibold text-foreground">
-          On homepage
-          <span className="ml-2 text-sm font-normal text-muted">
-            ({featuredCount}/{HOMEPAGE_FEATURED_REVIEWS_MAX})
-          </span>
-        </h2>
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
-          <ReviewTable
-            reviews={featuredReviews}
-            showHomepage
-            emptyMessage="No reviews on the homepage yet. Approve submissions above or add one from All reviews."
-          />
-        </div>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="font-serif text-lg font-semibold text-foreground">
           All reviews
-          <span className="ml-2 text-sm font-normal text-muted">({approvedReviews.length} approved)</span>
+          <span className="ml-2 text-sm font-normal text-muted">
+            ({approvedReviews.length} approved · {featuredCount}/{HOMEPAGE_FEATURED_REVIEWS_MAX} on homepage)
+          </span>
         </h2>
         <p className="mt-1 text-sm text-muted">
           Every approved review stays here. Use Edit to add or remove homepage visibility.
