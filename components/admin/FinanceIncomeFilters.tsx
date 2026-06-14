@@ -101,7 +101,7 @@ export function FinanceIncomeFilters({ filters, courses, students }: FinanceInco
         type="submit"
         className="min-h-11 rounded-md bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-light"
       >
-        Filter income
+        Apply filters
       </button>
     </form>
   );
