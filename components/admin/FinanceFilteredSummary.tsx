@@ -12,7 +12,6 @@ export function FinanceFilteredSummary({
   variant,
 }: FinanceFilteredSummaryProps) {
   const amountClass = variant === "income" ? "text-emerald-700" : "text-red-700";
-  const recordLabel = recordCount === 1 ? "record" : "records";
 
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-sm">
@@ -22,7 +21,6 @@ export function FinanceFilteredSummary({
           <p className="text-sm text-muted">Total records</p>
           <p className="mt-0.5 text-2xl font-bold text-foreground">
             {recordCount.toLocaleString("en-IN")}
-            <span className="ml-1.5 text-sm font-normal text-muted">{recordLabel}</span>
           </p>
         </div>
         <div>
