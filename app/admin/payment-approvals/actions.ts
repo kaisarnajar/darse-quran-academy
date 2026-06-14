@@ -18,6 +18,7 @@ import { getCourseById } from "@/lib/courses";
 function revalidatePaymentPaths(userId: string, courseId?: string | null) {
   const paths = [
     "/admin",
+    "/admin/finance",
     "/admin/enrollments",
     "/admin/payment-approvals",
     "/admin/students",
@@ -87,6 +88,7 @@ export async function confirmMonthlyPayment(
       courseId: submission.courseId,
       amountInrPaise: submission.amountInrPaise,
       paidAt: new Date(),
+      paymentType: submission.paymentType,
       description: submission.label,
     },
   });

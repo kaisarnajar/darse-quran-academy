@@ -5,6 +5,7 @@ import {
   isValidProfileLocalNumber,
 } from "@/lib/countries";
 import { COURSE_CATEGORIES } from "@/lib/course-categories";
+import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_TEACHER_SALARY } from "@/lib/expense-categories";
 import { FATWA_CATEGORIES } from "@/lib/fatwa";
 import { LIBRARY_LANGUAGES, LIBRARY_TOPICS } from "@/lib/library-options";
 import { isPaymentYearAllowed } from "@/lib/monthly-payments";
@@ -287,6 +288,26 @@ export const paymentRecordSchema = z.object({
   paidAt: z.string().min(1, "Payment date is required."),
   description: z.string().trim().max(500).optional(),
 });
+
+export const expenseCategoryEnum = z.enum(EXPENSE_CATEGORIES);
+
+export const expenseSchema = z
+  .object({
+    category: expenseCategoryEnum,
+    amountInr: z.coerce.number().positive("Amount must be greater than zero."),
+    paidAt: z.string().min(1, "Payment date is required."),
+    description: z.string().trim().max(500).optional(),
+    teacherId: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.category === EXPENSE_CATEGORY_TEACHER_SALARY && !data.teacherId?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Select a teacher for salary expenses.",
+        path: ["teacherId"],
+      });
+    }
+  });
 
 export const contactInquirySchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters.").max(100),

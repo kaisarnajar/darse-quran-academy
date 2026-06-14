@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth-actions";
 import { getCourseById } from "@/lib/courses";
 import { rupeesToPaise } from "@/lib/form";
+import { PAYMENT_TYPE_MANUAL } from "@/lib/monthly-payment-status";
 import { prisma } from "@/lib/prisma";
 import { paymentRecordSchema } from "@/lib/validations";
 
@@ -54,11 +55,13 @@ export async function recordStudentPayment(
       courseId,
       amountInrPaise: rupeesToPaise(parsed.data.amountInr),
       paidAt,
+      paymentType: PAYMENT_TYPE_MANUAL,
       description: parsed.data.description?.trim() || null,
     },
   });
 
   revalidatePath(`/admin/students/${userId}`);
+  revalidatePath("/admin/finance");
   revalidatePath("/profile/payments");
 
   return { success: "Payment recorded." };

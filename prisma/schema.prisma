@@ -173,6 +173,7 @@ model Teacher {
   updatedAt      DateTime @updatedAt
   courses        Course[]
   announcements  CourseAnnouncement[]
+  expenses       Expense[]
 }
 
 model CourseAnnouncement {
@@ -363,6 +364,7 @@ model PaymentRecord {
   courseId             String?
   amountInrPaise       Int
   paidAt               DateTime
+  paymentType          String?
   description          String?
   uploadedReceiptPath  String?
   receiptEmailSentAt   DateTime?
@@ -374,6 +376,25 @@ model PaymentRecord {
 
   @@index([userId])
   @@index([paidAt])
+  @@index([courseId])
+  @@index([paymentType])
+}
+
+/** Academy operational expenses (salaries, hosting, etc.). */
+model Expense {
+  id             String   @id @default(cuid())
+  category       String
+  amountInrPaise Int
+  paidAt         DateTime
+  description    String?
+  teacherId      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  teacher        Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+
+  @@index([category])
+  @@index([paidAt])
+  @@index([teacherId])
 }
 
 /** Social and WhatsApp links (single row, id = "default"). Editable in admin. */

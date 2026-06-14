@@ -1,5 +1,21 @@
 export const PAYMENT_TYPE_MONTHLY = "monthly" as const;
 export const PAYMENT_TYPE_ENROLLMENT = "enrollment" as const;
+export const PAYMENT_TYPE_MANUAL = "manual" as const;
+
+export const INCOME_PAYMENT_TYPES = [
+  PAYMENT_TYPE_ENROLLMENT,
+  PAYMENT_TYPE_MONTHLY,
+  PAYMENT_TYPE_MANUAL,
+] as const;
+
+export type IncomePaymentType = (typeof INCOME_PAYMENT_TYPES)[number];
+
+export function incomePaymentTypeLabel(type: string | null | undefined): string {
+  if (type === PAYMENT_TYPE_ENROLLMENT) return "Enrollment fee";
+  if (type === PAYMENT_TYPE_MONTHLY) return "Monthly fee";
+  if (type === PAYMENT_TYPE_MANUAL) return "Manual";
+  return type ?? "Unknown";
+}
 
 export const MONTHLY_PAYMENT_PENDING = "pending_verification" as const;
 export const MONTHLY_PAYMENT_APPROVED = "approved" as const;
