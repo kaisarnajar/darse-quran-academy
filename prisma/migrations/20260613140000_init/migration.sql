@@ -259,13 +259,26 @@ CREATE TABLE "PaymentRecord" (
     "courseId" TEXT,
     "amountInrPaise" INTEGER NOT NULL,
     "paidAt" DATETIME NOT NULL,
+    "paymentType" TEXT,
     "description" TEXT,
-    "uploadedReceiptPath" TEXT,
     "receiptEmailSentAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "PaymentRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "PaymentRecord_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Expense" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "category" TEXT NOT NULL,
+    "amountInrPaise" INTEGER NOT NULL,
+    "paidAt" DATETIME NOT NULL,
+    "description" TEXT,
+    "teacherId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Expense_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -311,6 +324,21 @@ CREATE TABLE "CoursePaymentSubmission" (
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "CoursePaymentSubmission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "CoursePaymentSubmission_paymentRecordId_fkey" FOREIGN KEY ("paymentRecordId") REFERENCES "PaymentRecord" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "StudentNotification" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "body" TEXT,
+    "href" TEXT NOT NULL,
+    "readAt" DATETIME,
+    "sourceType" TEXT,
+    "sourceId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "StudentNotification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -404,6 +432,21 @@ CREATE INDEX "PaymentRecord_userId_idx" ON "PaymentRecord"("userId");
 CREATE INDEX "PaymentRecord_paidAt_idx" ON "PaymentRecord"("paidAt");
 
 -- CreateIndex
+CREATE INDEX "PaymentRecord_courseId_idx" ON "PaymentRecord"("courseId");
+
+-- CreateIndex
+CREATE INDEX "PaymentRecord_paymentType_idx" ON "PaymentRecord"("paymentType");
+
+-- CreateIndex
+CREATE INDEX "Expense_category_idx" ON "Expense"("category");
+
+-- CreateIndex
+CREATE INDEX "Expense_paidAt_idx" ON "Expense"("paidAt");
+
+-- CreateIndex
+CREATE INDEX "Expense_teacherId_idx" ON "Expense"("teacherId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "CoursePaymentSubmission_paymentReference_key" ON "CoursePaymentSubmission"("paymentReference");
 
 -- CreateIndex
@@ -420,3 +463,13 @@ CREATE INDEX "CoursePaymentSubmission_status_idx" ON "CoursePaymentSubmission"("
 
 -- CreateIndex
 CREATE INDEX "CoursePaymentSubmission_paymentType_idx" ON "CoursePaymentSubmission"("paymentType");
+
+-- CreateIndex
+CREATE INDEX "StudentNotification_userId_readAt_idx" ON "StudentNotification"("userId", "readAt");
+
+-- CreateIndex
+CREATE INDEX "StudentNotification_userId_createdAt_idx" ON "StudentNotification"("userId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "StudentNotification_userId_type_sourceId_key" ON "StudentNotification"("userId", "type", "sourceId");
+
