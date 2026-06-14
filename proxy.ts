@@ -1,4 +1,7 @@
-export { auth as proxy } from "@/lib/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
+
+export const { auth: proxy } = NextAuth(authConfig);
 
 export const config = {
   matcher: ["/profile/:path*", "/admin/:path*", "/teacher/:path*"],

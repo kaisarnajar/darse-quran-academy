@@ -25,24 +25,33 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
     setError("");
     setLoading(true);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-      callbackUrl,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        callbackUrl,
+      });
 
-    setLoading(false);
+      if (result?.error) {
+        setError("Invalid email or password.");
+        return;
+      }
 
-    if (result?.error) {
-      setError("Invalid email or password.");
-      return;
+      const sessionRes = await fetch("/api/auth/session", { credentials: "include" });
+      if (!sessionRes.ok) {
+        setError("Signed in, but could not load your session. Please refresh the page.");
+        return;
+      }
+
+      const sessionData = await sessionRes.json();
+      router.push(getPostLoginPath(sessionData?.user?.role, callbackUrl));
+      router.refresh();
+    } catch {
+      setError("Unable to sign in right now. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    const sessionRes = await fetch("/api/auth/session", { credentials: "include" });
-    const sessionData = await sessionRes.json();
-    router.push(getPostLoginPath(sessionData?.user?.role, callbackUrl));
-    router.refresh();
   }
 
   return (

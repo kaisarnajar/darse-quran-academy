@@ -1,27 +1,16 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { compare } from "bcryptjs";
 import NextAuth from "next-auth";
-import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
+import { authConfig } from "@/lib/auth.config";
 import { prisma } from "@/lib/prisma";
 import { getTeacherByEmail, resolveUserRole } from "@/lib/teacher-auth";
 
-const googleConfigured =
-  Boolean(process.env.AUTH_GOOGLE_ID) && Boolean(process.env.AUTH_GOOGLE_SECRET);
-
-export const authConfig = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
   providers: [
-    ...(googleConfigured
-      ? [
-          Google({
-            clientId: process.env.AUTH_GOOGLE_ID!,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-            allowDangerousEmailAccountLinking: true,
-          }),
-        ]
-      : []),
+    ...authConfig.providers,
     Credentials({
       name: "Email and Password",
       credentials: {
@@ -48,23 +37,25 @@ export const authConfig = {
       },
     }),
   ],
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user?.id) {
         token.id = user.id;
       }
       if (token.email) {
-        const role = await resolveUserRole(token.email as string);
-        token.role = role;
-        if (role === "TEACHER") {
-          const teacher = await getTeacherByEmail(token.email as string);
-          token.teacherId = teacher?.id;
-        } else {
-          token.teacherId = undefined;
+        try {
+          const role = await resolveUserRole(token.email as string);
+          token.role = role;
+          if (role === "TEACHER") {
+            const teacher = await getTeacherByEmail(token.email as string);
+            token.teacherId = teacher?.id;
+          } else {
+            token.teacherId = undefined;
+          }
+        } catch (error) {
+          console.error("[auth] Failed to resolve user role:", error);
+          token.role = token.role ?? "USER";
         }
       }
       return token;
@@ -83,26 +74,5 @@ export const authConfig = {
       }
       return session;
     },
-    authorized({ auth, request }) {
-      const { pathname } = request.nextUrl;
-
-      if (pathname.startsWith("/admin")) {
-        return auth?.user?.role === "ADMIN";
-      }
-
-      if (pathname.startsWith("/teacher")) {
-        return auth?.user?.role === "TEACHER";
-      }
-
-      if (pathname.startsWith("/profile")) {
-        if (auth?.user?.role === "TEACHER") return false;
-        return !!auth?.user;
-      }
-
-      return true;
-    },
   },
-  trustHost: true,
-} satisfies NextAuthConfig;
-
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+});
