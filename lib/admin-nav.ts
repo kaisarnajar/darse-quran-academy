@@ -12,6 +12,7 @@ export const ADMIN_NAV_LINKS: AdminNavLink[] = [
   { href: "/admin/enrollments", label: "Enrollments" },
   { href: "/admin/payment-settings", label: "Payment details" },
   { href: "/admin/finance", label: "Finance" },
+  { href: "/admin/record-expense", label: "Record expense" },
   { href: "/admin/social-links", label: "Social links" },
   { href: "/admin/students", label: "Students" },
   { href: "/admin/teachers", label: "Teachers" },

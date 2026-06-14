@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FinanceDateFilter } from "@/components/admin/FinanceDateFilter";
 import { FinanceExpenseFilters } from "@/components/admin/FinanceExpenseFilters";
 import { FinanceExpenseTable } from "@/components/admin/FinanceExpenseTable";
@@ -6,7 +7,6 @@ import { FinanceIncomeFilters } from "@/components/admin/FinanceIncomeFilters";
 import { FinanceIncomeTable } from "@/components/admin/FinanceIncomeTable";
 import { FinanceSummaryCards } from "@/components/admin/FinanceSummaryCards";
 import { FinanceTabs } from "@/components/admin/FinanceTabs";
-import { RecordExpenseForm } from "@/components/admin/RecordExpenseForm";
 import { getAllCourses } from "@/lib/courses";
 import { getExpenses, getExpenseTotal } from "@/lib/finance-expenses";
 import { parseFinanceFilters, type FinanceSearchParams } from "@/lib/finance-filters";
@@ -106,6 +106,15 @@ export default async function AdminFinancePage({
         </section>
       ) : (
         <section className="mt-6 space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <Link
+              href="/admin/record-expense"
+              className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary-light"
+            >
+              Record expense
+            </Link>
+          </div>
+
           <FinanceExpenseFilters
             filters={filters}
             teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
@@ -120,11 +129,6 @@ export default async function AdminFinancePage({
           <div className="overflow-x-auto rounded-lg border border-border bg-surface">
             <FinanceExpenseTable expenses={expenses} returnQuery={returnQuery} />
           </div>
-
-          <RecordExpenseForm
-            teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
-            returnQuery={returnQuery}
-          />
         </section>
       )}
     </div>
