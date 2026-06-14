@@ -3,6 +3,14 @@ export type AdminNavLink = {
   label: string;
 };
 
+/** Sidebar links that open settings/tools pages (no dashboard count). */
+export const ADMIN_DASHBOARD_LINK_HREFS = new Set<string>([
+  "/admin/payment-settings",
+  "/admin/finance",
+  "/admin/record-expense",
+  "/admin/social-links",
+]);
+
 /** Admin sidebar links (excluding Dashboard). */
 export const ADMIN_NAV_LINKS: AdminNavLink[] = [
   { href: "/admin/announcements", label: "Announcements" },
