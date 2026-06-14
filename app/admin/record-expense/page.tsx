@@ -11,7 +11,7 @@ export default async function AdminRecordExpensePage() {
         href="/admin/finance?tab=expenses"
         className="text-sm text-primary hover:underline"
       >
-        ← Back to Finance — Expenses
+        ← Back to Expenses
       </Link>
 
       <h1 className="mt-4 font-serif text-2xl font-bold text-primary">Record expense</h1>
