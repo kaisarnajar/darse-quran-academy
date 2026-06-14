@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { seedBootstrap } from "./seed-bootstrap";
 import { demoContentLoginHint, seedDemoContent } from "./seed-demo-content";
+import { demoNotificationsHint, seedDemoNotifications } from "./seed-demo-notifications";
 import {
   demoAdminLoginHint,
   demoDataSummaryHint,
@@ -52,6 +53,10 @@ async function assertDatabaseMigrated() {
     () => prisma.blogImage.findFirst({ select: { id: true } }),
     () => prisma.fatwaQuestion.findFirst({ select: { featuredOnHomepage: true } }),
     () => prisma.studentReview.findFirst({ select: { rating: true, status: true } }),
+    () =>
+      prisma.studentNotification.findFirst({
+        select: { type: true, sourceId: true, readAt: true },
+      }),
   ];
 
   try {
@@ -77,12 +82,14 @@ async function main() {
   await seedDemoTeachers(prisma);
   await seedDemoData(prisma);
   await seedDemoContent(prisma);
+  await seedDemoNotifications(prisma);
 
   console.log(
-    "Seeded demo data: courses, teachers, library, testimonials, logins, students, finance, contact inquiries, announcements, blogs, verse/hadith, and fatwa.",
+    "Seeded demo data: courses, teachers, library, testimonials, logins, students, finance, contact inquiries, announcements, blogs, verse/hadith, fatwa, and notifications.",
   );
   console.log(demoDataSummaryHint());
   console.log(demoContentLoginHint());
+  console.log(demoNotificationsHint());
   console.log(demoAdminLoginHint());
   console.log(demoTeacherLoginHint());
   console.log(demoStudentLoginHint());

@@ -239,5 +239,6 @@ export function demoContentLoginHint(): string {
     "  Fatwa — 3 pending + 3 answered on /fatwa",
     "  Contact — 5 pending + 3 replied in /admin/contact-inquiries",
     "  Course announcements — admin, teacher, and private student messages",
+    "  Notifications — seeded after content; see student 06 for /profile/notifications",
   ].join("\n");
 }
