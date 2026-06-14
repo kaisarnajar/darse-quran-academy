@@ -1,15 +1,30 @@
 import Link from "next/link";
 import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireTeacher } from "@/lib/auth-actions";
 import { CourseCategoryIcon } from "@/components/courses/CourseCategoryIcon";
 import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { getCourseBannerClass } from "@/lib/course-display";
-import { getCoursesForTeacher, teacherDashboardStats } from "@/lib/teacher-portal";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
+import { getCoursesForTeacher, getCoursesForTeacherPaginated, teacherDashboardStats } from "@/lib/teacher-portal";
 
-export default async function TeacherDashboardPage() {
+export default async function TeacherDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
   const { teacher } = await requireTeacher();
-  const courses = await getCoursesForTeacher(teacher.id);
-  const stats = teacherDashboardStats(courses);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+
+  const [{ items: courses, totalCount }, allCourses] = await Promise.all([
+    getCoursesForTeacherPaginated(teacher.id, requestedPage, pageSize),
+    getCoursesForTeacher(teacher.id),
+  ]);
+  const page = clampPage(requestedPage, totalCount, pageSize);
+  const stats = teacherDashboardStats(allCourses);
 
   return (
     <div>
@@ -38,7 +53,7 @@ export default async function TeacherDashboardPage() {
         View students, post announcements, and track course status.
       </p>
 
-      {courses.length === 0 ? (
+      {totalCount === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
           No courses are assigned to you yet. Contact the academy admin.
         </p>
@@ -89,6 +104,14 @@ export default async function TeacherDashboardPage() {
           ))}
         </ul>
       )}
+
+      <Pagination
+        basePath="/teacher"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

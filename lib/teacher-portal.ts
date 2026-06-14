@@ -1,6 +1,7 @@
 import type { Course, CourseStatus } from "@prisma/client";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
-import { getEnrollmentsForCourse } from "@/lib/enrollments";
+import { getEnrollmentsForCourse, getEnrollmentsForCoursePaginated } from "@/lib/enrollments";
 
 export type TeacherCourse = Course & {
   studentCount: number;
@@ -25,6 +26,35 @@ export async function getCoursesForTeacher(teacherId: string): Promise<TeacherCo
   }));
 }
 
+export async function getCoursesForTeacherPaginated(
+  teacherId: string,
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<TeacherCourse>> {
+  const where = { teacherId };
+  const totalCount = await prisma.course.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const courses = await prisma.course.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+
+  const counts = await prisma.enrollment.groupBy({
+    by: ["courseId"],
+    where: { courseId: { in: courses.map((c) => c.id) } },
+    _count: { _all: true },
+  });
+  const countByCourse = new Map(counts.map((row) => [row.courseId, row._count._all]));
+
+  const items = courses.map((course) => ({
+    ...course,
+    studentCount: countByCourse.get(course.id) ?? 0,
+  }));
+
+  return { items, totalCount };
+}
+
 export async function getTeacherCourseForPortal(teacherId: string, courseId: string) {
   return prisma.course.findFirst({
     where: { id: courseId, teacherId },
@@ -37,6 +67,19 @@ export async function getTeacherCourseStudents(teacherId: string, courseId: stri
 
   const enrollments = await getEnrollmentsForCourse(courseId);
   return { course, enrollments };
+}
+
+export async function getTeacherCourseStudentsPaginated(
+  teacherId: string,
+  courseId: string,
+  page: number,
+  pageSize: number,
+) {
+  const course = await getTeacherCourseForPortal(teacherId, courseId);
+  if (!course) return null;
+
+  const { items, totalCount } = await getEnrollmentsForCoursePaginated(courseId, page, pageSize);
+  return { course, enrollments: items, totalCount };
 }
 
 export async function getTeacherEnrollmentInCourse(

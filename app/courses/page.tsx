@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { CourseCard } from "@/components/CourseCard";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
+import { Pagination } from "@/components/shared/Pagination";
 import { auth } from "@/lib/auth";
-import { getPublicCourses } from "@/lib/courses";
+import { getPublicCoursesPaginated } from "@/lib/courses";
 import { getUserCourseEnrollmentMap } from "@/lib/enrollments";
 import { getPendingEnrollmentFeeSubmissionMap } from "@/lib/monthly-payments";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 import { isUserProfileComplete } from "@/lib/profile";
 
 export const metadata: Metadata = {
@@ -13,9 +15,19 @@ export const metadata: Metadata = {
   description: "View and enroll in upcoming courses at Darse Quran Academy.",
 };
 
-export default async function CoursesPage() {
+export default async function CoursesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
   const session = await auth();
-  const courses = await getPublicCourses();
+  const { page: requestedPage, pageSize } = parsePaginationParams(params, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { items: courses, totalCount } = await getPublicCoursesPaginated(requestedPage, pageSize);
+  const page = clampPage(requestedPage, totalCount, pageSize);
+
   const enrollmentMap = session?.user?.id
     ? await getUserCourseEnrollmentMap(session.user.id)
     : new Map();
@@ -34,7 +46,7 @@ export default async function CoursesPage() {
       />
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-        {courses.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="col-span-full text-center text-muted">No courses available at the moment.</p>
         ) : (
           courses.map((course) => {
@@ -53,6 +65,14 @@ export default async function CoursesPage() {
           })
         )}
       </div>
+
+      <Pagination
+        basePath="/courses"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </Section>
   );
 }

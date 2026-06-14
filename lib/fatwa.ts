@@ -1,5 +1,6 @@
 import type { FatwaQuestion } from "@prisma/client";
 import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export const HOMEPAGE_FEATURED_FATWA_MAX = 4;
@@ -69,6 +70,29 @@ export async function getAnsweredFatwas(category?: string): Promise<FatwaQuestio
   });
 }
 
+function answeredFatwasWhere(category?: string) {
+  return {
+    answer: { not: null },
+    ...(category && isFatwaCategory(category) ? { category } : {}),
+  };
+}
+
+export async function getAnsweredFatwasPaginated(
+  page: number,
+  pageSize: number,
+  category?: string,
+): Promise<PaginatedResult<FatwaQuestion>> {
+  const where = answeredFatwasWhere(category);
+  const totalCount = await prisma.fatwaQuestion.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.fatwaQuestion.findMany({
+    where,
+    orderBy: { answeredAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 export async function getAnsweredFatwaById(id: string): Promise<FatwaQuestion | null> {
   return prisma.fatwaQuestion.findFirst({
     where: { id, answer: { not: null } },
@@ -85,6 +109,30 @@ export async function getAllFatwaQuestions(filter?: "pending" | "answered"): Pro
           : undefined,
     orderBy: { createdAt: "desc" },
   });
+}
+
+function fatwaAdminWhere(filter?: "pending" | "answered") {
+  return filter === "pending"
+    ? { answer: null }
+    : filter === "answered"
+      ? { answer: { not: null } }
+      : undefined;
+}
+
+export async function getAllFatwaQuestionsPaginated(
+  page: number,
+  pageSize: number,
+  filter?: "pending" | "answered",
+): Promise<PaginatedResult<FatwaQuestion>> {
+  const where = fatwaAdminWhere(filter);
+  const totalCount = await prisma.fatwaQuestion.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.fatwaQuestion.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getFatwaQuestionById(id: string): Promise<FatwaQuestion | null> {

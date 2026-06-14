@@ -1,6 +1,7 @@
 import type { BlogImage, BlogPost } from "@prisma/client";
 import { BLOG_PUBLIC_WHERE } from "@/lib/blog-approval";
 import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export const HOMEPAGE_FEATURED_BLOGS_MAX = 4;
@@ -78,6 +79,26 @@ export async function getPublishedBlogPosts(limit?: number) {
   });
 }
 
+const blogPostPublicInclude = {
+  images: { orderBy: { sortOrder: "asc" } },
+  createdBy: { select: { name: true } },
+} as const;
+
+export async function getPublishedBlogPostsPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<BlogPostWithImages>> {
+  const totalCount = await prisma.blogPost.count({ where: BLOG_PUBLIC_WHERE });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.blogPost.findMany({
+    where: BLOG_PUBLIC_WHERE,
+    orderBy: { createdAt: "desc" },
+    include: blogPostPublicInclude,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 export async function getPublishedBlogPostById(id: string) {
   return prisma.blogPost.findFirst({
     where: { id, ...BLOG_PUBLIC_WHERE },
@@ -98,6 +119,25 @@ export async function getAllBlogPostsForAdmin() {
   });
 }
 
+const blogPostAdminInclude = {
+  images: { orderBy: { sortOrder: "asc" } },
+  createdBy: { select: { name: true, email: true } },
+} as const;
+
+export async function getAllBlogPostsForAdminPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<BlogPostWithImages>> {
+  const totalCount = await prisma.blogPost.count();
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.blogPost.findMany({
+    orderBy: { createdAt: "desc" },
+    include: blogPostAdminInclude,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 export async function getBlogPostForAdmin(id: string) {
   return prisma.blogPost.findUnique({
     where: { id },
@@ -116,6 +156,26 @@ export async function getTeacherBlogPosts(userId: string) {
       images: { orderBy: { sortOrder: "asc" } },
     },
   });
+}
+
+export async function getTeacherBlogPostsPaginated(
+  userId: string,
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<BlogPostWithImages>> {
+  const where = { createdById: userId };
+  const totalCount = await prisma.blogPost.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.blogPost.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: {
+      images: { orderBy: { sortOrder: "asc" } },
+      createdBy: { select: { name: true, email: true } },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getBlogPostForTeacher(id: string, userId: string) {

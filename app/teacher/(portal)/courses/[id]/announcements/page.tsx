@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TeacherCourseAnnouncementCard } from "@/components/teacher/TeacherCourseAnnouncementCard";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireTeacher } from "@/lib/auth-actions";
 import {
   canTeacherManageCourseAnnouncement,
   getAnnouncementAuthorName,
-  getCourseWideAnnouncementsForCourse,
+  getCourseWideAnnouncementsForCoursePaginated,
 } from "@/lib/announcements";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getTeacherCourseForPortal } from "@/lib/teacher-portal";
 
 export default async function TeacherCourseAnnouncementsPage({
@@ -14,7 +16,7 @@ export default async function TeacherCourseAnnouncementsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; forbidden?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; forbidden?: string; page?: string }>;
 }) {
   const { id } = await params;
   const query = await searchParams;
@@ -23,7 +25,15 @@ export default async function TeacherCourseAnnouncementsPage({
 
   if (!course) notFound();
 
-  const announcements = await getCourseWideAnnouncementsForCourse(course.id);
+  const { page: requestedPage, pageSize } = parsePaginationParams(query, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { items: announcements, totalCount } = await getCourseWideAnnouncementsForCoursePaginated(
+    course.id,
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -66,7 +76,7 @@ export default async function TeacherCourseAnnouncementsPage({
         </p>
       )}
 
-      {announcements.length === 0 ? (
+      {totalCount === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
           No announcements for this course yet.
         </p>
@@ -95,6 +105,14 @@ export default async function TeacherCourseAnnouncementsPage({
           })}
         </ul>
       )}
+
+      <Pagination
+        basePath={`/teacher/courses/${course.id}/announcements`}
+        params={query}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

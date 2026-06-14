@@ -1,24 +1,31 @@
 import Link from "next/link";
 import { DeleteCourseButton } from "@/components/admin/DeleteCourseButton";
 import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
+import { Pagination } from "@/components/shared/Pagination";
 import { getCoursePricingFromCourse } from "@/lib/course-pricing";
-import { getAllCourses } from "@/lib/courses";
+import { getAllCoursesPaginated } from "@/lib/courses";
 import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function AdminCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; created?: string; deleteError?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string; deleteError?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const [courses, enrollmentCounts] = await Promise.all([getAllCourses(), getEnrollmentCountsByCourse()]);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const [{ items: courses, totalCount }, enrollmentCounts] = await Promise.all([
+    getAllCoursesPaginated(requestedPage, pageSize),
+    getEnrollmentCountsByCourse(),
+  ]);
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Courses</h1>
-          <p className="mt-1 text-sm text-muted">{courses.length} total</p>
+          <p className="mt-1 text-sm text-muted">{totalCount} total</p>
         </div>
         <Link
           href="/admin/courses/new"
@@ -109,6 +116,14 @@ export default async function AdminCoursesPage({
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        basePath="/admin/courses"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

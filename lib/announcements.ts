@@ -1,4 +1,5 @@
 import type { AnnouncementCategory, CourseAnnouncement, Prisma } from "@prisma/client";
+import { clampPage, paginationArgs } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export const ANNOUNCEMENT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -69,6 +70,23 @@ export async function getCourseWideAnnouncementsForCourse(courseId: string) {
   });
 }
 
+export async function getCourseWideAnnouncementsForCoursePaginated(
+  courseId: string,
+  page: number,
+  pageSize: number,
+) {
+  const where = { courseId, enrollmentId: null };
+  const totalCount = await prisma.courseAnnouncement.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.courseAnnouncement.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: announcementInclude,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 /** Private posts for one student in a course. */
 export async function getStudentAnnouncementsForEnrollment(enrollmentId: string) {
   return prisma.courseAnnouncement.findMany({
@@ -76,6 +94,23 @@ export async function getStudentAnnouncementsForEnrollment(enrollmentId: string)
     orderBy: { createdAt: "desc" },
     include: announcementInclude,
   });
+}
+
+export async function getStudentAnnouncementsForEnrollmentPaginated(
+  enrollmentId: string,
+  page: number,
+  pageSize: number,
+) {
+  const where = { enrollmentId };
+  const totalCount = await prisma.courseAnnouncement.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.courseAnnouncement.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: announcementInclude,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 /** Course-wide plus this student's private posts. */
@@ -92,6 +127,39 @@ export async function getAnnouncementsVisibleToStudent(userId: string, courseId:
   ]);
 
   return { courseWide, personal };
+}
+
+export async function getAnnouncementsVisibleToStudentPaginated(
+  userId: string,
+  courseId: string,
+  personalPage: number,
+  courseWidePage: number,
+  pageSize: number,
+) {
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { userId_courseId: { userId, courseId } },
+    select: { id: true },
+  });
+  if (!enrollment) {
+    return {
+      courseWide: [],
+      personal: [] as Awaited<ReturnType<typeof getStudentAnnouncementsForEnrollment>>,
+      courseWideTotal: 0,
+      personalTotal: 0,
+    };
+  }
+
+  const [personalPaginated, courseWidePaginated] = await Promise.all([
+    getStudentAnnouncementsForEnrollmentPaginated(enrollment.id, personalPage, pageSize),
+    getCourseWideAnnouncementsForCoursePaginated(courseId, courseWidePage, pageSize),
+  ]);
+
+  return {
+    personal: personalPaginated.items,
+    personalTotal: personalPaginated.totalCount,
+    courseWide: courseWidePaginated.items,
+    courseWideTotal: courseWidePaginated.totalCount,
+  };
 }
 
 export async function getAnnouncementForCourse(

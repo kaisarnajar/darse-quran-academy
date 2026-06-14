@@ -48,6 +48,7 @@ export type FinanceSearchParams = {
   paymentType?: string;
   category?: string;
   teacherId?: string;
+  page?: string;
   saved?: string;
   deleted?: string;
   error?: string;

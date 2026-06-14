@@ -1,5 +1,6 @@
 import type { Course as PrismaCourse, CourseStatus, Teacher } from "@prisma/client";
 import { isCoursePubliclyVisible } from "@/lib/course-status";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export const HOMEPAGE_FEATURED_COURSES_MAX = 6;
@@ -27,6 +28,22 @@ export async function getPublicCourses(): Promise<CourseWithTeacher[]> {
     orderBy: { createdAt: "desc" },
   });
   return courses.filter((c) => isCoursePubliclyVisible(c.status));
+}
+
+export async function getPublicCoursesPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<CourseWithTeacher>> {
+  const where = { status: { not: "DRAFT" as const } };
+  const totalCount = await prisma.course.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.course.findMany({
+    where,
+    include: courseWithTeacherInclude,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getFeaturedHomepageCourses(): Promise<CourseWithTeacher[]> {
@@ -84,6 +101,20 @@ export async function getAllCourses(): Promise<CourseWithTeacher[]> {
   });
 }
 
+export async function getAllCoursesPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<CourseWithTeacher>> {
+  const totalCount = await prisma.course.count();
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.course.findMany({
+    include: courseWithTeacherInclude,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 export async function getCourseById(id: string): Promise<CourseWithTeacher | null> {
   return prisma.course.findUnique({
     where: { id },
@@ -100,6 +131,23 @@ export async function getPublicCoursesByTeacherId(
     orderBy: { createdAt: "desc" },
   });
   return courses.filter((c) => isCoursePubliclyVisible(c.status));
+}
+
+export async function getPublicCoursesByTeacherIdPaginated(
+  teacherId: string,
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<CourseWithTeacher>> {
+  const where = { teacherId, status: { not: "DRAFT" as const } };
+  const totalCount = await prisma.course.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.course.findMany({
+    where,
+    include: courseWithTeacherInclude,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getPublicCourseById(id: string): Promise<CourseWithTeacher | null> {

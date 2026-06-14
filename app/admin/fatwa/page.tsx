@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { DeleteFatwaButton } from "@/components/admin/DeleteFatwaButton";
-import { getAllFatwaQuestions } from "@/lib/fatwa";
+import { Pagination } from "@/components/shared/Pagination";
+import { getAllFatwaQuestionsPaginated } from "@/lib/fatwa";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 function statusLabel(answer: string | null) {
   return answer ? "Answered" : "Pending";
@@ -13,19 +15,25 @@ function statusClass(answer: string | null) {
 export default async function AdminFatwaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string }>;
+  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const filter =
     params.filter === "pending" || params.filter === "answered" ? params.filter : undefined;
-  const questions = await getAllFatwaQuestions(filter);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: questions, totalCount } = await getAllFatwaQuestionsPaginated(
+    requestedPage,
+    pageSize,
+    filter,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Fatwa Q&A</h1>
-          <p className="mt-1 text-sm text-muted">{questions.length} questions</p>
+          <p className="mt-1 text-sm text-muted">{totalCount} questions</p>
         </div>
         <nav className="flex flex-wrap gap-2" aria-label="Filter questions">
           {(
@@ -65,7 +73,7 @@ export default async function AdminFatwaPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {questions.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No questions yet.</p>
         ) : (
           <table className="w-full min-w-[840px] text-left text-sm">
@@ -119,6 +127,14 @@ export default async function AdminFatwaPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/fatwa"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

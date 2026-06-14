@@ -1,29 +1,36 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireTeacher } from "@/lib/auth-actions";
-import { getTeacherCourseStudents } from "@/lib/teacher-portal";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { getTeacherCourseStudentsPaginated } from "@/lib/teacher-portal";
 
 export default async function TeacherCourseStudentsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { id } = await params;
+  const queryParams = await searchParams;
   const { teacher } = await requireTeacher();
-  const data = await getTeacherCourseStudents(teacher.id, id);
+  const { page: requestedPage, pageSize } = parsePaginationParams(queryParams);
+  const data = await getTeacherCourseStudentsPaginated(teacher.id, id, requestedPage, pageSize);
 
   if (!data) notFound();
 
-  const { enrollments } = data;
+  const { enrollments, totalCount } = data;
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
       <p className="text-sm text-muted">
-        {enrollments.length} student{enrollments.length === 1 ? "" : "s"} enrolled
+        {totalCount} student{totalCount === 1 ? "" : "s"} enrolled
       </p>
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface shadow-sm">
-        {enrollments.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">No students enrolled in this course yet.</p>
         ) : (
           <table className="w-full min-w-[320px] text-left text-sm">
@@ -61,6 +68,14 @@ export default async function TeacherCourseStudentsPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath={`/teacher/courses/${id}`}
+        params={queryParams}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

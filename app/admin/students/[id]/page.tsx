@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { DeleteForm } from "@/components/admin/DeleteForm";
 import { RecordStudentPaymentForm } from "@/components/admin/RecordStudentPaymentForm";
 import { RemoveEnrollmentButton } from "@/components/admin/RemoveEnrollmentButton";
+import { Pagination } from "@/components/shared/Pagination";
 import { deleteStudentUserForm } from "@/app/admin/students/actions";
 import { formatPrice, getAllCourses } from "@/lib/courses";
 import { enrollmentStatusClass, enrollmentStatusLabel } from "@/lib/enrollments";
-import { getPaymentRecordsForUser } from "@/lib/payments";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { getPaymentRecordsForUserPaginated } from "@/lib/payments";
 import {
   formatDateOfBirthDisplay,
   occupationLabel,
@@ -18,17 +20,23 @@ export default async function AdminStudentDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; page?: string }>;
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const [student, courses, payments] = await Promise.all([
+  const { page: requestedPage, pageSize } = parsePaginationParams(query);
+
+  const [student, courses, paymentsPaginated] = await Promise.all([
     getStudentUserById(id),
     getAllCourses(),
-    getPaymentRecordsForUser(id),
+    getPaymentRecordsForUserPaginated(id, requestedPage, pageSize),
   ]);
 
   if (!student) notFound();
+
+  const payments = paymentsPaginated.items;
+  const paymentTotalCount = paymentsPaginated.totalCount;
+  const page = clampPage(requestedPage, paymentTotalCount, pageSize);
 
   const titleById = new Map(courses.map((c) => [c.id, c.title]));
   const deleteAction = deleteStudentUserForm.bind(null, id);
@@ -94,7 +102,7 @@ export default async function AdminStudentDetailPage({
         <p className="mt-1 text-sm text-muted">Payments appear on the student&apos;s profile.</p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
-          {payments.length === 0 ? (
+          {paymentTotalCount === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted">No payments recorded yet.</p>
           ) : (
             <table className="w-full min-w-[640px] text-left text-sm">
@@ -131,6 +139,14 @@ export default async function AdminStudentDetailPage({
             </table>
           )}
         </div>
+
+        <Pagination
+          basePath={`/admin/students/${id}`}
+          params={query}
+          page={page}
+          totalCount={paymentTotalCount}
+          pageSize={pageSize}
+        />
 
         <div className="mt-6 max-w-xl">
           <RecordStudentPaymentForm userId={id} courses={courses} />

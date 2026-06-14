@@ -4,20 +4,33 @@ import { RemoveEnrollmentButton } from "@/components/admin/RemoveEnrollmentButto
 import { UploadCertificateButton } from "@/components/admin/UploadCertificateButton";
 import { ViewCertificateButton } from "@/components/admin/ViewCertificateButton";
 import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
+import { Pagination } from "@/components/shared/Pagination";
 import { getCourseById } from "@/lib/courses";
-import { getCourseRosterEnrollments } from "@/lib/enrollments";
+import { getCourseRosterEnrollmentsPaginated } from "@/lib/enrollments";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function CourseStudentsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { id } = await params;
+  const queryParams = await searchParams;
   const course = await getCourseById(id);
 
   if (!course) notFound();
 
-  const enrollments = await getCourseRosterEnrollments(course.id, course.status);
+  const { page: requestedPage, pageSize } = parsePaginationParams(queryParams);
+  const { items: enrollments, totalCount } = await getCourseRosterEnrollmentsPaginated(
+    course.id,
+    course.status,
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
+
   const isCompletedCourse = course.status === "COMPLETED";
   const rosterLabel = isCompletedCourse ? "completed students" : "active students";
 
@@ -35,12 +48,12 @@ export default async function CourseStudentsPage({
         <p className="mt-1 text-sm text-muted">
           <span className="font-medium text-foreground">{course.title}</span>
           {" · "}
-          {enrollments.length} {rosterLabel}
+          {totalCount} {rosterLabel}
         </p>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {enrollments.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">
             {isCompletedCourse
               ? "No completed students for this course yet."
@@ -89,6 +102,14 @@ export default async function CourseStudentsPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath={`/admin/courses/${id}/students`}
+        params={queryParams}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { DeleteStudentButton } from "@/components/admin/DeleteStudentButton";
-import { getStudentUsers } from "@/lib/students";
+import { Pagination } from "@/components/shared/Pagination";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { getStudentUsersPaginated } from "@/lib/students";
 
 export default async function AdminStudentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string }>;
+  searchParams: Promise<{ deleted?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const students = await getStudentUsers();
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: students, totalCount } = await getStudentUsersPaginated(requestedPage, pageSize);
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -27,7 +31,7 @@ export default async function AdminStudentsPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {students.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No student accounts yet.</p>
         ) : (
           <table className="w-full min-w-[640px] text-left text-sm">
@@ -71,6 +75,14 @@ export default async function AdminStudentsPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/students"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

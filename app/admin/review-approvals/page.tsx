@@ -2,11 +2,13 @@ import Link from "next/link";
 import { ApproveStudentReviewButton } from "@/components/admin/ApproveStudentReviewButton";
 import { RejectStudentReviewButton } from "@/components/admin/RejectStudentReviewButton";
 import { StarRating } from "@/components/reviews/StarRating";
+import { Pagination } from "@/components/shared/Pagination";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import {
   HOMEPAGE_FEATURED_REVIEWS_MAX,
-  getApprovedStudentReviewsForAdmin,
+  getApprovedStudentReviewsForAdminPaginated,
   getFeaturedHomepageReviewCount,
-  getPendingStudentReviewsForAdmin,
+  getPendingStudentReviewsForAdminPaginated,
   type StudentReviewWithUser,
 } from "@/lib/student-reviews";
 
@@ -116,14 +118,34 @@ function ReviewTable({
 export default async function AdminReviewApprovalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ approved?: string; rejected?: string; unfeatured?: string; featured?: string; saved?: string }>;
+  searchParams: Promise<{
+    approved?: string;
+    rejected?: string;
+    unfeatured?: string;
+    featured?: string;
+    saved?: string;
+    page?: string;
+    approvedPage?: string;
+  }>;
 }) {
   const params = await searchParams;
-  const [pendingReviews, approvedReviews, featuredCount] = await Promise.all([
-    getPendingStudentReviewsForAdmin(),
-    getApprovedStudentReviewsForAdmin(),
+  const { page: pendingPage, pageSize } = parsePaginationParams(params);
+  const { page: approvedPage, pageSize: approvedPageSize } = parsePaginationParams(params, {
+    pageParam: "approvedPage",
+  });
+
+  const [pendingPaginated, approvedPaginated, featuredCount] = await Promise.all([
+    getPendingStudentReviewsForAdminPaginated(pendingPage, pageSize),
+    getApprovedStudentReviewsForAdminPaginated(approvedPage, approvedPageSize),
     getFeaturedHomepageReviewCount(),
   ]);
+
+  const pendingReviews = pendingPaginated.items;
+  const approvedReviews = approvedPaginated.items;
+  const pendingTotalCount = pendingPaginated.totalCount;
+  const approvedTotalCount = approvedPaginated.totalCount;
+  const safePendingPage = clampPage(pendingPage, pendingTotalCount, pageSize);
+  const safeApprovedPage = clampPage(approvedPage, approvedTotalCount, approvedPageSize);
 
   return (
     <div>
@@ -158,9 +180,9 @@ export default async function AdminReviewApprovalsPage({
       <section className="mt-10">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           Pending approval
-          {pendingReviews.length > 0 && (
+          {pendingTotalCount > 0 && (
             <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-              {pendingReviews.length}
+              {pendingTotalCount}
             </span>
           )}
         </h2>
@@ -171,13 +193,21 @@ export default async function AdminReviewApprovalsPage({
             emptyMessage="No student reviews awaiting approval."
           />
         </div>
+
+        <Pagination
+          basePath="/admin/review-approvals"
+          params={params}
+          page={safePendingPage}
+          totalCount={pendingTotalCount}
+          pageSize={pageSize}
+        />
       </section>
 
       <section className="mt-10">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           All reviews
           <span className="ml-2 text-sm font-normal text-muted">
-            ({approvedReviews.length} approved · {featuredCount}/{HOMEPAGE_FEATURED_REVIEWS_MAX} on homepage)
+            ({approvedTotalCount} approved · {featuredCount}/{HOMEPAGE_FEATURED_REVIEWS_MAX} on homepage)
           </span>
         </h2>
         <p className="mt-1 text-sm text-muted">
@@ -190,6 +220,15 @@ export default async function AdminReviewApprovalsPage({
             emptyMessage="No approved reviews yet."
           />
         </div>
+
+        <Pagination
+          basePath="/admin/review-approvals"
+          params={params}
+          page={safeApprovedPage}
+          totalCount={approvedTotalCount}
+          pageSize={approvedPageSize}
+          pageParam="approvedPage"
+        />
       </section>
     </div>
   );

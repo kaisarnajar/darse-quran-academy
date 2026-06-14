@@ -1,4 +1,5 @@
 import type { SiteAnnouncement } from "@prisma/client";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 /** Maximum announcements featured on the homepage. */
@@ -25,6 +26,26 @@ export async function getPublishedSiteAnnouncements(limit?: number) {
       createdBy: { select: { name: true } },
     },
   });
+}
+
+const siteAnnouncementPublicInclude = {
+  createdBy: { select: { name: true } },
+} as const;
+
+export async function getPublishedSiteAnnouncementsPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<SiteAnnouncementPublic>> {
+  const where = { published: true };
+  const totalCount = await prisma.siteAnnouncement.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.siteAnnouncement.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: siteAnnouncementPublicInclude,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getHomepageSiteAnnouncements(
@@ -105,6 +126,22 @@ export async function getAllSiteAnnouncementsForAdmin() {
       createdBy: { select: { name: true, email: true } },
     },
   });
+}
+
+export async function getAllSiteAnnouncementsForAdminPaginated(
+  page: number,
+  pageSize: number,
+) {
+  const totalCount = await prisma.siteAnnouncement.count();
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.siteAnnouncement.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      createdBy: { select: { name: true, email: true } },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getSiteAnnouncementForAdmin(id: string) {

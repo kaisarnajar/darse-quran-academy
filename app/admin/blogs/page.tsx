@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { DeleteBlogPostButton } from "@/components/admin/DeleteBlogPostButton";
+import { Pagination } from "@/components/shared/Pagination";
 import { blogApprovalStatusClass, blogApprovalStatusLabel } from "@/lib/blog-approval";
-import { getAllBlogPostsForAdmin, isBlogPubliclyVisible } from "@/lib/blogs";
+import { getAllBlogPostsForAdminPaginated, isBlogPubliclyVisible } from "@/lib/blogs";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import type { BlogPost } from "@prisma/client";
 
 function statusBadge(post: Pick<BlogPost, "approvalStatus" | "published">) {
@@ -14,10 +16,15 @@ function statusBadge(post: Pick<BlogPost, "approvalStatus" | "published">) {
 export default async function AdminBlogsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const posts = await getAllBlogPostsForAdmin();
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: posts, totalCount } = await getAllBlogPostsForAdminPaginated(
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -54,7 +61,7 @@ export default async function AdminBlogsPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {posts.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">No blog posts yet.</p>
         ) : (
           <table className="w-full min-w-[920px] text-left text-sm">
@@ -122,6 +129,14 @@ export default async function AdminBlogsPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/blogs"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

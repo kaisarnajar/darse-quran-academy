@@ -4,6 +4,7 @@ import {
   AWAITING_ENROLLMENT_FEE,
   PENDING_ENROLLMENT_APPROVAL,
 } from "@/lib/enrollment-status";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export type CourseEnrollmentWithUser = {
@@ -30,6 +31,22 @@ export async function getUserEnrollments(userId: string) {
     where: { userId },
     orderBy: { createdAt: "desc" },
   });
+}
+
+export async function getUserEnrollmentsPaginated(
+  userId: string,
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<Awaited<ReturnType<typeof getUserEnrollments>>[number]>> {
+  const where = { userId };
+  const totalCount = await prisma.enrollment.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.enrollment.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export function enrollmentStatusLabel(status: string) {
@@ -61,6 +78,28 @@ export async function getEnrollmentsForCourse(courseId: string): Promise<CourseE
   });
 }
 
+export async function getEnrollmentsForCoursePaginated(
+  courseId: string,
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<CourseEnrollmentWithUser>> {
+  noStore();
+  const where = { courseId };
+  const totalCount = await prisma.enrollment.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.enrollment.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 /** Active roster for in-progress courses; completed roster when the course is completed. */
 export function getRosterEnrollmentStatusForCourse(courseStatus: CourseStatus): "active" | "completed" {
   return courseStatus === "COMPLETED" ? "completed" : "active";
@@ -83,6 +122,32 @@ export async function getCourseRosterEnrollments(
       },
     },
   });
+}
+
+export async function getCourseRosterEnrollmentsPaginated(
+  courseId: string,
+  courseStatus: CourseStatus,
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<CourseEnrollmentWithUser>> {
+  noStore();
+  const where = {
+    courseId,
+    status: getRosterEnrollmentStatusForCourse(courseStatus),
+  };
+  const totalCount = await prisma.enrollment.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.enrollment.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getEnrollmentCountsByCourse(): Promise<Map<string, number>> {
@@ -134,6 +199,27 @@ export async function getPendingFreeEnrollmentApprovals(): Promise<PendingEnroll
   });
 }
 
+export async function getPendingFreeEnrollmentApprovalsPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<PendingEnrollmentWithUser>> {
+  noStore();
+  const where = { status: PENDING_ENROLLMENT_APPROVAL };
+  const totalCount = await prisma.enrollment.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.enrollment.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 export async function getAwaitingEnrollmentFeeEnrollments(): Promise<PendingEnrollmentWithUser[]> {
   noStore();
   return prisma.enrollment.findMany({
@@ -145,6 +231,27 @@ export async function getAwaitingEnrollmentFeeEnrollments(): Promise<PendingEnro
       },
     },
   });
+}
+
+export async function getAwaitingEnrollmentFeeEnrollmentsPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<PendingEnrollmentWithUser>> {
+  noStore();
+  const where = { status: AWAITING_ENROLLMENT_FEE };
+  const totalCount = await prisma.enrollment.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.enrollment.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getPendingEnrollmentApprovalCount(): Promise<number> {

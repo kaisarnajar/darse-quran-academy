@@ -2,13 +2,15 @@ import Link from "next/link";
 import { AdminEnrollUserForm } from "@/components/admin/AdminEnrollUserForm";
 import { ApproveEnrollmentButton } from "@/components/admin/ApproveEnrollmentButton";
 import { RejectEnrollmentButton } from "@/components/admin/RejectEnrollmentButton";
+import { Pagination } from "@/components/shared/Pagination";
 import { isCourseEnrollmentOpen } from "@/lib/course-status";
 import { getAllCourses } from "@/lib/courses";
 import {
-  getAwaitingEnrollmentFeeEnrollments,
-  getPendingFreeEnrollmentApprovals,
+  getAwaitingEnrollmentFeeEnrollmentsPaginated,
+  getPendingFreeEnrollmentApprovalsPaginated,
   type PendingEnrollmentWithUser,
 } from "@/lib/enrollments";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 function EnrollmentRequestsTable({
   enrollments,
@@ -83,12 +85,29 @@ function EnrollmentRequestsTable({
   );
 }
 
-export default async function AdminEnrollmentsPage() {
-  const [freeEnrollmentRequests, awaitingEnrollmentFee, courses] = await Promise.all([
-    getPendingFreeEnrollmentApprovals(),
-    getAwaitingEnrollmentFeeEnrollments(),
+export default async function AdminEnrollmentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; paidPage?: string }>;
+}) {
+  const params = await searchParams;
+  const { page: freePage, pageSize } = parsePaginationParams(params);
+  const { page: paidPage, pageSize: paidPageSize } = parsePaginationParams(params, {
+    pageParam: "paidPage",
+  });
+
+  const [freePaginated, paidPaginated, courses] = await Promise.all([
+    getPendingFreeEnrollmentApprovalsPaginated(freePage, pageSize),
+    getAwaitingEnrollmentFeeEnrollmentsPaginated(paidPage, paidPageSize),
     getAllCourses(),
   ]);
+
+  const freeEnrollmentRequests = freePaginated.items;
+  const awaitingEnrollmentFee = paidPaginated.items;
+  const freeTotalCount = freePaginated.totalCount;
+  const paidTotalCount = paidPaginated.totalCount;
+  const safeFreePage = clampPage(freePage, freeTotalCount, pageSize);
+  const safePaidPage = clampPage(paidPage, paidTotalCount, paidPageSize);
 
   const titleById = new Map(courses.map((c) => [c.id, c.title]));
   const enrollableCourses = courses.filter((c) => isCourseEnrollmentOpen(c.status));
@@ -104,9 +123,9 @@ export default async function AdminEnrollmentsPage() {
       <section className="mt-8">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           Free enrollment requests
-          {freeEnrollmentRequests.length > 0 && (
+          {freeTotalCount > 0 && (
             <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-              {freeEnrollmentRequests.length}
+              {freeTotalCount}
             </span>
           )}
         </h2>
@@ -122,6 +141,14 @@ export default async function AdminEnrollmentsPage() {
             showApprove
           />
         </div>
+
+        <Pagination
+          basePath="/admin/enrollments"
+          params={params}
+          page={safeFreePage}
+          totalCount={freeTotalCount}
+          pageSize={pageSize}
+        />
       </section>
 
       <section className="mt-10">
@@ -129,9 +156,9 @@ export default async function AdminEnrollmentsPage() {
           <div>
             <h2 className="font-serif text-lg font-semibold text-foreground">
               Paid courses — awaiting enrollment fee
-              {awaitingEnrollmentFee.length > 0 && (
+              {paidTotalCount > 0 && (
                 <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-                  {awaitingEnrollmentFee.length}
+                  {paidTotalCount}
                 </span>
               )}
             </h2>
@@ -157,6 +184,15 @@ export default async function AdminEnrollmentsPage() {
             showReject={false}
           />
         </div>
+
+        <Pagination
+          basePath="/admin/enrollments"
+          params={params}
+          page={safePaidPage}
+          totalCount={paidTotalCount}
+          pageSize={paidPageSize}
+          pageParam="paidPage"
+        />
       </section>
 
       <section className="mt-10">

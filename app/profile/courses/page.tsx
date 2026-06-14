@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CourseDurationDisplay } from "@/components/courses/CourseDurationDisplay";
 import { DownloadCertificateButton } from "@/components/certificate/DownloadCertificateButton";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireUser } from "@/lib/auth-actions";
 import { hasUploadedCertificate } from "@/lib/certificate";
 import { getCourseById } from "@/lib/courses";
@@ -8,20 +9,29 @@ import {
   AWAITING_ENROLLMENT_FEE,
   PENDING_ENROLLMENT_APPROVAL,
 } from "@/lib/enrollment-status";
-import { enrollmentStatusLabel, getUserEnrollments } from "@/lib/enrollments";
+import { enrollmentStatusLabel, getUserEnrollmentsPaginated } from "@/lib/enrollments";
 import { getPendingEnrollmentFeeSubmissionMap } from "@/lib/monthly-payments";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function ProfileCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ declined?: string }>;
+  searchParams: Promise<{ declined?: string; page?: string }>;
 }) {
   const session = await requireUser();
   const params = await searchParams;
-  const [enrollments, pendingEnrollmentPayments] = await Promise.all([
-    getUserEnrollments(session.user.id),
+  const { page: requestedPage, pageSize } = parsePaginationParams(params, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+
+  const [enrollmentsPaginated, pendingEnrollmentPayments] = await Promise.all([
+    getUserEnrollmentsPaginated(session.user.id, requestedPage, pageSize),
     getPendingEnrollmentFeeSubmissionMap(session.user.id),
   ]);
+
+  const enrollments = enrollmentsPaginated.items;
+  const totalCount = enrollmentsPaginated.totalCount;
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   const enrollmentRows = await Promise.all(
     enrollments.map(async (enrollment) => {
@@ -44,7 +54,7 @@ export default async function ProfileCoursesPage({
         </p>
       )}
 
-      {enrollments.length === 0 ? (
+      {totalCount === 0 ? (
         <div className="mt-6 rounded-lg border border-border bg-surface p-6 text-center">
           <p className="text-muted">You have not enrolled in any courses yet.</p>
           <Link
@@ -127,6 +137,14 @@ export default async function ProfileCoursesPage({
           })}
         </ul>
       )}
+
+      <Pagination
+        basePath="/profile/courses"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

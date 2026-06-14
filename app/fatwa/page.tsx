@@ -4,7 +4,9 @@ import { FatwaCard } from "@/components/fatwa/FatwaCard";
 import { FatwaCategoryFilter } from "@/components/fatwa/FatwaCategoryFilter";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
-import { getAnsweredFatwas, isFatwaCategory } from "@/lib/fatwa";
+import { Pagination } from "@/components/shared/Pagination";
+import { getAnsweredFatwasPaginated, isFatwaCategory } from "@/lib/fatwa";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export const metadata: Metadata = {
   title: "Fatwa Section",
@@ -15,12 +17,20 @@ export const metadata: Metadata = {
 export default async function FatwaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const category =
     params.category && isFatwaCategory(params.category) ? params.category : undefined;
-  const fatwas = await getAnsweredFatwas(category);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { items: fatwas, totalCount } = await getAnsweredFatwasPaginated(
+    requestedPage,
+    pageSize,
+    category,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <Section>
@@ -43,7 +53,7 @@ export default async function FatwaPage({
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-        {fatwas.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="col-span-full text-center text-muted">
             {category
               ? `No answered questions in “${category}” yet.`
@@ -53,6 +63,14 @@ export default async function FatwaPage({
           fatwas.map((fatwa) => <FatwaCard key={fatwa.id} fatwa={fatwa} />)
         )}
       </div>
+
+      <Pagination
+        basePath="/fatwa"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </Section>
   );
 }

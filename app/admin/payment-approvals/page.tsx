@@ -1,21 +1,38 @@
 import { PendingPaymentApprovalsTable } from "@/components/admin/PendingPaymentApprovalsTable";
+import { Pagination } from "@/components/shared/Pagination";
 import { getAllCourses } from "@/lib/courses";
 import {
-  getPendingEnrollmentFeePayments,
-  getPendingMonthlyPayments,
+  getPendingEnrollmentFeePaymentsPaginated,
+  getPendingMonthlyPaymentsPaginated,
 } from "@/lib/monthly-payments";
+import { APPROVAL_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function AdminPaymentApprovalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ confirmed?: string; declined?: string }>;
+  searchParams: Promise<{ confirmed?: string; declined?: string; page?: string; monthlyPage?: string }>;
 }) {
   const params = await searchParams;
-  const [pendingEnrollmentFees, pendingMonthlyFees, courses] = await Promise.all([
-    getPendingEnrollmentFeePayments(),
-    getPendingMonthlyPayments(),
+  const { page: enrollmentPage, pageSize: enrollmentPageSize } = parsePaginationParams(params, {
+    pageSize: APPROVAL_PAGE_SIZE,
+  });
+  const { page: monthlyPage, pageSize: monthlyPageSize } = parsePaginationParams(params, {
+    pageSize: APPROVAL_PAGE_SIZE,
+    pageParam: "monthlyPage",
+  });
+
+  const [enrollmentFeesPaginated, monthlyFeesPaginated, courses] = await Promise.all([
+    getPendingEnrollmentFeePaymentsPaginated(enrollmentPage, enrollmentPageSize),
+    getPendingMonthlyPaymentsPaginated(monthlyPage, monthlyPageSize),
     getAllCourses(),
   ]);
+
+  const pendingEnrollmentFees = enrollmentFeesPaginated.items;
+  const pendingMonthlyFees = monthlyFeesPaginated.items;
+  const enrollmentTotalCount = enrollmentFeesPaginated.totalCount;
+  const monthlyTotalCount = monthlyFeesPaginated.totalCount;
+  const safeEnrollmentPage = clampPage(enrollmentPage, enrollmentTotalCount, enrollmentPageSize);
+  const safeMonthlyPage = clampPage(monthlyPage, monthlyTotalCount, monthlyPageSize);
 
   const titleById = new Map(courses.map((c) => [c.id, c.title]));
 
@@ -40,9 +57,9 @@ export default async function AdminPaymentApprovalsPage({
       <section id="enrollment-fees" className="mt-8 scroll-mt-6">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           Enrollment fee approvals
-          {pendingEnrollmentFees.length > 0 && (
+          {enrollmentTotalCount > 0 && (
             <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-              {pendingEnrollmentFees.length}
+              {enrollmentTotalCount}
             </span>
           )}
         </h2>
@@ -57,14 +74,22 @@ export default async function AdminPaymentApprovalsPage({
             emptyMessage="No enrollment fee payments awaiting verification."
           />
         </div>
+
+        <Pagination
+          basePath="/admin/payment-approvals"
+          params={params}
+          page={safeEnrollmentPage}
+          totalCount={enrollmentTotalCount}
+          pageSize={enrollmentPageSize}
+        />
       </section>
 
       <section id="monthly-fees" className="mt-10 scroll-mt-6">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           Monthly fee approvals
-          {pendingMonthlyFees.length > 0 && (
+          {monthlyTotalCount > 0 && (
             <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-              {pendingMonthlyFees.length}
+              {monthlyTotalCount}
             </span>
           )}
         </h2>
@@ -79,6 +104,15 @@ export default async function AdminPaymentApprovalsPage({
             emptyMessage="No monthly fee payments awaiting verification."
           />
         </div>
+
+        <Pagination
+          basePath="/admin/payment-approvals"
+          params={params}
+          page={safeMonthlyPage}
+          totalCount={monthlyTotalCount}
+          pageSize={monthlyPageSize}
+          pageParam="monthlyPage"
+        />
       </section>
     </div>
   );

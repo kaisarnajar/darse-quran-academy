@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TeacherCourseAnnouncementCard } from "@/components/teacher/TeacherCourseAnnouncementCard";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireTeacher } from "@/lib/auth-actions";
 import {
   canTeacherManageCourseAnnouncement,
   getAnnouncementAuthorName,
-  getStudentAnnouncementsForEnrollment,
+  getStudentAnnouncementsForEnrollmentPaginated,
 } from "@/lib/announcements";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getTeacherEnrollmentInCourse } from "@/lib/teacher-portal";
 
 export default async function TeacherStudentAnnouncementsPage({
@@ -14,7 +16,7 @@ export default async function TeacherStudentAnnouncementsPage({
   searchParams,
 }: {
   params: Promise<{ id: string; enrollmentId: string }>;
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
 }) {
   const { id, enrollmentId } = await params;
   const query = await searchParams;
@@ -25,7 +27,15 @@ export default async function TeacherStudentAnnouncementsPage({
 
   const { course, enrollment } = data;
   const studentName = enrollment.user.name?.trim() || enrollment.user.email;
-  const announcements = await getStudentAnnouncementsForEnrollment(enrollment.id);
+  const { page: requestedPage, pageSize } = parsePaginationParams(query, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { items: announcements, totalCount } = await getStudentAnnouncementsForEnrollmentPaginated(
+    enrollment.id,
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -62,7 +72,7 @@ export default async function TeacherStudentAnnouncementsPage({
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">That message could not be found.</p>
       )}
 
-      {announcements.length === 0 ? (
+      {totalCount === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
           No private messages for {studentName} yet.
         </p>
@@ -92,6 +102,14 @@ export default async function TeacherStudentAnnouncementsPage({
           })}
         </ul>
       )}
+
+      <Pagination
+        basePath={`/teacher/courses/${course.id}/students/${enrollment.id}/announcements`}
+        params={query}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

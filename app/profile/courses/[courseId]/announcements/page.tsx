@@ -1,27 +1,50 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AnnouncementCard } from "@/components/announcements/AnnouncementCard";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireUser } from "@/lib/auth-actions";
 import {
   getAnnouncementAuthorName,
-  getAnnouncementsVisibleToStudent,
+  getAnnouncementsVisibleToStudentPaginated,
 } from "@/lib/announcements";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getStudentCourseForAnnouncements } from "@/lib/student-announcements";
 
 export default async function StudentCourseAnnouncementsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ courseId: string }>;
+  searchParams: Promise<{ page?: string; coursePage?: string }>;
 }) {
   const { courseId } = await params;
+  const queryParams = await searchParams;
   const session = await requireUser();
   const data = await getStudentCourseForAnnouncements(session.user.id, courseId);
 
   if (!data) notFound();
 
   const { course } = data;
-  const { courseWide, personal } = await getAnnouncementsVisibleToStudent(session.user.id, courseId);
-  const hasAny = courseWide.length > 0 || personal.length > 0;
+  const { page: personalPage, pageSize } = parsePaginationParams(queryParams, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { page: courseWidePage, pageSize: courseWidePageSize } = parsePaginationParams(queryParams, {
+    pageSize: GRID_PAGE_SIZE,
+    pageParam: "coursePage",
+  });
+
+  const { courseWide, personal, courseWideTotal, personalTotal } =
+    await getAnnouncementsVisibleToStudentPaginated(
+      session.user.id,
+      courseId,
+      personalPage,
+      courseWidePage,
+      pageSize,
+    );
+
+  const safePersonalPage = clampPage(personalPage, personalTotal, pageSize);
+  const safeCourseWidePage = clampPage(courseWidePage, courseWideTotal, courseWidePageSize);
+  const hasAny = personalTotal > 0 || courseWideTotal > 0;
 
   return (
     <div>
@@ -39,7 +62,7 @@ export default async function StudentCourseAnnouncementsPage({
         </p>
       ) : (
         <div className="mt-8 space-y-10">
-          {personal.length > 0 && (
+          {personalTotal > 0 && (
             <section>
               <h3 className="font-serif text-lg font-semibold text-foreground">For you</h3>
               <p className="mt-1 text-sm text-muted">Private messages from your instructor</p>
@@ -60,10 +83,18 @@ export default async function StudentCourseAnnouncementsPage({
                   </li>
                 ))}
               </ul>
+
+              <Pagination
+                basePath={`/profile/courses/${courseId}/announcements`}
+                params={queryParams}
+                page={safePersonalPage}
+                totalCount={personalTotal}
+                pageSize={pageSize}
+              />
             </section>
           )}
 
-          {courseWide.length > 0 && (
+          {courseWideTotal > 0 && (
             <section>
               <h3 className="font-serif text-lg font-semibold text-foreground">Course-wide</h3>
               <p className="mt-1 text-sm text-muted">Visible to everyone in this course</p>
@@ -83,6 +114,15 @@ export default async function StudentCourseAnnouncementsPage({
                   </li>
                 ))}
               </ul>
+
+              <Pagination
+                basePath={`/profile/courses/${courseId}/announcements`}
+                params={queryParams}
+                page={safeCourseWidePage}
+                totalCount={courseWideTotal}
+                pageSize={courseWidePageSize}
+                pageParam="coursePage"
+              />
             </section>
           )}
         </div>

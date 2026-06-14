@@ -2,16 +2,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteAdminCourseAnnouncement } from "@/app/admin/courses/[id]/announcements/actions";
 import { AdminCourseAnnouncementCard } from "@/components/admin/AdminCourseAnnouncementCard";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireAdmin } from "@/lib/auth-actions";
-import { getAnnouncementAuthorName, getCourseWideAnnouncementsForCourse } from "@/lib/announcements";
+import { getAnnouncementAuthorName, getCourseWideAnnouncementsForCoursePaginated } from "@/lib/announcements";
 import { getCourseById } from "@/lib/courses";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function AdminCourseAnnouncementsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
 }) {
   await requireAdmin();
   const { id } = await params;
@@ -20,7 +22,15 @@ export default async function AdminCourseAnnouncementsPage({
 
   if (!course) notFound();
 
-  const announcements = await getCourseWideAnnouncementsForCourse(course.id);
+  const { page: requestedPage, pageSize } = parsePaginationParams(query, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { items: announcements, totalCount } = await getCourseWideAnnouncementsForCoursePaginated(
+    course.id,
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -53,7 +63,7 @@ export default async function AdminCourseAnnouncementsPage({
         </p>
       )}
 
-      {announcements.length === 0 ? (
+      {totalCount === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
           No announcements for this course yet.
         </p>
@@ -78,6 +88,14 @@ export default async function AdminCourseAnnouncementsPage({
           ))}
         </ul>
       )}
+
+      <Pagination
+        basePath={`/admin/courses/${course.id}/announcements`}
+        params={query}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   PAYMENT_TYPE_ENROLLMENT,
   PAYMENT_TYPE_MONTHLY,
 } from "@/lib/monthly-payment-status";
+import { APPROVAL_PAGE_SIZE, clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export type CoursePaymentSubmissionWithUser = {
@@ -38,6 +39,25 @@ export async function getPendingMonthlyPayments(): Promise<CoursePaymentSubmissi
   });
 }
 
+export async function getPendingMonthlyPaymentsPaginated(
+  page: number,
+  pageSize: number = APPROVAL_PAGE_SIZE,
+): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
+  noStore();
+  const where = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY };
+  const totalCount = await prisma.coursePaymentSubmission.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.coursePaymentSubmission.findMany({
+    where,
+    orderBy: { updatedAt: "desc" },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 export async function getPendingEnrollmentFeePayments(): Promise<CoursePaymentSubmissionWithUser[]> {
   noStore();
   return prisma.coursePaymentSubmission.findMany({
@@ -47,6 +67,25 @@ export async function getPendingEnrollmentFeePayments(): Promise<CoursePaymentSu
       user: { select: { id: true, name: true, email: true } },
     },
   });
+}
+
+export async function getPendingEnrollmentFeePaymentsPaginated(
+  page: number,
+  pageSize: number = APPROVAL_PAGE_SIZE,
+): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
+  noStore();
+  const where = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT };
+  const totalCount = await prisma.coursePaymentSubmission.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.coursePaymentSubmission.findMany({
+    where,
+    orderBy: { updatedAt: "desc" },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getPendingPaymentCount(): Promise<number> {

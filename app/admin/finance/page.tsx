@@ -7,10 +7,12 @@ import { FinanceIncomeFilters } from "@/components/admin/FinanceIncomeFilters";
 import { FinanceIncomeTable } from "@/components/admin/FinanceIncomeTable";
 import { FinanceSummaryCards } from "@/components/admin/FinanceSummaryCards";
 import { FinanceTabs } from "@/components/admin/FinanceTabs";
+import { Pagination } from "@/components/shared/Pagination";
 import { getAllCourses } from "@/lib/courses";
-import { getExpenses, getExpenseTotal } from "@/lib/finance-expenses";
+import { getExpensesPaginated, getExpenseTotal } from "@/lib/finance-expenses";
 import { parseFinanceFilters, type FinanceSearchParams } from "@/lib/finance-filters";
-import { getIncomeRecords, getIncomeTotal } from "@/lib/finance-income";
+import { getIncomeRecordsPaginated, getIncomeTotal } from "@/lib/finance-income";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getStudentUsers } from "@/lib/students";
 import { getAllTeachers } from "@/lib/teachers";
 
@@ -21,6 +23,7 @@ export default async function AdminFinancePage({
 }) {
   const params = await searchParams;
   const filters = parseFinanceFilters(params);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
 
   const dateOnlyFilters = {
     preset: filters.preset,
@@ -32,24 +35,36 @@ export default async function AdminFinancePage({
   const [
     incomeTotal,
     expenseTotal,
-    incomeRecords,
-    expenses,
+    incomePaginated,
+    expensesPaginated,
+    filteredIncomeTotal,
+    filteredExpenseTotal,
     courses,
     students,
     teachers,
   ] = await Promise.all([
     getIncomeTotal(dateOnlyFilters),
     getExpenseTotal(dateOnlyFilters),
-    getIncomeRecords(filters),
-    getExpenses(filters),
+    getIncomeRecordsPaginated(filters, requestedPage, pageSize),
+    getExpensesPaginated(filters, requestedPage, pageSize),
+    getIncomeTotal(filters),
+    getExpenseTotal(filters),
     getAllCourses(),
     getStudentUsers(),
     getAllTeachers(),
   ]);
 
+  const incomeRecords = incomePaginated.items;
+  const expenses = expensesPaginated.items;
+  const incomeTotalCount = incomePaginated.totalCount;
+  const expenseTotalCount = expensesPaginated.totalCount;
+  const page = clampPage(
+    requestedPage,
+    filters.tab === "income" ? incomeTotalCount : expenseTotalCount,
+    pageSize,
+  );
+
   const returnQuery = params;
-  const filteredIncomeTotal = incomeRecords.reduce((sum, r) => sum + r.amountInrPaise, 0);
-  const filteredExpenseTotal = expenses.reduce((sum, e) => sum + e.amountInrPaise, 0);
 
   return (
     <div>
@@ -95,7 +110,7 @@ export default async function AdminFinancePage({
           />
 
           <FinanceFilteredSummary
-            recordCount={incomeRecords.length}
+            recordCount={incomeTotalCount}
             totalPaise={filteredIncomeTotal}
             variant="income"
           />
@@ -103,6 +118,14 @@ export default async function AdminFinancePage({
           <div className="overflow-x-auto rounded-lg border border-border bg-surface">
             <FinanceIncomeTable records={incomeRecords} />
           </div>
+
+          <Pagination
+            basePath="/admin/finance"
+            params={params}
+            page={page}
+            totalCount={incomeTotalCount}
+            pageSize={pageSize}
+          />
         </section>
       ) : (
         <section className="mt-6 space-y-4">
@@ -121,7 +144,7 @@ export default async function AdminFinancePage({
           />
 
           <FinanceFilteredSummary
-            recordCount={expenses.length}
+            recordCount={expenseTotalCount}
             totalPaise={filteredExpenseTotal}
             variant="expense"
           />
@@ -129,6 +152,14 @@ export default async function AdminFinancePage({
           <div className="overflow-x-auto rounded-lg border border-border bg-surface">
             <FinanceExpenseTable expenses={expenses} returnQuery={returnQuery} />
           </div>
+
+          <Pagination
+            basePath="/admin/finance"
+            params={params}
+            page={page}
+            totalCount={expenseTotalCount}
+            pageSize={pageSize}
+          />
         </section>
       )}
     </div>

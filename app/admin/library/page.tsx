@@ -1,22 +1,26 @@
 import Link from "next/link";
 import { DeleteLibraryButton } from "@/components/admin/DeleteLibraryButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { getAllLibraryItems } from "@/lib/library";
+import { Pagination } from "@/components/shared/Pagination";
+import { getAllLibraryItemsPaginated } from "@/lib/library";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function AdminLibraryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; created?: string; saved?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string; saved?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const items = await getAllLibraryItems();
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items, totalCount } = await getAllLibraryItemsPaginated(requestedPage, pageSize);
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Library</h1>
-          <p className="mt-1 text-sm text-muted">{items.length} total</p>
+          <p className="mt-1 text-sm text-muted">{totalCount} total</p>
         </div>
         <Link
           href="/admin/library/new"
@@ -39,7 +43,7 @@ export default async function AdminLibraryPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {items.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No library items yet.</p>
         ) : (
           <table className="w-full min-w-[720px] text-left text-sm">
@@ -88,6 +92,14 @@ export default async function AdminLibraryPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/library"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

@@ -3,8 +3,10 @@ import { LibraryCard } from "@/components/LibraryCard";
 import { LibraryCategoryFilter } from "@/components/library/LibraryCategoryFilter";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
+import { Pagination } from "@/components/shared/Pagination";
 import { isLibraryTopic } from "@/lib/library-options";
-import { getPublishedLibraryItems } from "@/lib/library";
+import { getPublishedLibraryItemsPaginated } from "@/lib/library";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export const metadata: Metadata = {
   title: "Library",
@@ -14,12 +16,20 @@ export const metadata: Metadata = {
 export default async function LibraryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const category =
     params.category && isLibraryTopic(params.category) ? params.category : undefined;
-  const libraryItems = await getPublishedLibraryItems(category);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { items: libraryItems, totalCount } = await getPublishedLibraryItemsPaginated(
+    requestedPage,
+    pageSize,
+    category,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <Section>
@@ -33,7 +43,7 @@ export default async function LibraryPage({
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-        {libraryItems.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="col-span-full text-center text-muted">
             {category
               ? `No resources in “${category}” yet.`
@@ -43,6 +53,14 @@ export default async function LibraryPage({
           libraryItems.map((item) => <LibraryCard key={item.id} item={item} />)
         )}
       </div>
+
+      <Pagination
+        basePath="/library"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </Section>
   );
 }

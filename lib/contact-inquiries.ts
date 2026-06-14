@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 
 export type ContactInquiryFilter = "pending" | "replied" | undefined;
 
@@ -15,6 +16,35 @@ export async function getAllContactInquiries(filter?: ContactInquiryFilter) {
       repliedBy: { select: { id: true, name: true, email: true } },
     },
   });
+}
+
+function contactInquiryWhere(filter?: ContactInquiryFilter) {
+  return filter === "pending"
+    ? { reply: null }
+    : filter === "replied"
+      ? { reply: { not: null } }
+      : undefined;
+}
+
+const contactInquiryInclude = {
+  repliedBy: { select: { id: true, name: true, email: true } },
+} as const;
+
+export async function getAllContactInquiriesPaginated(
+  page: number,
+  pageSize: number,
+  filter?: ContactInquiryFilter,
+) {
+  const where = contactInquiryWhere(filter);
+  const totalCount = await prisma.contactInquiry.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.contactInquiry.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: contactInquiryInclude,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getContactInquiryById(id: string) {

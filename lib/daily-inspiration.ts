@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { DailyInspirationKind } from "@prisma/client";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 
 export type DailyInspirationRecord = {
   id: string;
@@ -50,6 +51,31 @@ export async function getAllDailyInspirationsForAdmin() {
       updatedAt: true,
     },
   });
+}
+
+const dailyInspirationAdminSelect = {
+  id: true,
+  kind: true,
+  arabicText: true,
+  englishTranslation: true,
+  reference: true,
+  published: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
+export async function getAllDailyInspirationsForAdminPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<DailyInspirationRecord>> {
+  const totalCount = await prisma.dailyInspiration.count();
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.dailyInspiration.findMany({
+    orderBy: { updatedAt: "desc" },
+    select: dailyInspirationAdminSelect,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getDailyInspirationForAdmin(id: string) {

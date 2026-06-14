@@ -1,15 +1,22 @@
 import Link from "next/link";
 import { ApproveBlogPostButton } from "@/components/admin/ApproveBlogPostButton";
 import { RejectBlogPostButton } from "@/components/admin/RejectBlogPostButton";
-import { getPendingBlogPostsForAdmin } from "@/lib/blog-approval";
+import { Pagination } from "@/components/shared/Pagination";
+import { getPendingBlogPostsForAdminPaginated } from "@/lib/blog-approval";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function AdminBlogApprovalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ approved?: string; rejected?: string; saved?: string }>;
+  searchParams: Promise<{ approved?: string; rejected?: string; saved?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const pendingPosts = await getPendingBlogPostsForAdmin();
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: pendingPosts, totalCount } = await getPendingBlogPostsForAdminPaginated(
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -34,7 +41,7 @@ export default async function AdminBlogApprovalsPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {pendingPosts.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">No teacher blog posts awaiting approval.</p>
         ) : (
           <table className="w-full min-w-[880px] text-left text-sm">
@@ -86,6 +93,14 @@ export default async function AdminBlogApprovalsPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/blog-approvals"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

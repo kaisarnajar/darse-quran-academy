@@ -2,13 +2,16 @@ import Link from "next/link";
 import { DeleteStudentReviewButton } from "@/components/profile/DeleteStudentReviewButton";
 import { StudentReviewForm } from "@/components/profile/StudentReviewForm";
 import { StarRating } from "@/components/reviews/StarRating";
+import { Pagination } from "@/components/shared/Pagination";
 import { createStudentReview, updateStudentReview } from "@/app/profile/reviews/actions";
 import { requireUser } from "@/lib/auth-actions";
+import { clampPage, GRID_PAGE_SIZE, parsePaginationParams } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 import {
   canStudentDeleteReview,
   canStudentEditReview,
-  getStudentReviewsForUser,
+  getStudentReviewForUser,
+  getStudentReviewsForUserPaginated,
   reviewStatusClass,
   reviewStatusLabel,
 } from "@/lib/student-reviews";
@@ -22,21 +25,34 @@ export default async function ProfileReviewsPage({
     deleted?: string;
     error?: string;
     edit?: string;
+    page?: string;
   }>;
 }) {
   const params = await searchParams;
   const session = await requireUser();
-  const [reviews, user] = await Promise.all([
-    getStudentReviewsForUser(session.user.id),
+  const { page: requestedPage, pageSize } = parsePaginationParams(params, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+
+  const [reviewsPaginated, user, editingReviewFromDb] = await Promise.all([
+    getStudentReviewsForUserPaginated(session.user.id, requestedPage, pageSize),
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: { address: true },
     }),
+    params.edit
+      ? getStudentReviewForUser(params.edit, session.user.id)
+      : Promise.resolve(null),
   ]);
 
-  const editingReview = params.edit
-    ? reviews.find((r) => r.id === params.edit && canStudentEditReview(r, session.user.id))
-    : undefined;
+  const reviews = reviewsPaginated.items;
+  const totalCount = reviewsPaginated.totalCount;
+  const page = clampPage(requestedPage, totalCount, pageSize);
+
+  const editingReview =
+    editingReviewFromDb && canStudentEditReview(editingReviewFromDb, session.user.id)
+      ? editingReviewFromDb
+      : undefined;
 
   return (
     <div>
@@ -101,7 +117,7 @@ export default async function ProfileReviewsPage({
         </div>
       )}
 
-      {reviews.length > 0 && (
+      {totalCount > 0 && (
         <div className="mt-10">
           <h3 className="text-sm font-semibold text-foreground">Your submissions</h3>
           <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -155,6 +171,14 @@ export default async function ProfileReviewsPage({
               );
             })}
           </ul>
+
+          <Pagination
+            basePath="/profile/reviews"
+            params={params}
+            page={page}
+            totalCount={totalCount}
+            pageSize={pageSize}
+          />
         </div>
       )}
     </div>

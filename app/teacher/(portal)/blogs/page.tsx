@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DeleteTeacherBlogPostButton } from "@/components/teacher/DeleteTeacherBlogPostButton";
+import { Pagination } from "@/components/shared/Pagination";
 import { requireTeacher } from "@/lib/auth-actions";
 import {
   blogApprovalStatusClass,
@@ -7,7 +8,8 @@ import {
   canTeacherDeleteBlogPost,
   canTeacherEditBlogPost,
 } from "@/lib/blog-approval";
-import { getTeacherBlogPosts } from "@/lib/blogs";
+import { getTeacherBlogPostsPaginated } from "@/lib/blogs";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function TeacherBlogsPage({
   searchParams,
@@ -17,11 +19,18 @@ export default async function TeacherBlogsPage({
     resubmitted?: string;
     deleted?: string;
     error?: string;
+    page?: string;
   }>;
 }) {
   const params = await searchParams;
   const { session } = await requireTeacher();
-  const posts = await getTeacherBlogPosts(session.user.id);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: posts, totalCount } = await getTeacherBlogPostsPaginated(
+    session.user.id,
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -63,7 +72,7 @@ export default async function TeacherBlogsPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {posts.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">You have not written any blog posts yet.</p>
         ) : (
           <table className="w-full min-w-[640px] text-left text-sm">
@@ -132,6 +141,14 @@ export default async function TeacherBlogsPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/teacher/blogs"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

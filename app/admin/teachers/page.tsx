@@ -1,15 +1,19 @@
 import Link from "next/link";
 import { DeleteTeacherButton } from "@/components/admin/DeleteTeacherButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { getAllTeachers } from "@/lib/teachers";
+import { Pagination } from "@/components/shared/Pagination";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { getAllTeachersPaginated } from "@/lib/teachers";
 
 export default async function AdminTeachersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; created?: string; saved?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string; saved?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const teachers = await getAllTeachers();
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: teachers, totalCount } = await getAllTeachersPaginated(requestedPage, pageSize);
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -17,7 +21,7 @@ export default async function AdminTeachersPage({
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Teachers</h1>
           <p className="mt-1 text-sm text-muted">
-            {teachers.length} total — link registered accounts by email to grant the teacher portal.
+            {totalCount} total — link registered accounts by email to grant the teacher portal.
           </p>
         </div>
         <Link
@@ -41,7 +45,7 @@ export default async function AdminTeachersPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {teachers.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No teachers yet.</p>
         ) : (
           <table className="w-full min-w-[760px] text-left text-sm">
@@ -95,6 +99,14 @@ export default async function AdminTeachersPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/teachers"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

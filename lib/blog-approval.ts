@@ -1,4 +1,5 @@
 import type { BlogApprovalStatus, BlogPost } from "@prisma/client";
+import { clampPage, paginationArgs } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export const BLOG_PUBLIC_WHERE = {
@@ -58,4 +59,22 @@ export async function getPendingBlogPostsForAdmin() {
       createdBy: { select: { name: true, email: true } },
     },
   });
+}
+
+const pendingBlogInclude = {
+  images: { orderBy: { sortOrder: "asc" } },
+  createdBy: { select: { name: true, email: true } },
+} as const;
+
+export async function getPendingBlogPostsForAdminPaginated(page: number, pageSize: number) {
+  const where = { approvalStatus: "PENDING" as const };
+  const totalCount = await prisma.blogPost.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.blogPost.findMany({
+    where,
+    orderBy: { createdAt: "asc" },
+    include: pendingBlogInclude,
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }

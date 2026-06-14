@@ -1,21 +1,25 @@
 import Link from "next/link";
 import { DeleteDailyInspirationButton } from "@/components/admin/DeleteDailyInspirationButton";
+import { Pagination } from "@/components/shared/Pagination";
 import {
   dailyInspirationKindLabel,
-  getAllDailyInspirationsForAdmin,
+  getAllDailyInspirationsForAdminPaginated,
   getHomepageDailyInspirationId,
 } from "@/lib/daily-inspiration";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 export default async function AdminDailyInspirationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const [items, homepageId] = await Promise.all([
-    getAllDailyInspirationsForAdmin(),
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const [{ items, totalCount }, homepageId] = await Promise.all([
+    getAllDailyInspirationsForAdminPaginated(requestedPage, pageSize),
     getHomepageDailyInspirationId(),
   ]);
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -48,7 +52,7 @@ export default async function AdminDailyInspirationPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {items.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">No verses or hadith posted yet.</p>
         ) : (
           <table className="w-full min-w-[720px] text-left text-sm">
@@ -117,6 +121,14 @@ export default async function AdminDailyInspirationPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/daily-inspiration"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

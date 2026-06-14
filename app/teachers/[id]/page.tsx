@@ -4,11 +4,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
-import { getPublicCoursesByTeacherId } from "@/lib/courses";
+import { Pagination } from "@/components/shared/Pagination";
+import { getPublicCoursesByTeacherIdPaginated } from "@/lib/courses";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getPublishedTeacherById } from "@/lib/teachers";
 
 type TeacherPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 };
 
 export async function generateMetadata({ params }: TeacherPageProps): Promise<Metadata> {
@@ -21,13 +24,22 @@ export async function generateMetadata({ params }: TeacherPageProps): Promise<Me
   };
 }
 
-export default async function TeacherPage({ params }: TeacherPageProps) {
+export default async function TeacherPage({ params, searchParams }: TeacherPageProps) {
   const { id } = await params;
-  const [teacher, courses] = await Promise.all([
+  const queryParams = await searchParams;
+  const { page: requestedPage, pageSize } = parsePaginationParams(queryParams, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+
+  const [teacher, coursesPaginated] = await Promise.all([
     getPublishedTeacherById(id),
-    getPublicCoursesByTeacherId(id),
+    getPublicCoursesByTeacherIdPaginated(id, requestedPage, pageSize),
   ]);
   if (!teacher) notFound();
+
+  const courses = coursesPaginated.items;
+  const courseTotalCount = coursesPaginated.totalCount;
+  const page = clampPage(requestedPage, courseTotalCount, pageSize);
 
   return (
     <Section>
@@ -59,7 +71,7 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
         </div>
         <p className="mt-8 text-base leading-relaxed text-muted">{teacher.bio}</p>
 
-        {courses.length > 0 && (
+        {courseTotalCount > 0 && (
           <section className="mt-10">
             <h2 className="font-serif text-lg font-semibold text-foreground">Courses</h2>
             <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-surface">
@@ -81,6 +93,14 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
                 </li>
               ))}
             </ul>
+
+            <Pagination
+              basePath={`/teachers/${id}`}
+              params={queryParams}
+              page={page}
+              totalCount={courseTotalCount}
+              pageSize={pageSize}
+            />
           </section>
         )}
       </div>

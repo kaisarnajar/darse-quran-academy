@@ -1,4 +1,5 @@
 import type { StudentReview, StudentReviewStatus, User } from "@prisma/client";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export const HOMEPAGE_FEATURED_REVIEWS_MAX = 6;
@@ -104,6 +105,24 @@ export async function getPendingStudentReviewsForAdmin() {
   });
 }
 
+export async function getPendingStudentReviewsForAdminPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<StudentReviewWithUser>> {
+  const where = { status: "PENDING" as const };
+  const totalCount = await prisma.studentReview.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.studentReview.findMany({
+    where,
+    orderBy: { createdAt: "asc" },
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 /** All approved reviews (homepage and not), for admin management. */
 export async function getApprovedStudentReviewsForAdmin() {
   return prisma.studentReview.findMany({
@@ -115,11 +134,45 @@ export async function getApprovedStudentReviewsForAdmin() {
   });
 }
 
+export async function getApprovedStudentReviewsForAdminPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<StudentReviewWithUser>> {
+  const where = { status: "APPROVED" as const };
+  const totalCount = await prisma.studentReview.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.studentReview.findMany({
+    where,
+    orderBy: [{ featuredOnHomepage: "desc" }, { featuredAt: "desc" }, { updatedAt: "desc" }],
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
+}
+
 export async function getStudentReviewsForUser(userId: string) {
   return prisma.studentReview.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
   });
+}
+
+export async function getStudentReviewsForUserPaginated(
+  userId: string,
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<Awaited<ReturnType<typeof getStudentReviewsForUser>>[number]>> {
+  const where = { userId };
+  const totalCount = await prisma.studentReview.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.studentReview.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getStudentReviewForUser(id: string, userId: string) {

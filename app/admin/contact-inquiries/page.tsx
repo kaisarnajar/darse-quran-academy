@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { DeleteContactInquiryButton } from "@/components/admin/DeleteContactInquiryButton";
-import { getAllContactInquiries } from "@/lib/contact-inquiries";
+import { Pagination } from "@/components/shared/Pagination";
+import { getAllContactInquiriesPaginated } from "@/lib/contact-inquiries";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 
 function statusLabel(reply: string | null) {
   return reply ? "Replied" : "Pending";
@@ -13,19 +15,25 @@ function statusClass(reply: string | null) {
 export default async function AdminContactInquiriesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; error?: string; email?: string }>;
+  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; error?: string; email?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const filter =
     params.filter === "pending" || params.filter === "replied" ? params.filter : undefined;
-  const inquiries = await getAllContactInquiries(filter);
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: inquiries, totalCount } = await getAllContactInquiriesPaginated(
+    requestedPage,
+    pageSize,
+    filter,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Contact inquiries</h1>
-          <p className="mt-1 text-sm text-muted">{inquiries.length} messages</p>
+          <p className="mt-1 text-sm text-muted">{totalCount} messages</p>
         </div>
         <nav className="flex flex-wrap gap-2" aria-label="Filter inquiries">
           {(
@@ -74,7 +82,7 @@ export default async function AdminContactInquiriesPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {inquiries.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">No contact messages yet.</p>
         ) : (
           <table className="w-full min-w-[880px] text-left text-sm">
@@ -138,6 +146,14 @@ export default async function AdminContactInquiriesPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/contact-inquiries"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

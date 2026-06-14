@@ -1,13 +1,32 @@
 import { getAdminEmails } from "@/lib/admin";
+import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
-export async function getStudentUsers() {
+function studentUsersWhere() {
   const adminEmails = getAdminEmails();
+  return adminEmails.length > 0 ? { email: { notIn: adminEmails } } : undefined;
+}
 
+export async function getStudentUsers() {
   return prisma.user.findMany({
-    where: adminEmails.length > 0 ? { email: { notIn: adminEmails } } : undefined,
+    where: studentUsersWhere(),
     orderBy: { createdAt: "desc" },
   });
+}
+
+export async function getStudentUsersPaginated(
+  page: number,
+  pageSize: number,
+): Promise<PaginatedResult<Awaited<ReturnType<typeof getStudentUsers>>[number]>> {
+  const where = studentUsersWhere();
+  const totalCount = await prisma.user.count({ where });
+  const safePage = clampPage(page, totalCount, pageSize);
+  const items = await prisma.user.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    ...paginationArgs(safePage, pageSize),
+  });
+  return { items, totalCount };
 }
 
 export async function getStudentUserById(id: string) {

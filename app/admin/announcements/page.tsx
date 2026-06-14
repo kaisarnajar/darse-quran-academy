@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { DeleteSiteAnnouncementButton } from "@/components/admin/DeleteSiteAnnouncementButton";
 import { ToggleHomepageAnnouncementButton } from "@/components/admin/ToggleHomepageAnnouncementButton";
+import { Pagination } from "@/components/shared/Pagination";
+import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import {
-  getAllSiteAnnouncementsForAdmin,
+  getAllSiteAnnouncementsForAdminPaginated,
   HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX,
 } from "@/lib/site-announcements";
 
@@ -15,10 +17,15 @@ function statusBadge(published: boolean, showOnHomepage: boolean) {
 export default async function AdminAnnouncementsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const announcements = await getAllSiteAnnouncementsForAdmin();
+  const { page: requestedPage, pageSize } = parsePaginationParams(params);
+  const { items: announcements, totalCount } = await getAllSiteAnnouncementsForAdminPaginated(
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <div>
@@ -58,7 +65,7 @@ export default async function AdminAnnouncementsPage({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
-        {announcements.length === 0 ? (
+        {totalCount === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-muted">No announcements yet.</p>
         ) : (
           <table className="w-full min-w-[800px] text-left text-sm">
@@ -130,6 +137,14 @@ export default async function AdminAnnouncementsPage({
           </table>
         )}
       </div>
+
+      <Pagination
+        basePath="/admin/announcements"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </div>
   );
 }

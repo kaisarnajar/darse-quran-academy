@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { SiteAnnouncementCard } from "@/components/announcements/SiteAnnouncementCard";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Section } from "@/components/site/Section";
-import { getPublishedSiteAnnouncements } from "@/lib/site-announcements";
+import { Pagination } from "@/components/shared/Pagination";
+import { GRID_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
+import { getPublishedSiteAnnouncementsPaginated } from "@/lib/site-announcements";
 
 export const metadata: Metadata = {
   title: "Announcements",
@@ -10,8 +12,20 @@ export const metadata: Metadata = {
     "Events, scholar visits, and academy updates from Darse Quran Academy — masjid programs, special sessions, and more.",
 };
 
-export default async function AnnouncementsPage() {
-  const announcements = await getPublishedSiteAnnouncements();
+export default async function AnnouncementsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const { page: requestedPage, pageSize } = parsePaginationParams(params, {
+    pageSize: GRID_PAGE_SIZE,
+  });
+  const { items: announcements, totalCount } = await getPublishedSiteAnnouncementsPaginated(
+    requestedPage,
+    pageSize,
+  );
+  const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
     <Section>
@@ -20,7 +34,7 @@ export default async function AnnouncementsPage() {
         description="Events, visits, and important news from the academy. Check back for programs at local masajid and special sessions."
       />
 
-      {announcements.length === 0 ? (
+      {totalCount === 0 ? (
         <p className="mt-12 rounded-lg border border-dashed border-border bg-surface px-6 py-16 text-center text-muted">
           No announcements at the moment. Please check again soon.
         </p>
@@ -33,6 +47,14 @@ export default async function AnnouncementsPage() {
           ))}
         </ul>
       )}
+
+      <Pagination
+        basePath="/announcements"
+        params={params}
+        page={page}
+        totalCount={totalCount}
+        pageSize={pageSize}
+      />
     </Section>
   );
 }
