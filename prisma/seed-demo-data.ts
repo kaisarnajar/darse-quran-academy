@@ -19,10 +19,17 @@ import {
   buildMonthlyFeeLabel,
 } from "../lib/monthly-payments";
 import {
+  EXPENSE_CATEGORY_MARKETING,
+  EXPENSE_CATEGORY_SOFTWARE_TOOLS,
+  EXPENSE_CATEGORY_TEACHER_SALARY,
+  EXPENSE_CATEGORY_WEBSITE_HOSTING,
+} from "../lib/expense-categories";
+import {
   MONTHLY_PAYMENT_APPROVED,
   MONTHLY_PAYMENT_DECLINED,
   MONTHLY_PAYMENT_PENDING,
   PAYMENT_TYPE_ENROLLMENT,
+  PAYMENT_TYPE_MANUAL,
   PAYMENT_TYPE_MONTHLY,
 } from "../lib/monthly-payment-status";
 import {
@@ -126,6 +133,7 @@ async function seedDemoPayment(
         courseId,
         amountInrPaise,
         paidAt,
+        paymentType,
         description: label,
         receiptEmailSentAt,
         uploadedReceiptPath,
@@ -133,6 +141,7 @@ async function seedDemoPayment(
       update: {
         amountInrPaise,
         paidAt,
+        paymentType,
         description: label,
         receiptEmailSentAt,
         uploadedReceiptPath,
@@ -398,8 +407,106 @@ export async function seedDemoData(prisma: PrismaClient) {
   }
 
   await seedDemoStudentReviews(prisma);
+  await seedDemoManualPayment(prisma);
+  await seedDemoExpenses(prisma);
   await seedCompletedCourseScenario(prisma);
   await syncCompletedCourseEnrollments(prisma);
+}
+
+/** Manual income entry for /admin/finance income tab (no linked submission). */
+async function seedDemoManualPayment(prisma: PrismaClient) {
+  await prisma.paymentRecord.upsert({
+    where: { id: "seed-demo-manual-payment-01" },
+    create: {
+      id: "seed-demo-manual-payment-01",
+      userId: demoUserId("01"),
+      courseId: "quran-nazira",
+      amountInrPaise: 50_000,
+      paidAt: new Date("2026-02-15T10:00:00.000Z"),
+      paymentType: PAYMENT_TYPE_MANUAL,
+      description: "Cash payment recorded by admin (demo)",
+    },
+    update: {
+      amountInrPaise: 50_000,
+      paidAt: new Date("2026-02-15T10:00:00.000Z"),
+      paymentType: PAYMENT_TYPE_MANUAL,
+      description: "Cash payment recorded by admin (demo)",
+    },
+  });
+}
+
+const demoExpenses = [
+  {
+    id: "seed-demo-expense-salary-teacher-1-feb",
+    category: EXPENSE_CATEGORY_TEACHER_SALARY,
+    teacherId: "1",
+    amountInrPaise: 25_000_00,
+    paidAt: new Date("2026-02-01T12:00:00.000Z"),
+    description: "February salary — Moulana Ibrahim Khan",
+  },
+  {
+    id: "seed-demo-expense-salary-teacher-2-feb",
+    category: EXPENSE_CATEGORY_TEACHER_SALARY,
+    teacherId: "2",
+    amountInrPaise: 22_000_00,
+    paidAt: new Date("2026-02-01T12:00:00.000Z"),
+    description: "February salary — Moulana Yusuf Ahmed",
+  },
+  {
+    id: "seed-demo-expense-salary-teacher-1-mar",
+    category: EXPENSE_CATEGORY_TEACHER_SALARY,
+    teacherId: "1",
+    amountInrPaise: 25_000_00,
+    paidAt: new Date("2026-03-01T12:00:00.000Z"),
+    description: "March salary — Moulana Ibrahim Khan",
+  },
+  {
+    id: "seed-demo-expense-hosting-feb",
+    category: EXPENSE_CATEGORY_WEBSITE_HOSTING,
+    teacherId: null,
+    amountInrPaise: 1_200_00,
+    paidAt: new Date("2026-02-05T09:00:00.000Z"),
+    description: "Annual domain and hosting renewal",
+  },
+  {
+    id: "seed-demo-expense-marketing-mar",
+    category: EXPENSE_CATEGORY_MARKETING,
+    teacherId: null,
+    amountInrPaise: 3_500_00,
+    paidAt: new Date("2026-03-10T14:00:00.000Z"),
+    description: "Social media ad campaign — Ramadan enrollment",
+  },
+  {
+    id: "seed-demo-expense-software-apr",
+    category: EXPENSE_CATEGORY_SOFTWARE_TOOLS,
+    teacherId: null,
+    amountInrPaise: 800_00,
+    paidAt: new Date("2026-04-01T11:00:00.000Z"),
+    description: "Zoom Pro subscription",
+  },
+] as const;
+
+async function seedDemoExpenses(prisma: PrismaClient) {
+  for (const expense of demoExpenses) {
+    await prisma.expense.upsert({
+      where: { id: expense.id },
+      create: {
+        id: expense.id,
+        category: expense.category,
+        teacherId: expense.teacherId,
+        amountInrPaise: expense.amountInrPaise,
+        paidAt: expense.paidAt,
+        description: expense.description,
+      },
+      update: {
+        category: expense.category,
+        teacherId: expense.teacherId,
+        amountInrPaise: expense.amountInrPaise,
+        paidAt: expense.paidAt,
+        description: expense.description,
+      },
+    });
+  }
 }
 
 const demoStudentReviews = [
@@ -475,6 +582,7 @@ export function demoDataSummaryHint(): string {
     "  Courses — PUBLISHED, ONGOING, COMPLETED, ON_HOLD, and DRAFT examples",
     "  Enrollments — pending approval (free), awaiting fee, active, completed (student 19 certificate on qiraat-advanced)",
     "  Payments — enrollment fee + monthly fee (approved, pending, declined; student 06 uploaded receipt)",
+    "  Finance — income records with paymentType; 1 manual payment; 6 demo expenses for /admin/finance",
     "  Reviews — 10 featured + 1 pending + 1 rejected for /admin/review-approvals",
     "  Settings — demo UPI/bank and social links for payment + footer QA",
   ].join("\n");

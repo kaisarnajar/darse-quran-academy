@@ -46,8 +46,9 @@ async function assertDatabaseMigrated() {
       }),
     () =>
       prisma.paymentRecord.findFirst({
-        select: { uploadedReceiptPath: true, receiptEmailSentAt: true },
+        select: { uploadedReceiptPath: true, receiptEmailSentAt: true, paymentType: true },
       }),
+    () => prisma.expense.findFirst({ select: { category: true, teacherId: true } }),
     () => prisma.blogImage.findFirst({ select: { id: true } }),
     () => prisma.fatwaQuestion.findFirst({ select: { featuredOnHomepage: true } }),
     () => prisma.studentReview.findFirst({ select: { rating: true, status: true } }),
@@ -78,7 +79,7 @@ async function main() {
   await seedDemoContent(prisma);
 
   console.log(
-    "Seeded demo data: courses, teachers, library, testimonials, logins, students, contact inquiries, announcements, blogs, verse/hadith, and fatwa.",
+    "Seeded demo data: courses, teachers, library, testimonials, logins, students, finance, contact inquiries, announcements, blogs, verse/hadith, and fatwa.",
   );
   console.log(demoDataSummaryHint());
   console.log(demoContentLoginHint());
