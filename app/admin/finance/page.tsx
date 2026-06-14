@@ -117,14 +117,14 @@ export default async function AdminFinancePage({
             variant="expense"
           />
 
+          <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+            <FinanceExpenseTable expenses={expenses} returnQuery={returnQuery} />
+          </div>
+
           <RecordExpenseForm
             teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
             returnQuery={returnQuery}
           />
-
-          <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-            <FinanceExpenseTable expenses={expenses} returnQuery={returnQuery} />
-          </div>
         </section>
       )}
     </div>
