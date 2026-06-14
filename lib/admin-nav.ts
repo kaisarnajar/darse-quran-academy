@@ -1,7 +1,6 @@
 export type AdminNavLink = {
   href: string;
   label: string;
-  exact?: boolean;
 };
 
 /** Sidebar links that open settings/tools pages (no dashboard count). */

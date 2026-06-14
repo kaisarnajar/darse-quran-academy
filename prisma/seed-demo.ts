@@ -25,7 +25,7 @@ function assertDemoSeedAllowed() {
   const isPostgres = url.startsWith("postgres://") || url.startsWith("postgresql://");
   if (isPostgres && process.env.ALLOW_DEMO_SEED !== "true") {
     console.error(
-      "Demo seed is blocked for PostgreSQL. Set ALLOW_DEMO_SEED=true for local/staging PostgreSQL.",
+      "Demo seed is blocked for PostgreSQL. Use local SQLite, or set ALLOW_DEMO_SEED=true for staging.",
     );
     process.exit(1);
   }

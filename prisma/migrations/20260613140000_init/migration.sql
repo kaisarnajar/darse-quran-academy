@@ -1,44 +1,18 @@
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
-
--- CreateEnum
-CREATE TYPE "Occupation" AS ENUM ('STUDENT', 'WORKING', 'GOVERNMENT_EMPLOYEE', 'SELF_EMPLOYED', 'LABOURER', 'POLICE_OFFICER', 'ARMED_FORCES', 'TEACHER', 'HEALTHCARE_WORKER', 'ENGINEER', 'IT_PROFESSIONAL', 'ACCOUNTANT', 'LAWYER', 'DRIVER', 'FARMER', 'SHOPKEEPER', 'CLERGY', 'HOMEMAKER', 'RETIRED', 'UNEMPLOYED');
-
--- CreateEnum
-CREATE TYPE "CourseStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ONGOING', 'COMPLETED', 'ON_HOLD');
-
--- CreateEnum
-CREATE TYPE "AnnouncementCategory" AS ENUM ('EXAMS_TESTS', 'ASSIGNMENTS_HOMEWORK', 'STUDY_MATERIALS', 'CLASS_SCHEDULE', 'COURSE_ANNOUNCEMENT', 'GENERAL_NOTICE');
-
--- CreateEnum
-CREATE TYPE "DailyInspirationKind" AS ENUM ('QURAN', 'HADITH');
-
--- CreateEnum
-CREATE TYPE "BlogApprovalStatus" AS ENUM ('DRAFT', 'PENDING', 'APPROVED', 'REJECTED');
-
--- CreateEnum
-CREATE TYPE "StudentReviewStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
-
--- CreateEnum
-CREATE TYPE "StudentNotificationType" AS ENUM ('PAYMENT_APPROVED', 'ENROLLMENT_APPROVED', 'ENROLLMENT_REJECTED', 'COURSE_ANNOUNCEMENT', 'PERSONAL_MESSAGE', 'SITE_ANNOUNCEMENT');
-
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT,
     "email" TEXT NOT NULL,
     "fatherName" TEXT,
-    "dateOfBirth" TIMESTAMP(3),
-    "occupation" "Occupation",
+    "dateOfBirth" DATETIME,
+    "occupation" TEXT,
     "address" TEXT,
     "whatsapp" TEXT,
-    "emailVerified" TIMESTAMP(3),
+    "emailVerified" DATETIME,
     "image" TEXT,
     "password" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
 );
 
 -- CreateTable
@@ -55,39 +29,39 @@ CREATE TABLE "Account" (
     "id_token" TEXT,
     "session_state" TEXT,
 
-    CONSTRAINT "Account_pkey" PRIMARY KEY ("provider","providerAccountId")
+    PRIMARY KEY ("provider", "providerAccountId"),
+    CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Session" (
     "sessionToken" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "expires" TIMESTAMP(3) NOT NULL
+    "expires" DATETIME NOT NULL,
+    CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "VerificationToken" (
     "identifier" TEXT NOT NULL,
     "token" TEXT NOT NULL,
-    "expires" TIMESTAMP(3) NOT NULL,
+    "expires" DATETIME NOT NULL,
 
-    CONSTRAINT "VerificationToken_pkey" PRIMARY KEY ("identifier","token")
+    PRIMARY KEY ("identifier", "token")
 );
 
 -- CreateTable
 CREATE TABLE "PasswordResetToken" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "email" TEXT NOT NULL,
     "tokenHash" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "PasswordResetToken_pkey" PRIMARY KEY ("id")
+    "expiresAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable
 CREATE TABLE "Course" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "startDate" TEXT NOT NULL,
@@ -97,18 +71,17 @@ CREATE TABLE "Course" (
     "priceInrPaise" INTEGER NOT NULL,
     "monthlyFeeInrPaise" INTEGER NOT NULL,
     "teacherId" TEXT,
-    "status" "CourseStatus" NOT NULL DEFAULT 'PUBLISHED',
+    "status" TEXT NOT NULL DEFAULT 'PUBLISHED',
     "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
-    "featuredAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Course_pkey" PRIMARY KEY ("id")
+    "featuredAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Course_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Teacher" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "email" TEXT,
     "specialization" TEXT NOT NULL,
@@ -116,34 +89,33 @@ CREATE TABLE "Teacher" (
     "initials" TEXT NOT NULL,
     "imageUrl" TEXT,
     "published" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Teacher_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "CourseAnnouncement" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "courseId" TEXT NOT NULL,
     "enrollmentId" TEXT,
     "teacherId" TEXT,
     "authorName" TEXT NOT NULL,
     "postedByAdmin" BOOLEAN NOT NULL DEFAULT false,
-    "category" "AnnouncementCategory" NOT NULL,
+    "category" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "attachmentPath" TEXT,
     "attachmentName" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "CourseAnnouncement_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "CourseAnnouncement_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "CourseAnnouncement_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "Enrollment" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "CourseAnnouncement_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "SiteAnnouncement" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "eventDate" TEXT,
@@ -151,76 +123,71 @@ CREATE TABLE "SiteAnnouncement" (
     "showOnHomepage" BOOLEAN NOT NULL DEFAULT false,
     "published" BOOLEAN NOT NULL DEFAULT true,
     "createdById" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "SiteAnnouncement_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "SiteAnnouncement_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "BlogPost" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "excerpt" TEXT,
     "body" TEXT NOT NULL,
     "published" BOOLEAN NOT NULL DEFAULT false,
-    "approvalStatus" "BlogApprovalStatus" NOT NULL DEFAULT 'APPROVED',
+    "approvalStatus" TEXT NOT NULL DEFAULT 'APPROVED',
     "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
-    "featuredAt" TIMESTAMP(3),
+    "featuredAt" DATETIME,
     "createdById" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "BlogPost_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "BlogPost_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "BlogImage" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "blogPostId" TEXT NOT NULL,
     "imagePath" TEXT NOT NULL,
     "caption" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "BlogImage_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "BlogImage_blogPostId_fkey" FOREIGN KEY ("blogPostId") REFERENCES "BlogPost" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "DailyInspiration" (
-    "id" TEXT NOT NULL,
-    "kind" "DailyInspirationKind" NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "kind" TEXT NOT NULL,
     "arabicText" TEXT NOT NULL,
     "englishTranslation" TEXT NOT NULL,
     "reference" TEXT,
     "published" BOOLEAN NOT NULL DEFAULT false,
     "createdById" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "DailyInspiration_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "DailyInspiration_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "StudentReview" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "quote" TEXT NOT NULL,
     "course" TEXT,
     "location" TEXT,
     "rating" INTEGER NOT NULL DEFAULT 5,
-    "status" "StudentReviewStatus" NOT NULL DEFAULT 'PENDING',
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
     "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
-    "featuredAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "StudentReview_pkey" PRIMARY KEY ("id")
+    "featuredAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "StudentReview_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "LibraryItem" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
     "author" TEXT NOT NULL,
     "topic" TEXT NOT NULL,
@@ -229,31 +196,28 @@ CREATE TABLE "LibraryItem" (
     "pdfUrl" TEXT,
     "published" BOOLEAN NOT NULL DEFAULT true,
     "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
-    "featuredAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "LibraryItem_pkey" PRIMARY KEY ("id")
+    "featuredAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "Enrollment" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "courseId" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'pending_approval',
-    "completedAt" TIMESTAMP(3),
+    "completedAt" DATETIME,
     "uploadedCertificatePath" TEXT,
-    "certificateEmailSentAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Enrollment_pkey" PRIMARY KEY ("id")
+    "certificateEmailSentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Enrollment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "FatwaQuestion" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT,
     "askerName" TEXT NOT NULL,
     "askerEmail" TEXT NOT NULL,
@@ -261,80 +225,77 @@ CREATE TABLE "FatwaQuestion" (
     "title" TEXT NOT NULL,
     "question" TEXT NOT NULL,
     "answer" TEXT,
-    "answeredAt" TIMESTAMP(3),
+    "answeredAt" DATETIME,
     "answeredById" TEXT,
     "featuredOnHomepage" BOOLEAN NOT NULL DEFAULT false,
-    "featuredAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "FatwaQuestion_pkey" PRIMARY KEY ("id")
+    "featuredAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "FatwaQuestion_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "FatwaQuestion_answeredById_fkey" FOREIGN KEY ("answeredById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "ContactInquiry" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "message" TEXT NOT NULL,
     "reply" TEXT,
-    "repliedAt" TIMESTAMP(3),
+    "repliedAt" DATETIME,
     "repliedById" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "ContactInquiry_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "ContactInquiry_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "ContactInquiry_repliedById_fkey" FOREIGN KEY ("repliedById") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "PaymentRecord" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "courseId" TEXT,
     "amountInrPaise" INTEGER NOT NULL,
-    "paidAt" TIMESTAMP(3) NOT NULL,
+    "paidAt" DATETIME NOT NULL,
     "paymentType" TEXT,
     "description" TEXT,
-    "receiptEmailSentAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "PaymentRecord_pkey" PRIMARY KEY ("id")
+    "receiptEmailSentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "PaymentRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PaymentRecord_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Expense" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "category" TEXT NOT NULL,
     "amountInrPaise" INTEGER NOT NULL,
-    "paidAt" TIMESTAMP(3) NOT NULL,
+    "paidAt" DATETIME NOT NULL,
     "description" TEXT,
     "teacherId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Expense_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Expense_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "SocialLinksSettings" (
-    "id" TEXT NOT NULL DEFAULT 'default',
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
     "contactEmail" TEXT NOT NULL DEFAULT 'info@darsequranacademy.org',
     "whatsappNumber" TEXT NOT NULL DEFAULT '917006025120',
     "whatsappDefaultMessage" TEXT NOT NULL DEFAULT 'Assalamu Alaikum, I would like to know more about Darse Quran Academy.',
     "facebookUrl" TEXT NOT NULL DEFAULT 'https://facebook.com',
     "instagramUrl" TEXT NOT NULL DEFAULT 'https://instagram.com',
     "youtubeUrl" TEXT NOT NULL DEFAULT 'https://youtube.com',
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "SocialLinksSettings_pkey" PRIMARY KEY ("id")
+    "updatedAt" DATETIME NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "PaymentSettings" (
-    "id" TEXT NOT NULL DEFAULT 'default',
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
     "upiId" TEXT NOT NULL DEFAULT '',
     "upiPayeeName" TEXT NOT NULL DEFAULT 'Darse Quran Academy',
     "bankAccountName" TEXT NOT NULL DEFAULT 'Darse Quran Academy',
@@ -342,14 +303,12 @@ CREATE TABLE "PaymentSettings" (
     "bankAccountNumber" TEXT NOT NULL DEFAULT '',
     "bankIfsc" TEXT NOT NULL DEFAULT '',
     "bankBranch" TEXT NOT NULL DEFAULT '',
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "PaymentSettings_pkey" PRIMARY KEY ("id")
+    "updatedAt" DATETIME NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "CoursePaymentSubmission" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "courseId" TEXT NOT NULL,
     "paymentType" TEXT NOT NULL DEFAULT 'monthly',
@@ -361,26 +320,25 @@ CREATE TABLE "CoursePaymentSubmission" (
     "paymentScreenshotPath" TEXT,
     "paymentReference" TEXT,
     "paymentRecordId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "CoursePaymentSubmission_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "CoursePaymentSubmission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "CoursePaymentSubmission_paymentRecordId_fkey" FOREIGN KEY ("paymentRecordId") REFERENCES "PaymentRecord" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "StudentNotification" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
-    "type" "StudentNotificationType" NOT NULL,
+    "type" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "body" TEXT,
     "href" TEXT NOT NULL,
-    "readAt" TIMESTAMP(3),
+    "readAt" DATETIME,
     "sourceType" TEXT,
     "sourceId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "StudentNotification_pkey" PRIMARY KEY ("id")
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "StudentNotification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -515,68 +473,3 @@ CREATE INDEX "StudentNotification_userId_createdAt_idx" ON "StudentNotification"
 -- CreateIndex
 CREATE UNIQUE INDEX "StudentNotification_userId_type_sourceId_key" ON "StudentNotification"("userId", "type", "sourceId");
 
--- AddForeignKey
-ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "Course_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "CourseAnnouncement" ADD CONSTRAINT "CourseAnnouncement_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "CourseAnnouncement" ADD CONSTRAINT "CourseAnnouncement_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "Enrollment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "CourseAnnouncement" ADD CONSTRAINT "CourseAnnouncement_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SiteAnnouncement" ADD CONSTRAINT "SiteAnnouncement_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "BlogPost" ADD CONSTRAINT "BlogPost_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "BlogImage" ADD CONSTRAINT "BlogImage_blogPostId_fkey" FOREIGN KEY ("blogPostId") REFERENCES "BlogPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "DailyInspiration" ADD CONSTRAINT "DailyInspiration_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "StudentReview" ADD CONSTRAINT "StudentReview_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Enrollment" ADD CONSTRAINT "Enrollment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "FatwaQuestion" ADD CONSTRAINT "FatwaQuestion_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "FatwaQuestion" ADD CONSTRAINT "FatwaQuestion_answeredById_fkey" FOREIGN KEY ("answeredById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ContactInquiry" ADD CONSTRAINT "ContactInquiry_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ContactInquiry" ADD CONSTRAINT "ContactInquiry_repliedById_fkey" FOREIGN KEY ("repliedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PaymentRecord" ADD CONSTRAINT "PaymentRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PaymentRecord" ADD CONSTRAINT "PaymentRecord_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Expense" ADD CONSTRAINT "Expense_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "CoursePaymentSubmission" ADD CONSTRAINT "CoursePaymentSubmission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "CoursePaymentSubmission" ADD CONSTRAINT "CoursePaymentSubmission_paymentRecordId_fkey" FOREIGN KEY ("paymentRecordId") REFERENCES "PaymentRecord"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "StudentNotification" ADD CONSTRAINT "StudentNotification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
