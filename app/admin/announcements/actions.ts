@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-actions";
 import { formatInputDateValue } from "@/lib/form-date";
 import { prisma } from "@/lib/prisma";
+import { notifyAllStudentsOfSiteAnnouncement } from "@/lib/notifications";
 import { enforceHomepageAnnouncementLimit, resolveAnnouncementFeaturedUpdate } from "@/lib/site-announcements";
 import { siteAnnouncementSchema } from "@/lib/validations";
 
@@ -69,7 +70,7 @@ export async function createSiteAnnouncement(formData: FormData) {
     redirect(`${adminListPath("/new")}?error=${encodeURIComponent(featured.error)}`);
   }
 
-  await prisma.siteAnnouncement.create({
+  const announcement = await prisma.siteAnnouncement.create({
     data: {
       title: parsed.data.title,
       body: parsed.data.body,
@@ -80,6 +81,14 @@ export async function createSiteAnnouncement(formData: FormData) {
       createdById: session.user.id,
     },
   });
+
+  if (parsed.data.published) {
+    await notifyAllStudentsOfSiteAnnouncement({
+      announcementId: announcement.id,
+      title: announcement.title,
+      body: announcement.body,
+    });
+  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?posted=1`);
@@ -119,6 +128,14 @@ export async function updateSiteAnnouncement(id: string, formData: FormData) {
       published: parsed.data.published,
     },
   });
+
+  if (parsed.data.published && !existing.published) {
+    await notifyAllStudentsOfSiteAnnouncement({
+      announcementId: id,
+      title: parsed.data.title,
+      body: parsed.data.body,
+    });
+  }
 
   revalidateSiteAnnouncementPaths();
   redirect(`${adminListPath()}?saved=1`);
@@ -171,4 +188,6 @@ function revalidateSiteAnnouncementPaths() {
   revalidatePath("/");
   revalidatePath("/announcements");
   revalidatePath("/admin/announcements");
+  revalidatePath("/profile/notifications");
+  revalidatePath("/profile", "layout");
 }

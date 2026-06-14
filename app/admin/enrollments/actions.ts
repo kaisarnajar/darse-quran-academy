@@ -11,6 +11,10 @@ import {
 import { getCourseById } from "@/lib/courses";
 import { canApproveEnrollment, canRejectEnrollment } from "@/lib/enrollment-status";
 import { getRosterEnrollmentStatusForCourse } from "@/lib/enrollments";
+import {
+  notifyEnrollmentApproved,
+  notifyEnrollmentRejected,
+} from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import {
   lookupStudentAccountForEnrollment,
@@ -26,6 +30,7 @@ function revalidateEnrollmentPaths(courseId: string) {
     "/admin/courses",
     `/admin/courses/${courseId}/students`,
     "/profile/courses",
+    "/profile/notifications",
     "/courses",
   ];
 
@@ -78,6 +83,12 @@ export async function approveEnrollmentRequest(
     data: { status: getRosterEnrollmentStatusForCourse(course.status) },
   });
 
+  await notifyEnrollmentApproved({
+    userId: enrollment.userId,
+    courseTitle: course.title,
+    enrollmentId,
+  });
+
   revalidateEnrollmentPaths(courseId);
   revalidatePath(`/admin/students/${enrollment.userId}`, "page");
 
@@ -103,6 +114,15 @@ export async function rejectEnrollmentRequest(
   if (!canRejectEnrollment(enrollment.status)) {
     return { error: "Only pending enrollment requests can be rejected." };
   }
+
+  const course = await getCourseById(courseId);
+  const courseTitle = course?.title ?? "the course";
+
+  await notifyEnrollmentRejected({
+    userId: enrollment.userId,
+    courseTitle,
+    enrollmentId,
+  });
 
   await prisma.enrollment.delete({ where: { id: enrollmentId } });
 

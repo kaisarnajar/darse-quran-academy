@@ -19,6 +19,10 @@ import {
   validateAnnouncementAttachment,
 } from "@/lib/announcement-upload";
 import { getTeacherCourseForPortal } from "@/lib/teacher-portal";
+import {
+  notifyEnrolledStudentsOfCourseAnnouncement,
+  notifyStudentOfPersonalMessage,
+} from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 function announcementFormPath(courseId: string, suffix = "") {
@@ -39,7 +43,7 @@ async function requireTeacherCourse(courseId: string) {
 }
 
 export async function createCourseAnnouncement(courseId: string, formData: FormData) {
-  const { teacher } = await requireTeacherCourse(courseId);
+  const { teacher, course } = await requireTeacherCourse(courseId);
   const parsed = parseCourseAnnouncementForm(formData);
 
   if (!parsed.success) {
@@ -78,6 +82,14 @@ export async function createCourseAnnouncement(courseId: string, formData: FormD
       data: saved,
     });
   }
+
+  await notifyEnrolledStudentsOfCourseAnnouncement({
+    courseId,
+    courseTitle: course.title,
+    announcementId: announcement.id,
+    title: parsed.data.title,
+    body: parsed.data.body,
+  });
 
   revalidateCourseAnnouncementPaths(courseId);
   redirect(`${announcementFormPath(courseId)}?posted=1`);
@@ -162,7 +174,7 @@ export async function createStudentCourseAnnouncement(
   enrollmentId: string,
   formData: FormData,
 ) {
-  const { teacher } = await requireTeacherEnrollment(courseId, enrollmentId);
+  const { teacher, course, enrollment } = await requireTeacherEnrollment(courseId, enrollmentId);
   const parsed = parseCourseAnnouncementForm(formData);
 
   if (!parsed.success) {
@@ -201,6 +213,16 @@ export async function createStudentCourseAnnouncement(
       data: saved,
     });
   }
+
+  await notifyStudentOfPersonalMessage({
+    userId: enrollment.userId,
+    courseId,
+    courseTitle: course.title,
+    announcementId: announcement.id,
+    title: parsed.data.title,
+    body: parsed.data.body,
+    teacherName: teacher.name,
+  });
 
   revalidateStudentAnnouncementPaths(courseId, enrollmentId);
   redirect(`${studentAnnouncementFormPath(courseId, enrollmentId)}?posted=1`);

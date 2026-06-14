@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth-actions";
 import { getCourseById } from "@/lib/courses";
 import { rupeesToPaise } from "@/lib/form";
 import { PAYMENT_TYPE_MANUAL } from "@/lib/monthly-payment-status";
+import { notifyPaymentApproved } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { paymentRecordSchema } from "@/lib/validations";
 
@@ -37,11 +38,13 @@ export async function recordStudentPayment(
   }
 
   const courseId = parsed.data.courseId?.trim() || null;
+  let courseTitle = "your account";
   if (courseId) {
     const course = await getCourseById(courseId);
     if (!course) {
       return { error: "Course not found." };
     }
+    courseTitle = course.title;
   }
 
   const paidAt = new Date(parsed.data.paidAt);
@@ -49,7 +52,7 @@ export async function recordStudentPayment(
     return { error: "Invalid payment date." };
   }
 
-  await prisma.paymentRecord.create({
+  const record = await prisma.paymentRecord.create({
     data: {
       userId,
       courseId,
@@ -60,9 +63,17 @@ export async function recordStudentPayment(
     },
   });
 
+  await notifyPaymentApproved({
+    userId,
+    courseTitle,
+    sourceId: record.id,
+    sourceType: "PaymentRecord",
+  });
+
   revalidatePath(`/admin/students/${userId}`);
   revalidatePath("/admin/finance");
   revalidatePath("/profile/payments");
+  revalidatePath("/profile/notifications");
 
   return { success: "Payment recorded." };
 }

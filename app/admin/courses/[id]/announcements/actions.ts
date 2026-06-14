@@ -14,6 +14,7 @@ import {
   validateAnnouncementAttachment,
 } from "@/lib/announcement-upload";
 import { getCourseById } from "@/lib/courses";
+import { notifyEnrolledStudentsOfCourseAnnouncement } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 function announcementFormPath(courseId: string, suffix = "") {
@@ -36,7 +37,7 @@ function adminAuthorName(session: Awaited<ReturnType<typeof requireAdmin>>) {
 
 export async function createAdminCourseAnnouncement(courseId: string, formData: FormData) {
   const session = await requireAdmin();
-  await requireAdminCourse(courseId);
+  const course = await requireAdminCourse(courseId);
   const parsed = parseCourseAnnouncementForm(formData);
 
   if (!parsed.success) {
@@ -75,6 +76,14 @@ export async function createAdminCourseAnnouncement(courseId: string, formData: 
       data: saved,
     });
   }
+
+  await notifyEnrolledStudentsOfCourseAnnouncement({
+    courseId,
+    courseTitle: course.title,
+    announcementId: announcement.id,
+    title: parsed.data.title,
+    body: parsed.data.body,
+  });
 
   revalidateCourseAnnouncementPaths(courseId);
   redirect(`${announcementFormPath(courseId)}?posted=1`);

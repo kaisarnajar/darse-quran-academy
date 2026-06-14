@@ -65,6 +65,15 @@ enum StudentReviewStatus {
   REJECTED
 }
 
+enum StudentNotificationType {
+  PAYMENT_APPROVED
+  ENROLLMENT_APPROVED
+  ENROLLMENT_REJECTED
+  COURSE_ANNOUNCEMENT
+  PERSONAL_MESSAGE
+  SITE_ANNOUNCEMENT
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
@@ -89,9 +98,10 @@ model User {
   siteAnnouncements  SiteAnnouncement[] @relation("SiteAnnouncementAuthor")
   blogPosts          BlogPost[]         @relation("BlogPostAuthor")
   dailyInspirations  DailyInspiration[] @relation("DailyInspirationAuthor")
-  studentReviews     StudentReview[]
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+  studentReviews       StudentReview[]
+  studentNotifications StudentNotification[]
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
 }
 
 model Account {
@@ -445,4 +455,22 @@ model CoursePaymentSubmission {
   @@index([courseId])
   @@index([status])
   @@index([paymentType])
+}
+
+model StudentNotification {
+  id         String                  @id @default(cuid())
+  userId     String
+  type       StudentNotificationType
+  title      String
+  body       String?
+  href       String
+  readAt     DateTime?
+  sourceType String?
+  sourceId   String?
+  createdAt  DateTime                @default(now())
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, sourceId])
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
 }

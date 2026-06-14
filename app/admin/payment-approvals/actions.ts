@@ -14,6 +14,7 @@ import {
 } from "@/lib/monthly-payment-status";
 import { prisma } from "@/lib/prisma";
 import { getCourseById } from "@/lib/courses";
+import { notifyPaymentApproved, revalidateNotificationPaths } from "@/lib/notifications";
 
 function revalidatePaymentPaths(userId: string, courseId?: string | null) {
   const paths = [
@@ -25,7 +26,7 @@ function revalidatePaymentPaths(userId: string, courseId?: string | null) {
     `/admin/students/${userId}`,
     "/profile/payments",
     "/profile/courses",
-    "/courses",
+    "/profile/notifications",
   ];
   if (courseId) {
     paths.push(`/admin/courses/${courseId}/students`);
@@ -115,6 +116,18 @@ export async function confirmMonthlyPayment(
       },
       data: { status: getRosterEnrollmentStatusForCourse(course.status) },
     });
+  }
+
+  const course = await getCourseById(submission.courseId);
+  if (course) {
+    await notifyPaymentApproved({
+      userId: submission.userId,
+      courseTitle: course.title,
+      sourceId: submissionId,
+      sourceType: "CoursePaymentSubmission",
+    });
+  } else {
+    revalidateNotificationPaths(submission.userId);
   }
 
   revalidatePaymentPaths(submission.userId, submission.courseId);
