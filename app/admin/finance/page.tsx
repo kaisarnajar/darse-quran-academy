@@ -1,12 +1,13 @@
 import { FinanceDateFilter } from "@/components/admin/FinanceDateFilter";
 import { FinanceExpenseFilters } from "@/components/admin/FinanceExpenseFilters";
 import { FinanceExpenseTable } from "@/components/admin/FinanceExpenseTable";
+import { FinanceFilteredSummary } from "@/components/admin/FinanceFilteredSummary";
 import { FinanceIncomeFilters } from "@/components/admin/FinanceIncomeFilters";
 import { FinanceIncomeTable } from "@/components/admin/FinanceIncomeTable";
 import { FinanceSummaryCards } from "@/components/admin/FinanceSummaryCards";
 import { FinanceTabs } from "@/components/admin/FinanceTabs";
 import { RecordExpenseForm } from "@/components/admin/RecordExpenseForm";
-import { formatPrice, getAllCourses } from "@/lib/courses";
+import { getAllCourses } from "@/lib/courses";
 import { getExpenses, getExpenseTotal } from "@/lib/finance-expenses";
 import { parseFinanceFilters, type FinanceSearchParams } from "@/lib/finance-filters";
 import { getIncomeRecords, getIncomeTotal } from "@/lib/finance-income";
@@ -86,36 +87,26 @@ export default async function AdminFinancePage({
       </div>
 
       {filters.tab === "income" ? (
-        <section className="mt-6">
-          <div>
-            <p className="text-sm text-muted">
-              Confirmed payments from students — {incomeRecords.length} records (
-              {formatPrice(filteredIncomeTotal)} filtered)
-            </p>
-          </div>
+        <section className="mt-6 space-y-4">
+          <FinanceIncomeFilters
+            filters={filters}
+            courses={courses.map((c) => ({ id: c.id, title: c.title }))}
+            students={students.map((s) => ({ id: s.id, name: s.name, email: s.email }))}
+          />
 
-          <div className="mt-4">
-            <FinanceIncomeFilters
-              filters={filters}
-              courses={courses.map((c) => ({ id: c.id, title: c.title }))}
-              students={students.map((s) => ({ id: s.id, name: s.name, email: s.email }))}
-            />
-          </div>
+          <FinanceFilteredSummary
+            recordCount={incomeRecords.length}
+            totalPaise={filteredIncomeTotal}
+            variant="income"
+          />
 
-          <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
+          <div className="overflow-x-auto rounded-lg border border-border bg-surface">
             <FinanceIncomeTable records={incomeRecords} />
           </div>
         </section>
       ) : (
-        <section className="mt-6">
-          <div>
-            <p className="text-sm text-muted">
-              Operational costs — {expenses.length} records ({formatPrice(filteredExpenseTotal)}{" "}
-              filtered)
-            </p>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <section className="mt-6 space-y-4">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <RecordExpenseForm
               teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
               returnQuery={returnQuery}
@@ -126,7 +117,13 @@ export default async function AdminFinancePage({
             />
           </div>
 
-          <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
+          <FinanceFilteredSummary
+            recordCount={expenses.length}
+            totalPaise={filteredExpenseTotal}
+            variant="expense"
+          />
+
+          <div className="overflow-x-auto rounded-lg border border-border bg-surface">
             <FinanceExpenseTable expenses={expenses} returnQuery={returnQuery} />
           </div>
         </section>
