@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { DeleteBlogPostButton } from "@/components/admin/DeleteBlogPostButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { blogApprovalStatusClass, blogApprovalStatusLabel } from "@/lib/blog-approval";
 import { getAllBlogPostsForAdminPaginated, isBlogPubliclyVisible } from "@/lib/blogs";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 import type { BlogPost } from "@prisma/client";
 
 function statusBadge(post: Pick<BlogPost, "approvalStatus" | "published">) {
@@ -16,13 +18,15 @@ function statusBadge(post: Pick<BlogPost, "approvalStatus" | "published">) {
 export default async function AdminBlogsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
   const { items: posts, totalCount } = await getAllBlogPostsForAdminPaginated(
     requestedPage,
     pageSize,
+    q,
   );
   const page = clampPage(requestedPage, totalCount, pageSize);
 
@@ -60,9 +64,20 @@ export default async function AdminBlogsPage({
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">Blog post not found.</p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/blogs"
+          query={q}
+          placeholder="Search by title or author"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-10 text-center text-sm text-muted">No blog posts yet.</p>
+          <p className="px-4 py-10 text-center text-sm text-muted">
+            {q ? "No blog posts match your search." : "No blog posts yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[920px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

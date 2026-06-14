@@ -1,20 +1,24 @@
 import Link from "next/link";
 import { ApproveBlogPostButton } from "@/components/admin/ApproveBlogPostButton";
 import { RejectBlogPostButton } from "@/components/admin/RejectBlogPostButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getPendingBlogPostsForAdminPaginated } from "@/lib/blog-approval";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function AdminBlogApprovalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ approved?: string; rejected?: string; saved?: string; page?: string }>;
+  searchParams: Promise<{ approved?: string; rejected?: string; saved?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
   const { items: pendingPosts, totalCount } = await getPendingBlogPostsForAdminPaginated(
     requestedPage,
     pageSize,
+    q,
   );
   const page = clampPage(requestedPage, totalCount, pageSize);
 
@@ -40,9 +44,22 @@ export default async function AdminBlogApprovalsPage({
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/blog-approvals"
+          query={q}
+          placeholder="Search by title or author"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-10 text-center text-sm text-muted">No teacher blog posts awaiting approval.</p>
+          <p className="px-4 py-10 text-center text-sm text-muted">
+            {q
+              ? "No blog posts match your search."
+              : "No teacher blog posts awaiting approval."}
+          </p>
         ) : (
           <table className="w-full min-w-[880px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

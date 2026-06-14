@@ -1,8 +1,18 @@
 import Link from "next/link";
 import { DeleteFatwaButton } from "@/components/admin/DeleteFatwaButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getAllFatwaQuestionsPaginated } from "@/lib/fatwa";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
+
+function filterHref(filter: "pending" | "answered" | undefined, q?: string) {
+  const params = new URLSearchParams();
+  if (filter) params.set("filter", filter);
+  if (q) params.set("q", q);
+  const qs = params.toString();
+  return qs ? `/admin/fatwa?${qs}` : "/admin/fatwa";
+}
 
 function statusLabel(answer: string | null) {
   return answer ? "Answered" : "Pending";
@@ -15,9 +25,10 @@ function statusClass(answer: string | null) {
 export default async function AdminFatwaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; page?: string }>;
+  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const filter =
     params.filter === "pending" || params.filter === "answered" ? params.filter : undefined;
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
@@ -25,6 +36,7 @@ export default async function AdminFatwaPage({
     requestedPage,
     pageSize,
     filter,
+    q,
   );
   const page = clampPage(requestedPage, totalCount, pageSize);
 
@@ -44,7 +56,7 @@ export default async function AdminFatwaPage({
             ] as const
           ).map((item) => {
             const active = filter === item.value;
-            const href = item.value ? `/admin/fatwa?filter=${item.value}` : "/admin/fatwa";
+            const href = filterHref(item.value, q);
             return (
               <Link
                 key={item.label}
@@ -72,9 +84,21 @@ export default async function AdminFatwaPage({
         </p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/fatwa"
+          query={q}
+          placeholder="Search by subject, asker, email, or category"
+          preserveParams={{ filter: params.filter }}
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">No questions yet.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted">
+            {q ? "No questions match your search." : "No questions yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[840px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

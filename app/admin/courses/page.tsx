@@ -1,21 +1,24 @@
 import Link from "next/link";
 import { DeleteCourseButton } from "@/components/admin/DeleteCourseButton";
 import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getCoursePricingFromCourse } from "@/lib/course-pricing";
 import { getAllCoursesPaginated } from "@/lib/courses";
 import { getEnrollmentCountsByCourse } from "@/lib/enrollments";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function AdminCoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; created?: string; deleteError?: string; page?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string; deleteError?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
   const [{ items: courses, totalCount }, enrollmentCounts] = await Promise.all([
-    getAllCoursesPaginated(requestedPage, pageSize),
+    getAllCoursesPaginated(requestedPage, pageSize, q),
     getEnrollmentCountsByCourse(),
   ]);
   const page = clampPage(requestedPage, totalCount, pageSize);
@@ -48,7 +51,21 @@ export default async function AdminCoursesPage({
         </p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/courses"
+          query={q}
+          placeholder="Search by title, category, or instructor"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
+        {totalCount === 0 ? (
+          <p className="px-4 py-8 text-center text-sm text-muted">
+            {q ? "No courses match your search." : "No courses yet."}
+          </p>
+        ) : (
         <table className="w-full min-w-[840px] text-left text-sm">
           <thead className="border-b border-border bg-background/50 text-muted">
             <tr>
@@ -115,6 +132,7 @@ export default async function AdminCoursesPage({
             })}
           </tbody>
         </table>
+        )}
       </div>
 
       <Pagination

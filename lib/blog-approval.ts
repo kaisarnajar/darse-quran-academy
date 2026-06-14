@@ -1,6 +1,16 @@
 import type { BlogApprovalStatus, BlogPost } from "@prisma/client";
 import { clampPage, paginationArgs } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
+
+function pendingBlogSearchWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(
+    ["title"],
+    [{ relation: "createdBy", fields: ["name", "email"] }],
+    searchQuery,
+  );
+}
 
 export const BLOG_PUBLIC_WHERE = {
   published: true,
@@ -66,8 +76,12 @@ const pendingBlogInclude = {
   createdBy: { select: { name: true, email: true } },
 } as const;
 
-export async function getPendingBlogPostsForAdminPaginated(page: number, pageSize: number) {
-  const where = { approvalStatus: "PENDING" as const };
+export async function getPendingBlogPostsForAdminPaginated(
+  page: number,
+  pageSize: number,
+  searchQuery?: string,
+) {
+  const where = andWhere({ approvalStatus: "PENDING" as const }, pendingBlogSearchWhere(searchQuery));
   const totalCount = await prisma.blogPost.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.blogPost.findMany({

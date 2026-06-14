@@ -6,6 +6,19 @@ import {
 } from "@/lib/monthly-payment-status";
 import { APPROVAL_PAGE_SIZE, clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
+
+function paymentSubmissionSearchWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(
+    ["label", "upiTransactionId"],
+    [
+      { relation: "user", fields: ["name", "email"] },
+      { relation: "course", fields: ["title"] },
+    ],
+    searchQuery,
+  );
+}
 
 export type CoursePaymentSubmissionWithUser = {
   id: string;
@@ -42,9 +55,11 @@ export async function getPendingMonthlyPayments(): Promise<CoursePaymentSubmissi
 export async function getPendingMonthlyPaymentsPaginated(
   page: number,
   pageSize: number = APPROVAL_PAGE_SIZE,
+  searchQuery?: string,
 ): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
   noStore();
-  const where = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY };
+  const base = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY };
+  const where = andWhere(base, paymentSubmissionSearchWhere(searchQuery));
   const totalCount = await prisma.coursePaymentSubmission.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.coursePaymentSubmission.findMany({
@@ -72,9 +87,11 @@ export async function getPendingEnrollmentFeePayments(): Promise<CoursePaymentSu
 export async function getPendingEnrollmentFeePaymentsPaginated(
   page: number,
   pageSize: number = APPROVAL_PAGE_SIZE,
+  searchQuery?: string,
 ): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
   noStore();
-  const where = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT };
+  const base = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT };
+  const where = andWhere(base, paymentSubmissionSearchWhere(searchQuery));
   const totalCount = await prisma.coursePaymentSubmission.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.coursePaymentSubmission.findMany({

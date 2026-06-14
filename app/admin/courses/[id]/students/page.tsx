@@ -4,20 +4,23 @@ import { RemoveEnrollmentButton } from "@/components/admin/RemoveEnrollmentButto
 import { UploadCertificateButton } from "@/components/admin/UploadCertificateButton";
 import { ViewCertificateButton } from "@/components/admin/ViewCertificateButton";
 import { CourseStatusBadge } from "@/components/courses/CourseStatusBadge";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getCourseById } from "@/lib/courses";
 import { getCourseRosterEnrollmentsPaginated } from "@/lib/enrollments";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function CourseStudentsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }) {
   const { id } = await params;
   const queryParams = await searchParams;
+  const q = parseSearchQuery(queryParams.q);
   const course = await getCourseById(id);
 
   if (!course) notFound();
@@ -28,6 +31,7 @@ export default async function CourseStudentsPage({
     course.status,
     requestedPage,
     pageSize,
+    q,
   );
   const page = clampPage(requestedPage, totalCount, pageSize);
 
@@ -52,12 +56,23 @@ export default async function CourseStudentsPage({
         </p>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action={`/admin/courses/${id}/students`}
+          query={q}
+          placeholder="Search by name or email"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted">
-            {isCompletedCourse
-              ? "No completed students for this course yet."
-              : "No active students enrolled in this course yet."}
+            {q
+              ? "No students match your search."
+              : isCompletedCourse
+                ? "No completed students for this course yet."
+                : "No active students enrolled in this course yet."}
           </p>
         ) : (
           <table className="w-full min-w-[520px] text-left text-sm">

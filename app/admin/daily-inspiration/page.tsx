@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DeleteDailyInspirationButton } from "@/components/admin/DeleteDailyInspirationButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import {
   dailyInspirationKindLabel,
@@ -7,16 +8,18 @@ import {
   getHomepageDailyInspirationId,
 } from "@/lib/daily-inspiration";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function AdminDailyInspirationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
   const [{ items, totalCount }, homepageId] = await Promise.all([
-    getAllDailyInspirationsForAdminPaginated(requestedPage, pageSize),
+    getAllDailyInspirationsForAdminPaginated(requestedPage, pageSize, q),
     getHomepageDailyInspirationId(),
   ]);
   const page = clampPage(requestedPage, totalCount, pageSize);
@@ -51,9 +54,20 @@ export default async function AdminDailyInspirationPage({
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">Entry not found.</p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/daily-inspiration"
+          query={q}
+          placeholder="Search by Arabic text, translation, or reference"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-10 text-center text-sm text-muted">No verses or hadith posted yet.</p>
+          <p className="px-4 py-10 text-center text-sm text-muted">
+            {q ? "No entries match your search." : "No verses or hadith posted yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

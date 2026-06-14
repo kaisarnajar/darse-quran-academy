@@ -1,6 +1,16 @@
 import type { StudentReview, StudentReviewStatus, User } from "@prisma/client";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
+
+function studentReviewSearchWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(
+    ["quote", "course", "location"],
+    [{ relation: "user", fields: ["name", "email"] }],
+    searchQuery,
+  );
+}
 
 export const HOMEPAGE_FEATURED_REVIEWS_MAX = 6;
 
@@ -108,8 +118,9 @@ export async function getPendingStudentReviewsForAdmin() {
 export async function getPendingStudentReviewsForAdminPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<StudentReviewWithUser>> {
-  const where = { status: "PENDING" as const };
+  const where = andWhere({ status: "PENDING" as const }, studentReviewSearchWhere(searchQuery));
   const totalCount = await prisma.studentReview.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.studentReview.findMany({
@@ -137,8 +148,9 @@ export async function getApprovedStudentReviewsForAdmin() {
 export async function getApprovedStudentReviewsForAdminPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<StudentReviewWithUser>> {
-  const where = { status: "APPROVED" as const };
+  const where = andWhere({ status: "APPROVED" as const }, studentReviewSearchWhere(searchQuery));
   const totalCount = await prisma.studentReview.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.studentReview.findMany({

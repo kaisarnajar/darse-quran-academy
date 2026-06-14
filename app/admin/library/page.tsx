@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { DeleteLibraryButton } from "@/components/admin/DeleteLibraryButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getAllLibraryItemsPaginated } from "@/lib/library";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function AdminLibraryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; created?: string; saved?: string; page?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string; saved?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
-  const { items, totalCount } = await getAllLibraryItemsPaginated(requestedPage, pageSize);
+  const { items, totalCount } = await getAllLibraryItemsPaginated(requestedPage, pageSize, q);
   const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
@@ -42,9 +45,20 @@ export default async function AdminLibraryPage({
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/library"
+          query={q}
+          placeholder="Search by title, author, or topic"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">No library items yet.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted">
+            {q ? "No library items match your search." : "No library items yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

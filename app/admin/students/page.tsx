@@ -1,17 +1,20 @@
 import Link from "next/link";
 import { DeleteStudentButton } from "@/components/admin/DeleteStudentButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getStudentUsersPaginated } from "@/lib/students";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function AdminStudentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; page?: string }>;
+  searchParams: Promise<{ deleted?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
-  const { items: students, totalCount } = await getStudentUsersPaginated(requestedPage, pageSize);
+  const { items: students, totalCount } = await getStudentUsersPaginated(requestedPage, pageSize, q);
   const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
@@ -30,9 +33,20 @@ export default async function AdminStudentsPage({
         </p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/students"
+          query={q}
+          placeholder="Search by name or email"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">No student accounts yet.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted">
+            {q ? "No students match your search." : "No student accounts yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

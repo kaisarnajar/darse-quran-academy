@@ -3,6 +3,16 @@ import { BLOG_PUBLIC_WHERE } from "@/lib/blog-approval";
 import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { buildSearchOr } from "@/lib/text-search";
+
+function adminBlogPostsWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(
+    ["title"],
+    [{ relation: "createdBy", fields: ["name", "email"] }],
+    searchQuery,
+  );
+}
 
 export const HOMEPAGE_FEATURED_BLOGS_MAX = 4;
 
@@ -127,10 +137,13 @@ const blogPostAdminInclude = {
 export async function getAllBlogPostsForAdminPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<BlogPostWithImages>> {
-  const totalCount = await prisma.blogPost.count();
+  const where = adminBlogPostsWhere(searchQuery);
+  const totalCount = await prisma.blogPost.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.blogPost.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     include: blogPostAdminInclude,
     ...paginationArgs(safePage, pageSize),

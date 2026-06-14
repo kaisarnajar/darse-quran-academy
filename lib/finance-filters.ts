@@ -7,6 +7,7 @@ import {
   isTeacherExpenseFilterRelevant,
   type ExpenseCategory,
 } from "@/lib/expense-categories";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export type FinanceTab = "income" | "expenses";
 
@@ -36,6 +37,7 @@ export type FinanceExpenseFilters = {
 
 export type FinanceFilters = FinanceDateRange & FinanceIncomeFilters & FinanceExpenseFilters & {
   tab: FinanceTab;
+  q?: string;
 };
 
 export type FinanceSearchParams = {
@@ -48,6 +50,7 @@ export type FinanceSearchParams = {
   paymentType?: string;
   category?: string;
   teacherId?: string;
+  q?: string;
   page?: string;
   saved?: string;
   deleted?: string;
@@ -148,6 +151,7 @@ export function parseFinanceFilters(params: FinanceSearchParams, now = new Date(
     teacherId: isTeacherExpenseFilterRelevant(category)
       ? params.teacherId?.trim() || undefined
       : undefined,
+    q: parseSearchQuery(params.q),
   };
 }
 
@@ -185,6 +189,7 @@ export function buildFinanceQueryString(
   ) {
     params.set("teacherId", merged.teacherId);
   }
+  if (merged.q) params.set("q", merged.q);
   if ("saved" in overrides && overrides.saved) params.set("saved", overrides.saved);
   if ("deleted" in overrides && overrides.deleted) params.set("deleted", overrides.deleted);
 

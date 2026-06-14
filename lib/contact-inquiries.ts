@@ -1,7 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
 
 export type ContactInquiryFilter = "pending" | "replied" | undefined;
+
+function contactInquirySearchWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(["name", "email", "phone", "message"], [], searchQuery);
+}
 
 export async function getAllContactInquiries(filter?: ContactInquiryFilter) {
   return prisma.contactInquiry.findMany({
@@ -18,12 +24,14 @@ export async function getAllContactInquiries(filter?: ContactInquiryFilter) {
   });
 }
 
-function contactInquiryWhere(filter?: ContactInquiryFilter) {
-  return filter === "pending"
-    ? { reply: null }
-    : filter === "replied"
-      ? { reply: { not: null } }
-      : undefined;
+function contactInquiryWhere(filter?: ContactInquiryFilter, searchQuery?: string) {
+  const statusWhere =
+    filter === "pending"
+      ? { reply: null }
+      : filter === "replied"
+        ? { reply: { not: null } }
+        : undefined;
+  return andWhere(statusWhere, contactInquirySearchWhere(searchQuery));
 }
 
 const contactInquiryInclude = {
@@ -34,8 +42,9 @@ export async function getAllContactInquiriesPaginated(
   page: number,
   pageSize: number,
   filter?: ContactInquiryFilter,
+  searchQuery?: string,
 ) {
-  const where = contactInquiryWhere(filter);
+  const where = contactInquiryWhere(filter, searchQuery);
   const totalCount = await prisma.contactInquiry.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.contactInquiry.findMany({

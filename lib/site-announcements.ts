@@ -1,6 +1,12 @@
 import type { SiteAnnouncement } from "@prisma/client";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { buildSearchOr } from "@/lib/text-search";
+
+function siteAnnouncementAdminWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(["title", "location", "body"], [], searchQuery);
+}
 
 /** Maximum announcements featured on the homepage. */
 export const HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX = 4;
@@ -131,10 +137,13 @@ export async function getAllSiteAnnouncementsForAdmin() {
 export async function getAllSiteAnnouncementsForAdminPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ) {
-  const totalCount = await prisma.siteAnnouncement.count();
+  const where = siteAnnouncementAdminWhere(searchQuery);
+  const totalCount = await prisma.siteAnnouncement.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.siteAnnouncement.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     include: {
       createdBy: { select: { name: true, email: true } },

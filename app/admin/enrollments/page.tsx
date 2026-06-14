@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdminEnrollUserForm } from "@/components/admin/AdminEnrollUserForm";
 import { ApproveEnrollmentButton } from "@/components/admin/ApproveEnrollmentButton";
 import { RejectEnrollmentButton } from "@/components/admin/RejectEnrollmentButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { isCourseEnrollmentOpen } from "@/lib/course-status";
 import { getAllCourses } from "@/lib/courses";
@@ -11,6 +12,7 @@ import {
   type PendingEnrollmentWithUser,
 } from "@/lib/enrollments";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 
 function EnrollmentRequestsTable({
   enrollments,
@@ -88,17 +90,18 @@ function EnrollmentRequestsTable({
 export default async function AdminEnrollmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; paidPage?: string }>;
+  searchParams: Promise<{ page?: string; paidPage?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: freePage, pageSize } = parsePaginationParams(params);
   const { page: paidPage, pageSize: paidPageSize } = parsePaginationParams(params, {
     pageParam: "paidPage",
   });
 
   const [freePaginated, paidPaginated, courses] = await Promise.all([
-    getPendingFreeEnrollmentApprovalsPaginated(freePage, pageSize),
-    getAwaitingEnrollmentFeeEnrollmentsPaginated(paidPage, paidPageSize),
+    getPendingFreeEnrollmentApprovalsPaginated(freePage, pageSize, q),
+    getAwaitingEnrollmentFeeEnrollmentsPaginated(paidPage, paidPageSize, q),
     getAllCourses(),
   ]);
 
@@ -120,6 +123,20 @@ export default async function AdminEnrollmentsPage({
         enrollment fee under Payment approvals.
       </p>
 
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/enrollments"
+          query={q}
+          placeholder="Search by student name, email, or course"
+          preserveParams={{
+            paidPage: params.paidPage,
+          }}
+          totalCount={
+            q ? freeTotalCount + paidTotalCount : undefined
+          }
+        />
+      </div>
+
       <section className="mt-8">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           Free enrollment requests
@@ -137,7 +154,11 @@ export default async function AdminEnrollmentsPage({
           <EnrollmentRequestsTable
             enrollments={freeEnrollmentRequests}
             courseTitleById={titleById}
-            emptyMessage="No free enrollment requests awaiting approval."
+            emptyMessage={
+              q
+                ? "No free enrollment requests match your search."
+                : "No free enrollment requests awaiting approval."
+            }
             showApprove
           />
         </div>
@@ -179,7 +200,11 @@ export default async function AdminEnrollmentsPage({
           <EnrollmentRequestsTable
             enrollments={awaitingEnrollmentFee}
             courseTitleById={titleById}
-            emptyMessage="No paid enrollments awaiting student payment."
+            emptyMessage={
+              q
+                ? "No paid enrollments match your search."
+                : "No paid enrollments awaiting student payment."
+            }
             showApprove={false}
             showReject={false}
           />

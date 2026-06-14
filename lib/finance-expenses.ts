@@ -3,21 +3,33 @@ import type { FinanceFilters } from "@/lib/finance-filters";
 import { financePaidAtWhere } from "@/lib/finance-filters";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
 
 const expenseInclude = {
   teacher: { select: { id: true, name: true } },
 } as const;
 
+function expenseSearchWhere(q?: string) {
+  if (!q) return undefined;
+  return buildSearchOr(
+    ["description", "category"],
+    [{ relation: "teacher", fields: ["name"] }],
+    q,
+  );
+}
+
 function buildExpenseWhere(filters: FinanceFilters) {
   const paidAt = financePaidAtWhere(filters);
 
-  return {
+  const base = {
     ...(filters.category ? { category: filters.category } : {}),
     ...(isTeacherExpenseFilterRelevant(filters.category) && filters.teacherId
       ? { teacherId: filters.teacherId }
       : {}),
     ...(paidAt ? { paidAt } : {}),
   };
+
+  return andWhere(Object.keys(base).length > 0 ? base : undefined, expenseSearchWhere(filters.q));
 }
 
 export async function getExpenses(filters: FinanceFilters) {

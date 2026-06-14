@@ -2,6 +2,16 @@ import type { Course as PrismaCourse, CourseStatus, Teacher } from "@prisma/clie
 import { isCoursePubliclyVisible } from "@/lib/course-status";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
+
+function allCoursesWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(
+    ["title", "category"],
+    [{ relation: "teacher", fields: ["name"] }],
+    searchQuery,
+  );
+}
 
 export const HOMEPAGE_FEATURED_COURSES_MAX = 6;
 
@@ -104,10 +114,13 @@ export async function getAllCourses(): Promise<CourseWithTeacher[]> {
 export async function getAllCoursesPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<CourseWithTeacher>> {
-  const totalCount = await prisma.course.count();
+  const where = allCoursesWhere(searchQuery);
+  const totalCount = await prisma.course.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.course.findMany({
+    where,
     include: courseWithTeacherInclude,
     orderBy: { createdAt: "desc" },
     ...paginationArgs(safePage, pageSize),

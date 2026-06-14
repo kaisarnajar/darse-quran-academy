@@ -1,6 +1,19 @@
 import type { AnnouncementCategory, CourseAnnouncement, Prisma } from "@prisma/client";
 import { clampPage, paginationArgs } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
+
+function courseAnnouncementWhere(
+  courseId: string,
+  searchQuery?: string,
+) {
+  const base = { courseId, enrollmentId: null };
+  if (!searchQuery) return base;
+  return andWhere(
+    base,
+    buildSearchOr(["title", "body", "authorName"], [], searchQuery),
+  );
+}
 
 export const ANNOUNCEMENT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
@@ -74,8 +87,9 @@ export async function getCourseWideAnnouncementsForCoursePaginated(
   courseId: string,
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ) {
-  const where = { courseId, enrollmentId: null };
+  const where = courseAnnouncementWhere(courseId, searchQuery);
   const totalCount = await prisma.courseAnnouncement.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.courseAnnouncement.findMany({

@@ -1,8 +1,18 @@
 import Link from "next/link";
 import { DeleteContactInquiryButton } from "@/components/admin/DeleteContactInquiryButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getAllContactInquiriesPaginated } from "@/lib/contact-inquiries";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
+
+function filterHref(filter: "pending" | "replied" | undefined, q?: string) {
+  const params = new URLSearchParams();
+  if (filter) params.set("filter", filter);
+  if (q) params.set("q", q);
+  const qs = params.toString();
+  return qs ? `/admin/contact-inquiries?${qs}` : "/admin/contact-inquiries";
+}
 
 function statusLabel(reply: string | null) {
   return reply ? "Replied" : "Pending";
@@ -15,9 +25,10 @@ function statusClass(reply: string | null) {
 export default async function AdminContactInquiriesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; error?: string; email?: string; page?: string }>;
+  searchParams: Promise<{ filter?: string; saved?: string; deleted?: string; error?: string; email?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const filter =
     params.filter === "pending" || params.filter === "replied" ? params.filter : undefined;
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
@@ -25,6 +36,7 @@ export default async function AdminContactInquiriesPage({
     requestedPage,
     pageSize,
     filter,
+    q,
   );
   const page = clampPage(requestedPage, totalCount, pageSize);
 
@@ -44,9 +56,7 @@ export default async function AdminContactInquiriesPage({
             ] as const
           ).map((item) => {
             const active = filter === item.value;
-            const href = item.value
-              ? `/admin/contact-inquiries?filter=${item.value}`
-              : "/admin/contact-inquiries";
+            const href = filterHref(item.value, q);
             return (
               <Link
                 key={item.label}
@@ -81,9 +91,21 @@ export default async function AdminContactInquiriesPage({
         <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">Inquiry not found.</p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/contact-inquiries"
+          query={q}
+          placeholder="Search by name, email, phone, or message"
+          preserveParams={{ filter: params.filter }}
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">No contact messages yet.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted">
+            {q ? "No contact messages match your search." : "No contact messages yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[880px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

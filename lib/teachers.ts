@@ -1,6 +1,12 @@
 import type { Teacher as PrismaTeacher } from "@prisma/client";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { buildSearchOr } from "@/lib/text-search";
+
+function allTeachersWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(["name", "email", "specialization"], [], searchQuery);
+}
 
 export type Teacher = PrismaTeacher;
 
@@ -33,10 +39,13 @@ export async function getAllTeachers(): Promise<Teacher[]> {
 export async function getAllTeachersPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<Teacher>> {
-  const totalCount = await prisma.teacher.count();
+  const where = allTeachersWhere(searchQuery);
+  const totalCount = await prisma.teacher.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.teacher.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     ...paginationArgs(safePage, pageSize),
   });

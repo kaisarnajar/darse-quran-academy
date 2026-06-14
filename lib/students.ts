@@ -1,10 +1,13 @@
 import { getAdminEmails } from "@/lib/admin";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
 
-function studentUsersWhere() {
+function studentUsersWhere(searchQuery?: string) {
   const adminEmails = getAdminEmails();
-  return adminEmails.length > 0 ? { email: { notIn: adminEmails } } : undefined;
+  const base = adminEmails.length > 0 ? { email: { notIn: adminEmails } } : undefined;
+  if (!searchQuery) return base;
+  return andWhere(base, buildSearchOr(["name", "email"], [], searchQuery));
 }
 
 export async function getStudentUsers() {
@@ -17,8 +20,9 @@ export async function getStudentUsers() {
 export async function getStudentUsersPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<Awaited<ReturnType<typeof getStudentUsers>>[number]>> {
-  const where = studentUsersWhere();
+  const where = studentUsersWhere(searchQuery);
   const totalCount = await prisma.user.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.user.findMany({

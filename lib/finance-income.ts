@@ -2,22 +2,37 @@ import type { FinanceFilters } from "@/lib/finance-filters";
 import { financePaidAtWhere } from "@/lib/finance-filters";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
 
-const incomeInclude = {
-  user: { select: { id: true, name: true, email: true } },
-  course: { select: { id: true, title: true } },
-} as const;
+function incomeSearchWhere(q?: string) {
+  if (!q) return undefined;
+  return buildSearchOr(
+    ["description"],
+    [
+      { relation: "user", fields: ["name", "email"] },
+      { relation: "course", fields: ["title"] },
+    ],
+    q,
+  );
+}
 
 function buildIncomeWhere(filters: FinanceFilters) {
   const paidAt = financePaidAtWhere(filters);
 
-  return {
+  const base = {
     ...(filters.courseId ? { courseId: filters.courseId } : {}),
     ...(filters.studentId ? { userId: filters.studentId } : {}),
     ...(filters.paymentType ? { paymentType: filters.paymentType } : {}),
     ...(paidAt ? { paidAt } : {}),
   };
+
+  return andWhere(Object.keys(base).length > 0 ? base : undefined, incomeSearchWhere(filters.q));
 }
+
+const incomeInclude = {
+  user: { select: { id: true, name: true, email: true } },
+  course: { select: { id: true, title: true } },
+} as const;
 
 export async function getIncomeRecords(filters: FinanceFilters) {
   return prisma.paymentRecord.findMany({

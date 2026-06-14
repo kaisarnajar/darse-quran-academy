@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { DeleteTeacherButton } from "@/components/admin/DeleteTeacherButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getAllTeachersPaginated } from "@/lib/teachers";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function AdminTeachersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deleted?: string; created?: string; saved?: string; page?: string }>;
+  searchParams: Promise<{ deleted?: string; created?: string; saved?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
-  const { items: teachers, totalCount } = await getAllTeachersPaginated(requestedPage, pageSize);
+  const { items: teachers, totalCount } = await getAllTeachersPaginated(requestedPage, pageSize, q);
   const page = clampPage(requestedPage, totalCount, pageSize);
 
   return (
@@ -44,9 +47,20 @@ export default async function AdminTeachersPage({
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/teachers"
+          query={q}
+          placeholder="Search by name, email, or specialization"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted">No teachers yet.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted">
+            {q ? "No teachers match your search." : "No teachers yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

@@ -3,6 +3,7 @@ import {
   incomePaymentTypeLabel,
 } from "@/lib/monthly-payment-status";
 import type { FinanceFilters } from "@/lib/finance-filters";
+import { SEARCH_PARAM } from "@/lib/text-search";
 
 type FinanceIncomeFiltersProps = {
   filters: FinanceFilters;
@@ -24,6 +25,7 @@ function preserveFields(filters: FinanceFilters) {
   }
   if (filters.category) fields.push({ name: "category", value: filters.category });
   if (filters.teacherId) fields.push({ name: "teacherId", value: filters.teacherId });
+  if (filters.q) fields.push({ name: SEARCH_PARAM, value: filters.q });
   fields.push({ name: "tab", value: "income" });
 
   return fields;
@@ -39,6 +41,20 @@ export function FinanceIncomeFilters({ filters, courses, students }: FinanceInco
       {preserveFields(filters).map((field) => (
         <input key={field.name} type="hidden" name={field.name} value={field.value} />
       ))}
+
+      <div className="min-w-[200px] flex-1">
+        <label htmlFor="income-search" className="block text-xs font-medium text-muted">
+          Search
+        </label>
+        <input
+          id="income-search"
+          type="search"
+          name={SEARCH_PARAM}
+          defaultValue={filters.q ?? ""}
+          placeholder="Student, course, description…"
+          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+        />
+      </div>
 
       <div className="min-w-[160px]">
         <label htmlFor="income-course" className="block text-xs font-medium text-muted">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ApproveStudentReviewButton } from "@/components/admin/ApproveStudentReviewButton";
 import { RejectStudentReviewButton } from "@/components/admin/RejectStudentReviewButton";
 import { StarRating } from "@/components/reviews/StarRating";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import {
@@ -11,6 +12,7 @@ import {
   getPendingStudentReviewsForAdminPaginated,
   type StudentReviewWithUser,
 } from "@/lib/student-reviews";
+import { parseSearchQuery } from "@/lib/text-search";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-IN", {
@@ -126,17 +128,19 @@ export default async function AdminReviewApprovalsPage({
     saved?: string;
     page?: string;
     approvedPage?: string;
+    q?: string;
   }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: pendingPage, pageSize } = parsePaginationParams(params);
   const { page: approvedPage, pageSize: approvedPageSize } = parsePaginationParams(params, {
     pageParam: "approvedPage",
   });
 
   const [pendingPaginated, approvedPaginated, featuredCount] = await Promise.all([
-    getPendingStudentReviewsForAdminPaginated(pendingPage, pageSize),
-    getApprovedStudentReviewsForAdminPaginated(approvedPage, approvedPageSize),
+    getPendingStudentReviewsForAdminPaginated(pendingPage, pageSize, q),
+    getApprovedStudentReviewsForAdminPaginated(approvedPage, approvedPageSize, q),
     getFeaturedHomepageReviewCount(),
   ]);
 
@@ -177,7 +181,17 @@ export default async function AdminReviewApprovalsPage({
         <p className="mt-4 rounded-md bg-violet-50 px-4 py-3 text-sm text-violet-800">Changes saved.</p>
       )}
 
-      <section className="mt-10">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/review-approvals"
+          query={q}
+          placeholder="Search by name, email, course, or review text"
+          preserveParams={{ approvedPage: params.approvedPage }}
+          totalCount={q ? pendingTotalCount + approvedTotalCount : undefined}
+        />
+      </div>
+
+      <section className="mt-8">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           Pending approval
           {pendingTotalCount > 0 && (
@@ -190,7 +204,11 @@ export default async function AdminReviewApprovalsPage({
           <ReviewTable
             reviews={pendingReviews}
             pendingActions
-            emptyMessage="No student reviews awaiting approval."
+            emptyMessage={
+              q
+                ? "No pending reviews match your search."
+                : "No student reviews awaiting approval."
+            }
           />
         </div>
 
@@ -217,7 +235,7 @@ export default async function AdminReviewApprovalsPage({
           <ReviewTable
             reviews={approvedReviews}
             showHomepage
-            emptyMessage="No approved reviews yet."
+            emptyMessage={q ? "No approved reviews match your search." : "No approved reviews yet."}
           />
         </div>
 

@@ -1,4 +1,5 @@
 import { PendingPaymentApprovalsTable } from "@/components/admin/PendingPaymentApprovalsTable";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getAllCourses } from "@/lib/courses";
 import {
@@ -6,13 +7,15 @@ import {
   getPendingMonthlyPaymentsPaginated,
 } from "@/lib/monthly-payments";
 import { APPROVAL_PAGE_SIZE, clampPage, parsePaginationParams } from "@/lib/pagination";
+import { parseSearchQuery } from "@/lib/text-search";
 
 export default async function AdminPaymentApprovalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ confirmed?: string; declined?: string; page?: string; monthlyPage?: string }>;
+  searchParams: Promise<{ confirmed?: string; declined?: string; page?: string; monthlyPage?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: enrollmentPage, pageSize: enrollmentPageSize } = parsePaginationParams(params, {
     pageSize: APPROVAL_PAGE_SIZE,
   });
@@ -22,8 +25,8 @@ export default async function AdminPaymentApprovalsPage({
   });
 
   const [enrollmentFeesPaginated, monthlyFeesPaginated, courses] = await Promise.all([
-    getPendingEnrollmentFeePaymentsPaginated(enrollmentPage, enrollmentPageSize),
-    getPendingMonthlyPaymentsPaginated(monthlyPage, monthlyPageSize),
+    getPendingEnrollmentFeePaymentsPaginated(enrollmentPage, enrollmentPageSize, q),
+    getPendingMonthlyPaymentsPaginated(monthlyPage, monthlyPageSize, q),
     getAllCourses(),
   ]);
 
@@ -54,6 +57,16 @@ export default async function AdminPaymentApprovalsPage({
         </p>
       )}
 
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/payment-approvals"
+          query={q}
+          placeholder="Search by name, email, course, or reference"
+          preserveParams={{ monthlyPage: params.monthlyPage }}
+          totalCount={q ? enrollmentTotalCount + monthlyTotalCount : undefined}
+        />
+      </div>
+
       <section id="enrollment-fees" className="mt-8 scroll-mt-6">
         <h2 className="font-serif text-lg font-semibold text-foreground">
           Enrollment fee approvals
@@ -71,7 +84,11 @@ export default async function AdminPaymentApprovalsPage({
           <PendingPaymentApprovalsTable
             submissions={pendingEnrollmentFees}
             courseTitleById={titleById}
-            emptyMessage="No enrollment fee payments awaiting verification."
+            emptyMessage={
+              q
+                ? "No enrollment fee payments match your search."
+                : "No enrollment fee payments awaiting verification."
+            }
           />
         </div>
 
@@ -101,7 +118,11 @@ export default async function AdminPaymentApprovalsPage({
           <PendingPaymentApprovalsTable
             submissions={pendingMonthlyFees}
             courseTitleById={titleById}
-            emptyMessage="No monthly fee payments awaiting verification."
+            emptyMessage={
+              q
+                ? "No monthly fee payments match your search."
+                : "No monthly fee payments awaiting verification."
+            }
           />
         </div>
 

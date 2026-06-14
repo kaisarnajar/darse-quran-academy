@@ -7,6 +7,7 @@ import {
   expenseCategoryLabel,
 } from "@/lib/expense-categories";
 import type { FinanceFilters } from "@/lib/finance-filters";
+import { SEARCH_PARAM } from "@/lib/text-search";
 
 type FinanceExpenseFiltersProps = {
   filters: FinanceFilters;
@@ -28,6 +29,7 @@ function preserveFields(filters: FinanceFilters) {
   if (filters.courseId) fields.push({ name: "courseId", value: filters.courseId });
   if (filters.studentId) fields.push({ name: "studentId", value: filters.studentId });
   if (filters.paymentType) fields.push({ name: "paymentType", value: filters.paymentType });
+  if (filters.q) fields.push({ name: SEARCH_PARAM, value: filters.q });
   fields.push({ name: "tab", value: "expenses" });
 
   return fields;
@@ -46,6 +48,20 @@ export function FinanceExpenseFilters({ filters, teachers }: FinanceExpenseFilte
       {preserveFields(filters).map((field) => (
         <input key={field.name} type="hidden" name={field.name} value={field.value} />
       ))}
+
+      <div className="min-w-[200px] flex-1">
+        <label htmlFor="expense-search" className="block text-xs font-medium text-muted">
+          Search
+        </label>
+        <input
+          id="expense-search"
+          type="search"
+          name={SEARCH_PARAM}
+          defaultValue={filters.q ?? ""}
+          placeholder="Description, category, teacher…"
+          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+        />
+      </div>
 
       <div className="min-w-[180px]">
         <label htmlFor="expense-category" className="block text-xs font-medium text-muted">

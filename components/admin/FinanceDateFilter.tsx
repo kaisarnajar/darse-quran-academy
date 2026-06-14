@@ -17,6 +17,7 @@ function hiddenFilterFields(filters: FinanceFilters, exclude: ("preset" | "from"
   if (filters.paymentType) fields.push({ name: "paymentType", value: filters.paymentType });
   if (filters.category) fields.push({ name: "category", value: filters.category });
   if (filters.teacherId) fields.push({ name: "teacherId", value: filters.teacherId });
+  if (filters.q) fields.push({ name: "q", value: filters.q });
   if (filters.tab === "expenses") fields.push({ name: "tab", value: "expenses" });
 
   if (!exclude.includes("preset") && filters.preset === "custom") {
@@ -48,6 +49,7 @@ export function FinanceDateFilter({ filters }: FinanceDateFilterProps) {
             category: filters.category,
             teacherId: filters.teacherId,
             tab: filters.tab,
+            q: filters.q,
             preset: item.preset,
           })}`;
 

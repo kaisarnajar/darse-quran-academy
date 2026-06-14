@@ -6,6 +6,19 @@ import {
 } from "@/lib/enrollment-status";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
+
+function enrollmentUserSearchWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(
+    [],
+    [
+      { relation: "user", fields: ["name", "email"] },
+      { relation: "course", fields: ["title"] },
+    ],
+    searchQuery,
+  );
+}
 
 export type CourseEnrollmentWithUser = {
   id: string;
@@ -129,12 +142,17 @@ export async function getCourseRosterEnrollmentsPaginated(
   courseStatus: CourseStatus,
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<CourseEnrollmentWithUser>> {
   noStore();
-  const where = {
+  const base = {
     courseId,
     status: getRosterEnrollmentStatusForCourse(courseStatus),
   };
+  const searchWhere = searchQuery
+    ? buildSearchOr([], [{ relation: "user", fields: ["name", "email"] }], searchQuery)
+    : undefined;
+  const where = andWhere(base, searchWhere);
   const totalCount = await prisma.enrollment.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.enrollment.findMany({
@@ -202,9 +220,11 @@ export async function getPendingFreeEnrollmentApprovals(): Promise<PendingEnroll
 export async function getPendingFreeEnrollmentApprovalsPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<PendingEnrollmentWithUser>> {
   noStore();
-  const where = { status: PENDING_ENROLLMENT_APPROVAL };
+  const base = { status: PENDING_ENROLLMENT_APPROVAL };
+  const where = andWhere(base, enrollmentUserSearchWhere(searchQuery));
   const totalCount = await prisma.enrollment.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.enrollment.findMany({
@@ -236,9 +256,11 @@ export async function getAwaitingEnrollmentFeeEnrollments(): Promise<PendingEnro
 export async function getAwaitingEnrollmentFeeEnrollmentsPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<PendingEnrollmentWithUser>> {
   noStore();
-  const where = { status: AWAITING_ENROLLMENT_FEE };
+  const base = { status: AWAITING_ENROLLMENT_FEE };
+  const where = andWhere(base, enrollmentUserSearchWhere(searchQuery));
   const totalCount = await prisma.enrollment.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.enrollment.findMany({

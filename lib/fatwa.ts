@@ -2,6 +2,12 @@ import type { FatwaQuestion } from "@prisma/client";
 import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { andWhere, buildSearchOr } from "@/lib/text-search";
+
+function fatwaSearchWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(["title", "askerName", "askerEmail", "category"], [], searchQuery);
+}
 
 export const HOMEPAGE_FEATURED_FATWA_MAX = 4;
 
@@ -111,20 +117,23 @@ export async function getAllFatwaQuestions(filter?: "pending" | "answered"): Pro
   });
 }
 
-function fatwaAdminWhere(filter?: "pending" | "answered") {
-  return filter === "pending"
-    ? { answer: null }
-    : filter === "answered"
-      ? { answer: { not: null } }
-      : undefined;
+function fatwaAdminWhere(filter?: "pending" | "answered", searchQuery?: string) {
+  const statusWhere =
+    filter === "pending"
+      ? { answer: null }
+      : filter === "answered"
+        ? { answer: { not: null } }
+        : undefined;
+  return andWhere(statusWhere, fatwaSearchWhere(searchQuery));
 }
 
 export async function getAllFatwaQuestionsPaginated(
   page: number,
   pageSize: number,
   filter?: "pending" | "answered",
+  searchQuery?: string,
 ): Promise<PaginatedResult<FatwaQuestion>> {
-  const where = fatwaAdminWhere(filter);
+  const where = fatwaAdminWhere(filter, searchQuery);
   const totalCount = await prisma.fatwaQuestion.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.fatwaQuestion.findMany({

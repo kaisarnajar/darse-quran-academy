@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { DeleteSiteAnnouncementButton } from "@/components/admin/DeleteSiteAnnouncementButton";
 import { ToggleHomepageAnnouncementButton } from "@/components/admin/ToggleHomepageAnnouncementButton";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import {
   getAllSiteAnnouncementsForAdminPaginated,
   HOMEPAGE_FEATURED_ANNOUNCEMENTS_MAX,
 } from "@/lib/site-announcements";
+import { parseSearchQuery } from "@/lib/text-search";
 
 function statusBadge(published: boolean, showOnHomepage: boolean) {
   if (!published) return { label: "Draft", className: "bg-stone-200 text-stone-800" };
@@ -17,13 +19,15 @@ function statusBadge(published: boolean, showOnHomepage: boolean) {
 export default async function AdminAnnouncementsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string }>;
+  searchParams: Promise<{ posted?: string; saved?: string; deleted?: string; error?: string; page?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = parseSearchQuery(params.q);
   const { page: requestedPage, pageSize } = parsePaginationParams(params);
   const { items: announcements, totalCount } = await getAllSiteAnnouncementsForAdminPaginated(
     requestedPage,
     pageSize,
+    q,
   );
   const page = clampPage(requestedPage, totalCount, pageSize);
 
@@ -64,9 +68,20 @@ export default async function AdminAnnouncementsPage({
         </p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="mt-6">
+        <ListSearchForm
+          action="/admin/announcements"
+          query={q}
+          placeholder="Search by title, location, or body"
+          totalCount={q ? totalCount : undefined}
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
         {totalCount === 0 ? (
-          <p className="px-4 py-10 text-center text-sm text-muted">No announcements yet.</p>
+          <p className="px-4 py-10 text-center text-sm text-muted">
+            {q ? "No announcements match your search." : "No announcements yet."}
+          </p>
         ) : (
           <table className="w-full min-w-[800px] text-left text-sm">
             <thead className="border-b border-border bg-background/50 text-muted">

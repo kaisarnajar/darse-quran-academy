@@ -3,6 +3,12 @@ import { isLibraryTopic } from "@/lib/library-options";
 import { resolveHomepageFeaturedUpdate } from "@/lib/homepage-featured";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
+import { buildSearchOr } from "@/lib/text-search";
+
+function allLibraryItemsWhere(searchQuery?: string) {
+  if (!searchQuery) return undefined;
+  return buildSearchOr(["title", "author", "topic"], [], searchQuery);
+}
 
 export const HOMEPAGE_FEATURED_RESOURCES_MAX = 4;
 
@@ -79,10 +85,13 @@ export async function getAllLibraryItems(): Promise<LibraryItem[]> {
 export async function getAllLibraryItemsPaginated(
   page: number,
   pageSize: number,
+  searchQuery?: string,
 ): Promise<PaginatedResult<LibraryItem>> {
-  const totalCount = await prisma.libraryItem.count();
+  const where = allLibraryItemsWhere(searchQuery);
+  const totalCount = await prisma.libraryItem.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.libraryItem.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     ...paginationArgs(safePage, pageSize),
   });
