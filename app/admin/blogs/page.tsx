@@ -36,11 +36,7 @@ export default async function AdminBlogsPage({
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary">Blogs</h1>
           <p className="mt-1 text-sm text-muted">
-            Write articles or review teacher submissions in{" "}
-            <Link href="/admin/blog-approvals" className="font-medium text-primary hover:underline">
-              Blog approvals
-            </Link>
-            .
+            Write articles or review teacher submissions in Blog approvals.
           </p>
         </div>
         <Link
