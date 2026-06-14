@@ -1,20 +1,21 @@
 # Darse Quran Academy
 
-Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma** (SQLite locally, PostgreSQL on Vercel), and **Auth.js**.
+Online Islamic learning platform built with **Next.js 16**, **React 19**, **Prisma 6**, **Tailwind CSS 4**, **Auth.js (next-auth v5)**, and **TypeScript 5**.
 
-Students browse courses, enroll, pay enrollment and monthly fees via UPI, download receipts and completion certificates, submit reviews, and ask fatwa questions. Admins manage content, approvals, enrollments, and payments. Teachers manage assigned courses, post announcements, and submit blogs for approval.
+Students browse courses, complete a registration profile, enroll, pay enrollment and monthly fees via UPI, download receipts and completion certificates, receive in-app notifications, submit reviews, and ask fatwa questions. Admins manage content, approvals, enrollments, finance, and payments. Teachers manage assigned courses, post announcements, and submit blogs for approval.
 
 ## Features
 
 ### Public site
 
-- **Home** — featured courses, verse/hadith of the day, announcements, blogs, library picks, fatwa highlights, and student testimonials
-- **Courses** — browse, filter, and request enrollment
+- **Home** — featured courses, verse/hadith of the day, announcements, blogs, library picks, fatwa highlights, and approved student reviews (testimonials)
+- **Courses** — browse, filter, and request enrollment (profile must be complete)
 - **Announcements**, **Blog**, **Teachers**, **Resources** (digital library), **Fatwa** (browse and ask), **Contact**, **About**
 
 ### Student profile (`/profile`)
 
-- Profile details (name, occupation, WhatsApp, address, etc.)
+- **Profile** — summary card (avatar initials, name, email, member since, complete/incomplete badge) and a structured registration form (full name, father's name, date of birth, occupation, address, country, WhatsApp, read-only email). Enrollment and checkout require a complete profile.
+- **Notifications** — in-app updates for payment approved, enrollment approved/rejected, course announcements, personal messages, and site announcements; unread badge on nav, all/unread filter, mark all as read
 - **My Courses** — enrollment status, course announcements, UPI payment for enrollment and monthly fees, certificate download when uploaded
 - **Payments** — payment history and receipt download
 - **My reviews** — submit multiple reviews (pending admin approval)
@@ -27,21 +28,38 @@ Students browse courses, enroll, pay enrollment and monthly fees via UPI, downlo
 
 ### Admin panel (`/admin`)
 
+- **Dashboard** — content and people counts, pending approval highlights, quick links to tools
 - **Announcements** — site-wide notices and homepage events
 - **Blogs** — admin-authored posts with images
 - **Verse & Hadith** — daily inspiration for the homepage
-- **Courses** — CRUD, status (draft/published/ongoing/completed/on hold), fees, featured homepage, students, certificates
+- **Courses** — CRUD, status (draft/published/ongoing/completed/on hold), fees, featured homepage, students, certificates, course announcements
 - **Enrollments** — approve or decline enrollment requests
 - **Payment details** — UPI and bank account info shown to students
+- **Finance** — income vs expenses dashboard with date presets, search, filters, and net summary
+- **Record expense** — log academy costs (teacher salary, hosting, marketing, software, office, other)
 - **Social links** — contact email, WhatsApp, Facebook, Instagram, YouTube
 - **Students** — roster, enrollments, manual payment records
 - **Teachers** — profiles and course assignments
 - **Digital Library** — PDF resources
 - **Fatwa** — answer and feature questions on the homepage
 - **Contact inquiries** — read and reply
-- **Blog approvals**, **Review approvals**, **Payment approvals** — approve UPI payment submissions
+- **Blog approvals**, **Review approvals**, **Payment approvals** — approve teacher blogs, student reviews, and UPI payment submissions
 
-Auth: email/password (register, forgot/reset password), optional Google OAuth.
+Auth: email/password (register, forgot/reset password), optional Google OAuth. After sign-in, `/auth/continue` routes users by role (admin → `/admin`, teacher → `/teacher`, student → `/profile`).
+
+## API routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/auth/[...nextauth]` | GET, POST | Auth.js session handlers |
+| `/api/auth/register` | POST | Student registration |
+| `/api/auth/forgot-password` | POST | Password reset email |
+| `/api/auth/reset-password` | POST | Set new password |
+| `/api/checkout` | POST | Course enrollment request (auth + profile-complete check) |
+| `/api/enrollment-payment/confirm` | POST | Submit enrollment UPI payment + screenshot |
+| `/api/monthly-payment/confirm` | POST | Submit monthly UPI payment + screenshot |
+| `/api/receipt/[paymentRecordId]` | GET | Download PDF receipt |
+| `/api/certificate/[enrollmentId]` | GET | Download uploaded completion certificate |
 
 ## Quick start
 
@@ -59,7 +77,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`db:seed:demo` loads local QA data only: courses, teachers, library, testimonials, logins, enrollments, payments (including a sample uploaded receipt), announcements, blogs, verse/hadith, fatwa, course announcements, and a demo completion certificate. Blocked when `NODE_ENV=production` or on PostgreSQL unless `ALLOW_DEMO_SEED=true`. Production starts empty — add real content in `/admin`.
+`db:seed:demo` loads local QA data only: courses (published, ongoing, completed, on hold, draft), teachers, library, approved student reviews, logins, enrollments, payments (including a sample uploaded receipt), finance income and expenses, contact inquiries, announcements, blogs (published, draft, pending/rejected), verse/hadith, fatwa, course announcements, student notifications, and a demo completion certificate. Blocked when `NODE_ENV=production` or on PostgreSQL unless `ALLOW_DEMO_SEED=true`. Production starts empty — add real content in `/admin`.
 
 `npm run db:seed:demo` is also registered as the Prisma seed (`npx prisma db seed`).
 
@@ -77,7 +95,13 @@ After `npm run db:seed:demo`, use these accounts for local QA (passwords are sha
 2. Sign in at [http://localhost:3000/login](http://localhost:3000/login).
 3. Admins → [http://localhost:3000/admin](http://localhost:3000/admin); teachers → `/teacher`; students → `/profile`.
 
-**Demo highlights:** student `06` has an uploaded enrollment receipt; student `19` has a completed `qiraat-advanced` enrollment with an uploaded certificate.
+**Demo highlights:**
+
+- **Student 06** — uploaded enrollment receipt; 4 unread notifications at `/profile/notifications`
+- **Student 19** — completed `qiraat-advanced` enrollment with an uploaded certificate
+- **Student 03** — declined enrollment (notification demo)
+- **Student 11** — 2 unread notifications (sisters batch scenario)
+- **Admin → Finance** — sample income records, one manual payment, and six demo expenses
 
 ## Environment variables
 
@@ -98,7 +122,7 @@ After `npm run db:seed:demo`, use these accounts for local QA (passwords are sha
 
 UPI, bank details, contact email, and social links are configured in **Admin → Payment details** and **Social links** (not in `.env`).
 
-If SMTP is not set, transactional emails are logged to the server console for local testing. See `.env.example` for a full local template.
+If SMTP is not set, transactional emails are logged to the server console for local testing. See `.env.example` for a local template.
 
 **Never commit `.env` or real secrets.**
 
@@ -107,16 +131,18 @@ If SMTP is not set, transactional emails are logged to the server console for lo
 | Script | Description |
 |--------|-------------|
 | `npm run dev` | Prisma generate + development server |
-| `npm run build` | Production build |
+| `npm run build` | Prisma generate + production build |
 | `npm run start` | Run production server |
 | `npm run lint` | ESLint |
 | `npm run knip` | Dead code and unused dependency check |
 | `npm run db:migrate` | Apply Prisma migrations (`migrate dev`) |
 | `npm run db:push` | Push schema to DB without migrations (prototyping) |
 | `npm run db:seed:demo` | Local QA dataset (SQLite; see seed guards above) |
-| `npm run vercel-build` | Vercel build (`migrate deploy` + `next build`) |
+| `npm run vercel-build` | Vercel build (`prisma generate`, `migrate deploy`, `next build`) |
 | `npm run generate:countries` | Regenerate country list for profile forms |
 | `npm run optimize-logo` | Optimize logo assets |
+
+`postinstall` runs `prisma generate` automatically after `npm install`.
 
 ## Project structure
 
@@ -124,7 +150,7 @@ If SMTP is not set, transactional emails are logged to the server console for lo
 app/          Next.js App Router — public pages, profile, admin, teacher, API routes
 components/   UI (site, home, admin, teacher, profile, auth)
 content/      Seed data and static copy (courses, teachers, demo students)
-lib/          Auth, Prisma, email, payments, receipts, certificates, validations
+lib/          Auth, Prisma, email, payments, receipts, certificates, notifications, validations
 prisma/       Schema, migrations, demo seed scripts
 public/       Static assets; uploads/ for certificates, receipts, blogs, payments
 scripts/      Build and maintenance scripts
