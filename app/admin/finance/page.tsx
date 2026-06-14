@@ -106,21 +106,20 @@ export default async function AdminFinancePage({
         </section>
       ) : (
         <section className="mt-6 space-y-4">
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <RecordExpenseForm
-              teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
-              returnQuery={returnQuery}
-            />
-            <FinanceExpenseFilters
-              filters={filters}
-              teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
-            />
-          </div>
+          <FinanceExpenseFilters
+            filters={filters}
+            teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
+          />
 
           <FinanceFilteredSummary
             recordCount={expenses.length}
             totalPaise={filteredExpenseTotal}
             variant="expense"
+          />
+
+          <RecordExpenseForm
+            teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
+            returnQuery={returnQuery}
           />
 
           <div className="overflow-x-auto rounded-lg border border-border bg-surface">
