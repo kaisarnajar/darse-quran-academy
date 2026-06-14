@@ -312,6 +312,7 @@ const manualDemoStudents: DemoStudent[] = [
         payments: [
           enrollmentPayment("approved", "enrollment"),
           enrollmentPayment("approved", "monthly", "01", "2026"),
+          enrollmentPayment("pending", "monthly", "02", "2026"),
         ],
       },
     ],

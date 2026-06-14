@@ -77,7 +77,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`db:seed:demo` loads local QA data only: courses (published, ongoing, completed, on hold, draft), teachers, library, approved student reviews, logins, enrollments, payments (including a sample uploaded receipt), finance income and expenses, contact inquiries, announcements, blogs (published, draft, pending/rejected), verse/hadith, fatwa, course announcements, student notifications, and a demo completion certificate. Blocked when `NODE_ENV=production` or on PostgreSQL unless `ALLOW_DEMO_SEED=true`. Production starts empty — add real content in `/admin`.
+`db:seed:demo` loads local QA data only: courses (published, ongoing, completed, on hold, draft), teachers, library, approved student reviews, logins, enrollments, payments (including pending submissions with screenshots), finance income and expenses, contact inquiries, announcements, blogs with images (published, draft, pending/rejected), verse/hadith, fatwa, course announcements, student notifications, password-reset tokens, and a demo completion certificate. Blocked when `NODE_ENV=production` or on PostgreSQL unless `ALLOW_DEMO_SEED=true`. Production starts empty — add real content in `/admin`.
 
 `npm run db:seed:demo` is also registered as the Prisma seed (`npx prisma db seed`).
 
@@ -97,7 +97,7 @@ After `npm run db:seed:demo`, use these accounts for local QA (passwords are sha
 
 **Demo highlights:**
 
-- **Student 06** — uploaded enrollment receipt; 4 unread notifications at `/profile/notifications`
+- **Student 06** — pending February monthly fee with payment screenshot; 4 unread notifications at `/profile/notifications`
 - **Student 19** — completed `qiraat-advanced` enrollment with an uploaded certificate
 - **Student 03** — declined enrollment (notification demo)
 - **Student 11** — 2 unread notifications (sisters batch scenario)
@@ -135,7 +135,7 @@ If SMTP is not set, transactional emails are logged to the server console for lo
 | `npm run start` | Run production server |
 | `npm run lint` | ESLint |
 | `npm run knip` | Dead code and unused dependency check |
-| `npm run db:migrate` | Apply Prisma migrations (`migrate dev`) |
+| `npm run db:migrate` | Apply Prisma migrations only (`migrate dev --skip-seed`; no demo data) |
 | `npm run db:push` | Push schema to DB without migrations (prototyping) |
 | `npm run db:seed:demo` | Local QA dataset (SQLite; see seed guards above) |
 | `npm run vercel-build` | Vercel build (`prisma generate`, `migrate deploy`, `next build`) |

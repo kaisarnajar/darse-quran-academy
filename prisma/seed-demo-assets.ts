@@ -2,6 +2,19 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 
+/** 1×1 PNG for payment screenshot / blog image QA placeholders. */
+const MINI_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
+
+/** Write a tiny valid PNG under `public/` for local upload QA. */
+export async function writeDemoPngFile(publicPath: string) {
+  const absolute = path.join(process.cwd(), "public", publicPath.replace(/^\//, ""));
+  await mkdir(path.dirname(absolute), { recursive: true });
+  await writeFile(absolute, MINI_PNG);
+}
+
 /** Write a small valid PDF under `public/` for local certificate/receipt QA. */
 export async function writeDemoPdfFile(publicPath: string, lines: string[]) {
   const pdf = await PDFDocument.create();

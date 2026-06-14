@@ -38,7 +38,7 @@ import {
   demoStudentUserId,
   demoTeacherUserId,
 } from "./seed-helpers";
-import { writeDemoPdfFile } from "./seed-demo-assets";
+import { writeDemoPdfFile, writeDemoPngFile } from "./seed-demo-assets";
 
 type CourseSeedMeta = {
   monthlyFeeInrPaise: number;
@@ -167,6 +167,15 @@ async function seedDemoPayment(
   const status =
     payment.status === "pending" ? MONTHLY_PAYMENT_PENDING : MONTHLY_PAYMENT_DECLINED;
 
+  const paymentScreenshotPath =
+    payment.status === "pending"
+      ? `/uploads/payments/${submissionId}-demo.png`
+      : null;
+
+  if (paymentScreenshotPath) {
+    await writeDemoPngFile(paymentScreenshotPath);
+  }
+
   await prisma.coursePaymentSubmission.upsert({
     where: { id: submissionId },
     create: {
@@ -180,7 +189,7 @@ async function seedDemoPayment(
       paymentMethod: payment.status === "pending" ? "upi" : null,
       upiTransactionId: payment.status === "pending" ? utr : null,
       paymentReference: payment.status === "pending" ? `DEMO-REF-${submissionId}` : null,
-      paymentScreenshotPath: null,
+      paymentScreenshotPath,
     },
     update: {
       paymentType,
@@ -190,6 +199,7 @@ async function seedDemoPayment(
       paymentMethod: payment.status === "pending" ? "upi" : null,
       upiTransactionId: payment.status === "pending" ? utr : null,
       paymentRecordId: null,
+      paymentScreenshotPath,
     },
   });
 }
@@ -569,8 +579,8 @@ export function demoDataSummaryHint(): string {
     `Demo dataset: ${courses.length} courses, ${teachers.length} teachers, ${DEMO_STUDENT_COUNT} students`,
     "  Courses — PUBLISHED, ONGOING, COMPLETED, ON_HOLD, and DRAFT examples",
     "  Enrollments — pending approval (free), awaiting fee, active, completed (student 19 certificate on qiraat-advanced)",
-    "  Payments — enrollment fee + monthly fee (approved, pending, declined; student 06 uploaded receipt)",
-    "  Finance — income records with paymentType; 1 manual payment; 6 demo expenses for /admin/finance",
+    "  Payments — enrollment fee + monthly fee (approved, pending with screenshot, declined)",
+    "  Finance — income records with paymentType; 1 manual payment; 100+ demo expenses for /admin/finance",
     "  Reviews — 10 featured + 1 pending + 1 rejected for /admin/review-approvals",
     "  Settings — demo UPI/bank and social links for payment + footer QA",
   ].join("\n");

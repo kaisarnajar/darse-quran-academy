@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { seedBootstrap } from "./seed-bootstrap";
+import { logDemoTableCounts, seedDemoBulk } from "./seed-demo-bulk";
 import { demoContentLoginHint, seedDemoContent } from "./seed-demo-content";
 import { demoNotificationsHint, seedDemoNotifications } from "./seed-demo-notifications";
 import {
@@ -83,10 +84,12 @@ async function main() {
   await seedDemoData(prisma);
   await seedDemoContent(prisma);
   await seedDemoNotifications(prisma);
+  await seedDemoBulk(prisma);
 
   console.log(
-    "Seeded demo data: courses, teachers, library, testimonials, logins, students, finance, contact inquiries, announcements, blogs, verse/hadith, fatwa, and notifications.",
+    "Seeded demo data: courses, teachers, library, testimonials, logins, students, finance, contact inquiries, announcements, blogs, verse/hadith, fatwa, notifications, and bulk QA datasets.",
   );
+  await logDemoTableCounts(prisma);
   console.log(demoDataSummaryHint());
   console.log(demoContentLoginHint());
   console.log(demoNotificationsHint());
