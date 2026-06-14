@@ -44,21 +44,6 @@ export async function getHomepageDailyInspiration(): Promise<DailyInspirationRec
   });
 }
 
-export async function getAllDailyInspirationsForAdmin() {
-  return prisma.dailyInspiration.findMany({
-    orderBy: { updatedAt: "desc" },
-    select: {
-      id: true,
-      kind: true,
-      arabicText: true,
-      englishTranslation: true,
-      reference: true,
-      published: true,
-      updatedAt: true,
-    },
-  });
-}
-
 const dailyInspirationAdminSelect = {
   id: true,
   kind: true,

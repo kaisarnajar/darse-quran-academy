@@ -1,5 +1,3 @@
-import { readFile } from "fs/promises";
-import path from "path";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { isAdminSession } from "@/lib/admin";
@@ -46,27 +44,6 @@ export async function GET(
   const course = record.courseId ? await getCourseById(record.courseId) : null;
   const courseTitle = course?.title ?? "Darse Quran Academy";
   const filename = getReceiptFilename(courseTitle, paymentRecordId);
-
-  if (record.uploadedReceiptPath) {
-    const absolutePath = path.join(
-      process.cwd(),
-      "public",
-      record.uploadedReceiptPath.replace(/^\//, ""),
-    );
-
-    try {
-      const pdfBytes = await readFile(absolutePath);
-      return new NextResponse(Buffer.from(pdfBytes), {
-        headers: {
-          "Content-Type": "application/pdf",
-          "Content-Disposition": `attachment; filename="${filename}"`,
-          "Cache-Control": "private, no-cache",
-        },
-      });
-    } catch {
-      return NextResponse.json({ error: "Uploaded receipt file not found." }, { status: 404 });
-    }
-  }
 
   const unitPricePaise = course
     ? Math.max(getMonthlyFeePaise(course), record.amountInrPaise)

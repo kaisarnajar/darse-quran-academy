@@ -65,14 +65,3 @@ export function buildPageHref(
   const qs = searchParams.toString();
   return qs ? `${basePath}?${qs}` : basePath;
 }
-
-export function omitPaginationParams(
-  params: Record<string, string | undefined>,
-  pageParams: string[] = ["page"],
-): Record<string, string | undefined> {
-  const result = { ...params };
-  for (const key of pageParams) {
-    delete result[key];
-  }
-  return result;
-}

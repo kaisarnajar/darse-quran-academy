@@ -74,15 +74,6 @@ export function getAnnouncementAuthorName(announcement: {
   return announcement.authorName.trim() || announcement.teacher?.name || "Academy";
 }
 
-/** Course-wide posts visible to all enrolled students. */
-export async function getCourseWideAnnouncementsForCourse(courseId: string) {
-  return prisma.courseAnnouncement.findMany({
-    where: { courseId, enrollmentId: null },
-    orderBy: { createdAt: "desc" },
-    include: announcementInclude,
-  });
-}
-
 export async function getCourseWideAnnouncementsForCoursePaginated(
   courseId: string,
   page: number,
@@ -99,15 +90,6 @@ export async function getCourseWideAnnouncementsForCoursePaginated(
     ...paginationArgs(safePage, pageSize),
   });
   return { items, totalCount };
-}
-
-/** Private posts for one student in a course. */
-export async function getStudentAnnouncementsForEnrollment(enrollmentId: string) {
-  return prisma.courseAnnouncement.findMany({
-    where: { enrollmentId },
-    orderBy: { createdAt: "desc" },
-    include: announcementInclude,
-  });
 }
 
 export async function getStudentAnnouncementsForEnrollmentPaginated(
@@ -127,22 +109,6 @@ export async function getStudentAnnouncementsForEnrollmentPaginated(
   return { items, totalCount };
 }
 
-/** Course-wide plus this student's private posts. */
-export async function getAnnouncementsVisibleToStudent(userId: string, courseId: string) {
-  const enrollment = await prisma.enrollment.findUnique({
-    where: { userId_courseId: { userId, courseId } },
-    select: { id: true },
-  });
-  if (!enrollment) return { courseWide: [], personal: [] as Awaited<ReturnType<typeof getStudentAnnouncementsForEnrollment>> };
-
-  const [courseWide, personal] = await Promise.all([
-    getCourseWideAnnouncementsForCourse(courseId),
-    getStudentAnnouncementsForEnrollment(enrollment.id),
-  ]);
-
-  return { courseWide, personal };
-}
-
 export async function getAnnouncementsVisibleToStudentPaginated(
   userId: string,
   courseId: string,
@@ -157,7 +123,9 @@ export async function getAnnouncementsVisibleToStudentPaginated(
   if (!enrollment) {
     return {
       courseWide: [],
-      personal: [] as Awaited<ReturnType<typeof getStudentAnnouncementsForEnrollment>>,
+      personal: [] as Awaited<
+        ReturnType<typeof getStudentAnnouncementsForEnrollmentPaginated>
+      >["items"],
       courseWideTotal: 0,
       personalTotal: 0,
     };

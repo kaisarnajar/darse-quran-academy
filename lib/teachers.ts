@@ -10,13 +10,6 @@ function allTeachersWhere(searchQuery?: string) {
 
 export type Teacher = PrismaTeacher;
 
-export async function getPublishedTeachers(): Promise<Teacher[]> {
-  return prisma.teacher.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
 export async function getPublishedTeachersPaginated(
   page: number,
   pageSize: number,

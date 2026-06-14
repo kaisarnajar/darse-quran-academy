@@ -83,19 +83,6 @@ export function enrollmentStatusClass(status: string) {
   return "bg-stone-200 text-stone-700";
 }
 
-export async function getEnrollmentsForCourse(courseId: string): Promise<CourseEnrollmentWithUser[]> {
-  noStore();
-  return prisma.enrollment.findMany({
-    where: { courseId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: { id: true, name: true, email: true },
-      },
-    },
-  });
-}
-
 export async function getEnrollmentsForCoursePaginated(
   courseId: string,
   page: number,
@@ -121,25 +108,6 @@ export async function getEnrollmentsForCoursePaginated(
 /** Active roster for in-progress courses; completed roster when the course is completed. */
 export function getRosterEnrollmentStatusForCourse(courseStatus: CourseStatus): "active" | "completed" {
   return courseStatus === "COMPLETED" ? "completed" : "active";
-}
-
-export async function getCourseRosterEnrollments(
-  courseId: string,
-  courseStatus: CourseStatus,
-): Promise<CourseEnrollmentWithUser[]> {
-  noStore();
-  return prisma.enrollment.findMany({
-    where: {
-      courseId,
-      status: getRosterEnrollmentStatusForCourse(courseStatus),
-    },
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: { id: true, name: true, email: true },
-      },
-    },
-  });
 }
 
 export async function getCourseRosterEnrollmentsPaginated(
@@ -209,19 +177,6 @@ export type PendingEnrollmentWithUser = CourseEnrollmentWithUser & {
   courseId: string;
 };
 
-export async function getPendingFreeEnrollmentApprovals(): Promise<PendingEnrollmentWithUser[]> {
-  noStore();
-  return prisma.enrollment.findMany({
-    where: { status: PENDING_ENROLLMENT_APPROVAL },
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: { id: true, name: true, email: true },
-      },
-    },
-  });
-}
-
 export async function getPendingFreeEnrollmentApprovalsPaginated(
   page: number,
   pageSize: number,
@@ -243,19 +198,6 @@ export async function getPendingFreeEnrollmentApprovalsPaginated(
     ...paginationArgs(safePage, pageSize),
   });
   return { items, totalCount };
-}
-
-export async function getAwaitingEnrollmentFeeEnrollments(): Promise<PendingEnrollmentWithUser[]> {
-  noStore();
-  return prisma.enrollment.findMany({
-    where: { status: AWAITING_ENROLLMENT_FEE },
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: { id: true, name: true, email: true },
-      },
-    },
-  });
 }
 
 export async function getAwaitingEnrollmentFeeEnrollmentsPaginated(

@@ -32,14 +32,6 @@ export function formatPrice(paise: number): string {
   }).format(paise / 100);
 }
 
-export async function getPublicCourses(): Promise<CourseWithTeacher[]> {
-  const courses = await prisma.course.findMany({
-    include: courseWithTeacherInclude,
-    orderBy: { createdAt: "desc" },
-  });
-  return courses.filter((c) => isCoursePubliclyVisible(c.status));
-}
-
 export async function getPublicCoursesPaginated(
   page: number,
   pageSize: number,
@@ -142,17 +134,6 @@ export async function getCourseById(id: string): Promise<CourseWithTeacher | nul
     where: { id },
     include: courseWithTeacherInclude,
   });
-}
-
-export async function getPublicCoursesByTeacherId(
-  teacherId: string,
-): Promise<CourseWithTeacher[]> {
-  const courses = await prisma.course.findMany({
-    where: { teacherId },
-    include: courseWithTeacherInclude,
-    orderBy: { createdAt: "desc" },
-  });
-  return courses.filter((c) => isCoursePubliclyVisible(c.status));
 }
 
 export async function getPublicCoursesByTeacherIdPaginated(

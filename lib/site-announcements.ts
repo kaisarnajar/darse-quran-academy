@@ -23,17 +23,6 @@ export function formatSiteAnnouncementDate(date: Date): string {
   });
 }
 
-export async function getPublishedSiteAnnouncements(limit?: number) {
-  return prisma.siteAnnouncement.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    include: {
-      createdBy: { select: { name: true } },
-    },
-  });
-}
-
 const siteAnnouncementPublicInclude = {
   createdBy: { select: { name: true } },
 } as const;
@@ -121,15 +110,6 @@ export async function getSiteAnnouncementById(id: string) {
     where: { id, published: true },
     include: {
       createdBy: { select: { name: true } },
-    },
-  });
-}
-
-export async function getAllSiteAnnouncementsForAdmin() {
-  return prisma.siteAnnouncement.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      createdBy: { select: { name: true, email: true } },
     },
   });
 }

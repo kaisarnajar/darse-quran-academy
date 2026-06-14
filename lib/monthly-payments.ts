@@ -48,17 +48,6 @@ export type CoursePaymentSubmissionWithUser = {
   };
 };
 
-export async function getPendingMonthlyPayments(): Promise<CoursePaymentSubmissionWithUser[]> {
-  noStore();
-  return prisma.coursePaymentSubmission.findMany({
-    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
-}
-
 export async function getPendingMonthlyPaymentsPaginated(
   page: number,
   pageSize: number = APPROVAL_PAGE_SIZE,
@@ -78,17 +67,6 @@ export async function getPendingMonthlyPaymentsPaginated(
     ...paginationArgs(safePage, pageSize),
   });
   return { items, totalCount };
-}
-
-export async function getPendingEnrollmentFeePayments(): Promise<CoursePaymentSubmissionWithUser[]> {
-  noStore();
-  return prisma.coursePaymentSubmission.findMany({
-    where: { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
 }
 
 export async function getPendingEnrollmentFeePaymentsPaginated(

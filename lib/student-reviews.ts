@@ -105,16 +105,6 @@ export async function getPendingStudentReviewCount(): Promise<number> {
   return prisma.studentReview.count({ where: { status: "PENDING" } });
 }
 
-export async function getPendingStudentReviewsForAdmin() {
-  return prisma.studentReview.findMany({
-    where: { status: "PENDING" },
-    orderBy: { createdAt: "asc" },
-    include: {
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
-}
-
 export async function getPendingStudentReviewsForAdminPaginated(
   page: number,
   pageSize: number,
@@ -132,17 +122,6 @@ export async function getPendingStudentReviewsForAdminPaginated(
     ...paginationArgs(safePage, pageSize),
   });
   return { items, totalCount };
-}
-
-/** All approved reviews (homepage and not), for admin management. */
-export async function getApprovedStudentReviewsForAdmin() {
-  return prisma.studentReview.findMany({
-    where: { status: "APPROVED" },
-    orderBy: [{ featuredOnHomepage: "desc" }, { featuredAt: "desc" }, { updatedAt: "desc" }],
-    include: {
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
 }
 
 export async function getApprovedStudentReviewsForAdminPaginated(

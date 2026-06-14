@@ -3,7 +3,6 @@ import type { PrismaClient } from "@prisma/client";
 import { getAdminEmails } from "../lib/admin";
 import { certificateUploadPath } from "../lib/certificate-upload";
 import { syncEnrollmentsWithCourseStatus } from "../lib/completion";
-import { receiptUploadPath } from "../lib/receipt-upload";
 import { courses } from "../content/courses";
 import {
   DEMO_ADMIN_PASSWORD,
@@ -115,15 +114,6 @@ async function seedDemoPayment(
     const paidAt = paymentPaidAt(payment);
     const receiptEmailSentAt =
       studentId === "06" && paymentType === PAYMENT_TYPE_ENROLLMENT ? paidAt : null;
-    const uploadedReceiptPath = receiptEmailSentAt ? receiptUploadPath(recordId) : null;
-
-    if (uploadedReceiptPath) {
-      await writeDemoPdfFile(uploadedReceiptPath, [
-        "Darse Quran Academy — Demo Receipt",
-        label,
-        `Amount: Rs ${(amountInrPaise / 100).toFixed(2)}`,
-      ]);
-    }
 
     await prisma.paymentRecord.upsert({
       where: { id: recordId },
@@ -136,7 +126,6 @@ async function seedDemoPayment(
         paymentType,
         description: label,
         receiptEmailSentAt,
-        uploadedReceiptPath,
       },
       update: {
         amountInrPaise,
@@ -144,7 +133,6 @@ async function seedDemoPayment(
         paymentType,
         description: label,
         receiptEmailSentAt,
-        uploadedReceiptPath,
       },
     });
 

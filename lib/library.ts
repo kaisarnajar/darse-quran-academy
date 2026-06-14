@@ -14,16 +14,6 @@ export const HOMEPAGE_FEATURED_RESOURCES_MAX = 4;
 
 export type LibraryItem = PrismaLibraryItem;
 
-export async function getPublishedLibraryItems(topic?: string): Promise<LibraryItem[]> {
-  return prisma.libraryItem.findMany({
-    where: {
-      published: true,
-      ...(topic && isLibraryTopic(topic) ? { topic } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
 function publishedLibraryWhere(topic?: string) {
   return {
     published: true,
@@ -76,10 +66,6 @@ export async function resolveLibraryFeaturedUpdate(options: {
     maxFeatured: HOMEPAGE_FEATURED_RESOURCES_MAX,
     resourceLabel: "resources",
   });
-}
-
-export async function getAllLibraryItems(): Promise<LibraryItem[]> {
-  return prisma.libraryItem.findMany({ orderBy: { createdAt: "desc" } });
 }
 
 export async function getAllLibraryItemsPaginated(

@@ -376,7 +376,6 @@ model PaymentRecord {
   paidAt               DateTime
   paymentType          String?
   description          String?
-  uploadedReceiptPath  String?
   receiptEmailSentAt   DateTime?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt

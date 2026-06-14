@@ -47,7 +47,7 @@ async function assertDatabaseMigrated() {
       }),
     () =>
       prisma.paymentRecord.findFirst({
-        select: { uploadedReceiptPath: true, receiptEmailSentAt: true, paymentType: true },
+        select: { receiptEmailSentAt: true, paymentType: true },
       }),
     () => prisma.expense.findFirst({ select: { category: true, teacherId: true } }),
     () => prisma.blogImage.findFirst({ select: { id: true } }),

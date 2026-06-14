@@ -77,18 +77,6 @@ export async function resolveBlogFeaturedUpdate(options: {
   });
 }
 
-export async function getPublishedBlogPosts(limit?: number) {
-  return prisma.blogPost.findMany({
-    where: BLOG_PUBLIC_WHERE,
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
-      createdBy: { select: { name: true } },
-    },
-  });
-}
-
 const blogPostPublicInclude = {
   images: { orderBy: { sortOrder: "asc" } },
   createdBy: { select: { name: true } },
@@ -115,16 +103,6 @@ export async function getPublishedBlogPostById(id: string) {
     include: {
       images: { orderBy: { sortOrder: "asc" } },
       createdBy: { select: { name: true } },
-    },
-  });
-}
-
-export async function getAllBlogPostsForAdmin() {
-  return prisma.blogPost.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
-      createdBy: { select: { name: true, email: true } },
     },
   });
 }
@@ -157,16 +135,6 @@ export async function getBlogPostForAdmin(id: string) {
     include: {
       images: { orderBy: { sortOrder: "asc" } },
       createdBy: { select: { name: true, email: true } },
-    },
-  });
-}
-
-export async function getTeacherBlogPosts(userId: string) {
-  return prisma.blogPost.findMany({
-    where: { createdById: userId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
     },
   });
 }

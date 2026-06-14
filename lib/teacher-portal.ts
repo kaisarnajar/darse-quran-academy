@@ -1,7 +1,7 @@
 import type { Course, CourseStatus } from "@prisma/client";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
-import { getEnrollmentsForCourse, getEnrollmentsForCoursePaginated } from "@/lib/enrollments";
+import { getEnrollmentsForCoursePaginated } from "@/lib/enrollments";
 
 export type TeacherCourse = Course & {
   studentCount: number;
@@ -59,14 +59,6 @@ export async function getTeacherCourseForPortal(teacherId: string, courseId: str
   return prisma.course.findFirst({
     where: { id: courseId, teacherId },
   });
-}
-
-export async function getTeacherCourseStudents(teacherId: string, courseId: string) {
-  const course = await getTeacherCourseForPortal(teacherId, courseId);
-  if (!course) return null;
-
-  const enrollments = await getEnrollmentsForCourse(courseId);
-  return { course, enrollments };
 }
 
 export async function getTeacherCourseStudentsPaginated(

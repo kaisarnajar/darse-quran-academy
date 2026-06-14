@@ -9,21 +9,6 @@ function contactInquirySearchWhere(searchQuery?: string) {
   return buildSearchOr(["name", "email", "phone", "message"], [], searchQuery);
 }
 
-export async function getAllContactInquiries(filter?: ContactInquiryFilter) {
-  return prisma.contactInquiry.findMany({
-    where:
-      filter === "pending"
-        ? { reply: null }
-        : filter === "replied"
-          ? { reply: { not: null } }
-          : undefined,
-    orderBy: { createdAt: "desc" },
-    include: {
-      repliedBy: { select: { id: true, name: true, email: true } },
-    },
-  });
-}
-
 function contactInquiryWhere(filter?: ContactInquiryFilter, searchQuery?: string) {
   const statusWhere =
     filter === "pending"

@@ -66,16 +66,6 @@ export async function resolveFatwaFeaturedUpdate(options: {
   });
 }
 
-export async function getAnsweredFatwas(category?: string): Promise<FatwaQuestion[]> {
-  return prisma.fatwaQuestion.findMany({
-    where: {
-      answer: { not: null },
-      ...(category && isFatwaCategory(category) ? { category } : {}),
-    },
-    orderBy: { answeredAt: "desc" },
-  });
-}
-
 function answeredFatwasWhere(category?: string) {
   return {
     answer: { not: null },
@@ -102,18 +92,6 @@ export async function getAnsweredFatwasPaginated(
 export async function getAnsweredFatwaById(id: string): Promise<FatwaQuestion | null> {
   return prisma.fatwaQuestion.findFirst({
     where: { id, answer: { not: null } },
-  });
-}
-
-export async function getAllFatwaQuestions(filter?: "pending" | "answered"): Promise<FatwaQuestion[]> {
-  return prisma.fatwaQuestion.findMany({
-    where:
-      filter === "pending"
-        ? { answer: null }
-        : filter === "answered"
-          ? { answer: { not: null } }
-          : undefined,
-    orderBy: { createdAt: "desc" },
   });
 }
 

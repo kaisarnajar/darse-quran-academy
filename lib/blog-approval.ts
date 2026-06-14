@@ -60,17 +60,6 @@ export async function getPendingBlogApprovalCount() {
   return prisma.blogPost.count({ where: { approvalStatus: "PENDING" } });
 }
 
-export async function getPendingBlogPostsForAdmin() {
-  return prisma.blogPost.findMany({
-    where: { approvalStatus: "PENDING" },
-    orderBy: { createdAt: "asc" },
-    include: {
-      images: { orderBy: { sortOrder: "asc" } },
-      createdBy: { select: { name: true, email: true } },
-    },
-  });
-}
-
 const pendingBlogInclude = {
   images: { orderBy: { sortOrder: "asc" } },
   createdBy: { select: { name: true, email: true } },
