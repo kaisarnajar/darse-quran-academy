@@ -16,7 +16,7 @@ export function ProfileNav({ unreadCount = 0 }: { unreadCount?: number }) {
 
   return (
     <nav
-      className="flex flex-wrap gap-2 border-b border-border pb-4"
+      className="card-elevated flex flex-wrap gap-2 p-2 sm:p-3"
       aria-label="Profile sections"
     >
       {links.map((link) => {

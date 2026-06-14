@@ -11,23 +11,19 @@ export const metadata: Metadata = {
   description: "Manage your profile, payments, and courses at Darse Quran Academy.",
 };
 
-function profileSignedInDescription(name: string | null | undefined, email: string | null | undefined) {
+function profileHeaderDescription(name: string | null | undefined) {
   const trimmedName = name?.trim();
-  const trimmedEmail = email?.trim();
-
-  if (trimmedName && trimmedEmail) {
-    return `Signed in as ${trimmedName} (${trimmedEmail})`;
-  }
 
   if (trimmedName) {
-    return `Signed in as ${trimmedName}`;
+    return (
+      <>
+        Welcome back, <span className="font-semibold text-foreground">{trimmedName}</span>. Manage
+        your courses, payments, and profile details.
+      </>
+    );
   }
 
-  if (trimmedEmail) {
-    return `Signed in as ${trimmedEmail}`;
-  }
-
-  return "Signed in";
+  return "Manage your courses, payments, and profile details.";
 }
 
 export default async function ProfileLayout({ children }: { children: React.ReactNode }) {
@@ -37,17 +33,14 @@ export default async function ProfileLayout({ children }: { children: React.Reac
     getUnreadNotificationCount(session.user.id),
   ]);
 
-  const description = profileSignedInDescription(
-    profile?.name ?? session.user.name,
-    session.user.email,
-  );
+  const description = profileHeaderDescription(profile?.name ?? session.user.name);
 
   return (
     <Section>
       <PageHeader title="My Profile" description={description} />
-      <div className="mx-auto mt-8 max-w-5xl">
+      <div className="mx-auto mt-8 max-w-5xl space-y-8">
         <ProfileNav unreadCount={unreadCount} />
-        <div className="mt-8">{children}</div>
+        <div>{children}</div>
       </div>
     </Section>
   );
