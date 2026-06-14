@@ -1,63 +1,5 @@
 import type { StudentNotification } from "@prisma/client";
-import {
-  notificationTypeClass,
-  notificationTypeLabel,
-} from "@/lib/notifications";
-import { openNotification } from "@/app/profile/notifications/actions";
-
-function formatNotificationTime(date: Date): string {
-  return date.toLocaleString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-export function NotificationItem({ notification }: { notification: StudentNotification }) {
-  const unread = !notification.readAt;
-
-  return (
-    <li>
-      <form action={openNotification.bind(null, notification.id)}>
-        <button
-          type="submit"
-          className={`w-full rounded-lg border px-4 py-4 text-left transition-colors hover:bg-accent-muted/30 ${
-            unread
-              ? "border-primary/20 bg-violet-50/60"
-              : "border-border bg-surface"
-          }`}
-        >
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${notificationTypeClass(notification.type)}`}
-                >
-                  {notificationTypeLabel(notification.type)}
-                </span>
-                {unread && (
-                  <span className="inline-flex h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden />
-                )}
-              </div>
-              <p className="mt-2 font-medium text-foreground">{notification.title}</p>
-              {notification.body && (
-                <p className="mt-1 text-sm text-muted line-clamp-2">{notification.body}</p>
-              )}
-            </div>
-            <time
-              className="shrink-0 text-xs text-muted"
-              dateTime={notification.createdAt.toISOString()}
-            >
-              {formatNotificationTime(notification.createdAt)}
-            </time>
-          </div>
-        </button>
-      </form>
-    </li>
-  );
-}
+import { NotificationCard } from "@/components/profile/NotificationCard";
 
 export function NotificationList({
   notifications,
@@ -68,16 +10,26 @@ export function NotificationList({
 }) {
   if (notifications.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
-        {emptyMessage}
-      </p>
+      <div className="card-elevated flex flex-col items-center px-6 py-14 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-muted/60 text-muted">
+          <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
+            />
+          </svg>
+        </div>
+        <p className="mt-4 font-serif text-base font-semibold text-foreground">All caught up</p>
+        <p className="mt-1 max-w-sm text-sm text-muted">{emptyMessage}</p>
+      </div>
     );
   }
 
   return (
-    <ul className="space-y-3">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {notifications.map((notification) => (
-        <NotificationItem key={notification.id} notification={notification} />
+        <NotificationCard key={notification.id} notification={notification} />
       ))}
     </ul>
   );
