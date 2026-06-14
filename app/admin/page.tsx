@@ -15,7 +15,7 @@ type DashboardStat = {
   label: string;
   href: string;
   count: number;
-  highlight?: boolean;
+  highlight: boolean;
 };
 
 type DashboardLink = {
@@ -123,10 +123,11 @@ export default async function AdminDashboardPage() {
         label: link.label,
         href: link.href,
         count: meta.count,
-        highlight: meta.highlight,
+        highlight: meta.highlight ?? false,
       };
     })
-    .filter((stat): stat is DashboardStat => stat !== null);
+    .filter((stat): stat is DashboardStat => stat !== null)
+    .sort((a, b) => Number(a.highlight) - Number(b.highlight));
 
   const quickLinks: DashboardLink[] = ADMIN_NAV_LINKS.filter((link) =>
     ADMIN_DASHBOARD_LINK_HREFS.has(link.href),
