@@ -7,7 +7,6 @@ import {
   expenseCategoryLabel,
 } from "@/lib/expense-categories";
 import type { FinanceFilters } from "@/lib/finance-filters";
-import { SEARCH_PARAM } from "@/lib/text-search";
 
 type FinanceExpenseFiltersProps = {
   filters: FinanceFilters;
@@ -29,7 +28,6 @@ function preserveFields(filters: FinanceFilters) {
   if (filters.courseId) fields.push({ name: "courseId", value: filters.courseId });
   if (filters.studentId) fields.push({ name: "studentId", value: filters.studentId });
   if (filters.paymentType) fields.push({ name: "paymentType", value: filters.paymentType });
-  if (filters.q) fields.push({ name: SEARCH_PARAM, value: filters.q });
   fields.push({ name: "tab", value: "expenses" });
 
   return fields;

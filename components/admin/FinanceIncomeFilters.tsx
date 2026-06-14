@@ -3,7 +3,6 @@ import {
   incomePaymentTypeLabel,
 } from "@/lib/monthly-payment-status";
 import type { FinanceFilters } from "@/lib/finance-filters";
-import { SEARCH_PARAM } from "@/lib/text-search";
 
 type FinanceIncomeFiltersProps = {
   filters: FinanceFilters;
@@ -25,7 +24,6 @@ function preserveFields(filters: FinanceFilters) {
   }
   if (filters.category) fields.push({ name: "category", value: filters.category });
   if (filters.teacherId) fields.push({ name: "teacherId", value: filters.teacherId });
-  if (filters.q) fields.push({ name: SEARCH_PARAM, value: filters.q });
   fields.push({ name: "tab", value: "income" });
 
   return fields;
