@@ -1,4 +1,11 @@
-import { EXPENSE_CATEGORIES, expenseCategoryLabel } from "@/lib/expense-categories";
+"use client";
+
+import { useState } from "react";
+import {
+  EXPENSE_CATEGORIES,
+  EXPENSE_CATEGORY_TEACHER_SALARY,
+  expenseCategoryLabel,
+} from "@/lib/expense-categories";
 import type { FinanceFilters } from "@/lib/finance-filters";
 
 type FinanceExpenseFiltersProps = {
@@ -27,6 +34,9 @@ function preserveFields(filters: FinanceFilters) {
 }
 
 export function FinanceExpenseFilters({ filters, teachers }: FinanceExpenseFiltersProps) {
+  const [category, setCategory] = useState(filters.category ?? "");
+  const showTeacherFilter = category === EXPENSE_CATEGORY_TEACHER_SALARY;
+
   return (
     <form
       method="get"
@@ -44,36 +54,39 @@ export function FinanceExpenseFilters({ filters, teachers }: FinanceExpenseFilte
         <select
           id="expense-category"
           name="category"
-          defaultValue={filters.category ?? ""}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
           className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
         >
           <option value="">All categories</option>
-          {EXPENSE_CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {expenseCategoryLabel(category)}
+          {EXPENSE_CATEGORIES.map((item) => (
+            <option key={item} value={item}>
+              {expenseCategoryLabel(item)}
             </option>
           ))}
         </select>
       </div>
 
-      <div className="min-w-[180px]">
-        <label htmlFor="expense-teacher" className="block text-xs font-medium text-muted">
-          Teacher
-        </label>
-        <select
-          id="expense-teacher"
-          name="teacherId"
-          defaultValue={filters.teacherId ?? ""}
-          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        >
-          <option value="">All teachers</option>
-          {teachers.map((teacher) => (
-            <option key={teacher.id} value={teacher.id}>
-              {teacher.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {showTeacherFilter && (
+        <div className="min-w-[180px]">
+          <label htmlFor="expense-teacher" className="block text-xs font-medium text-muted">
+            Teacher
+          </label>
+          <select
+            id="expense-teacher"
+            name="teacherId"
+            defaultValue={filters.teacherId ?? ""}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          >
+            <option value="">All teachers</option>
+            {teachers.map((teacher) => (
+              <option key={teacher.id} value={teacher.id}>
+                {teacher.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <button
         type="submit"

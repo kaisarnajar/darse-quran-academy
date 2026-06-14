@@ -1,3 +1,4 @@
+import { isTeacherExpenseFilterRelevant } from "@/lib/expense-categories";
 import { prisma } from "@/lib/prisma";
 import type { FinanceFilters } from "@/lib/finance-filters";
 import { financePaidAtWhere } from "@/lib/finance-filters";
@@ -11,7 +12,9 @@ function buildExpenseWhere(filters: FinanceFilters) {
 
   return {
     ...(filters.category ? { category: filters.category } : {}),
-    ...(filters.teacherId ? { teacherId: filters.teacherId } : {}),
+    ...(isTeacherExpenseFilterRelevant(filters.category) && filters.teacherId
+      ? { teacherId: filters.teacherId }
+      : {}),
     ...(paidAt ? { paidAt } : {}),
   };
 }

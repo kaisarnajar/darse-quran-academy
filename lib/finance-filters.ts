@@ -2,7 +2,11 @@ import {
   INCOME_PAYMENT_TYPES,
   type IncomePaymentType,
 } from "@/lib/monthly-payment-status";
-import { isExpenseCategory, type ExpenseCategory } from "@/lib/expense-categories";
+import {
+  isExpenseCategory,
+  isTeacherExpenseFilterRelevant,
+  type ExpenseCategory,
+} from "@/lib/expense-categories";
 
 export type FinanceTab = "income" | "expenses";
 
@@ -140,7 +144,9 @@ export function parseFinanceFilters(params: FinanceSearchParams, now = new Date(
     studentId: params.studentId?.trim() || undefined,
     paymentType,
     category,
-    teacherId: params.teacherId?.trim() || undefined,
+    teacherId: isTeacherExpenseFilterRelevant(category)
+      ? params.teacherId?.trim() || undefined
+      : undefined,
   };
 }
 
@@ -172,7 +178,12 @@ export function buildFinanceQueryString(
   if (merged.studentId) params.set("studentId", merged.studentId);
   if (merged.paymentType) params.set("paymentType", merged.paymentType);
   if (merged.category) params.set("category", merged.category);
-  if (merged.teacherId) params.set("teacherId", merged.teacherId);
+  if (
+    isTeacherExpenseFilterRelevant(merged.category as ExpenseCategory | undefined) &&
+    merged.teacherId
+  ) {
+    params.set("teacherId", merged.teacherId);
+  }
   if ("saved" in overrides && overrides.saved) params.set("saved", overrides.saved);
   if ("deleted" in overrides && overrides.deleted) params.set("deleted", overrides.deleted);
 

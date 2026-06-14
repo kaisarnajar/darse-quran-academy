@@ -32,3 +32,7 @@ export function expenseCategoryLabel(category: string): string {
 export function isExpenseCategory(value: string): value is ExpenseCategory {
   return (EXPENSE_CATEGORIES as readonly string[]).includes(value);
 }
+
+export function isTeacherExpenseFilterRelevant(category: ExpenseCategory | undefined): boolean {
+  return category === EXPENSE_CATEGORY_TEACHER_SALARY;
+}
