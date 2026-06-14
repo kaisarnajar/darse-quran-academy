@@ -1,7 +1,7 @@
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
-export async function getPaymentRecordsForUser(userId: string) {
+async function fetchPaymentRecordsForUser(userId: string) {
   return prisma.paymentRecord.findMany({
     where: { userId },
     orderBy: { paidAt: "desc" },
@@ -12,7 +12,7 @@ export async function getPaymentRecordsForUserPaginated(
   userId: string,
   page: number,
   pageSize: number,
-): Promise<PaginatedResult<Awaited<ReturnType<typeof getPaymentRecordsForUser>>[number]>> {
+): Promise<PaginatedResult<Awaited<ReturnType<typeof fetchPaymentRecordsForUser>>[number]>> {
   const where = { userId };
   const totalCount = await prisma.paymentRecord.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);

@@ -34,7 +34,7 @@ const incomeInclude = {
   course: { select: { id: true, title: true } },
 } as const;
 
-export async function getIncomeRecords(filters: FinanceFilters) {
+async function fetchIncomeRecords(filters: FinanceFilters) {
   return prisma.paymentRecord.findMany({
     where: buildIncomeWhere(filters),
     include: incomeInclude,
@@ -46,7 +46,7 @@ export async function getIncomeRecordsPaginated(
   filters: FinanceFilters,
   page: number,
   pageSize: number,
-): Promise<PaginatedResult<Awaited<ReturnType<typeof getIncomeRecords>>[number]>> {
+): Promise<PaginatedResult<Awaited<ReturnType<typeof fetchIncomeRecords>>[number]>> {
   const where = buildIncomeWhere(filters);
   const totalCount = await prisma.paymentRecord.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);

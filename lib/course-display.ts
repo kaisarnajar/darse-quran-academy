@@ -1,4 +1,4 @@
-export const courseCategoryGradients: Record<string, string> = {
+const courseCategoryGradients: Record<string, string> = {
   Tajweed: "from-amber-800 to-amber-600",
   Seerah: "from-violet-800 to-violet-600",
   Arabic: "from-slate-700 to-slate-500",
@@ -13,7 +13,7 @@ export const courseCategoryGradients: Record<string, string> = {
   default: "from-stone-700 to-stone-500",
 };
 
-export const courseLevelColors: Record<string, string> = {
+const courseLevelColors: Record<string, string> = {
   Beginner: "bg-amber-100 text-amber-900",
   Intermediate: "bg-stone-200 text-stone-800",
   Advanced: "bg-teal-100 text-teal-900",

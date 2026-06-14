@@ -1,13 +1,12 @@
 import Image from "next/image";
 import { BankDetailsCard } from "@/components/payment/BankDetailsCard";
 import { CopyButton } from "@/components/payment/CopyButton";
-import { getBankDetailsFromSettings } from "@/lib/bank";
 import {
   buildUpiPaymentUrlFromSettings,
   buildUpiVpaUrlFromSettings,
   generateUpiQrDataUrl,
 } from "@/lib/upi";
-import { getPaymentSettings, isUpiConfiguredFromSettings } from "@/lib/payment-settings";
+import { getPaymentSettings, isUpiConfiguredFromSettings, toBankDetails } from "@/lib/payment-settings";
 
 type PaymentDetailsPanelProps = {
   /** Enrollment payment: fixed amount and reference for QR and bank transfer. */
@@ -25,7 +24,7 @@ export async function PaymentDetailsPanel({
 }: PaymentDetailsPanelProps) {
   const settings = await getPaymentSettings();
   const upiReady = isUpiConfiguredFromSettings(settings);
-  const bank = getBankDetailsFromSettings(settings);
+  const bank = toBankDetails(settings);
   const upiId = settings.upiId;
   const hasFixedAmount = amountPaise != null && amountLabel;
 

@@ -1,5 +1,5 @@
 import { CopyButton } from "@/components/payment/CopyButton";
-import type { BankDetails } from "@/lib/bank";
+import type { BankDetails } from "@/lib/payment-settings";
 
 type BankDetailsCardProps = {
   bank: BankDetails;

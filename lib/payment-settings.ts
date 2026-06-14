@@ -1,5 +1,12 @@
-import type { BankDetails } from "@/lib/bank";
 import { prisma } from "@/lib/prisma";
+
+export type BankDetails = {
+  accountName: string;
+  bankName: string;
+  accountNumber: string;
+  ifsc: string;
+  branch: string;
+};
 
 export const PAYMENT_SETTINGS_ID = "default";
 

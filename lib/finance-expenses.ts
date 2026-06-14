@@ -32,7 +32,7 @@ function buildExpenseWhere(filters: FinanceFilters) {
   return andWhere(Object.keys(base).length > 0 ? base : undefined, expenseSearchWhere(filters.q));
 }
 
-export async function getExpenses(filters: FinanceFilters) {
+async function fetchExpenses(filters: FinanceFilters) {
   return prisma.expense.findMany({
     where: buildExpenseWhere(filters),
     include: expenseInclude,
@@ -44,7 +44,7 @@ export async function getExpensesPaginated(
   filters: FinanceFilters,
   page: number,
   pageSize: number,
-): Promise<PaginatedResult<Awaited<ReturnType<typeof getExpenses>>[number]>> {
+): Promise<PaginatedResult<Awaited<ReturnType<typeof fetchExpenses>>[number]>> {
   const where = buildExpenseWhere(filters);
   const totalCount = await prisma.expense.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);

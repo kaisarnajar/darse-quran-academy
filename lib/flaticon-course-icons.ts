@@ -24,7 +24,7 @@ export type FlaticonCourseIcon = {
 
 const FLATICON_AUTHOR_BASE = "https://www.flaticon.com/authors";
 
-export const FLATICON_COURSE_ICONS: Record<CourseCategoryIconKey, FlaticonCourseIcon> = {
+const FLATICON_COURSE_ICONS: Record<CourseCategoryIconKey, FlaticonCourseIcon> = {
   quran: {
     key: "quran",
     label: "Quran",
@@ -135,7 +135,7 @@ export const FLATICON_COURSE_ICONS: Record<CourseCategoryIconKey, FlaticonCourse
   },
 };
 
-export function getCourseCategoryIconKey(category: string): CourseCategoryIconKey {
+function getCourseCategoryIconKey(category: string): CourseCategoryIconKey {
   const normalized = category.toLowerCase();
 
   if (normalized.includes("tajweed")) return "tajweed";

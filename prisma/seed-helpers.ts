@@ -21,43 +21,6 @@ export function demoEnrollmentId(studentId: string, courseId: string) {
   return `seed-demo-enrollment-${studentId}-${courseId}`;
 }
 
-/** Normalize legacy month-year labels to YYYY-MM-DD for course date inputs. */
-export function seedCourseStartDate(raw: string): string {
-  const trimmed = raw.trim();
-  if (trimmed.toLowerCase() === "ongoing") {
-    return "Ongoing";
-  }
-
-  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-    return trimmed;
-  }
-
-  const monthMap: Record<string, string> = {
-    january: "01",
-    february: "02",
-    march: "03",
-    april: "04",
-    may: "05",
-    june: "06",
-    july: "07",
-    august: "08",
-    september: "09",
-    october: "10",
-    november: "11",
-    december: "12",
-  };
-
-  const match = trimmed.match(/^([A-Za-z]+)\s+(\d{4})$/);
-  if (match) {
-    const month = monthMap[match[1].toLowerCase()];
-    if (month) {
-      return `${match[2]}-${month}-01`;
-    }
-  }
-
-  return trimmed;
-}
-
 const demoCourseStatuses: Record<string, CourseStatus> = {
   "qiraat-advanced": "COMPLETED",
   "islamic-history": "ON_HOLD",

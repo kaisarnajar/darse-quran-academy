@@ -17,7 +17,7 @@ export const courses: Course[] = [
     title: "Quran Nazira (Reading)",
     description:
       "Learn to read the Holy Quran with correct pronunciation and fluency. Suitable for all ages.",
-    startDate: "June 2026",
+    startDate: "2026-06-01",
     duration: "6 months",
     level: "Beginner",
     category: "Quran",
@@ -29,7 +29,7 @@ export const courses: Course[] = [
     title: "Hifz Foundation Program",
     description:
       "Structured memorization program with daily revision schedules and qualified supervisors.",
-    startDate: "July 2026",
+    startDate: "2026-07-01",
     duration: "1 year",
     level: "Intermediate",
     category: "Hifz",
@@ -41,7 +41,7 @@ export const courses: Course[] = [
     title: "Tajweed Intensive",
     description:
       "Master the rules of Tajweed through guided practice and individual feedback sessions.",
-    startDate: "May 2026",
+    startDate: "2026-05-01",
     duration: "3 months",
     level: "Advanced",
     category: "Tajweed",
@@ -53,7 +53,7 @@ export const courses: Course[] = [
     title: "Arabic Grammar (Nahw & Sarf)",
     description:
       "Build a strong foundation in classical Arabic grammar for deeper understanding of Islamic texts.",
-    startDate: "August 2026",
+    startDate: "2026-08-01",
     duration: "8 months",
     level: "Intermediate",
     category: "Arabic",
@@ -65,7 +65,7 @@ export const courses: Course[] = [
     title: "Fiqh Essentials",
     description:
       "Introduction to Islamic jurisprudence covering worship, transactions, and daily life rulings.",
-    startDate: "June 2026",
+    startDate: "2026-06-01",
     duration: "6 months",
     level: "Beginner",
     category: "Islamic Studies",
@@ -89,7 +89,7 @@ export const courses: Course[] = [
     title: "Tafsir of Juz Amma",
     description:
       "Word-by-word and thematic study of the last Juz with practical lessons for daily worship.",
-    startDate: "July 2026",
+    startDate: "2026-07-01",
     duration: "4 months",
     level: "Intermediate",
     category: "Tafsir",
@@ -101,7 +101,7 @@ export const courses: Course[] = [
     title: "Quran Nazira — Sisters Batch",
     description:
       "Sisters-only Nazira classes with a comfortable learning environment and qualified female instructors.",
-    startDate: "June 2026",
+    startDate: "2026-06-01",
     duration: "6 months",
     level: "Beginner",
     category: "Quran",
@@ -113,7 +113,7 @@ export const courses: Course[] = [
     title: "Children's Nazira (Ages 6–12)",
     description:
       "Playful yet disciplined Nazira program for children with short sessions and parent progress updates.",
-    startDate: "June 2026",
+    startDate: "2026-06-01",
     duration: "9 months",
     level: "Beginner",
     category: "Quran",
@@ -125,7 +125,7 @@ export const courses: Course[] = [
     title: "Advanced Qiraat Workshop",
     description:
       "For students who have completed Tajweed — explore Hafs and Warsh with live recitation coaching.",
-    startDate: "September 2026",
+    startDate: "2026-09-01",
     duration: "5 months",
     level: "Advanced",
     category: "Qiraat",
@@ -137,7 +137,7 @@ export const courses: Course[] = [
     title: "Islamic History — Khulafa to Modern Era",
     description:
       "Survey of major periods in Islamic history with focus on lessons for contemporary Muslims.",
-    startDate: "August 2026",
+    startDate: "2026-08-01",
     duration: "6 months",
     level: "Intermediate",
     category: "Islamic Studies",
@@ -173,7 +173,7 @@ export const courses: Course[] = [
     title: "Sisters Tajweed Circle",
     description:
       "Evening Tajweed correction circle for sisters with weekly targets and recorded revision guides.",
-    startDate: "July 2026",
+    startDate: "2026-07-01",
     duration: "4 months",
     level: "Intermediate",
     category: "Tajweed",
