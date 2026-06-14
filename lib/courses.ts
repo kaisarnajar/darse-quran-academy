@@ -111,6 +111,15 @@ export async function getAllCourses(): Promise<CourseWithTeacher[]> {
   });
 }
 
+/** Course IDs whose title matches a search query (for models that only store courseId). */
+export async function getCourseIdsByTitleSearch(searchQuery: string): Promise<string[]> {
+  const courses = await prisma.course.findMany({
+    where: { title: { contains: searchQuery } },
+    select: { id: true },
+  });
+  return courses.map((course) => course.id);
+}
+
 export async function getAllCoursesPaginated(
   page: number,
   pageSize: number,

@@ -4,20 +4,25 @@ import {
   AWAITING_ENROLLMENT_FEE,
   PENDING_ENROLLMENT_APPROVAL,
 } from "@/lib/enrollment-status";
+import { getCourseIdsByTitleSearch } from "@/lib/courses";
 import { clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
-import { andWhere, buildSearchOr } from "@/lib/text-search";
+import { andWhere, buildSearchOr, type TextSearchWhere } from "@/lib/text-search";
 
-function enrollmentUserSearchWhere(searchQuery?: string) {
+async function enrollmentSearchWhere(searchQuery?: string): Promise<TextSearchWhere | undefined> {
   if (!searchQuery) return undefined;
-  return buildSearchOr(
+
+  const courseIds = await getCourseIdsByTitleSearch(searchQuery);
+  const userSearch = buildSearchOr(
     [],
-    [
-      { relation: "user", fields: ["name", "email"] },
-      { relation: "course", fields: ["title"] },
-    ],
+    [{ relation: "user", fields: ["name", "email"] }],
     searchQuery,
   );
+  const orClauses = [...(userSearch.OR as Record<string, unknown>[])];
+  if (courseIds.length > 0) {
+    orClauses.push({ courseId: { in: courseIds } });
+  }
+  return { OR: orClauses };
 }
 
 export type CourseEnrollmentWithUser = {
@@ -224,7 +229,7 @@ export async function getPendingFreeEnrollmentApprovalsPaginated(
 ): Promise<PaginatedResult<PendingEnrollmentWithUser>> {
   noStore();
   const base = { status: PENDING_ENROLLMENT_APPROVAL };
-  const where = andWhere(base, enrollmentUserSearchWhere(searchQuery));
+  const where = andWhere(base, await enrollmentSearchWhere(searchQuery));
   const totalCount = await prisma.enrollment.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.enrollment.findMany({
@@ -260,7 +265,7 @@ export async function getAwaitingEnrollmentFeeEnrollmentsPaginated(
 ): Promise<PaginatedResult<PendingEnrollmentWithUser>> {
   noStore();
   const base = { status: AWAITING_ENROLLMENT_FEE };
-  const where = andWhere(base, enrollmentUserSearchWhere(searchQuery));
+  const where = andWhere(base, await enrollmentSearchWhere(searchQuery));
   const totalCount = await prisma.enrollment.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.enrollment.findMany({

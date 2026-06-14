@@ -4,20 +4,27 @@ import {
   PAYMENT_TYPE_ENROLLMENT,
   PAYMENT_TYPE_MONTHLY,
 } from "@/lib/monthly-payment-status";
+import { getCourseIdsByTitleSearch } from "@/lib/courses";
 import { APPROVAL_PAGE_SIZE, clampPage, paginationArgs, type PaginatedResult } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
-import { andWhere, buildSearchOr } from "@/lib/text-search";
+import { andWhere, buildSearchOr, type TextSearchWhere } from "@/lib/text-search";
 
-function paymentSubmissionSearchWhere(searchQuery?: string) {
+async function paymentSubmissionSearchWhere(
+  searchQuery?: string,
+): Promise<TextSearchWhere | undefined> {
   if (!searchQuery) return undefined;
-  return buildSearchOr(
+
+  const courseIds = await getCourseIdsByTitleSearch(searchQuery);
+  const search = buildSearchOr(
     ["label", "upiTransactionId"],
-    [
-      { relation: "user", fields: ["name", "email"] },
-      { relation: "course", fields: ["title"] },
-    ],
+    [{ relation: "user", fields: ["name", "email"] }],
     searchQuery,
   );
+  const orClauses = [...(search.OR as Record<string, unknown>[])];
+  if (courseIds.length > 0) {
+    orClauses.push({ courseId: { in: courseIds } });
+  }
+  return { OR: orClauses };
 }
 
 export type CoursePaymentSubmissionWithUser = {
@@ -59,7 +66,7 @@ export async function getPendingMonthlyPaymentsPaginated(
 ): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
   noStore();
   const base = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_MONTHLY };
-  const where = andWhere(base, paymentSubmissionSearchWhere(searchQuery));
+  const where = andWhere(base, await paymentSubmissionSearchWhere(searchQuery));
   const totalCount = await prisma.coursePaymentSubmission.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.coursePaymentSubmission.findMany({
@@ -91,7 +98,7 @@ export async function getPendingEnrollmentFeePaymentsPaginated(
 ): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
   noStore();
   const base = { status: MONTHLY_PAYMENT_PENDING, paymentType: PAYMENT_TYPE_ENROLLMENT };
-  const where = andWhere(base, paymentSubmissionSearchWhere(searchQuery));
+  const where = andWhere(base, await paymentSubmissionSearchWhere(searchQuery));
   const totalCount = await prisma.coursePaymentSubmission.count({ where });
   const safePage = clampPage(page, totalCount, pageSize);
   const items = await prisma.coursePaymentSubmission.findMany({
