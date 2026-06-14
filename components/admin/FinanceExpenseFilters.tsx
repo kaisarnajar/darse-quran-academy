@@ -49,20 +49,6 @@ export function FinanceExpenseFilters({ filters, teachers }: FinanceExpenseFilte
         <input key={field.name} type="hidden" name={field.name} value={field.value} />
       ))}
 
-      <div className="min-w-[200px] flex-1">
-        <label htmlFor="expense-search" className="block text-xs font-medium text-muted">
-          Search
-        </label>
-        <input
-          id="expense-search"
-          type="search"
-          name={SEARCH_PARAM}
-          defaultValue={filters.q ?? ""}
-          placeholder="Description, category, teacher…"
-          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-      </div>
-
       <div className="min-w-[180px]">
         <label htmlFor="expense-category" className="block text-xs font-medium text-muted">
           Category

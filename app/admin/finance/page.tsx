@@ -7,10 +7,15 @@ import { FinanceIncomeFilters } from "@/components/admin/FinanceIncomeFilters";
 import { FinanceIncomeTable } from "@/components/admin/FinanceIncomeTable";
 import { FinanceSummaryCards } from "@/components/admin/FinanceSummaryCards";
 import { FinanceTabs } from "@/components/admin/FinanceTabs";
+import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";
 import { getAllCourses } from "@/lib/courses";
 import { getExpensesPaginated, getExpenseTotal } from "@/lib/finance-expenses";
-import { parseFinanceFilters, type FinanceSearchParams } from "@/lib/finance-filters";
+import {
+  buildFinanceSearchPreserveParams,
+  parseFinanceFilters,
+  type FinanceSearchParams,
+} from "@/lib/finance-filters";
 import { getIncomeRecordsPaginated, getIncomeTotal } from "@/lib/finance-income";
 import { clampPage, parsePaginationParams } from "@/lib/pagination";
 import { getStudentUsers } from "@/lib/students";
@@ -65,6 +70,7 @@ export default async function AdminFinancePage({
   );
 
   const returnQuery = params;
+  const searchPreserveParams = buildFinanceSearchPreserveParams(filters);
 
   return (
     <div>
@@ -103,6 +109,14 @@ export default async function AdminFinancePage({
 
       {filters.tab === "income" ? (
         <section className="mt-6 space-y-4">
+          <ListSearchForm
+            action="/admin/finance"
+            query={filters.q}
+            placeholder="Search by student, course, or description"
+            preserveParams={searchPreserveParams}
+            totalCount={filters.q ? incomeTotalCount : undefined}
+          />
+
           <FinanceIncomeFilters
             filters={filters}
             courses={courses.map((c) => ({ id: c.id, title: c.title }))}
@@ -137,6 +151,14 @@ export default async function AdminFinancePage({
               Record expense
             </Link>
           </div>
+
+          <ListSearchForm
+            action="/admin/finance"
+            query={filters.q}
+            placeholder="Search by description, category, or teacher"
+            preserveParams={searchPreserveParams}
+            totalCount={filters.q ? expenseTotalCount : undefined}
+          />
 
           <FinanceExpenseFilters
             filters={filters}

@@ -207,6 +207,25 @@ export function financePaidAtWhere(filters: Pick<FinanceFilters, "from" | "to">)
   return paidAt;
 }
 
+/** Query params to preserve when submitting finance search (excludes q and page). */
+export function buildFinanceSearchPreserveParams(
+  filters: FinanceFilters,
+): Record<string, string | undefined> {
+  const params: Record<string, string | undefined> = {};
+
+  if (filters.tab === "expenses") params.tab = "expenses";
+  if (filters.preset !== "this_month") params.preset = filters.preset;
+  if (filters.from) params.from = filters.from.toISOString().slice(0, 10);
+  if (filters.to) params.to = filters.to.toISOString().slice(0, 10);
+  if (filters.courseId) params.courseId = filters.courseId;
+  if (filters.studentId) params.studentId = filters.studentId;
+  if (filters.paymentType) params.paymentType = filters.paymentType;
+  if (filters.category) params.category = filters.category;
+  if (filters.teacherId) params.teacherId = filters.teacherId;
+
+  return params;
+}
+
 export const FINANCE_DATE_PRESETS: { label: string; preset: FinanceDatePreset }[] = [
   { label: "This month", preset: "this_month" },
   { label: "Last month", preset: "last_month" },

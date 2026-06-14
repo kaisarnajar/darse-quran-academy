@@ -42,20 +42,6 @@ export function FinanceIncomeFilters({ filters, courses, students }: FinanceInco
         <input key={field.name} type="hidden" name={field.name} value={field.value} />
       ))}
 
-      <div className="min-w-[200px] flex-1">
-        <label htmlFor="income-search" className="block text-xs font-medium text-muted">
-          Search
-        </label>
-        <input
-          id="income-search"
-          type="search"
-          name={SEARCH_PARAM}
-          defaultValue={filters.q ?? ""}
-          placeholder="Student, course, description…"
-          className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-      </div>
-
       <div className="min-w-[160px]">
         <label htmlFor="income-course" className="block text-xs font-medium text-muted">
           Course
