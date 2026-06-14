@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createCourseAnnouncement } from "@/app/teacher/courses/actions";
+import { createCourseAnnouncement } from "@/lib/course-announcement-actions";
 import { AnnouncementForm } from "@/components/teacher/AnnouncementForm";
 import { requireTeacher } from "@/lib/auth-actions";
 import { getTeacherCourseForPortal } from "@/lib/teacher-portal";

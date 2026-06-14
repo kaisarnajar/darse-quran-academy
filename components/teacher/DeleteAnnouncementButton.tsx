@@ -3,7 +3,7 @@
 import {
   deleteCourseAnnouncement,
   deleteStudentCourseAnnouncement,
-} from "@/app/teacher/courses/actions";
+} from "@/lib/course-announcement-actions";
 
 type DeleteAnnouncementButtonProps = {
   courseId: string;

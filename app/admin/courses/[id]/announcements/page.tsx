@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { deleteAdminCourseAnnouncement } from "@/app/admin/courses/[id]/announcements/actions";
+import { deleteAdminCourseAnnouncement } from "@/lib/course-announcement-actions";
 import { AdminCourseAnnouncementCard } from "@/components/admin/AdminCourseAnnouncementCard";
 import { ListSearchForm } from "@/components/shared/ListSearchForm";
 import { Pagination } from "@/components/shared/Pagination";

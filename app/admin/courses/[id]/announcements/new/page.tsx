@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createAdminCourseAnnouncement } from "@/app/admin/courses/[id]/announcements/actions";
+import { createAdminCourseAnnouncement } from "@/lib/course-announcement-actions";
 import { AnnouncementForm } from "@/components/teacher/AnnouncementForm";
 import { requireAdmin } from "@/lib/auth-actions";
 import { getCourseById } from "@/lib/courses";

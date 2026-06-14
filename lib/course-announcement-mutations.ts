@@ -1,10 +1,15 @@
 import { revalidatePath } from "next/cache";
+import type { CourseAnnouncement } from "@prisma/client";
+import type { z } from "zod";
 import {
   deleteAnnouncementAttachment,
   saveAnnouncementAttachment,
   validateAnnouncementAttachment,
 } from "@/lib/announcement-upload";
+import { prisma } from "@/lib/prisma";
 import { courseAnnouncementSchema } from "@/lib/validations";
+
+export type ParsedCourseAnnouncement = z.infer<typeof courseAnnouncementSchema>;
 
 export function parseCourseAnnouncementForm(formData: FormData) {
   return courseAnnouncementSchema.safeParse({
@@ -14,10 +19,40 @@ export function parseCourseAnnouncementForm(formData: FormData) {
   });
 }
 
+export function firstCourseAnnouncementFormError(message?: string) {
+  return message ?? "Invalid input";
+}
+
+export function parseCourseAnnouncementFormOrError(formData: FormData):
+  | { ok: true; data: ParsedCourseAnnouncement }
+  | { ok: false; error: string } {
+  const parsed = parseCourseAnnouncementForm(formData);
+  if (!parsed.success) {
+    return { ok: false, error: firstCourseAnnouncementFormError(parsed.error.issues[0]?.message) };
+  }
+  return { ok: true, data: parsed.data };
+}
+
 export function getCourseAnnouncementAttachmentFile(formData: FormData): File | null {
   const raw = formData.get("attachment");
   if (raw instanceof File && raw.size > 0) return raw;
   return null;
+}
+
+export function validateCreateCourseAnnouncementAttachment(formData: FormData):
+  | { ok: true; upload: File | null }
+  | { ok: false; error: string } {
+  const upload = getCourseAnnouncementAttachmentFile(formData);
+  if (!upload) {
+    return { ok: true, upload: null };
+  }
+
+  const validation = validateAnnouncementAttachment(upload);
+  if (validation.error) {
+    return { ok: false, error: validation.error };
+  }
+
+  return { ok: true, upload };
 }
 
 export function revalidateCourseAnnouncementPaths(courseId: string) {
@@ -59,4 +94,68 @@ export async function resolveCourseAnnouncementAttachment(
   }
 
   return undefined;
+}
+
+export async function createCourseAnnouncementRecord(params: {
+  courseId: string;
+  enrollmentId: string | null;
+  teacherId: string | null;
+  authorName: string;
+  postedByAdmin: boolean;
+  data: ParsedCourseAnnouncement;
+  upload: File | null;
+}) {
+  const announcement = await prisma.courseAnnouncement.create({
+    data: {
+      courseId: params.courseId,
+      enrollmentId: params.enrollmentId,
+      teacherId: params.teacherId,
+      authorName: params.authorName,
+      postedByAdmin: params.postedByAdmin,
+      category: params.data.category,
+      title: params.data.title,
+      body: params.data.body,
+    },
+  });
+
+  if (params.upload) {
+    const saved = await saveAnnouncementAttachment(announcement.id, params.upload);
+    await prisma.courseAnnouncement.update({
+      where: { id: announcement.id },
+      data: saved,
+    });
+  }
+
+  return announcement;
+}
+
+export async function updateCourseAnnouncementRecord(
+  announcementId: string,
+  data: ParsedCourseAnnouncement,
+  formData: FormData,
+  existing: Pick<CourseAnnouncement, "attachmentPath" | "attachmentName">,
+): Promise<{ error?: string }> {
+  const attachmentUpdate = await resolveCourseAnnouncementAttachment(formData, announcementId, existing);
+  if (attachmentUpdate && "error" in attachmentUpdate) {
+    return { error: attachmentUpdate.error };
+  }
+
+  await prisma.courseAnnouncement.update({
+    where: { id: announcementId },
+    data: {
+      category: data.category,
+      title: data.title,
+      body: data.body,
+      ...(attachmentUpdate && !("error" in attachmentUpdate) ? attachmentUpdate : {}),
+    },
+  });
+
+  return {};
+}
+
+export async function deleteCourseAnnouncementRecord(
+  existing: Pick<CourseAnnouncement, "id" | "attachmentPath">,
+) {
+  await deleteAnnouncementAttachment(existing.attachmentPath);
+  await prisma.courseAnnouncement.delete({ where: { id: existing.id } });
 }
