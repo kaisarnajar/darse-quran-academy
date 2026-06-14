@@ -25,6 +25,7 @@ function revalidateFinancePaths() {
 function financeRedirect(params: FinanceSearchParams, event: "saved" | "deleted") {
   const filters = parseFinanceFilters(params);
   const query = buildFinanceQueryString(filters, {
+    tab: "expenses",
     saved: event === "saved" ? "1" : undefined,
     deleted: event === "deleted" ? "1" : undefined,
   });
@@ -97,6 +98,6 @@ export async function deleteExpenseById(
   revalidateFinancePaths();
 
   const filters = parseFinanceFilters(returnQuery);
-  const query = buildFinanceQueryString(filters, { deleted: "1" });
+  const query = buildFinanceQueryString(filters, { tab: "expenses", deleted: "1" });
   return { redirectTo: `/admin/finance${query}` };
 }

@@ -21,6 +21,7 @@ function preserveFields(filters: FinanceFilters) {
   if (filters.courseId) fields.push({ name: "courseId", value: filters.courseId });
   if (filters.studentId) fields.push({ name: "studentId", value: filters.studentId });
   if (filters.paymentType) fields.push({ name: "paymentType", value: filters.paymentType });
+  fields.push({ name: "tab", value: "expenses" });
 
   return fields;
 }

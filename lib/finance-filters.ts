@@ -4,6 +4,13 @@ import {
 } from "@/lib/monthly-payment-status";
 import { isExpenseCategory, type ExpenseCategory } from "@/lib/expense-categories";
 
+export type FinanceTab = "income" | "expenses";
+
+export const FINANCE_TABS: { label: string; tab: FinanceTab }[] = [
+  { label: "Income", tab: "income" },
+  { label: "Expenses", tab: "expenses" },
+];
+
 export type FinanceDatePreset = "this_month" | "last_month" | "this_year" | "all_time" | "custom";
 
 export type FinanceDateRange = {
@@ -23,9 +30,12 @@ export type FinanceExpenseFilters = {
   teacherId?: string;
 };
 
-export type FinanceFilters = FinanceDateRange & FinanceIncomeFilters & FinanceExpenseFilters;
+export type FinanceFilters = FinanceDateRange & FinanceIncomeFilters & FinanceExpenseFilters & {
+  tab: FinanceTab;
+};
 
 export type FinanceSearchParams = {
+  tab?: string;
   preset?: string;
   from?: string;
   to?: string;
@@ -119,10 +129,13 @@ export function parseFinanceFilters(params: FinanceSearchParams, now = new Date(
   const category =
     params.category && isExpenseCategory(params.category) ? params.category : undefined;
 
+  const tab: FinanceTab = params.tab === "expenses" ? "expenses" : "income";
+
   return {
     preset,
     from,
     to,
+    tab,
     courseId: params.courseId?.trim() || undefined,
     studentId: params.studentId?.trim() || undefined,
     paymentType,
@@ -133,10 +146,15 @@ export function parseFinanceFilters(params: FinanceSearchParams, now = new Date(
 
 export function buildFinanceQueryString(
   filters: Partial<FinanceFilters> & { preset?: FinanceDatePreset },
-  overrides: Partial<FinanceFilters & { saved?: string; deleted?: string }> = {},
+  overrides: Partial<FinanceFilters & { saved?: string; deleted?: string; tab?: FinanceTab }> = {},
 ): string {
   const merged = { ...filters, ...overrides };
   const params = new URLSearchParams();
+
+  const tab = merged.tab ?? "income";
+  if (tab === "expenses") {
+    params.set("tab", "expenses");
+  }
 
   if (merged.preset === "custom") {
     params.set("preset", "custom");

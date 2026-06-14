@@ -24,6 +24,7 @@ function preserveFields(filters: FinanceFilters) {
   }
   if (filters.category) fields.push({ name: "category", value: filters.category });
   if (filters.teacherId) fields.push({ name: "teacherId", value: filters.teacherId });
+  fields.push({ name: "tab", value: "income" });
 
   return fields;
 }

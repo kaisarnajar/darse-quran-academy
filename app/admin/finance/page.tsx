@@ -4,6 +4,7 @@ import { FinanceExpenseTable } from "@/components/admin/FinanceExpenseTable";
 import { FinanceIncomeFilters } from "@/components/admin/FinanceIncomeFilters";
 import { FinanceIncomeTable } from "@/components/admin/FinanceIncomeTable";
 import { FinanceSummaryCards } from "@/components/admin/FinanceSummaryCards";
+import { FinanceTabs } from "@/components/admin/FinanceTabs";
 import { RecordExpenseForm } from "@/components/admin/RecordExpenseForm";
 import { formatPrice, getAllCourses } from "@/lib/courses";
 import { getExpenses, getExpenseTotal } from "@/lib/finance-expenses";
@@ -24,6 +25,7 @@ export default async function AdminFinancePage({
     preset: filters.preset,
     from: filters.from,
     to: filters.to,
+    tab: filters.tab,
   };
 
   const [
@@ -79,54 +81,56 @@ export default async function AdminFinancePage({
         <FinanceSummaryCards incomeTotal={incomeTotal} expenseTotal={expenseTotal} />
       </div>
 
-      <section className="mt-10">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mt-8">
+        <FinanceTabs filters={filters} />
+      </div>
+
+      {filters.tab === "income" ? (
+        <section className="mt-6">
           <div>
-            <h2 className="font-serif text-lg font-semibold text-foreground">Income</h2>
-            <p className="mt-1 text-sm text-muted">
+            <p className="text-sm text-muted">
               Confirmed payments from students — {incomeRecords.length} records (
               {formatPrice(filteredIncomeTotal)} filtered)
             </p>
           </div>
-        </div>
 
-        <div className="mt-4">
-          <FinanceIncomeFilters
-            filters={filters}
-            courses={courses.map((c) => ({ id: c.id, title: c.title }))}
-            students={students.map((s) => ({ id: s.id, name: s.name, email: s.email }))}
-          />
-        </div>
+          <div className="mt-4">
+            <FinanceIncomeFilters
+              filters={filters}
+              courses={courses.map((c) => ({ id: c.id, title: c.title }))}
+              students={students.map((s) => ({ id: s.id, name: s.name, email: s.email }))}
+            />
+          </div>
 
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
-          <FinanceIncomeTable records={incomeRecords} />
-        </div>
-      </section>
+          <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
+            <FinanceIncomeTable records={incomeRecords} />
+          </div>
+        </section>
+      ) : (
+        <section className="mt-6">
+          <div>
+            <p className="text-sm text-muted">
+              Operational costs — {expenses.length} records ({formatPrice(filteredExpenseTotal)}{" "}
+              filtered)
+            </p>
+          </div>
 
-      <section className="mt-10">
-        <div>
-          <h2 className="font-serif text-lg font-semibold text-foreground">Expenses</h2>
-          <p className="mt-1 text-sm text-muted">
-            Operational costs — {expenses.length} records ({formatPrice(filteredExpenseTotal)}{" "}
-            filtered)
-          </p>
-        </div>
+          <div className="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <RecordExpenseForm
+              teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
+              returnQuery={returnQuery}
+            />
+            <FinanceExpenseFilters
+              filters={filters}
+              teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
+            />
+          </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <RecordExpenseForm
-            teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
-            returnQuery={returnQuery}
-          />
-          <FinanceExpenseFilters
-            filters={filters}
-            teachers={teachers.map((t) => ({ id: t.id, name: t.name }))}
-          />
-        </div>
-
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
-          <FinanceExpenseTable expenses={expenses} returnQuery={returnQuery} />
-        </div>
-      </section>
+          <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-surface">
+            <FinanceExpenseTable expenses={expenses} returnQuery={returnQuery} />
+          </div>
+        </section>
+      )}
     </div>
   );
 }
