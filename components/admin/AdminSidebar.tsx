@@ -4,7 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ADMIN_NAV_LINKS } from "@/lib/admin-nav";
 
-const links = [{ href: "/admin", label: "Dashboard", exact: true as const }, ...ADMIN_NAV_LINKS];
+const links = [
+  { href: "/admin", label: "Dashboard", exact: true },
+  ...ADMIN_NAV_LINKS.map((link) => ({ ...link, exact: false })),
+];
 
 export function AdminSidebar() {
   const pathname = usePathname();
