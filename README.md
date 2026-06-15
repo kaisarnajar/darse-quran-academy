@@ -77,7 +77,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-`db:seed:demo` loads local QA data only: courses (published, ongoing, completed, on hold, draft), teachers, library, approved student reviews, logins, enrollments, payments (including pending submissions with screenshots), finance income and expenses, contact inquiries, announcements, blogs with images (published, draft, pending/rejected), verse/hadith, fatwa, course announcements, student notifications, password-reset tokens, and a demo completion certificate. Blocked when `NODE_ENV=production` or on PostgreSQL unless `ALLOW_DEMO_SEED=true`. Production starts empty — add real content in `/admin`.
+`db:seed:demo` loads local QA data only: courses (published, ongoing, completed, on hold, draft), teachers, library, approved student reviews, logins, enrollments, payments (including pending submissions with screenshots), finance income and expenses, contact inquiries, announcements, blogs with images (published, draft, pending/rejected), verse/hadith, fatwa, course announcements, student notifications, password-reset tokens, and a demo completion certificate. Blocked when `NODE_ENV=production` unless `ALLOW_DEMO_SEED=true`. Production starts empty — add real content in `/admin`.
 
 `npm run db:seed:demo` is also registered as the Prisma seed (`npx prisma db seed`).
 
@@ -109,7 +109,7 @@ After `npm run db:seed:demo`, use these accounts for local QA (passwords are sha
 |----------|----------|-------------|
 | `AUTH_URL` | Yes | Public site URL (NextAuth, OAuth callbacks, email links). |
 | `AUTH_SECRET` | Yes | Session secret. Generate: `openssl rand -base64 32` |
-| `DATABASE_URL` | Yes | Local: `"file:./dev.db"`. Production: PostgreSQL URL. |
+| `DATABASE_URL` | Yes | SQLite database path. Local: `"file:./dev.db"`. Production on a persistent server: `"file:/absolute/path/to/prod.db"` or `"file:./prod.db"` relative to the Prisma directory. |
 | `ADMIN_EMAIL` | Yes | Comma-separated admin emails for `/admin`. |
 | `AUTH_GOOGLE_ID` | No | Google OAuth client ID. |
 | `AUTH_GOOGLE_SECRET` | No | Google OAuth client secret. |
@@ -118,7 +118,7 @@ After `npm run db:seed:demo`, use these accounts for local QA (passwords are sha
 | `SMTP_USER` | No | SMTP login. |
 | `SMTP_PASS` | No | SMTP password or app password. |
 | `EMAIL_FROM` | No | From header; falls back to `SMTP_USER`. |
-| `ALLOW_DEMO_SEED` | No | Set to `true` to run `db:seed:demo` on production PostgreSQL (staging only). |
+| `ALLOW_DEMO_SEED` | No | Set to `true` to run `db:seed:demo` with `NODE_ENV=production` (staging only). |
 
 UPI, bank details, contact email, and social links are configured in **Admin → Payment details** and **Social links** (not in `.env`).
 
@@ -137,7 +137,7 @@ If SMTP is not set, transactional emails are logged to the server console for lo
 | `npm run knip` | Dead code and unused dependency check |
 | `npm run db:migrate` | Apply Prisma migrations only (`migrate dev --skip-seed`; no demo data) |
 | `npm run db:push` | Push schema to DB without migrations (prototyping) |
-| `npm run db:seed:demo` | Local QA dataset (SQLite; see seed guards above) |
+| `npm run db:seed:demo` | Local QA dataset (see seed guards above) |
 | `npm run vercel-build` | Vercel build (`prisma generate`, `migrate deploy`, `next build`) |
 | `npm run generate:countries` | Regenerate country list for profile forms |
 | `npm run optimize-logo` | Optimize logo assets |
@@ -158,11 +158,19 @@ scripts/      Build and maintenance scripts
 
 ## Deployment
 
-**Recommended:** [Vercel](https://vercel.com) + [Neon](https://neon.tech) (PostgreSQL).
+This project is currently configured for **SQLite** in `prisma/schema.prisma` and the committed Prisma migrations are SQLite migrations. You can use SQLite in production when the app runs on a server with a persistent filesystem, such as a VPS, dedicated server, or single persistent container volume.
 
-1. Set env vars on Vercel (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, `DATABASE_URL`, optional SMTP and Google OAuth).
-2. Deploy — `vercel-build` runs `prisma migrate deploy` automatically.
-3. Sign in as admin and add courses, teachers, library items, **Payment details**, and **Social links** in `/admin`.
+Recommended production setup:
+
+1. Deploy to a persistent server, not an ephemeral/serverless runtime.
+2. Set env vars (`AUTH_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, `DATABASE_URL`, optional SMTP and Google OAuth).
+3. Use a production SQLite path, for example `DATABASE_URL="file:/var/www/darse-quran-academy/prod.db"`.
+4. Run `npx prisma migrate deploy` during deployment, then `npm run build` and `npm run start`.
+5. Sign in as admin and add courses, teachers, library items, **Payment details**, and **Social links** in `/admin`.
+
+Do not use the demo seed on the real production database. Use it only for local QA or staging.
+
+SQLite is not a good fit for Vercel/serverless deployment because the local filesystem is not durable between deployments/functions and multiple instances can make file-based writes unreliable. If you want Vercel or horizontally scaled production hosting, migrate Prisma from SQLite to PostgreSQL first and regenerate PostgreSQL migrations.
 
 Uploaded files (certificates, receipts, blog images, payment screenshots) live under `public/uploads/` on the server. For production, ensure persistent storage or accept that uploads are local to the deployment instance unless you add external storage.
 
