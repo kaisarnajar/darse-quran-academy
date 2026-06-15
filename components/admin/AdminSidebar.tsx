@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ADMIN_NAV_LINKS } from "@/lib/admin-nav";
+import { ADMIN_NAV_LINKS, type AdminNavLink } from "@/lib/admin-nav";
 
-const links = [
+type AdminSidebarLink = AdminNavLink & {
+  exact: boolean;
+};
+
+const links: AdminSidebarLink[] = [
   { href: "/admin", label: "Dashboard", exact: true },
   ...ADMIN_NAV_LINKS.map((link) => ({ ...link, exact: false })),
 ];
