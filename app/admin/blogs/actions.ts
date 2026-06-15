@@ -13,12 +13,15 @@ function adminListPath(suffix = "") {
   return `/admin/blogs${suffix}`;
 }
 
-function revalidateBlogPaths() {
+function revalidateBlogPaths(postId?: string) {
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/admin");
   revalidatePath("/admin/blogs");
   revalidatePath("/admin/blog-approvals");
+  if (postId) {
+    revalidatePath(`/blog/${postId}`);
+  }
   revalidatePath("/teacher/blogs");
 }
 
@@ -141,7 +144,6 @@ export async function updateBlogPost(id: string, formData: FormData) {
   });
 
   revalidateBlogPaths(id);
-  revalidatePath(`/blog/${id}`);
   if (contentLocked) {
     redirect("/admin/blog-approvals?saved=1");
   }
