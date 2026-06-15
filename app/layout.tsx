@@ -7,6 +7,8 @@ import { TopBar } from "@/components/site/TopBar";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
