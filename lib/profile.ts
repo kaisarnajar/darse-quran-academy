@@ -15,6 +15,8 @@ export const userProfileSelect = {
   whatsapp: true,
   image: true,
   registrationNumber: true,
+  idCardGeneratedAt: true,
+  idCardEmailSentAt: true,
   createdAt: true,
 } as const;
 

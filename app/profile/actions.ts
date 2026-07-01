@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth-actions";
@@ -9,6 +10,7 @@ import { profileUpdateSchema } from "@/lib/validations";
 import { withDbErrorHandling } from "@/lib/db-error";
 import { saveProfileImage, validateProfileImage, deleteProfileImage } from "@/lib/profile-upload";
 import { getUserProfile } from "@/lib/profile";
+import { generateIdCard } from "@/app/actions/id-cards";
 
 export type ProfileUpdateState = {
   error?: string;
@@ -87,6 +89,17 @@ export async function updateProfile(
       where: { id: session.user.id },
       data: updateData,
     }), "Database operation failed");
+
+  const shouldCreateIdCard = isNowComplete && !currentProfile?.idCardGeneratedAt;
+  if (shouldCreateIdCard) {
+    after(async () => {
+      try {
+        await generateIdCard(session.user.id);
+      } catch (error) {
+        console.error("[profile] Failed to generate ID card after profile completion:", error);
+      }
+    });
+  }
 
   revalidatePath("/profile");
   revalidatePath("/profile/courses");

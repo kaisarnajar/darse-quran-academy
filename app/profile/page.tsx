@@ -19,7 +19,7 @@ export default async function ProfilePage({
 
   const user = await withDbErrorHandling(() => prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { ...userProfileSelect, createdAt: true },
+      select: { id: true, ...userProfileSelect, createdAt: true },
     }), "Database operation failed");
 
   if (!user) {
@@ -96,15 +96,31 @@ export default async function ProfilePage({
       )}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,280px)_1fr] lg:items-start">
-        <ProfileSummaryCard
-          name={user.name}
-          email={user.email}
-          memberSince={user.createdAt}
-          profileComplete={profileComplete}
-          occupation={user.occupation}
-          image={user.image}
-          registrationNumber={user.registrationNumber}
-        />
+        <div className="space-y-6">
+          <ProfileSummaryCard
+            name={user.name}
+            email={user.email}
+            memberSince={user.createdAt}
+            profileComplete={profileComplete}
+            occupation={user.occupation}
+            image={user.image}
+            registrationNumber={user.registrationNumber}
+          />
+
+          {profileComplete && user.idCardGeneratedAt && (
+            <div className="rounded-3xl border border-border bg-surface p-4">
+              <p className="text-sm text-muted">Your ID card has been generated for this profile.</p>
+              <a
+                href={`/api/id-card/${user.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light transition-colors"
+              >
+                Download ID Card
+              </a>
+            </div>
+          )}
+        </div>
 
         <ProfileSection
           name={user.name}

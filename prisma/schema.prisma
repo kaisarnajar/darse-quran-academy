@@ -109,6 +109,8 @@ model User {
   address                  String?
   whatsapp                 String?
   registrationNumber       String?                   @unique
+  idCardGeneratedAt        DateTime?
+  idCardEmailSentAt        DateTime?
   emailVerified            DateTime?
   image                    String?
   password                 String?

@@ -1068,6 +1068,58 @@ export async function sendReceiptEmail(params: ReceiptEmailParams): Promise<Emai
 }
 
 // ---------------------------------------------------------------------------
+// Email: ID card with PDF attachment
+// ---------------------------------------------------------------------------
+
+export type IdCardEmailParams = {
+  to: string;
+  studentName: string;
+  designation: string;
+  pdfBuffer: Buffer;
+  pdfFilename: string;
+};
+
+export async function sendIdCardEmail(params: IdCardEmailParams): Promise<EmailSendResult> {
+  const { to, studentName, designation, pdfBuffer, pdfFilename } = params;
+  const displayName = studentName || "Student";
+
+  const subject = `${designation} ID Card`;
+  const preview = `Your ${designation} ID card is attached as a PDF.`;
+
+  const text = [
+    `Assalamu Alaikum ${displayName},`,
+    "",
+    `Your ${designation} ID card is attached to this email as a PDF. Please download and keep it for your records.`,
+    "",
+    "Jazakallah Khair,",
+    "Darse Quran Academy",
+  ].join("\n");
+
+  const bodyHtml = `
+    <p>Assalamu Alaikum <strong>${escapeHtml(displayName)}</strong>,</p>
+    <p>Your <strong>${escapeHtml(designation)}</strong> ID card is attached to this email as a PDF. Please download and keep it for your records.</p>
+    <p style="font-size:13px;color:#6b7280;">If you need any help, reply to this email or contact the academy.</p>`;
+
+  const html = buildHtmlEmail({ previewText: preview, bodyHtml });
+
+  return deliverMail({
+    to,
+    subject,
+    text,
+    html,
+    preview,
+    priority: "high",
+    attachments: [
+      {
+        filename: pdfFilename,
+        content: pdfBuffer,
+        contentType: "application/pdf",
+      },
+    ],
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Email: Certificate with PDF attachment
 // ---------------------------------------------------------------------------
 
