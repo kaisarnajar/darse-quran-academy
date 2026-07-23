@@ -205,16 +205,53 @@ export async function getPendingEnrollmentFeeSubmissionMap(userId: string) {
   return new Set(rows.map((row) => row.courseId));
 }
 
+async function ensurePaymentRecordsForItems(items: CoursePaymentSubmissionWithUser[]) {
+  return Promise.all(
+    items.map(async (item) => {
+      if (item.paymentRecordId) return item;
+
+      const record = await prisma.paymentRecord.create({
+        data: {
+          userId: item.userId,
+          courseId: item.courseId,
+          amountInrPaise: item.amountInrPaise,
+          paidAt: item.updatedAt || new Date(),
+          paymentType: item.paymentType,
+          description: item.amountInrPaise === 0 ? `${item.label} (100% Fee Waiver)` : item.label,
+        },
+      });
+
+      await prisma.coursePaymentSubmission.update({
+        where: { id: item.id },
+        data: { paymentRecordId: record.id },
+      });
+
+      return {
+        ...item,
+        paymentRecordId: record.id,
+        paymentRecord: { receiptGeneratedAt: null },
+      };
+    })
+  );
+}
+
 export async function getApprovedMonthlyPaymentsPaginated(
   page: number,
   pageSize: number = APPROVAL_PAGE_SIZE,
   searchQuery?: string,
+  filterType: "all" | "paid" | "waiver" = "all",
 ): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
   noStore();
-  const base = {
+  const base: Record<string, unknown> = {
     status: MONTHLY_PAYMENT_APPROVED,
     paymentType: { in: [PAYMENT_TYPE_MONTHLY, PAYMENT_TYPE_QUARTERLY, PAYMENT_TYPE_HALF_YEARLY, PAYMENT_TYPE_YEARLY, PAYMENT_TYPE_ONE_TIME] }
   };
+  if (filterType === "paid") {
+    base.amountInrPaise = { gt: 0 };
+  } else if (filterType === "waiver") {
+    base.amountInrPaise = 0;
+  }
+
   const where = andWhere(base, await paymentSubmissionSearchWhere(searchQuery));
   const totalCount = await withDbErrorHandling(() => prisma.coursePaymentSubmission.count({ where }), "Database operation failed");
   const safePage = clampPage(page, totalCount, pageSize);
@@ -227,16 +264,24 @@ export async function getApprovedMonthlyPaymentsPaginated(
       },
       ...paginationArgs(safePage, pageSize),
     }), "Database operation failed");
-  return { items, totalCount };
+  const itemsWithRecords = await ensurePaymentRecordsForItems(items);
+  return { items: itemsWithRecords, totalCount };
 }
 
 export async function getApprovedEnrollmentFeePaymentsPaginated(
   page: number,
   pageSize: number = APPROVAL_PAGE_SIZE,
   searchQuery?: string,
+  filterType: "all" | "paid" | "waiver" = "all",
 ): Promise<PaginatedResult<CoursePaymentSubmissionWithUser>> {
   noStore();
-  const base = { status: MONTHLY_PAYMENT_APPROVED, paymentType: PAYMENT_TYPE_ENROLLMENT };
+  const base: Record<string, unknown> = { status: MONTHLY_PAYMENT_APPROVED, paymentType: PAYMENT_TYPE_ENROLLMENT };
+  if (filterType === "paid") {
+    base.amountInrPaise = { gt: 0 };
+  } else if (filterType === "waiver") {
+    base.amountInrPaise = 0;
+  }
+
   const where = andWhere(base, await paymentSubmissionSearchWhere(searchQuery));
   const totalCount = await withDbErrorHandling(() => prisma.coursePaymentSubmission.count({ where }), "Database operation failed");
   const safePage = clampPage(page, totalCount, pageSize);
@@ -249,5 +294,6 @@ export async function getApprovedEnrollmentFeePaymentsPaginated(
       },
       ...paginationArgs(safePage, pageSize),
     }), "Database operation failed");
-  return { items, totalCount };
+  const itemsWithRecords = await ensurePaymentRecordsForItems(items);
+  return { items: itemsWithRecords, totalCount };
 }

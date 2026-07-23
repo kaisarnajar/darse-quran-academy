@@ -1,11 +1,14 @@
 "use client";
-import { SubmitButton } from "@/components/shared/SubmitButton";
 
+import { SubmitButton } from "@/components/shared/SubmitButton";
 import { getPaymentYearOptions } from "@/services/monthly-payments";
 import { getFeeFrequencyOption, isOneTimeFee, getFeeFrequencyLabel } from "@/services/fee-frequency";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { submitMonthlyPayment } from "@/app/actions/payments";
+import { CouponSelector } from "@/components/payment/CouponSelector";
+import { calculateDiscountedAmount, type ApplicableCoupon } from "@/services/coupons";
+import { formatPrice } from "@/services/courses";
 
 type PaymentMethod = "upi" | "bank";
 
@@ -26,20 +29,20 @@ const MONTHS = [
 
 type MonthlyPaymentFormProps = {
   courseId: string;
-  /** Base fee amount in paise for the configured billing period. */
-  feePaise: number;
-  /** The course's configured fee frequency (e.g. "MONTHLY", "EVERY_3_MONTHS"). */
+  baseFeePaise: number;
   feeFrequency?: string | null;
   defaultMonth?: string;
   defaultYear?: string;
+  availableCoupons?: ApplicableCoupon[];
 };
 
 export function MonthlyPaymentForm({
   courseId,
-  feePaise,
+  baseFeePaise,
   feeFrequency,
   defaultMonth,
   defaultYear,
+  availableCoupons = [],
 }: MonthlyPaymentFormProps) {
   const router = useRouter();
   const now = new Date();
@@ -50,6 +53,9 @@ export function MonthlyPaymentForm({
   const freqOption = getFeeFrequencyOption(feeFrequency);
   const isOneTime = isOneTimeFee(feeFrequency);
 
+  const [selectedCouponId, setSelectedCouponId] = useState<string>(
+    availableCoupons.length > 0 ? availableCoupons[0].id : ""
+  );
   const [paymentMonth, setPaymentMonth] = useState(defaultMonth ?? String(now.getMonth() + 1).padStart(2, "0"));
   const [paymentYear, setPaymentYear] = useState(defaultYearValue);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
@@ -59,8 +65,13 @@ export function MonthlyPaymentForm({
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Amount is the base fee — multiplier already baked in at the course level
-  const totalAmountPaise = feePaise;
+  const selectedCoupon = availableCoupons.find((c) => c.id === selectedCouponId);
+  const currentPercentage = selectedCoupon ? selectedCoupon.percentage : 0;
+  const totalAmountPaise = selectedCoupon
+    ? calculateDiscountedAmount(baseFeePaise, currentPercentage)
+    : baseFeePaise;
+
+  const isFree = totalAmountPaise === 0;
 
   function handleClearScreenshot() {
     setScreenshot(null);
@@ -80,11 +91,17 @@ export function MonthlyPaymentForm({
       formData.append("courseId", courseId);
       formData.append("paymentMonth", isOneTime ? "01" : paymentMonth);
       formData.append("paymentYear", isOneTime ? String(now.getFullYear()) : paymentYear);
-      formData.append("paymentMethod", paymentMethod);
-      formData.append("upiTransactionId", transactionId.trim());
       formData.append("paymentType", freqOption.paymentType);
-      if (screenshot && screenshot.size > 0) {
-        formData.append("screenshot", screenshot);
+      if (selectedCouponId && selectedCouponId !== "none") {
+        formData.append("couponId", selectedCouponId);
+      }
+      
+      if (!isFree) {
+        formData.append("paymentMethod", paymentMethod);
+        formData.append("upiTransactionId", transactionId.trim());
+        if (screenshot && screenshot.size > 0) {
+          formData.append("screenshot", screenshot);
+        }
       }
 
       const data = await submitMonthlyPayment(formData);
@@ -109,10 +126,26 @@ export function MonthlyPaymentForm({
         <span className="text-sm text-muted">
           Fee type: <span className="font-semibold text-foreground">{getFeeFrequencyLabel(feeFrequency)}</span>
         </span>
-        <span className="text-sm font-bold text-foreground">
-          ₹{(totalAmountPaise / 100).toFixed(2)}
-        </span>
+        <div className="text-right">
+          <span className="text-sm font-bold text-foreground">
+            {totalAmountPaise === 0 ? "FREE" : formatPrice(totalAmountPaise)}
+          </span>
+          {selectedCoupon && totalAmountPaise < baseFeePaise && (
+            <span className="ml-2 text-xs text-muted line-through">
+              {formatPrice(baseFeePaise)}
+            </span>
+          )}
+        </div>
       </div>
+
+      {availableCoupons.length > 0 && (
+        <CouponSelector
+          coupons={availableCoupons}
+          selectedCouponId={selectedCouponId}
+          onSelectCoupon={(id) => setSelectedCouponId(id)}
+          baseFeePaise={baseFeePaise}
+        />
+      )}
 
       {/* Month / year pickers — only for recurring fees */}
       {!isOneTime && (
@@ -156,73 +189,77 @@ export function MonthlyPaymentForm({
         </div>
       )}
 
-      <fieldset>
-        <legend className="text-sm font-medium text-foreground">How did you pay?</legend>
-        <div className="mt-3 flex flex-wrap gap-4">
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="paymentMethod"
-              value="upi"
-              checked={paymentMethod === "upi"}
-              onChange={() => setPaymentMethod("upi")}
-              className="text-primary"
-            />
-            UPI
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="paymentMethod"
-              value="bank"
-              checked={paymentMethod === "bank"}
-              onChange={() => setPaymentMethod("bank")}
-              className="text-primary"
-            />
-            Bank transfer
-          </label>
-        </div>
-      </fieldset>
+      {!isFree && (
+        <>
+          <fieldset>
+            <legend className="text-sm font-medium text-foreground">How did you pay?</legend>
+            <div className="mt-3 flex flex-wrap gap-4">
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="upi"
+                  checked={paymentMethod === "upi"}
+                  onChange={() => setPaymentMethod("upi")}
+                  className="text-primary"
+                />
+                UPI
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="bank"
+                  checked={paymentMethod === "bank"}
+                  onChange={() => setPaymentMethod("bank")}
+                  className="text-primary"
+                />
+                Bank transfer
+              </label>
+            </div>
+          </fieldset>
 
-      <div>
-        <label htmlFor="utr" className="block text-sm font-medium text-foreground">
-          Transaction / UTR reference
-        </label>
-        <input
-          id="utr"
-          type="text"
-          required
-          autoComplete="off"
-          value={transactionId}
-          onChange={(e) => setTransactionId(e.target.value)}
-          className="mt-2 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-        />
-      </div>
+          <div>
+            <label htmlFor="utr" className="block text-sm font-medium text-foreground">
+              Transaction / UTR reference
+            </label>
+            <input
+              id="utr"
+              type="text"
+              required
+              autoComplete="off"
+              value={transactionId}
+              onChange={(e) => setTransactionId(e.target.value)}
+              className="mt-2 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+          </div>
 
-      <div>
-        <div className="flex items-center justify-between">
-          <label htmlFor="screenshot" className="block text-sm font-medium text-foreground">
-            Payment screenshot <span className="font-normal text-muted">(optional)</span>
-          </label>
-          {screenshot && (
-            <button
-              type="button"
-              onClick={handleClearScreenshot}
-              className="text-xs font-medium text-destructive-text hover:underline"
-            >
-              Clear selection
-            </button>
-          )}
-        </div>
-        <input
-          ref={fileRef}
-          id="screenshot"
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
-          className="mt-2 w-full text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
-        />
-      </div>
+          <div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="screenshot" className="block text-sm font-medium text-foreground">
+                Payment screenshot <span className="font-normal text-muted">(optional)</span>
+              </label>
+              {screenshot && (
+                <button
+                  type="button"
+                  onClick={handleClearScreenshot}
+                  className="text-xs font-medium text-destructive-text hover:underline"
+                >
+                  Clear selection
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileRef}
+              id="screenshot"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+              className="mt-2 w-full text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
+            />
+          </div>
+        </>
+      )}
 
       {error && (
         <p className="rounded-lg bg-destructive-bg px-3 py-2 text-sm text-destructive-text" role="alert">
@@ -230,12 +267,13 @@ export function MonthlyPaymentForm({
         </p>
       )}
 
-      <SubmitButton isSubmitting={loading}
+      <SubmitButton
+        isSubmitting={loading}
         type="submit"
         disabled={loading}
-        className="min-h-11 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light disabled:opacity-60"
+        className="min-h-11 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary-light transition-colors disabled:opacity-60"
       >
-        {loading ? "Submitting…" : "Submit fee payment for verification"}
+        {loading ? "Submitting…" : isFree ? "Claim Fee Waiver" : "Submit fee payment for verification"}
       </SubmitButton>
     </form>
   );

@@ -11,8 +11,9 @@ export async function createCoursePaymentSubmission(params: {
   paymentMethod: string | null;
   upiTransactionId: string | null;
   screenshotFile: File | null;
+  couponId?: string | null;
 }): Promise<{ error?: string; createdId?: string }> {
-  if (params.upiTransactionId) {
+  if (params.upiTransactionId && params.paymentMethod !== "waiver" && params.upiTransactionId !== "FEE-WAIVER") {
     const duplicateUtrSubmission = await prisma.coursePaymentSubmission.findFirst({
       where: { upiTransactionId: params.upiTransactionId },
     });
@@ -32,7 +33,8 @@ export async function createCoursePaymentSubmission(params: {
       status: params.status,
       paymentMethod: params.paymentMethod,
       upiTransactionId: params.upiTransactionId,
-    },
+      ...(params.couponId ? { couponId: params.couponId } : {}),
+    } as any,
   });
 
   await prisma.coursePaymentSubmission.update({

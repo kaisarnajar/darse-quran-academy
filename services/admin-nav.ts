@@ -14,6 +14,7 @@ export const ADMIN_DASHBOARD_LINK_HREFS = new Set<string>([
   "/admin/payment-settings",
   "/admin/finance",
   "/admin/transactions",
+  "/admin/coupons/finance",
 ]);
 
 /** Admin sidebar groups for collapsible navigation. */
@@ -62,6 +63,13 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
       { href: "/admin/transactions", label: "Transactions" },
       { href: "/admin/payment-settings", label: "Payment details" },
       { href: "/admin/shipping-charges", label: "Shipping charges" },
+    ],
+  },
+  {
+    title: "Fee Waivers",
+    links: [
+      { href: "/admin/coupons", label: "Requests & Coupons" },
+      { href: "/admin/coupons/finance", label: "Fee Waiver Finance" },
     ],
   },
   {
