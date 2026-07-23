@@ -118,4 +118,6 @@ To put your academy on a custom domain (e.g. `youracademy.com`):
 - **DNS:** Once purchased, follow Vercel's domain settings to update your DNS records and point the domain to your Vercel deployment.
 
 ## License
+
 MIT License.
+
